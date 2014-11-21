@@ -1,0 +1,36 @@
+find_package(Java REQUIRED)
+
+include(UseJava)
+set(PACKAGE_NAME im.tox.tox4j)
+
+# Java output directory
+set(CMAKE_JAVA_TARGET_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+# Define directories for classfiles
+set(CLASSDIR "${CMAKE_JAVA_TARGET_OUTPUT_DIR}/CMakeFiles/${JAR_TARGET_NAME}.dir")
+set(CLEANFILES)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
+
+# Source Files
+set(JTOX_CORE)
+
+set(JTOX_SOURCE ${JTOX_CORE})
+
+set(CMAKE_JAVA_TARGET_VERSION ${TOX4J_VERSION})
+
+# Set arguments for javah
+set(JAVAH_ARGS
+	"-classpath"
+	"${CLASSDIR}"
+	"-o"
+	"${JNI_HEADER_LOCATION}/${JNI_HEADER_NAME}"
+	"${PACKAGE_NAME}.Tox4j"
+)
+
+add_custom_command(
+	TARGET ${JAR_TARGET_NAME}
+	POST_BUILD
+	COMMAND ${Java_JAVAH_EXECUTABLE} ARGS ${JAVAH_ARGS}
+)
+
+file(MAKE_DIRECTORY ${JNI_HEADER_LOCATION})
