@@ -16,5 +16,5 @@ set(LIB_TARGET_NAME tox4j-libs)
 # Subdirectories
 add_subdirectory(src/main/java)
 add_subdirectory(src/main/c)
-add_subdirectory(src/test/java)
-add_subdirectory(src/test/c)
+# add_subdirectory(src/test/java)
+# add_subdirectory(src/test/c)
