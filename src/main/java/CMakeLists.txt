@@ -12,11 +12,15 @@ set(CLEANFILES)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 
 # Source Files
-set(JTOX_CORE)
+set(JTOX_CORE
+	im/tox/tox4j/Tox4j.java
+)
 
 set(JTOX_SOURCE ${JTOX_CORE})
 
 set(CMAKE_JAVA_TARGET_VERSION ${TOX4J_VERSION})
+
+add_jar(${JAR_TARGET_NAME} ${JTOX_SOURCE})
 
 # Set arguments for javah
 set(JAVAH_ARGS
