@@ -8,7 +8,10 @@ set(CMAKE_JAVA_TARGET_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Define directories for classfiles
 set(CLASSDIR "${CMAKE_JAVA_TARGET_OUTPUT_DIR}/CMakeFiles/${JAR_TARGET_NAME}.dir")
-set(CLEANFILES)
+set(CLEANFILES
+	"${CLASSDIR}/im/tox/tox4j/Tox4j.class"
+)
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 
 # Source Files
