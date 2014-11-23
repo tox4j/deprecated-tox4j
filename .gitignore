@@ -14,3 +14,7 @@ hs_err_pid*
 build/
 .idea/
 *.iml
+
+# Local build files for protobuf. Don't put these in git
+/out/
+/proto/

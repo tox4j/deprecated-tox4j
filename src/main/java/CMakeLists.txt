@@ -28,7 +28,14 @@ set(TOX4J_EXCEPTIONS
 )
 
 set(TOX4J_CALLBACKS
+	im/tox/tox4j/callbacks/ActionCallback.java
+	im/tox/tox4j/callbacks/ConnectionStatusCallback.java
 	im/tox/tox4j/callbacks/FriendRequestCallback.java
+	im/tox/tox4j/callbacks/MessageCallback.java
+	im/tox/tox4j/callbacks/NameChangeCallback.java
+	im/tox/tox4j/callbacks/StatusMessageCallback.java
+	im/tox/tox4j/callbacks/TypingChangeCallback.java
+	im/tox/tox4j/callbacks/UserStatusCallback.java
 )
 
 set(TOX4J_SOURCE ${TOX4J_CORE})

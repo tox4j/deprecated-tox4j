@@ -1,6 +1,6 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.callbacks.FriendRequestCallback;
+import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.FriendAddException;
 import im.tox.tox4j.exceptions.ToxException;
 
@@ -222,4 +222,53 @@ public interface ToxSimpleChat {
      * @param callback callback to set
      */
     void registerFriendRequestCallback(FriendRequestCallback callback);
+
+    /**
+     * Set the callback for messages
+     *
+     * @param callback callback to set
+     */
+    void registerMessageCallback(MessageCallback callback);
+
+    /**
+     * Set the callback for actions
+     *
+     * @param callback callback to set
+     */
+    void registerActionCallback(ActionCallback callback);
+
+    /**
+     * Set the callback for name changes
+     *
+     * @param callback callback to set
+     */
+    void registerNameChangeCallback(NameChangeCallback callback);
+
+    /**
+     * Set the callback for status message changes
+     *
+     * @param callback callback to set
+     */
+    void registerStatusMessageCallback(StatusMessageCallback callback);
+
+    /**
+     * Set the callback for user status changes
+     *
+     * @param callback callback to set
+     */
+    void registerUserStatusCallback(UserStatusCallback callback);
+
+    /**
+     * Set the callback for typing status changes
+     *
+     * @param callback callback to set
+     */
+    void registerTypingChangeCallback(TypingChangeCallback callback);
+
+    /**
+     * Set the callback for connection status changes
+     *
+     * @param callback callback to set
+     */
+    void registerConnectionStatusCallback(ConnectionStatusCallback callback);
 }
