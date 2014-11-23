@@ -17,6 +17,18 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 # Source Files
 set(TOX4J_CORE
 	im/tox/tox4j/Tox4j.java
+	im/tox/tox4j/ToxConstants.java
+	im/tox/tox4j/ToxSimpleChat.java
+)
+
+set(TOX4J_EXCEPTIONS
+	im/tox/tox4j/exceptions/ToxException.java
+	im/tox/tox4j/exceptions/FriendAddException.java
+	im/tox/tox4j/exceptions/FriendAddErrorCode.java
+)
+
+set(TOX4J_CALLBACKS
+	im/tox/tox4j/callbacks/FriendRequestCallback.java
 )
 
 set(TOX4J_SOURCE ${TOX4J_CORE})
