@@ -17,6 +17,6 @@ find_package(Protobuf REQUIRED)
 
 # Subdirectories
 add_subdirectory(src/main/java)
-add_subdirectory(src/main/c)
+add_subdirectory(src/main/cpp)
 # add_subdirectory(src/test/java)
-# add_subdirectory(src/test/c)
+# add_subdirectory(src/test/cpp)
