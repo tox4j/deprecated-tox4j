@@ -1,0 +1,60 @@
+package tox4j.proto;
+
+option java_package = "im.tox.tox4j.proto";
+
+message FriendRequest {
+    required bytes address = 1;
+    required bytes data = 2;
+}
+
+message Message {
+    required int32 friendNumber = 1;
+    required bytes data = 2;
+}
+
+message Action {
+    required int32 friendNumber = 1;
+    required bytes action = 2;
+}
+
+message NameChange {
+    required int32 friendNumber = 1;
+    required bytes newName = 2;
+}
+
+message StatusMessage {
+    required int32 friendNumber = 1;
+    required bytes status = 2;
+}
+
+message UserStatus {
+    required int32 friendNumber = 1;
+    required uint32 status = 2;
+}
+
+message TypingStatus {
+    required int32 friendNumber = 1;
+    required bool typing = 2;
+}
+
+message Receipt {
+    required int32 friendNumber = 1;
+    required uint32 receipt = 2;
+}
+
+message ConnectionStatus {
+    required int32 friendNumber = 1;
+    required bool status = 2;
+}
+
+message ToxEvents {
+    repeated FriendRequest friendRequest = 1;
+    repeated Message msg = 2;
+    repeated Action action = 3;
+    repeated NameChange nameChange = 4;
+    repeated StatusMessage sMsg = 5;
+    repeated UserStatus uStatus = 6;
+    repeated TypingStatus tStatus = 7;
+    repeated Receipt receipt = 8;
+    repeated ConnectionStatus cStatus = 9;
+}
