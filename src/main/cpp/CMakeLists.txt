@@ -40,7 +40,7 @@ endif()
 add_library(
 	${LIB_TARGET_NAME}
 	MODULE
-	JTox.c
+	JTox.cpp
 	)
 if(CMAKE_SYSTEM_NAME STREQUAL Windows)
 	set(WS2_32 ws2_32)
