@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.callbacks.*;
+import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
 import im.tox.tox4j.exceptions.ToxException;
 
@@ -12,6 +13,88 @@ import im.tox.tox4j.exceptions.ToxException;
  * @author Simon Levermann (sonOfRa)
  */
 public interface ToxSimpleChat {
+
+    /**
+     * Connect to a tox bootstrap node
+     *
+     * @param address   a hostname, or an IPv4/v6 address
+     * @param port      the port
+     * @param publicKey the public key of the bootstrap node
+     * @throws im.tox.tox4j.exceptions.ToxException if the address could not be converted to an IP address
+     */
+    void bootstrap(String address, int port, byte[] publicKey) throws ToxException;
+
+    /**
+     * Connect to a TCP-relay node
+     *
+     * @param address   a hostname, or an IPv4/v6 address
+     * @param port      the port
+     * @param publicKey the public key of the relay node
+     * @throws ToxException
+     */
+    void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException;
+
+
+    /**
+     * Check whether we are connected to the DHT
+     *
+     * @return true if connected, false otherwise
+     */
+    boolean isConnected();
+
+    /**
+     * Create a new Tox instance with the default settings
+     *
+     * @return tox instance number.
+     * @throws ToxException on failure
+     */
+    int toxNew() throws ToxException;
+
+    /**
+     * Create a new Tox instance with custom settings
+     *
+     * @param ipv6Enabled  enable IPv6
+     * @param udpDisabled  disable UDP (needed for TCP-only mode, especially if running over Tor)
+     * @param proxyEnabled enable proxy support (SOCKS-5 is the only supported proxy)
+     * @param proxyAddress address (hostname, IPv4/v6) of proxy, only used if proxyEnabled is true
+     * @param proxyPort    port of the proxy, only used if proxyEnabled is true
+     * @return tox instance number.
+     * @throws ToxException on failure
+     */
+    int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort) throws ToxException;
+
+    /**
+     * Shut down the tox instance
+     */
+    void kill();
+
+    /**
+     * Gets the time in milliseconds before {@link ToxSimpleChat#toxDo()} needs to be called again for optimal performance
+     *
+     * @return time in milliseconds
+     */
+    int doInterval();
+
+    /**
+     * The main tox loop. Should be run every {@link ToxSimpleChat#doInterval()} milliseconds.
+     */
+    void toxDo();
+
+    /**
+     * Save the current tox instance (friend list etc)
+     *
+     * @return a byte array containing the tox instance
+     */
+    byte[] save();
+
+    /**
+     * Load data to the current tox instance
+     *
+     * @param data the data to load
+     * @throws EncryptedSaveDataException if the save file was encrypted. Decryption is currently not implemented in tox4j.
+     * @throws ToxException               if any other error occurred while loading
+     */
+    void load(byte[] data) throws EncryptedSaveDataException, ToxException;
 
     /**
      * Get our own address to give to friends
