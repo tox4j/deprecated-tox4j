@@ -13,6 +13,8 @@ set(JAR_TARGET_NAME tox4j)
 # Target name for shared library
 set(LIB_TARGET_NAME tox4j-libs)
 
+find_package(Protobuf REQUIRED)
+
 # Subdirectories
 add_subdirectory(src/main/java)
 add_subdirectory(src/main/c)
