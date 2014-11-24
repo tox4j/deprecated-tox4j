@@ -22,13 +22,4 @@ public class FriendAddException extends ToxException {
     public FriendAddErrorCode getErrorCode() {
         return this.errorCode;
     }
-
-    /**
-     * Set the error code
-     *
-     * @param errorCode the error code
-     */
-    public void setErrorCode(FriendAddErrorCode errorCode) {
-        this.errorCode = errorCode;
-    }
 }
