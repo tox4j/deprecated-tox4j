@@ -11,7 +11,7 @@ public interface NameChangeCallback {
      * Method to be executed if a friend changes their name
      *
      * @param friendNumber the friendNumber that changed their name
-     * @param newName      the new name
+     * @param newName      the new name. Generally, this should be UTF-8, but this is not guaranteed.
      */
     void execute(int friendNumber, byte[] newName);
 }

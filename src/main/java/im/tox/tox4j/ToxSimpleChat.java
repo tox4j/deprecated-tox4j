@@ -88,7 +88,7 @@ public interface ToxSimpleChat extends Closeable {
      * Send friend request to the specified address with a message
      *
      * @param address address to send request to
-     * @param message message to send with the request (needs to be at least 1 byte)
+     * @param message UTF-8 encoded message to send with the request (needs to be at least 1 byte)
      * @throws im.tox.tox4j.exceptions.FriendAddException possible error codes are defined in {@link im.tox.tox4j.exceptions.FriendAddErrorCode}
      */
     void addFriend(byte[] address, byte[] message) throws FriendAddException;
@@ -147,7 +147,7 @@ public interface ToxSimpleChat extends Closeable {
      * Sends a message to the specified friendNumber
      *
      * @param friendNumber the friendNumber to send a message to
-     * @param message      the message to send
+     * @param message      the UTF-8 encoded message to send
      * @return the message number. Store this for read receipts
      * @throws ToxException on failure
      */
@@ -157,7 +157,7 @@ public interface ToxSimpleChat extends Closeable {
      * Sends an action (/me does something) to the specified friendNumber
      *
      * @param friendNumber the friendNumber to send an action to
-     * @param action       the action to send
+     * @param action       the UTF-8 encoded action to send
      * @return the message number. Store this for read receipts
      * @throws ToxException on failure
      */
@@ -167,7 +167,7 @@ public interface ToxSimpleChat extends Closeable {
      * Sets our nickname. Can be at most {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH} bytes,
      * and must be at least 1 byte
      *
-     * @param name the name to set
+     * @param name the UTF-8 encoded name to set
      * @throws ToxException on failure
      */
     void setName(byte[] name) throws ToxException;
@@ -175,7 +175,7 @@ public interface ToxSimpleChat extends Closeable {
     /**
      * Get our own nickname
      *
-     * @return our own nickname
+     * @return our own UTF-8 encoded nickname
      * @throws ToxException on failure
      */
     byte[] getName() throws ToxException;
@@ -184,7 +184,7 @@ public interface ToxSimpleChat extends Closeable {
      * Get the nickname of the specified friendNumber
      *
      * @param friendNumber the friendNumber to get the nickname for
-     * @return the nickname
+     * @return the nickname. Generally, this should be UTF-8, but this is not guaranteed.
      * @throws ToxException on failure
      */
     byte[] getName(int friendNumber) throws ToxException;
@@ -193,7 +193,7 @@ public interface ToxSimpleChat extends Closeable {
      * Sets our own status message. Can be at most {@link im.tox.tox4j.ToxConstants#MAX_STATUSMESSAGE_LENGTH} bytes,
      * and must be at least 1 byte
      *
-     * @param statusMessage the status message to set
+     * @param statusMessage the UTF-8 encoded status message to set
      * @throws ToxException on failure
      */
     void setStatusMessage(byte[] statusMessage) throws ToxException;
@@ -201,7 +201,7 @@ public interface ToxSimpleChat extends Closeable {
     /**
      * Gets our own status message
      *
-     * @return our status message
+     * @return our UTF-8 encoded status message
      * @throws ToxException on failure
      */
     byte[] getStatusMessage() throws ToxException;
@@ -210,7 +210,7 @@ public interface ToxSimpleChat extends Closeable {
      * Gets the friendNumber's status message
      *
      * @param friendNumber friendNumber to fetch status message for
-     * @return the status message
+     * @return the status message. Generally, this should be UTF-8, but this is not guaranteed.
      * @throws ToxException on failure
      */
     byte[] getStatusMessage(int friendNumber) throws ToxException;
