@@ -5,6 +5,8 @@ import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
 import im.tox.tox4j.exceptions.ToxException;
 
+import java.io.Closeable;
+
 /**
  * Interface for a basic wrapper of tox chat functionality
  * <p/>
@@ -12,7 +14,7 @@ import im.tox.tox4j.exceptions.ToxException;
  *
  * @author Simon Levermann (sonOfRa)
  */
-public interface ToxSimpleChat {
+public interface ToxSimpleChat extends Closeable {
 
     /**
      * Connect to a tox bootstrap node
@@ -34,7 +36,6 @@ public interface ToxSimpleChat {
      */
     void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException;
 
-
     /**
      * Check whether we are connected to the DHT
      *
@@ -43,30 +44,10 @@ public interface ToxSimpleChat {
     boolean isConnected();
 
     /**
-     * Create a new Tox instance with the default settings
-     *
-     * @return tox instance number.
-     * @throws ToxException on failure
-     */
-    int toxNew() throws ToxException;
-
-    /**
-     * Create a new Tox instance with custom settings
-     *
-     * @param ipv6Enabled  enable IPv6
-     * @param udpDisabled  disable UDP (needed for TCP-only mode, especially if running over Tor)
-     * @param proxyEnabled enable proxy support (SOCKS-5 is the only supported proxy)
-     * @param proxyAddress address (hostname, IPv4/v6) of proxy, only used if proxyEnabled is true
-     * @param proxyPort    port of the proxy, only used if proxyEnabled is true
-     * @return tox instance number.
-     * @throws ToxException on failure
-     */
-    int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort) throws ToxException;
-
-    /**
      * Shut down the tox instance
      */
-    void kill();
+    @Override
+    void close();
 
     /**
      * Gets the time in milliseconds before {@link ToxSimpleChat#toxDo()} needs to be called again for optimal performance
