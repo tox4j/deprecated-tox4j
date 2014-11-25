@@ -5,7 +5,7 @@ set(PACKAGE_NAME im.tox.tox4j)
 
 # Java output directory
 set(CMAKE_JAVA_TARGET_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-
+set(CMAKE_JAVA_INCLUDE_PATH "${CMAKE_SOURCE_DIR}/lib/protobuf-java-2.6.1.jar")
 # Define directories for classfiles
 set(CLASSDIR "${CMAKE_JAVA_TARGET_OUTPUT_DIR}/CMakeFiles/${JAR_TARGET_NAME}.dir")
 set(CLEANFILES
@@ -39,7 +39,12 @@ set(TOX4J_CALLBACKS
 	im/tox/tox4j/callbacks/UserStatusCallback.java
 )
 
-set(TOX4J_SOURCE ${TOX4J_CORE})
+set(TOX4J_SOURCE
+	${TOX4J_CORE}
+	${TOX_EXCEPTIONS}
+	${TOX_CALLBACKS}
+	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Events.java"
+)
 
 set(CMAKE_JAVA_TARGET_VERSION ${TOX4J_VERSION})
 
@@ -58,6 +63,15 @@ add_custom_command(
 	TARGET ${JAR_TARGET_NAME}
 	POST_BUILD
 	COMMAND ${Java_JAVAH_EXECUTABLE} ARGS ${JAVAH_ARGS}
+)
+
+add_custom_command(
+	OUTPUT im/tox/tox4j/proto/Events.java
+	COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
+	ARGS --java_out ${CMAKE_CURRENT_BINARY_DIR} --proto_path
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/events.proto
+	COMMENT "Running Java protocol buffer compiler on events.proto"
 )
 
 file(MAKE_DIRECTORY ${JNI_HEADER_LOCATION})
