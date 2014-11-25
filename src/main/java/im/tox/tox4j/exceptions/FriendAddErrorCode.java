@@ -33,5 +33,9 @@ public enum FriendAddErrorCode {
     /**
      * If increasing the size of the internal friend list fails
      */
-    NOMEM
+    NOMEM,
+    /**
+     * No cause specified
+     */
+    UNSPECIFIED
 }

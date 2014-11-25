@@ -23,8 +23,9 @@ public interface ToxSimpleChat extends Closeable {
      * @param port      the port
      * @param publicKey the public key of the bootstrap node
      * @throws im.tox.tox4j.exceptions.ToxException if the address could not be converted to an IP address
+     * @throws IllegalArgumentException             if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
-    void bootstrap(String address, int port, byte[] publicKey) throws ToxException;
+    void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException;
 
     /**
      * Connect to a TCP-relay node
@@ -32,9 +33,10 @@ public interface ToxSimpleChat extends Closeable {
      * @param address   a hostname, or an IPv4/v6 address
      * @param port      the port
      * @param publicKey the public key of the relay node
-     * @throws ToxException
+     * @throws im.tox.tox4j.exceptions.ToxException if the address could not be converted to an IP address
+     * @throws IllegalArgumentException             if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
-    void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException;
+    void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException;
 
     /**
      * Check whether we are connected to the DHT
@@ -73,9 +75,8 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param data the data to load
      * @throws EncryptedSaveDataException if the save file was encrypted. Decryption is currently not implemented in tox4j.
-     * @throws ToxException               if any other error occurred while loading
      */
-    void load(byte[] data) throws EncryptedSaveDataException, ToxException;
+    void load(byte[] data) throws EncryptedSaveDataException;
 
     /**
      * Get our own address to give to friends
@@ -90,31 +91,35 @@ public interface ToxSimpleChat extends Closeable {
      * @param address address to send request to
      * @param message UTF-8 encoded message to send with the request (needs to be at least 1 byte)
      * @throws im.tox.tox4j.exceptions.FriendAddException possible error codes are defined in {@link im.tox.tox4j.exceptions.FriendAddErrorCode}
+     * @throws IllegalArgumentException                   if the address length is not {@link im.tox.tox4j.ToxConstants#TOX_ADDRESS_SIZE},
+     *                                                    or the message is not valid UTF-8
      */
-    void addFriend(byte[] address, byte[] message) throws FriendAddException;
+    void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException;
 
     /**
      * Add the specified clientId (32 bytes) without sending a request. This is mostly used for confirming incoming friend requests.
      *
      * @param clientId the client ID to add
-     * @throws im.tox.tox4j.exceptions.FriendAddException without any further specified error codes
+     * @throws im.tox.tox4j.exceptions.FriendAddException in case the friend was already added, or we are adding our own key.
+     * @throws IllegalArgumentException                   if the clientId length is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
-    void addFriendNoRequest(byte[] clientId) throws FriendAddException;
+    void addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException;
 
     /**
      * Get the friendNumber of the specified client ID
      *
      * @param clientId the client ID to lookup the friendNumber for
-     * @throws ToxException if the specified client ID is not in the list of friends
+     * @throws im.tox.tox4j.exceptions.ToxException if the specified client ID is not in the list of friends
+     * @throws java.lang.IllegalArgumentException   if the clientId length is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
-    int getFriendNumber(byte[] clientId) throws ToxException;
+    int getFriendNumber(byte[] clientId) throws ToxException, IllegalArgumentException;
 
     /**
      * Get the client ID for the specified friendNumber
      *
      * @param friendNumber friendNumber to lookup the client ID for
      * @return the client ID that is associated with the given friendNumber
-     * @throws ToxException if failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
      */
     byte[] getClientId(int friendNumber) throws ToxException;
 
@@ -122,7 +127,7 @@ public interface ToxSimpleChat extends Closeable {
      * Remove the friendNumber from the friend list
      *
      * @param friendNumber the friendNumber to remove
-     * @throws ToxException if failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
      */
     void deleteFriend(int friendNumber) throws ToxException;
 
@@ -131,7 +136,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber the friendNumber to check connection status for
      * @return true if the friend is connected to us, false otherwise
-     * @throws ToxException if failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
      */
     boolean getConnectionStatus(int friendNumber) throws ToxException;
 
@@ -149,9 +154,10 @@ public interface ToxSimpleChat extends Closeable {
      * @param friendNumber the friendNumber to send a message to
      * @param message      the UTF-8 encoded message to send
      * @return the message number. Store this for read receipts
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
+     * @throws IllegalArgumentException             if the message is not valid UTF-8
      */
-    int sendMessage(int friendNumber, byte[] message) throws ToxException;
+    int sendMessage(int friendNumber, byte[] message) throws ToxException, IllegalArgumentException;
 
     /**
      * Sends an action (/me does something) to the specified friendNumber
@@ -159,24 +165,26 @@ public interface ToxSimpleChat extends Closeable {
      * @param friendNumber the friendNumber to send an action to
      * @param action       the UTF-8 encoded action to send
      * @return the message number. Store this for read receipts
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
+     * @throws IllegalArgumentException             if the action is not valid UTF-8
      */
-    int sendAction(int friendNumber, byte[] action) throws ToxException;
+    int sendAction(int friendNumber, byte[] action) throws ToxException, IllegalArgumentException;
 
     /**
      * Sets our nickname. Can be at most {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH} bytes,
      * and must be at least 1 byte
      *
      * @param name the UTF-8 encoded name to set
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the name is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH}
+     * @throws IllegalArgumentException             if the name is not valid UTF-8
      */
-    void setName(byte[] name) throws ToxException;
+    void setName(byte[] name) throws ToxException, IllegalArgumentException;
 
     /**
      * Get our own nickname
      *
-     * @return our own UTF-8 encoded nickname
-     * @throws ToxException on failure
+     * @return our own nickname. Generally, this should be UTF-8, but this is not guaranteed if we loaded a savefile that was created by another client or API
+     * @throws im.tox.tox4j.exceptions.ToxException if we did not set our own name
      */
     byte[] getName() throws ToxException;
 
@@ -185,7 +193,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber the friendNumber to get the nickname for
      * @return the nickname. Generally, this should be UTF-8, but this is not guaranteed.
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
      */
     byte[] getName(int friendNumber) throws ToxException;
 
@@ -194,15 +202,16 @@ public interface ToxSimpleChat extends Closeable {
      * and must be at least 1 byte
      *
      * @param statusMessage the UTF-8 encoded status message to set
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if the status message is empty or longer than {@link im.tox.tox4j.ToxConstants#MAX_STATUSMESSAGE_LENGTH}
+     * @throws java.lang.IllegalArgumentException   if the status message is not valid UTF-8
      */
-    void setStatusMessage(byte[] statusMessage) throws ToxException;
+    void setStatusMessage(byte[] statusMessage) throws ToxException, IllegalArgumentException;
 
     /**
      * Gets our own status message
      *
-     * @return our UTF-8 encoded status message
-     * @throws ToxException on failure
+     * @return our own status message. Generally, this should be UTF-8, but this is not guaranteed if we loaded a savefile that was created by another client or API
+     * @throws im.tox.tox4j.exceptions.ToxException if we did not set our own status message
      */
     byte[] getStatusMessage() throws ToxException;
 
@@ -211,15 +220,15 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber friendNumber to fetch status message for
      * @return the status message. Generally, this should be UTF-8, but this is not guaranteed.
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
      */
     byte[] getStatusMessage(int friendNumber) throws ToxException;
 
     /**
      * Set our user status
      *
-     * @param userStatus the user status to set. Should be one of possibilities defined in {@link im.tox.tox4j.ToxConstants}
-     * @throws ToxException on failure
+     * @param userStatus the user status to set. Must be one of possibilities defined in {@link im.tox.tox4j.ToxConstants}
+     * @throws im.tox.tox4j.exceptions.ToxException if an invalid user status is given
      */
     void setUserStatus(int userStatus) throws ToxException;
 
@@ -230,9 +239,8 @@ public interface ToxSimpleChat extends Closeable {
      * your application should treat it as {@link im.tox.tox4j.ToxConstants#USERSTATUS_NONE}
      *
      * @return our user status
-     * @throws ToxException on failure
      */
-    int getUserStatus() throws ToxException;
+    int getUserStatus();
 
     /**
      * Get the specified friendNumber's user status
@@ -242,7 +250,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber the friendNumber to fetch the user status for
      * @return the friend's user status
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
      */
     int getUserStatus(int friendNumber) throws ToxException;
 
@@ -251,7 +259,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber friendNumber to check timestamp for
      * @return timestamp, 0 if never seen
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
      */
     long lastSeen(int friendNumber) throws ToxException;
 
@@ -260,7 +268,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber friendNumber to set typing status for
      * @param typing       true if we are typing, false otherwise
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
      */
     void setTypingStatus(int friendNumber, boolean typing) throws ToxException;
 
@@ -269,7 +277,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber friendNumber to check typing status for
      * @return true if friend is typing, false otherwise
-     * @throws ToxException on failure
+     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
      */
     boolean getTypingStatus(int friendNumber) throws ToxException;
 
