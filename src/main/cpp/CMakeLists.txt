@@ -37,17 +37,25 @@ else()
 		"${LIBTOX_INCLUDE_DIRS}"
 		)
 endif()
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/events.proto
+)
 add_library(
 	${LIB_TARGET_NAME}
 	MODULE
 	JTox.cpp
-	)
+	${PROTO_SRCS}
+	${PROTO_HDRS}
+)
 if(CMAKE_SYSTEM_NAME STREQUAL Windows)
 	set(WS2_32 ws2_32)
 endif()
 target_link_libraries(
 	${LIB_TARGET_NAME}
 	${LIBTOX_LIBRARIES}
+	${PROTOBUF_LIBRARIES}
 	${WS2_32}
 	)
 set_target_properties(${LIB_TARGET_NAME}
