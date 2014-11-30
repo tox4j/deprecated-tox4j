@@ -13,6 +13,9 @@ set(JAR_TARGET_NAME tox4j)
 # Target name for shared library
 set(LIB_TARGET_NAME tox4j-libs)
 
+find_package(CXX11 REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
+
 find_package(Protobuf REQUIRED)
 
 # Subdirectories
