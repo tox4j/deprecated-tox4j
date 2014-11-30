@@ -46,7 +46,10 @@ public interface ToxSimpleChat extends Closeable {
     boolean isConnected();
 
     /**
-     * Shut down the tox instance
+     * Shut down the tox instance.
+     * <p/>
+     * Once this method has been called, all other calls on this instance will either be no-ops or result in exceptions.
+     * A closed instance cannot be reused, a new instance must be created.
      */
     @Override
     void close();
@@ -74,9 +77,17 @@ public interface ToxSimpleChat extends Closeable {
      * Load data to the current tox instance
      *
      * @param data the data to load
-     * @throws EncryptedSaveDataException if the save file was encrypted. Decryption is currently not implemented in tox4j.
+     * @throws EncryptedSaveDataException if the save file was encrypted.
      */
     void load(byte[] data) throws EncryptedSaveDataException;
+
+    /**
+     * Load data to the current tox instance and decrypt, if necessary
+     *
+     * @param data     the data to load
+     * @param password the password to use for decryption of data file if it is encrypted
+     */
+    void load(byte[] data, byte[] password);
 
     /**
      * Get our own address to give to friends
