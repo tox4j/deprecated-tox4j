@@ -1,9 +1,11 @@
 package im.tox.tox4j;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
 import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.proto.Events;
 
 /**
  * Implementation of a simple 1:1 Wrapper for the Tox API
@@ -18,6 +20,13 @@ public class Tox4j implements ToxSimpleChat {
     private int instanceNumber;
 
     private FriendRequestCallback friendRequestCallback;
+    private MessageCallback messageCallback;
+    private ActionCallback actionCallback;
+    private NameChangeCallback nameChangeCallback;
+    private StatusMessageCallback statusMessageCallback;
+    private UserStatusCallback userStatusCallback;
+    private TypingChangeCallback typingChangeCallback;
+    private ConnectionStatusCallback connectionStatusCallback;
 
     private native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
@@ -129,7 +138,53 @@ public class Tox4j implements ToxSimpleChat {
     @Override
     public void toxDo() {
         byte[] events = toxDo(this.instanceNumber);
-        // @TODO
+        Events.ToxEvents toxEvents;
+        try {
+            toxEvents = Events.ToxEvents.parseFrom(events);
+        } catch (InvalidProtocolBufferException e) {
+            toxEvents = Events.ToxEvents.getDefaultInstance();
+        }
+
+        if (this.friendRequestCallback != null) {
+            for (Events.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
+                this.friendRequestCallback.execute(friendRequest.getAddress().toByteArray(), friendRequest.getData().toByteArray());
+            }
+        }
+        if (this.messageCallback != null) {
+            for (Events.Message message : toxEvents.getMsgList()) {
+                this.messageCallback.execute(message.getFriendNumber(), message.getData().toByteArray());
+            }
+        }
+        if (this.actionCallback != null) {
+            for (Events.Action action : toxEvents.getActionList()) {
+                this.actionCallback.execute(action.getFriendNumber(), action.getAction().toByteArray());
+            }
+        }
+        if (this.nameChangeCallback != null) {
+            for (Events.NameChange nameChange : toxEvents.getNameChangeList()) {
+                this.nameChangeCallback.execute(nameChange.getFriendNumber(), nameChange.getNewName().toByteArray());
+            }
+        }
+        if (this.statusMessageCallback != null) {
+            for (Events.StatusMessage statusMessage : toxEvents.getSMsgList()) {
+                this.statusMessageCallback.execute(statusMessage.getFriendNumber(), statusMessage.getStatus().toByteArray());
+            }
+        }
+        if (this.userStatusCallback != null) {
+            for (Events.UserStatus userStatus : toxEvents.getUStatusList()) {
+                this.userStatusCallback.execute(userStatus.getFriendNumber(), userStatus.getStatus());
+            }
+        }
+        if (this.typingChangeCallback != null) {
+            for (Events.TypingStatus typingStatus : toxEvents.getTStatusList()) {
+                this.typingChangeCallback.execute(typingStatus.getFriendNumber(), typingStatus.getTyping());
+            }
+        }
+        if (this.connectionStatusCallback != null) {
+            for (Events.ConnectionStatus connectionStatus : toxEvents.getCStatusList()) {
+                this.connectionStatusCallback.execute(connectionStatus.getFriendNumber(), connectionStatus.getStatus());
+            }
+        }
     }
 
     public byte[] save() {
