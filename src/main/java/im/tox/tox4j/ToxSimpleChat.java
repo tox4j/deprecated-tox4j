@@ -11,6 +11,12 @@ import java.io.Closeable;
  * Interface for a basic wrapper of tox chat functionality
  * <p/>
  * All messages sent over the Tox network should be encoded in UTF-8.
+ * <p/>
+ * This interface is designed to be thread-safe. However, once {@link #close()} has been called, all subsequent calls
+ * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes {@link #close},
+ * all other threads with pending calls with throw. The exception is unchecked, as it should not occur in a normal
+ * execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads should be stopped
+ * before one thread invokes {@link #close}, or approppriate exception handlers should be installed in all threads.
  *
  * @author Simon Levermann (sonOfRa)
  */
@@ -48,8 +54,8 @@ public interface ToxSimpleChat extends Closeable {
     /**
      * Shut down the tox instance.
      * <p/>
-     * Once this method has been called, all other calls on this instance will either be no-ops or result in exceptions.
-     * A closed instance cannot be reused, a new instance must be created.
+     * Once this method has been called, all other calls on this instance will throw
+     * {@link im.tox.tox4j.exceptions.ToxKilledException}. A closed instance cannot be reused, a new instance must be created.
      */
     @Override
     void close();
