@@ -45,9 +45,9 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboo
     if (tox != nullptr) {
         std::lock_guard<std::mutex> lock(instance_mutex);
         int max = 0;
-        for(auto it = instance_map.begin(); it != instance_map.end(); it++) {
-            if (it->first >= max) {
-                max = it->first + 1;
+        for(auto &it : instance_map) {
+            if (it.first >= max) {
+                max = it.first + 1;
             }
         }
         result = max;
