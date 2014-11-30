@@ -14,7 +14,7 @@ import java.io.Closeable;
  * <p/>
  * This interface is designed to be thread-safe. However, once {@link #close()} has been called, all subsequent calls
  * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes {@link #close},
- * all other threads with pending calls with throw. The exception is unchecked, as it should not occur in a normal
+ * all other threads with pending calls will throw. The exception is unchecked, as it should not occur in a normal
  * execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads should be stopped
  * before one thread invokes {@link #close}, or approppriate exception handlers should be installed in all threads.
  *
