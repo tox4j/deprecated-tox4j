@@ -3,6 +3,7 @@
 #include <mutex>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 #include "JTox.h"
 #include "events.pb.h"
@@ -20,11 +21,28 @@ static std::mutex instance_mutex;
 static std::unordered_map<int, ToxTex> instance_map;
 static std::unordered_map<Tox*, std::shared_ptr<tox4j::proto::ToxEvents>> events_map;
 
-static inline jint throw_tox_killed_exception(JNIEnv *env, char const *message) {
-    jclass exClass;
-    char const *className = "im/tox/tox4j/exceptions/ToxKilledException";
-    exClass = env->FindClass(className);
-    return env->ThrowNew(exClass, message);
+static inline int throw_tox_killed_exception(JNIEnv *env, char const *message) {
+    return env->ThrowNew(env->FindClass("im/tox/tox4j/exceptions/ToxKilledException"), message);
+}
+
+template<typename T> T default_value() { return T(); }
+template<> void default_value<void>() { }
+template<typename Func> auto with_instance (JNIEnv *env, jint instance_number, Func func) -> decltype(func(std::declval<ToxTex&>()))
+{
+    instance_mutex.lock();
+    ToxTex instance;
+    auto it = instance_map.find(instance_number);
+    if (it != instance_map.end()) {
+        instance = it->second;
+    } else {
+        instance_mutex.unlock();
+        throw_tox_killed_exception(env, "Tox function invoked on killed tox instance!");
+        return default_value<decltype(func(std::declval<ToxTex&>()))>();
+    }
+
+    std::lock_guard<std::mutex> lock(*instance.mutex);
+    instance_mutex.unlock();
+    return func(instance);
 }
 
 /*
@@ -66,70 +84,6 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboo
     return result;
 }
 
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, jint instance_number,
-    jstring address, jint port, jbyteArray public_key) {
-    instance_mutex.lock();
-    ToxTex instance;
-    auto it = instance_map.find(instance_number);
-    if (it != instance_map.end()) {
-        instance = it->second;
-    } else {
-        instance_mutex.unlock();
-        return throw_tox_killed_exception(env, "bootstrap called on killed tox instance!");
-    }
-
-    std::lock_guard<std::mutex> lock(*instance.mutex);
-    instance_mutex.unlock();
-    const char *_address = env->GetStringUTFChars(address, 0);
-    jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
-
-    jint result = tox_bootstrap_from_address(instance.tox, _address, (uint16_t) port, (uint8_t *) public_key);
-
-    env->ReleaseStringUTFChars(address, _address);
-    env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
-    return result;
-}
-
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject, jint instance_number, jstring address,
-    jint port, jbyteArray public_key) {
-    instance_mutex.lock();
-    ToxTex instance;
-    auto it = instance_map.find(instance_number);
-    if (it != instance_map.end()) {
-        instance = it->second;
-    } else {
-        instance_mutex.unlock();
-        return throw_tox_killed_exception(env, "addTcpRelay called on killed tox instance!");
-    }
-
-    std::lock_guard<std::mutex> lock(*instance.mutex);
-    instance_mutex.unlock();
-    const char *_address = env->GetStringUTFChars(address, 0);
-    jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
-
-    jint result = tox_add_tcp_relay(instance.tox, _address, (uint16_t) port, (uint8_t *) public_key);
-
-    env->ReleaseStringUTFChars(address, _address);
-    env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
-    return result;
-}
-
-JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jobject, jint instance_number) {
-    instance_mutex.lock();
-    ToxTex instance;
-    auto it = instance_map.find(instance_number);
-    if (it != instance_map.end()) {
-        instance = it->second;
-    } else {
-        instance_mutex.unlock();
-        return throw_tox_killed_exception(env, "isConnected called on killed tox instance!");
-    }
-
-    std::lock_guard<std::mutex> lock(*instance.mutex);
-    instance_mutex.unlock();
-    return tox_isconnected(instance.tox);
-}
-
 JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint instance_number) {
     std::lock_guard<std::mutex> lock(instance_mutex);
     ToxTex instance;
@@ -147,46 +101,55 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
     tox_kill(instance.tox);
 }
 
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jobject, jint instance_number) {
-    instance_mutex.lock();
-    ToxTex instance;
-    auto it = instance_map.find(instance_number);
-    if (it != instance_map.end()) {
-        instance = it->second;
-    } else {
-        instance_mutex.unlock();
-        return throw_tox_killed_exception(env, "doInterval called on killed tox instance!");
-    }
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, jint instance_number,
+    jstring address, jint port, jbyteArray public_key) {
+    return with_instance(env, instance_number, [=](ToxTex &instance) {
+        const char *_address = env->GetStringUTFChars(address, 0);
+        jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
 
-    std::lock_guard<std::mutex> ilock(*instance.mutex);
-    instance_mutex.unlock();
-    return tox_do_interval(instance.tox);
+        jint result = tox_bootstrap_from_address(instance.tox, _address, (uint16_t) port, (uint8_t *) public_key);
+
+        env->ReleaseStringUTFChars(address, _address);
+        env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
+        return result;
+    });
+}
+
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject, jint instance_number, jstring address,
+    jint port, jbyteArray public_key) {
+    return with_instance(env, instance_number, [=](ToxTex &instance) {
+        const char *_address = env->GetStringUTFChars(address, 0);
+        jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
+
+        jint result = tox_bootstrap_from_address(instance.tox, _address, (uint16_t) port, (uint8_t *) public_key);
+
+        env->ReleaseStringUTFChars(address, _address);
+        env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
+        return result;
+    });
+}
+
+JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jobject, jint instance_number) {
+    return with_instance(env, instance_number, [=](ToxTex &instance) { return tox_isconnected(instance.tox); });
+}
+
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jobject, jint instance_number) {
+    return with_instance(env, instance_number, [=](ToxTex &instance) { return tox_do_interval(instance.tox); });
 }
 
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject, jint instance_number) {
-    instance_mutex.lock();
-    ToxTex instance;
-    auto it = instance_map.find(instance_number);
-    if (it != instance_map.end()) {
-        instance = it->second;
-    } else {
-        instance_mutex.unlock();
-        throw_tox_killed_exception(env, "toxDo called on killed tox instance!");
-        return NULL;
-    }
+    return with_instance(env, instance_number, [=](ToxTex &instance) {
+        tox_do(instance.tox);
 
-    std::lock_guard<std::mutex> ilock(*instance.mutex);
-    instance_mutex.unlock();
-    tox_do(instance.tox);
+        auto events = events_map.at(instance.tox);
+        int size = events->ByteSize();
+        char *buffer = new char[size];
+        events->SerializeToArray(buffer, size);
 
-    auto events = events_map.at(instance.tox);
-    int size = events->ByteSize();
-    char *buffer = new char[size];
-    events->SerializeToArray(buffer, size);
+        jbyteArray jb = env->NewByteArray(size);
+        env->SetByteArrayRegion(jb, 0, size, (jbyte *) buffer);
 
-    jbyteArray jb = env->NewByteArray(size);
-    env->SetByteArrayRegion(jb, 0, size, (jbyte *) buffer);
-
-    delete buffer;
-    return jb;
+        delete buffer;
+        return jb;
+    });
 }
