@@ -70,11 +70,12 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, j
     jstring address, jint port, jbyteArray public_key) {
     instance_mutex.lock();
     ToxTex instance;
-    try {
-        instance = instance_map.at(instance_number);
-    } catch (const std::out_of_range& oor) {
+    auto it = instance_map.find(instance_number);
+    if (it != instance_map.end()) {
+        instance = it->second;
+    } else {
         instance_mutex.unlock();
-        return throw_tox_killed_exception(env, "Bootstrap called on killed tox instance!");
+        return throw_tox_killed_exception(env, "bootstrap called on killed tox instance!");
     }
 
     std::lock_guard<std::mutex> lock(*instance.mutex);
@@ -93,11 +94,12 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject,
     jint port, jbyteArray public_key) {
     instance_mutex.lock();
     ToxTex instance;
-    try {
-        instance = instance_map.at(instance_number);
-    } catch (const std::out_of_range& oor) {
+    auto it = instance_map.find(instance_number);
+    if (it != instance_map.end()) {
+        instance = it->second;
+    } else {
         instance_mutex.unlock();
-        return throw_tox_killed_exception(env, "AddTcpRelay called on killed tox instance!");
+        return throw_tox_killed_exception(env, "addTcpRelay called on killed tox instance!");
     }
 
     std::lock_guard<std::mutex> lock(*instance.mutex);
@@ -115,9 +117,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject,
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jobject, jint instance_number) {
     instance_mutex.lock();
     ToxTex instance;
-    try {
-        instance = instance_map.at(instance_number);
-    } catch (const std::out_of_range& oor) {
+    auto it = instance_map.find(instance_number);
+    if (it != instance_map.end()) {
+        instance = it->second;
+    } else {
         instance_mutex.unlock();
         return throw_tox_killed_exception(env, "isConnected called on killed tox instance!");
     }
@@ -147,9 +150,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jobject, jint instance_number) {
     instance_mutex.lock();
     ToxTex instance;
-    try {
-        instance = instance_map.at(instance_number);
-    } catch (const std::out_of_range& oor) {
+    auto it = instance_map.find(instance_number);
+    if (it != instance_map.end()) {
+        instance = it->second;
+    } else {
         instance_mutex.unlock();
         return throw_tox_killed_exception(env, "doInterval called on killed tox instance!");
     }
@@ -162,11 +166,12 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jobject, 
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject, jint instance_number) {
     instance_mutex.lock();
     ToxTex instance;
-    try {
-        instance = instance_map.at(instance_number);
-    } catch (const std::out_of_range& oor) {
+    auto it = instance_map.find(instance_number);
+    if (it != instance_map.end()) {
+        instance = it->second;
+    } else {
         instance_mutex.unlock();
-        throw_tox_killed_exception(env, "do called on killed tox instance!");
+        throw_tox_killed_exception(env, "toxDo called on killed tox instance!");
         return NULL;
     }
 
