@@ -16,7 +16,7 @@ import java.io.Closeable;
  * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes {@link #close},
  * all other threads with pending calls will throw. The exception is unchecked, as it should not occur in a normal
  * execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads should be stopped
- * before one thread invokes {@link #close}, or approppriate exception handlers should be installed in all threads.
+ * before one thread invokes {@link #close}, or appropriate exception handlers should be installed in all threads.
  *
  * @author Simon Levermann (sonOfRa)
  */
@@ -24,6 +24,13 @@ public interface ToxSimpleChat extends Closeable {
 
     /**
      * Connect to a tox bootstrap node
+     * <p/>
+     * It is safe to bootstrap to multiple nodes, although bootstrapping to a single one should be sufficient. Bootstrap
+     * can be considered successful when a call to {@link #isConnected()} returns <code>true</code> after at least one
+     * call to {@link #toxDo()}. To avoid checking successful connection several times, it is possible to call this method
+     * several times with different bootstrap nodes. If a save-file is loaded, tox will attempt to connect to the nodes
+     * saved in this bootstrap file, so it is unnecessary to call this method again, unless no connection could be made
+     * ({@link #isConnected()} returns <code>false</code>)
      *
      * @param address   a hostname, or an IPv4/v6 address
      * @param port      the port
@@ -35,12 +42,15 @@ public interface ToxSimpleChat extends Closeable {
 
     /**
      * Connect to a TCP-relay node
+     * <p/>
+     * The same guidelines described in {@link #bootstrap(String, int, byte[])} also apply to this method.
      *
      * @param address   a hostname, or an IPv4/v6 address
      * @param port      the port
      * @param publicKey the public key of the relay node
      * @throws im.tox.tox4j.exceptions.ToxException if the address could not be converted to an IP address
      * @throws IllegalArgumentException             if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
+     * @see #bootstrap(String, int, byte[])
      */
     void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException;
 
