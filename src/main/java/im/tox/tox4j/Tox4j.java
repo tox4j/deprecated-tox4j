@@ -15,9 +15,9 @@ import im.tox.tox4j.proto.Events;
 public class Tox4j implements ToxSimpleChat {
 
     /**
-     * Instance number of this tox instance. Mapped in an internal hashmap on the native side
+     * Pointer to internal tox datastructure
      */
-    private int instanceNumber;
+    private final long instancePointer;
 
     private FriendRequestCallback friendRequestCallback;
     private MessageCallback messageCallback;
@@ -28,7 +28,7 @@ public class Tox4j implements ToxSimpleChat {
     private TypingChangeCallback typingChangeCallback;
     private ConnectionStatusCallback connectionStatusCallback;
 
-    private native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
+    private native long toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
     /**
      * Creates a new Tox4j instance with the default settings:
@@ -74,30 +74,30 @@ public class Tox4j implements ToxSimpleChat {
             }
         }
 
-        int result = toxNew(ipv6Enabled, udpDisabled, proxyEnabled, proxyAddress, proxyPort);
+        long result = toxNew(ipv6Enabled, udpDisabled, proxyEnabled, proxyAddress, proxyPort);
 
         if (result == -1) {
             throw new ToxException("Creating the new tox instance failed");
         } else {
-            this.instanceNumber = result;
+            this.instancePointer = result;
         }
     }
 
-    private native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
+    private native int bootstrap(long instancePointer, String address, int port, byte[] publicKey);
 
     @Override
     public void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
         if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
             throw new IllegalArgumentException("Public key length incorrect!");
         }
-        int result = bootstrap(this.instanceNumber, address, port, publicKey);
+        int result = bootstrap(this.instancePointer, address, port, publicKey);
 
         if (result == 1) {
             throw new ToxException("Could not resolve address");
         }
     }
 
-    private native int addTcpRelay(int instanceNumber, String address, int port, byte[] publicKey);
+    private native int addTcpRelay(long instancePointer, String address, int port, byte[] publicKey);
 
     @Override
     public void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
@@ -105,39 +105,39 @@ public class Tox4j implements ToxSimpleChat {
             throw new IllegalArgumentException("Public key length incorrect!");
         }
 
-        int result = addTcpRelay(this.instanceNumber, address, port, publicKey);
+        int result = addTcpRelay(this.instancePointer, address, port, publicKey);
 
         if (result == 1) {
             throw new ToxException("Could not resolve address");
         }
     }
 
-    private native boolean isConnected(int instanceNumber);
+    private native boolean isConnected(long instancePointer);
 
     @Override
     public boolean isConnected() {
-        return isConnected(this.instanceNumber);
+        return isConnected(this.instancePointer);
     }
 
-    private native void kill(int instanceNumber);
+    private native void kill(long instancePointer);
 
     @Override
     public void close() {
-        kill(this.instanceNumber);
+        kill(this.instancePointer);
     }
 
-    private native int doInterval(int instanceNumber);
+    private native int doInterval(long instancePointer);
 
     @Override
     public int doInterval() {
-        return doInterval(this.instanceNumber);
+        return doInterval(this.instancePointer);
     }
 
-    private native byte[] toxDo(int instanceNumber);
+    private native byte[] toxDo(long instancePointer);
 
     @Override
     public void toxDo() {
-        byte[] events = toxDo(this.instanceNumber);
+        byte[] events = toxDo(this.instancePointer);
         Events.ToxEvents toxEvents;
         try {
             toxEvents = Events.ToxEvents.parseFrom(events);
