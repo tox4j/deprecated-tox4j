@@ -9,7 +9,7 @@ set(CMAKE_JAVA_INCLUDE_PATH "${CMAKE_SOURCE_DIR}/lib/protobuf-java-2.6.1.jar")
 # Define directories for classfiles
 set(CLASSDIR "${CMAKE_JAVA_TARGET_OUTPUT_DIR}/CMakeFiles/${JAR_TARGET_NAME}.dir")
 set(CLEANFILES
-	"${CLASSDIR}/im/tox/tox4j/Tox4j.class"
+	"${CLASSDIR}/im"
 )
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
@@ -26,6 +26,7 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/exceptions/FriendAddException.java
 	im/tox/tox4j/exceptions/FriendAddErrorCode.java
 	im/tox/tox4j/exceptions/EncryptedSaveDataException.java
+	im/tox/tox4j/exceptions/ToxKilledException.java
 )
 
 set(TOX4J_CALLBACKS
