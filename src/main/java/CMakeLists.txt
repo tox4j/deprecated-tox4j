@@ -42,13 +42,14 @@ set(TOX4J_CALLBACKS
 
 set(TOX4J_SOURCE
 	${TOX4J_CORE}
-	${TOX_EXCEPTIONS}
-	${TOX_CALLBACKS}
+	${TOX4J_EXCEPTIONS}
+	${TOX4J_CALLBACKS}
 	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Events.java"
 )
 
 set(CMAKE_JAVA_TARGET_VERSION ${TOX4J_VERSION})
 
+add_custom_target(java_dummy SOURCES ${TOX4J_SOURCE})
 add_jar(${JAR_TARGET_NAME} ${TOX4J_SOURCE})
 
 # Set arguments for javah
