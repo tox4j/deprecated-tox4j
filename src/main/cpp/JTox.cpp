@@ -128,10 +128,10 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject,
     return with_instance(env, tox, [tox, env]() {
         tox_do(tox);
 
-        auto placeholder = &instance_map.at(tox);
-        int size = placeholder->events->ByteSize();
+        auto tox4js = &instance_map.at(tox);
+        int size = tox4js->events->ByteSize();
         char *buffer = new char[size];
-        placeholder->events->SerializeToArray(buffer, size);
+        tox4js->events->SerializeToArray(buffer, size);
 
         jbyteArray jb = env->NewByteArray(size);
         env->SetByteArrayRegion(jb, 0, size, (jbyte *) buffer);
