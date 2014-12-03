@@ -9,7 +9,7 @@
 #include "events.pb.h"
 
 struct Tox4jStruct {
-    std::unique_ptr<tox4j::proto::ToxEvents> events;
+    tox4j::proto::ToxEvents events;
     std::unique_ptr<std::mutex> mutex;
 };
 
@@ -63,7 +63,7 @@ JNIEXPORT jlong JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jbo
     Tox *tox = tox_new(&opts);
     if (tox != nullptr) {
         std::lock_guard<std::mutex> lock(instance_mutex);
-        instance_map[tox] = { std::unique_ptr<tox4j::proto::ToxEvents>(new tox4j::proto::ToxEvents()), std::unique_ptr<std::mutex>(new std::mutex()) };
+        instance_map[tox] = { tox4j::proto::ToxEvents(), std::unique_ptr<std::mutex>(new std::mutex()) };
     }
     return (jlong) ((intptr_t) tox);
 }
@@ -129,9 +129,9 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject,
         tox_do(tox);
 
         auto tox4js = &instance_map.at(tox);
-        int size = tox4js->events->ByteSize();
+        int size = tox4js->events.ByteSize();
         char *buffer = new char[size];
-        tox4js->events->SerializeToArray(buffer, size);
+        tox4js->events.SerializeToArray(buffer, size);
 
         jbyteArray jb = env->NewByteArray(size);
         env->SetByteArrayRegion(jb, 0, size, (jbyte *) buffer);
