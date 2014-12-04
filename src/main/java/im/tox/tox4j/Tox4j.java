@@ -9,15 +9,21 @@ import im.tox.tox4j.proto.Events;
 
 /**
  * Implementation of a simple 1:1 Wrapper for the Tox API
+ * <p/>
+ * Due to the underlying native implementation, one should avoid excessively creating new instances and quickly calling
+ * {@link #close()} on them again. If excessive creation and closing of new tox instance is deemed necessary, the calls
+ * to {@link #close()} should be done in reverse order of creation in order to preserve memory. The memory overhead is
+ * insignificant, unless you create hundreds of instances and don't dispose of them correctly in the course of a running
+ * application.
  *
  * @author Simon Levermann (sonOfRa)
  */
 public class Tox4j implements ToxSimpleChat {
 
     /**
-     * Pointer to internal tox datastructure
+     * Internal instance number
      */
-    private final long instancePointer;
+    private final int instanceNumber;
 
     private FriendRequestCallback friendRequestCallback;
     private MessageCallback messageCallback;
@@ -28,7 +34,7 @@ public class Tox4j implements ToxSimpleChat {
     private TypingChangeCallback typingChangeCallback;
     private ConnectionStatusCallback connectionStatusCallback;
 
-    private native long toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
+    private native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
     /**
      * Creates a new Tox4j instance with the default settings:
@@ -74,30 +80,30 @@ public class Tox4j implements ToxSimpleChat {
             }
         }
 
-        long result = toxNew(ipv6Enabled, udpDisabled, proxyEnabled, proxyAddress, proxyPort);
+        int result = toxNew(ipv6Enabled, udpDisabled, proxyEnabled, proxyAddress, proxyPort);
 
         if (result == -1) {
             throw new ToxException("Creating the new tox instance failed");
         } else {
-            this.instancePointer = result;
+            this.instanceNumber = result;
         }
     }
 
-    private native int bootstrap(long instancePointer, String address, int port, byte[] publicKey);
+    private native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
         if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
             throw new IllegalArgumentException("Public key length incorrect!");
         }
-        int result = bootstrap(this.instancePointer, address, port, publicKey);
+        int result = bootstrap(this.instanceNumber, address, port, publicKey);
 
         if (result == 1) {
             throw new ToxException("Could not resolve address");
         }
     }
 
-    private native int addTcpRelay(long instancePointer, String address, int port, byte[] publicKey);
+    private native int addTcpRelay(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
@@ -105,39 +111,39 @@ public class Tox4j implements ToxSimpleChat {
             throw new IllegalArgumentException("Public key length incorrect!");
         }
 
-        int result = addTcpRelay(this.instancePointer, address, port, publicKey);
+        int result = addTcpRelay(this.instanceNumber, address, port, publicKey);
 
         if (result == 1) {
             throw new ToxException("Could not resolve address");
         }
     }
 
-    private native boolean isConnected(long instancePointer);
+    private native boolean isConnected(int instanceNumber);
 
     @Override
     public boolean isConnected() {
-        return isConnected(this.instancePointer);
+        return isConnected(this.instanceNumber);
     }
 
-    private native void kill(long instancePointer);
+    private native void kill(int instanceNumber);
 
     @Override
     public void close() {
-        kill(this.instancePointer);
+        kill(this.instanceNumber);
     }
 
     private native int doInterval(long instancePointer);
 
     @Override
     public int doInterval() {
-        return doInterval(this.instancePointer);
+        return doInterval(this.instanceNumber);
     }
 
-    private native byte[] toxDo(long instancePointer);
+    private native byte[] toxDo(int instanceNumber);
 
     @Override
     public void toxDo() {
-        byte[] events = toxDo(this.instancePointer);
+        byte[] events = toxDo(this.instanceNumber);
         Events.ToxEvents toxEvents;
         try {
             toxEvents = Events.ToxEvents.parseFrom(events);
