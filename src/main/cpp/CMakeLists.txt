@@ -55,7 +55,7 @@ endif()
 target_link_libraries(
 	${LIB_TARGET_NAME}
 	${LIBTOX_LIBRARIES}
-	${PROTOBUF_LIBRARIES}
+	${PROTOBUF_LITE_LIBRARIES}
 	${WS2_32}
 	)
 set_target_properties(${LIB_TARGET_NAME}
