@@ -71,6 +71,16 @@ public final class ToxConstants {
     public static final int USERSTATUS_BUSY = 2;
 
     /**
+     * Group chat type for text messages
+     */
+    public static final int GROUPCHAT_TYPE_TEXT = 0;
+
+    /**
+     * Group chat type for av
+     */
+    public static final int GROUPCHAT_TYPE_AV = 1;
+
+    /**
      * This class isn't meant to be instantiated.
      */
     private ToxConstants() {
