@@ -47,6 +47,12 @@ message ConnectionStatus {
     required bool status = 2;
 }
 
+message GroupInvite {
+    required int32 friendNumber = 1;
+    required uint32 type = 2;
+    required bytes data = 3;
+}
+
 message ToxEvents {
     repeated FriendRequest friendRequest = 1;
     repeated Message msg = 2;
@@ -57,4 +63,5 @@ message ToxEvents {
     repeated TypingStatus tStatus = 7;
     repeated Receipt receipt = 8;
     repeated ConnectionStatus cStatus = 9;
+    repeated GroupInvite gInvite = 10;
 }
