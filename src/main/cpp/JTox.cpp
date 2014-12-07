@@ -37,10 +37,10 @@ template<typename Func> auto with_instance (JNIEnv *env, jint instance_number, F
 {
     instance_mutex.lock();
     Tox4jStruct *instance;
-    if (instance_number <= 0) {
+    if (instance_number < 0) {
         throw_illegal_state_exception(env, "Tox instance out of range");
         return default_value<decltype(func(std::declval<Tox4jStruct*>()))>();
-    } else if (instance_number > instance_vector.size()) {
+    } else if (instance_number >= instance_vector.size()) {
         throw_tox_killed_exception(env, "Tox function invoked on killed tox instance!");
         return default_value<decltype(func(std::declval<Tox4jStruct*>()))>();
     }
@@ -62,29 +62,33 @@ jint JNI_OnLoad(JavaVM *, void *) {
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboolean ipv6enabled, jboolean udpDisabled,
     jboolean proxyEnabled, jstring proxyAddress, jint proxyPort) {
-    const char *address = env->GetStringUTFChars(proxyAddress, 0);
     Tox_Options opts;
     opts.ipv6enabled = (uint8_t) ipv6enabled;
     opts.udp_disabled = (uint8_t) udpDisabled;
     if (proxyEnabled) {
         opts.proxy_enabled = true;
+        const char *address = env->GetStringUTFChars(proxyAddress, 0);
         strncpy(opts.proxy_address, address, sizeof(opts.proxy_address) - 1);
+        env->ReleaseStringUTFChars(proxyAddress, address);
         opts.proxy_port = (uint16_t) proxyPort;
     }
 
     Tox *tox = tox_new(&opts);
-    if (tox != NULL) {
-        std::lock_guard<std::mutex> lock(instance_mutex);
-
-        instance_vector.push_back({ std::unique_ptr<Tox, ToxDeleter>(tox), tox4j::proto::ToxEvents(), std::unique_ptr<std::mutex>(new std::mutex()) });
-        return (jint) instance_vector.size();
+    if (tox == NULL) {
+        return -1;
     }
-    return -1;
+
+    std::lock_guard<std::mutex> lock(instance_mutex);
+    instance_vector.push_back({ std::unique_ptr<Tox, ToxDeleter>(tox), tox4j::proto::ToxEvents(), std::unique_ptr<std::mutex>(new std::mutex()) });
+    return (jint) instance_vector.size();
 }
 
 JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint instance_number) {
     std::lock_guard<std::mutex> lock(instance_mutex);
 
+    if (instance_number < 0) {
+        throw_illegal_state_exception(env, "Tox instance out of range");
+    }
     if (instance_number >= (jint) instance_vector.size()) {
         throw_tox_killed_exception(env, "kill called on already killed/nonexistant instance");
     }
@@ -96,7 +100,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
     }
 
     std::lock_guard<std::mutex> ilock(*t.mutex);
-    if (instance_number == (jint) (instance_vector.size() - 1)) {
+    if (t == instance_vector.back()) {
         instance_vector.pop_back();
     }
 }
