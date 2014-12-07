@@ -88,9 +88,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
 
     if (instance_number < 0) {
         throw_illegal_state_exception(env, "Tox instance out of range");
+        return;
     }
     if (instance_number >= (jint) instance_vector.size()) {
         throw_tox_killed_exception(env, "kill called on already killed/nonexistant instance");
+        return;
     }
     Tox4jStruct t(std::move(instance_vector[instance_number]));
 
@@ -100,7 +102,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
     }
 
     std::lock_guard<std::mutex> ilock(*t.mutex);
-    if (t == instance_vector.back()) {
+    if (instance_number == (jint) (instance_vector.size() - 1)) {
         instance_vector.pop_back();
     }
 }
