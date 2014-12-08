@@ -55,7 +55,7 @@ public class Tox4j implements ToxSimpleChat {
     /**
      * Creates a new Tox4j instance with no proxy
      *
-     * @param ipv6Enabled true to enabled IPv6
+     * @param ipv6Enabled true to enable IPv6
      * @param udpDisabled true to disable UDP
      * @throws im.tox.tox4j.exceptions.ToxException if the instance could not be created.
      */
@@ -72,12 +72,15 @@ public class Tox4j implements ToxSimpleChat {
      * @param proxyAddress address of the Proxy (IPv4, IPv6, hostname). Must not be null if proxyEnabled is true
      * @param proxyPort    port for the Proxy
      * @throws im.tox.tox4j.exceptions.ToxException if the instance could not be created, for example due to an invalid port or proxy address
+     * @throws java.lang.IllegalArgumentException   if proxy is enabled, and the address is null or empty, or the proxy port is not a valid port
      */
     public Tox4j(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort) throws ToxException {
         if (proxyEnabled) {
-            if (proxyAddress == null) {
-                throw new IllegalArgumentException();
+            if (proxyAddress == null || proxyAddress.trim().isEmpty()) {
+                throw new IllegalArgumentException("Proxy address cannot be empty if proxy is enabled");
             }
+
+            validatePort(proxyPort);
         }
 
         int result = toxNew(ipv6Enabled, udpDisabled, proxyEnabled, proxyAddress, proxyPort);
@@ -89,6 +92,18 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
+    /**
+     * Validate a port
+     *
+     * @param port the port number
+     * @throws IllegalArgumentException unless  1 &lt;= port &lt;= 65535
+     */
+    private void validatePort(int port) throws IllegalArgumentException {
+        if (port < 1 || port > 65535) {
+            throw new IllegalArgumentException("Port invalid");
+        }
+    }
+
     private native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
@@ -96,6 +111,9 @@ public class Tox4j implements ToxSimpleChat {
         if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
             throw new IllegalArgumentException("Public key length incorrect!");
         }
+
+        validatePort(port);
+
         int result = bootstrap(this.instanceNumber, address, port, publicKey);
 
         if (result == 1) {
@@ -110,6 +128,8 @@ public class Tox4j implements ToxSimpleChat {
         if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
             throw new IllegalArgumentException("Public key length incorrect!");
         }
+
+        validatePort(port);
 
         int result = addTcpRelay(this.instanceNumber, address, port, publicKey);
 

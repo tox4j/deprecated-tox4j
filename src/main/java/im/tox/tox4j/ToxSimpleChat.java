@@ -36,7 +36,8 @@ public interface ToxSimpleChat extends Closeable {
      * @param port      the port
      * @param publicKey the public key of the bootstrap node
      * @throws im.tox.tox4j.exceptions.ToxException if the address could not be converted to an IP address
-     * @throws IllegalArgumentException             if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
+     * @throws java.lang.IllegalArgumentException   if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
+     * @throws java.lang.IllegalArgumentException   if the port is invalid
      */
     void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException;
 
@@ -49,7 +50,8 @@ public interface ToxSimpleChat extends Closeable {
      * @param port      the port
      * @param publicKey the public key of the relay node
      * @throws im.tox.tox4j.exceptions.ToxException if the address could not be converted to an IP address
-     * @throws IllegalArgumentException             if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
+     * @throws java.lang.IllegalArgumentException   if the length of the public key is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
+     * @throws java.lang.IllegalArgumentException   if the port is invalid
      * @see #bootstrap(String, int, byte[])
      */
     void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException;
