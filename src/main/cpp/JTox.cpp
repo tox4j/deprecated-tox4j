@@ -33,21 +33,20 @@ static inline void throw_illegal_state_exception(JNIEnv *env, char const *messag
 
 template<typename T> T default_value() { return T(); }
 template<> void default_value<void>() { }
-template<typename Func> auto with_instance (JNIEnv *env, jint instance_number, Func func) -> decltype(func(std::declval<Tox4jStruct*>()))
+template<typename Func> auto with_instance (JNIEnv *env, jint instance_number, Func func) -> decltype(func(std::declval<Tox4jStruct&>()))
 {
     instance_mutex.lock();
-    Tox4jStruct *instance;
     if (instance_number < 0) {
         throw_illegal_state_exception(env, "Tox instance out of range");
-        return default_value<decltype(func(std::declval<Tox4jStruct*>()))>();
+        return default_value<decltype(func(std::declval<Tox4jStruct&>()))>();
     } else if (instance_number >= instance_vector.size()) {
         throw_tox_killed_exception(env, "Tox function invoked on killed tox instance!");
-        return default_value<decltype(func(std::declval<Tox4jStruct*>()))>();
+        return default_value<decltype(func(std::declval<Tox4jStruct&>()))>();
     }
 
-    instance = &instance_vector.at(instance_number);
+    Tox4jStruct &instance(instance_vector.at(instance_number));
 
-    std::lock_guard<std::mutex> lock(*instance->mutex);
+    std::lock_guard<std::mutex> lock(*instance.mutex);
     instance_mutex.unlock();
     return func(instance);
 }
@@ -109,11 +108,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, jint instance_number,
     jstring address, jint port, jbyteArray public_key) {
-    return with_instance(env, instance_number, [=](Tox4jStruct *instance) {
+    return with_instance(env, instance_number, [=](Tox4jStruct &instance) {
         const char *_address = env->GetStringUTFChars(address, 0);
         jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
 
-        jint result = tox_bootstrap_from_address(instance->tox.get(), _address, (uint16_t) port, (uint8_t *) public_key);
+        jint result = tox_bootstrap_from_address(instance.tox.get(), _address, (uint16_t) port, (uint8_t *) public_key);
 
         env->ReleaseStringUTFChars(address, _address);
         env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
@@ -123,11 +122,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, j
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject, jint instance_number, jstring address,
     jint port, jbyteArray public_key) {
-    return with_instance(env, instance_number, [=](Tox4jStruct *instance) {
+    return with_instance(env, instance_number, [=](Tox4jStruct &instance) {
         const char *_address = env->GetStringUTFChars(address, 0);
         jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
 
-        jint result = tox_add_tcp_relay(instance->tox.get(), _address, (uint16_t) port, (uint8_t *) public_key);
+        jint result = tox_add_tcp_relay(instance.tox.get(), _address, (uint16_t) port, (uint8_t *) public_key);
 
         env->ReleaseStringUTFChars(address, _address);
         env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
@@ -136,19 +135,19 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject,
 }
 
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jobject, jint instance_number) {
-    return with_instance(env, instance_number, [=](Tox4jStruct *instance) { return tox_isconnected(instance->tox.get()); });
+    return with_instance(env, instance_number, [=](Tox4jStruct &instance) { return tox_isconnected(instance.tox.get()); });
 }
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jobject, jint instance_number) {
-    return with_instance(env, instance_number, [=](Tox4jStruct *instance) { return tox_do_interval(instance->tox.get()); });
+    return with_instance(env, instance_number, [=](Tox4jStruct &instance) { return tox_do_interval(instance.tox.get()); });
 }
 
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject, jint instance_number) {
-    return with_instance(env, instance_number, [=](Tox4jStruct *instance) {
-        tox_do(instance->tox.get());
+    return with_instance(env, instance_number, [=](Tox4jStruct &instance) {
+        tox_do(instance.tox.get());
 
-        std::vector<char> buffer(instance->events.ByteSize());
-        instance->events.SerializeToArray(buffer.data(), buffer.size());
+        std::vector<char> buffer(instance.events.ByteSize());
+        instance.events.SerializeToArray(buffer.data(), buffer.size());
 
         jbyteArray jb = env->NewByteArray(buffer.size());
         env->SetByteArrayRegion(jb, 0, buffer.size(), (jbyte*)buffer.data());
