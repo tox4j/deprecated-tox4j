@@ -35,13 +35,16 @@ template<typename T> T default_value() { return T(); }
 template<> void default_value<void>() { }
 template<typename Func> auto with_instance (JNIEnv *env, jint instance_number, Func func) -> decltype(func(std::declval<Tox4jStruct&>()))
 {
+    typedef decltype(func(std::declval<Tox4jStruct&>())) return_type;
     instance_mutex.lock();
     if (instance_number < 0) {
         throw_illegal_state_exception(env, "Tox instance out of range");
-        return default_value<decltype(func(std::declval<Tox4jStruct&>()))>();
-    } else if (instance_number >= instance_vector.size()) {
+        return default_value<return_type>();
+    }
+
+    if (instance_number >= instance_vector.size()) {
         throw_tox_killed_exception(env, "Tox function invoked on killed tox instance!");
-        return default_value<decltype(func(std::declval<Tox4jStruct&>()))>();
+        return default_value<return_type>();
     }
 
     Tox4jStruct &instance(instance_vector.at(instance_number));
@@ -73,13 +76,13 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboo
     }
 
     Tox *tox = tox_new(&opts);
-    if (tox == NULL) {
+    if (tox == nullptr) {
         return -1;
     }
 
     std::lock_guard<std::mutex> lock(instance_mutex);
     instance_vector.push_back({ std::unique_ptr<Tox, ToxDeleter>(tox), tox4j::proto::ToxEvents(), std::unique_ptr<std::mutex>(new std::mutex()) });
-    return (jint) instance_vector.size();
+    return (jint) (instance_vector.size() - 1);
 }
 
 JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint instance_number) {
