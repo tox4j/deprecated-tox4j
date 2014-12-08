@@ -381,4 +381,9 @@ public class Tox4j implements ToxSimpleChat {
     public void registerConnectionStatusCallback(ConnectionStatusCallback callback) {
 
     }
+
+    @Override
+    public void registerGroupInviteCallback(GroupInviteCallback callback) {
+
+    }
 }
