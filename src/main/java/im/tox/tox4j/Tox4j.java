@@ -20,6 +20,10 @@ import im.tox.tox4j.proto.Events;
  */
 public class Tox4j implements ToxSimpleChat {
 
+    static {
+        System.loadLibrary("tox4j");
+    }
+    
     /**
      * Internal instance number
      */
