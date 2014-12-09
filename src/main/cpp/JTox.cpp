@@ -156,7 +156,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject,
 
         jbyteArray jb = env->NewByteArray(buffer.size());
         env->SetByteArrayRegion(jb, 0, buffer.size(), (jbyte*)buffer.data());
-
+        events.Clear();
         return jb;
     });
 }
