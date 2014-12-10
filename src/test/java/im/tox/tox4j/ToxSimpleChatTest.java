@@ -142,20 +142,6 @@ public abstract class ToxSimpleChatTest {
     }
 
     @Test
-    public void testDoubleCloseError() throws Exception {
-        ToxSimpleChat tox1 = newTox();
-        tox1.close();
-        ToxSimpleChat tox2 = newTox();
-        try {
-            tox1.close();
-            fail("Double close was not caught");
-        } catch (ToxKilledException e) {
-            // OK
-        }
-        tox2.close();
-    }
-
-    @Test
     public void testBootstrap() throws Exception {
         try (ToxSimpleChat tox = newTox()) {
             tox.bootstrap("192.254.75.98", 33445, new byte[]{ (byte)0x95, 0x1C, (byte)0x88, (byte)0xB7, (byte)0xE7, 0x5C, (byte)0x86, 0x74, 0x18, (byte)0xAC, (byte)0xDB, 0x5D, 0x27, 0x38, 0x21, 0x37, 0x2B, (byte)0xB5, (byte)0xBD, 0x65, 0x27, 0x40, (byte)0xBC, (byte)0xDF, 0x62, 0x3A, 0x4F, (byte)0xA2, (byte)0x93, (byte)0xE7, 0x5D, 0x2F });
@@ -203,6 +189,50 @@ public abstract class ToxSimpleChatTest {
             fail("The first close should not have thrown");
         }
         tox.close();
+    }
+
+    @Test(expected=ToxKilledException.class)
+    public void testDoubleCloseError() throws Exception {
+        ToxSimpleChat tox1 = newTox();
+        tox1.close();
+        newTox();
+        tox1.close(); // Should throw.
+    }
+
+    @Test(expected=ToxKilledException.class)
+    public void testDoubleCloseInOrder() throws Exception {
+        ToxSimpleChat tox1 = newTox();
+        ToxSimpleChat tox2 = newTox();
+        tox1.close();
+        tox1.close();
+        tox2.close();
+    }
+
+    @Test(expected=ToxKilledException.class)
+    public void testDoubleCloseReverseOrder() throws Exception {
+        ToxSimpleChat tox1 = newTox();
+        ToxSimpleChat tox2 = newTox();
+        tox2.close();
+        tox2.close();
+        tox1.close();
+    }
+
+    @Test(expected=ToxKilledException.class)
+    public void testUseAfterCloseInOrder() throws Exception {
+        ToxSimpleChat tox1 = newTox();
+        ToxSimpleChat tox2 = newTox();
+        tox1.close();
+        tox1.isConnected();
+        tox2.close();
+    }
+
+    @Test(expected=ToxKilledException.class)
+    public void testUseAfterCloseReverseOrder() throws Exception {
+        ToxSimpleChat tox1 = newTox();
+        ToxSimpleChat tox2 = newTox();
+        tox2.close();
+        tox2.isConnected();
+        tox1.close();
     }
 
     @Test
