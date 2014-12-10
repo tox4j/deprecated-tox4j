@@ -148,10 +148,21 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, 
 
         std::vector<char> buffer(events.ByteSize());
         events.SerializeToArray(buffer.data(), buffer.size());
+        events.Clear();
 
         jbyteArray jb = env->NewByteArray(buffer.size());
         env->SetByteArrayRegion(jb, 0, buffer.size(), (jbyte *)buffer.data());
-        events.Clear();
+        return jb;
+    });
+}
+
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_getAddress(JNIEnv *env, jclass, jint instance_number) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        std::vector<uint8_t> address(TOX_FRIEND_ADDRESS_SIZE);
+        tox_get_address(tox, address.data());
+
+        jbyteArray jb = env->NewByteArray(address.size());
+        env->SetByteArrayRegion(jb, 0, address.size(), (jbyte *)address.data());
         return jb;
     });
 }
