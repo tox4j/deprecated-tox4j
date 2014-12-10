@@ -39,6 +39,9 @@ set(TOX4J_CALLBACKS
 	im/tox/tox4j/callbacks/TypingChangeCallback.java
 	im/tox/tox4j/callbacks/UserStatusCallback.java
 	im/tox/tox4j/callbacks/GroupInviteCallback.java
+	im/tox/tox4j/callbacks/GroupMessageCallback.java
+	im/tox/tox4j/callbacks/GroupActionCallback.java
+	im/tox/tox4j/callbacks/GroupTitleChangeCallback.java
 )
 
 set(TOX4J_SOURCE

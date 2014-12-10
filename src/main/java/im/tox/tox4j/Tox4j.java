@@ -390,4 +390,19 @@ public class Tox4j implements ToxSimpleChat {
     public void registerGroupInviteCallback(GroupInviteCallback callback) {
 
     }
+
+    @Override
+    public void registerGroupMessageCallback(GroupMessageCallback callback) {
+
+    }
+
+    @Override
+    public void registerGroupActionCallback(GroupActionCallback callback) {
+
+    }
+
+    @Override
+    public void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback) {
+
+    }
 }
