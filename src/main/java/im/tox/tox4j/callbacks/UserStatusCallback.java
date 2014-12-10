@@ -8,7 +8,7 @@ package im.tox.tox4j.callbacks;
 public interface UserStatusCallback {
 
     /**
-     * Method to be executed when a friend changes their user status
+     * Method to be executed when a friend changes their user status.
      *
      * @param friendNumber friendNumber that changed their status
      * @param newStatus    the friend's new status. One of the constants defined in {@link im.tox.tox4j.ToxConstants}.
