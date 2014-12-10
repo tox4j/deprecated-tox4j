@@ -302,7 +302,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public void setName(byte[] name) throws ToxException, IllegalArgumentException {
+    public void setName(byte[] name) throws IllegalArgumentException {
 
     }
 
@@ -332,7 +332,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public void setUserStatus(int userStatus) throws ToxException {
+    public void setUserStatus(int userStatus) throws IllegalArgumentException {
 
     }
 
