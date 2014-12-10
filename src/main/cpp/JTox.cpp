@@ -66,7 +66,7 @@ jint JNI_OnLoad(JavaVM *, void *) {
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboolean ipv6enabled, jboolean udpDisabled,
     jboolean proxyEnabled, jstring proxyAddress, jint proxyPort) {
-    Tox_Options opts;
+    auto opts = Tox_Options();
     opts.ipv6enabled = (uint8_t) ipv6enabled;
     opts.udp_disabled = (uint8_t) udpDisabled;
     if (proxyEnabled) {
