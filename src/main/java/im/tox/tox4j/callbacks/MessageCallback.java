@@ -5,7 +5,6 @@ package im.tox.tox4j.callbacks;
  *
  * @author Simon Levermann (sonOfRa)
  */
-
 public interface MessageCallback {
 
     /**
