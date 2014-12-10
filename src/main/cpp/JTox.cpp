@@ -103,19 +103,25 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jclass, jint in
         throw_illegal_state_exception(env, "Tox instance out of range");
         return;
     }
-    if (instance_number >= (jint) instance_vector.size()) {
+
+    if ((size_t) instance_number >= instance_vector.size()) {
         throw_tox_killed_exception(env, "kill called on already killed/nonexistent instance");
         return;
     }
+
+    // After this move, the pointers in instance_vector[instance_number] will all be nullptr...
     Tox4jStruct t(std::move(instance_vector[instance_number]));
 
+    // ... so that this check will fail, if the function is called twice on the same instance.
     if (!t.tox) {
         throw_tox_killed_exception(env, "kill called on already killed instance");
         return;
     }
 
     std::lock_guard<std::mutex> ilock(*t.mutex);
-    if (instance_number == (jint) (instance_vector.size() - 1)) {
+    if ((size_t) instance_number == instance_vector.size() - 1) {
+        // TODO: This code is problematic, because under certain circumstances,
+        // TODO: a live Java object can be allowed to call close() twice.
         instance_vector.pop_back();
     }
 }
