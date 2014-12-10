@@ -1,4 +1,4 @@
-[![Build Status](https://jenkins.libtoxcore.so/buildStatus/icon?job=Sync_Tox4j)](https://jenkins.libtoxcore.so/job/Sync%20Tox4j/)
+[![Build Status](https://jenkins.libtoxcore.so/job/Sync%20Tox4j/badge/icon)](https://jenkins.libtoxcore.so/job/Sync%20Tox4j/)
 tox4j
 =====
 
