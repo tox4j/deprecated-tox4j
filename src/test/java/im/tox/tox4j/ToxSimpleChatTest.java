@@ -12,6 +12,59 @@ public abstract class ToxSimpleChatTest {
     protected abstract ToxSimpleChat newTox() throws ToxException;
 
     @Test
+    public void testToxCreationAndImmediateDestruction() throws Exception {
+        int iterations = 1000;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < iterations; i++) {
+            newTox().close();
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Creating and destroying " + iterations + " toxes took " + (end - start) + "ms");
+    }
+
+    @Test
+    public void testToxCreationAndDelayedDestruction() throws Exception {
+        int iterations = 101;
+        ToxSimpleChat[] toxes = new ToxSimpleChat[iterations];
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < iterations; i++) {
+            toxes[i] = newTox();
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Creating " + iterations + " toxes took " + (end - start) + "ms");
+
+        start = System.currentTimeMillis();
+        for (int i = iterations - 1; i >= 0; i--) {
+            toxes[i].close();
+        }
+        end = System.currentTimeMillis();
+        System.out.println("Destroying " + iterations + " toxes took " + (end - start) + "ms");
+    }
+
+    @Test
+    public void test102ToxCreations() throws Exception {
+        ToxSimpleChat[] toxes = new ToxSimpleChat[101];
+        for (int i = 0; i < toxes.length; i++) {
+            // These should all work fine.
+            toxes[i] = newTox();
+        }
+
+        try {
+            // This one should fail.
+            newTox();
+            fail("Creating the 102nd tox should fail");
+        } catch (ToxException e) {
+            // OK.
+        }
+
+        // Clean up
+        for (ToxSimpleChat tox : toxes) {
+            tox.close();
+        }
+    }
+
+    @Test
     public void testBootstrap() throws Exception {
 
     }
