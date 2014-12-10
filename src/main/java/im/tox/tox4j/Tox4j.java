@@ -38,7 +38,7 @@ public class Tox4j implements ToxSimpleChat {
     private TypingChangeCallback typingChangeCallback;
     private ConnectionStatusCallback connectionStatusCallback;
 
-    private native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
+    private static native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
     /**
      * Creates a new Tox4j instance with the default settings:
@@ -108,7 +108,7 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
-    private native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
+    private static native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
@@ -125,7 +125,7 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
-    private native int addTcpRelay(int instanceNumber, String address, int port, byte[] publicKey);
+    private static native int addTcpRelay(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
@@ -142,28 +142,28 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
-    private native boolean isConnected(int instanceNumber);
+    private static native boolean isConnected(int instanceNumber);
 
     @Override
     public boolean isConnected() {
         return isConnected(this.instanceNumber);
     }
 
-    private native void kill(int instanceNumber);
+    private static native void kill(int instanceNumber);
 
     @Override
     public void close() {
         kill(this.instanceNumber);
     }
 
-    private native int doInterval(long instancePointer);
+    private static native int doInterval(int instanceNumber);
 
     @Override
     public int doInterval() {
         return doInterval(this.instanceNumber);
     }
 
-    private native byte[] toxDo(int instanceNumber);
+    private static native byte[] toxDo(int instanceNumber);
 
     @Override
     public void toxDo() {

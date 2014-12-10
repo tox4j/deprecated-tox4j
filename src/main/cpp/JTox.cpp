@@ -64,7 +64,7 @@ jint JNI_OnLoad(JavaVM *, void *) {
     return JNI_VERSION_1_4;
 }
 
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboolean ipv6enabled, jboolean udpDisabled,
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jclass, jboolean ipv6enabled, jboolean udpDisabled,
     jboolean proxyEnabled, jstring proxyAddress, jint proxyPort) {
     auto opts = Tox_Options();
     opts.ipv6enabled = (uint8_t) ipv6enabled;
@@ -91,7 +91,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboo
     return (jint) (instance_vector.size() - 1);
 }
 
-JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint instance_number) {
+JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jclass, jint instance_number) {
     std::lock_guard<std::mutex> lock(instance_mutex);
 
     if (instance_number < 0) {
@@ -115,7 +115,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jobject, jint i
     }
 }
 
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, jint instance_number,
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, jint instance_number,
     jstring address, jint port, jbyteArray public_key) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) {
         const char *_address = env->GetStringUTFChars(address, 0);
@@ -129,7 +129,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jobject, j
     });
 }
 
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject, jint instance_number, jstring address,
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jclass, jint instance_number, jstring address,
     jint port, jbyteArray public_key) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) {
         const char *_address = env->GetStringUTFChars(address, 0);
@@ -143,15 +143,15 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jobject,
     });
 }
 
-JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jobject, jint instance_number) {
+JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jclass, jint instance_number) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) { return tox_isconnected(tox); });
 }
 
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jobject, jint instance_number) {
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jclass, jint instance_number) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) { return tox_do_interval(tox); });
 }
 
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jobject, jint instance_number) {
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, jint instance_number) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents events) {
         tox_do(tox);
 
