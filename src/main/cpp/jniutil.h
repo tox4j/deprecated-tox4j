@@ -27,12 +27,20 @@ struct ByteArray {
     ByteArray(ByteArray const &) = delete;
     ~ByteArray() { env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
 
-    operator uint8_t const *() const { return (uint8_t *)bytes; }
+    operator uint8_t const *() const { return (uint8_t *) bytes; }
 
 private:
     JNIEnv *env;
     jbyteArray byteArray;
     jbyte *bytes;
 };
+
+template<typename T>
+jbyteArray toByteArray(JNIEnv *env, std::vector<T> const &data) {
+    static_assert(sizeof(T) == sizeof(jbyte), "Size requirements for byte array not met");
+    jbyteArray jb = env->NewByteArray(data.size());
+    env->SetByteArrayRegion(jb, 0, data.size(), (jbyte *) data.data());
+    return jb;
+}
 
 #endif /* JNIUTIL_H */
