@@ -74,6 +74,11 @@ jint JNI_OnLoad(JavaVM *, void *) {
     return JNI_VERSION_1_4;
 }
 
+JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_destroyAll(JNIEnv *, jclass) {
+    std::unique_lock<std::mutex> lock(instance_mutex);
+    instance_vector.clear();
+}
+
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jclass, jboolean ipv6enabled, jboolean udpDisabled,
     jboolean proxyEnabled, jstring proxyAddress, jint proxyPort) {
     auto opts = Tox_Options();

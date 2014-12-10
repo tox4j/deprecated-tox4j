@@ -1,10 +1,15 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.exceptions.ToxException;
-
-import static org.junit.Assert.*;
+import org.junit.After;
 
 public class Tox4jTest extends ToxSimpleChatTest {
+
+    @After
+    public void tearDown() {
+        // Make sure we leave the system in a clean state in the event of exceptions that prevented a cleanup.
+        Tox4j.destroyAll();
+    }
 
     @Override
     protected ToxSimpleChat newTox() throws ToxException {

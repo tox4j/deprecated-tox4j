@@ -38,6 +38,12 @@ public class Tox4j implements ToxSimpleChat {
     private TypingChangeCallback typingChangeCallback;
     private ConnectionStatusCallback connectionStatusCallback;
 
+    /**
+     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
+     * used during testing or debugging.
+     */
+    static native void destroyAll();
+
     private static native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
     /**
