@@ -120,7 +120,7 @@ public class Tox4j implements ToxSimpleChat {
 
         int result = bootstrap(this.instanceNumber, address, port, publicKey);
 
-        if (result == 1) {
+        if (result == 0) {
             throw new ToxException("Could not resolve address");
         }
     }
