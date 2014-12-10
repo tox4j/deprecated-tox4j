@@ -18,6 +18,7 @@ find_package(CXX11 REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
 
 find_package(Protobuf REQUIRED)
+option(BUILD_JAVADOC "Enable building Javadoc HTML" OFF)
 
 # Subdirectories
 add_subdirectory(src/main/java)

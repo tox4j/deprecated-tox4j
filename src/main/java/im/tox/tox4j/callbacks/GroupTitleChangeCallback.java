@@ -8,7 +8,7 @@ package im.tox.tox4j.callbacks;
 public interface GroupTitleChangeCallback {
 
     /**
-     * Method to be executed if a group changes their title
+     * Method to be executed if a group changes their title.
      *
      * @param groupNumber groupNumber that sent the action
      * @param peerNumber  If peernumber == -1, then author is unknown (e.g. initial joining the group)

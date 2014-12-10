@@ -8,7 +8,7 @@ package im.tox.tox4j.callbacks;
 public interface TypingChangeCallback {
 
     /**
-     * Method to be executed when a friend changes their typing status
+     * Method to be executed when a friend changes their typing status.
      *
      * @param friendNumber the friendNumber that changed their typing status
      * @param isTyping     true if they are typing, false otherwise

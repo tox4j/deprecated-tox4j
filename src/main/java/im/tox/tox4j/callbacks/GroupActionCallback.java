@@ -8,10 +8,10 @@ package im.tox.tox4j.callbacks;
 public interface GroupActionCallback {
 
     /**
-     * Method to be executed when a group action is received
+     * Method to be executed when a group action is received.
      *
      * @param groupNumber groupNumber that sent the action
-     * @param peerNumber
+     * @param peerNumber  number of the peer in group
      * @param action      the action. Generally, this should be UTF-8, but this is not guaranteed.
      */
     void execute(int groupNumber, int peerNumber, byte[] action);
