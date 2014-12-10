@@ -22,8 +22,9 @@ public abstract class ToxSimpleChatTest {
 
     @Test
     public void testIsConnected() throws Exception {
-        ToxSimpleChat tox = newTox();
-        tox.isConnected();
+        try (ToxSimpleChat tox = newTox()) {
+            assertFalse(tox.isConnected());
+        }
     }
 
     @Test
