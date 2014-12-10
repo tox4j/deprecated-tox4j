@@ -98,7 +98,7 @@ public abstract class ToxSimpleChatTest {
 
     @Test
     public void testToxCreationAndDelayedDestruction() throws Exception {
-        int iterations = 101;
+        int iterations = 30;
         ArrayList<ToxSimpleChat> toxes = new ArrayList<>();
 
         long start = System.currentTimeMillis();
@@ -117,27 +117,12 @@ public abstract class ToxSimpleChatTest {
         System.out.println("Destroying " + iterations + " toxes took " + (end - start) + "ms");
     }
 
-    @Test
+    @Test(expected = ToxException.class)
     public void testTooManyToxCreations() throws Exception {
         ArrayList<ToxSimpleChat> toxes = new ArrayList<>();
-        for (int i = 0; i < 101; i++) {
-            // These should all work fine.
-            // TODO: They will probably not work fine if one of the ports in our port range is taken.
+        for (int i = 0; i < 102; i++) {
+            // One of these will fail.
             toxes.add(newTox());
-        }
-
-        try {
-            // This one should fail.
-            newTox();
-            fail("Creating the 102nd tox should fail");
-        } catch (ToxException e) {
-            // OK.
-        }
-
-        // Clean up
-        Collections.reverse(toxes);
-        for (ToxSimpleChat tox : toxes) {
-            tox.close();
         }
     }
 
