@@ -77,13 +77,17 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jobject, jboo
         opts.proxy_port = (uint16_t) proxyPort;
     }
 
-    Tox *tox = tox_new(&opts);
+    std::unique_ptr<Tox, ToxDeleter> tox(tox_new(&opts));
     if (tox == nullptr) {
         return -1;
     }
 
     std::lock_guard<std::mutex> lock(instance_mutex);
-    instance_vector.push_back({ std::unique_ptr<Tox, ToxDeleter>(tox), std::unique_ptr<tox4j::proto::ToxEvents>(), std::unique_ptr<std::mutex>() });
+    instance_vector.push_back({
+        std::move(tox),
+        std::unique_ptr<tox4j::proto::ToxEvents>(new tox4j::proto::ToxEvents),
+        std::unique_ptr<std::mutex>(new std::mutex)
+    });
     return (jint) (instance_vector.size() - 1);
 }
 
