@@ -22,6 +22,9 @@ struct Tox4jStruct {
     std::unique_ptr<ToxEvents> events;
     std::unique_ptr<std::mutex> mutex;
 };
+// This struct should remain small. Check some assumptions here.
+static_assert(sizeof(Tox4jStruct) == sizeof(void *) * 3,
+    "Tox4jStruct has unexpected members or padding");
 
 static std::mutex instance_mutex;
 static std::vector<Tox4jStruct> instance_vector;
