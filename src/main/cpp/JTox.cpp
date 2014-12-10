@@ -8,6 +8,40 @@
 #include "JTox.h"
 #include "events.pb.h"
 
+struct UTFChars {
+    UTFChars(JNIEnv *env, jstring string)
+    : env(env)
+    , string(string)
+    , chars(env->GetStringUTFChars(string, 0)) { }
+
+    UTFChars(UTFChars const &) = delete;
+    ~UTFChars() { env->ReleaseStringUTFChars(string, chars); }
+
+    operator const char *() { return chars; }
+
+private:
+    JNIEnv *env;
+    jstring string;
+    const char *chars;
+};
+
+struct ByteArray {
+    ByteArray(JNIEnv *env, jbyteArray byteArray)
+    : env(env)
+    , byteArray(byteArray)
+    , bytes(env->GetByteArrayElements(byteArray, 0)) { }
+
+    ByteArray(ByteArray const &) = delete;
+    ~ByteArray() { env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
+
+    operator uint8_t *() { return (uint8_t *)bytes; }
+
+private:
+    JNIEnv *env;
+    jbyteArray byteArray;
+    jbyte *bytes;
+};
+
 struct ToxDeleter {
     void operator()(Tox *tox) {
         tox_kill(tox);
@@ -33,9 +67,13 @@ static inline void throw_illegal_state_exception(JNIEnv *env, char const *messag
 
 template<typename T> T default_value() { return T(); }
 template<> void default_value<void>() { }
-template<typename Func> auto with_instance (JNIEnv *env, jint instance_number, Func func) -> decltype(func(std::declval<Tox*>(), std::declval<tox4j::proto::ToxEvents&>()))
+
+template<typename Func>
+auto with_instance(JNIEnv *env, jint instance_number, Func func)
+    -> decltype(func(std::declval<Tox *>(), std::declval<tox4j::proto::ToxEvents &>()))
 {
-    typedef decltype(func(std::declval<Tox*>(), std::declval<tox4j::proto::ToxEvents&>())) return_type;
+    typedef decltype(func(std::declval<Tox *>(), std::declval<tox4j::proto::ToxEvents &>())) return_type;
+
     instance_mutex.lock();
     if (instance_number < 0) {
         throw_illegal_state_exception(env, "Tox instance out of range");
@@ -71,9 +109,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jclass, jbool
     opts.udp_disabled = (uint8_t) udpDisabled;
     if (proxyEnabled) {
         opts.proxy_enabled = true;
-        const char *address = env->GetStringUTFChars(proxyAddress, 0);
-        strncpy(opts.proxy_address, address, sizeof(opts.proxy_address) - 1);
-        env->ReleaseStringUTFChars(proxyAddress, address);
+        strncpy(opts.proxy_address, UTFChars(env, proxyAddress), sizeof(opts.proxy_address) - 1);
         opts.proxy_port = (uint16_t) proxyPort;
     }
 
@@ -118,28 +154,14 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jclass, jint in
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, jint instance_number,
     jstring address, jint port, jbyteArray public_key) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) {
-        const char *_address = env->GetStringUTFChars(address, 0);
-        jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
-
-        jint result = tox_bootstrap_from_address(tox, _address, (uint16_t) port, (uint8_t *) public_key);
-
-        env->ReleaseStringUTFChars(address, _address);
-        env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
-        return result;
+        return tox_bootstrap_from_address(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
 }
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jclass, jint instance_number, jstring address,
     jint port, jbyteArray public_key) {
     return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) {
-        const char *_address = env->GetStringUTFChars(address, 0);
-        jbyte *_public_key = env->GetByteArrayElements(public_key, 0);
-
-        jint result = tox_add_tcp_relay(tox, _address, (uint16_t) port, (uint8_t *) public_key);
-
-        env->ReleaseStringUTFChars(address, _address);
-        env->ReleaseByteArrayElements(public_key, _public_key, JNI_ABORT);
-        return result;
+        return tox_add_tcp_relay(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
 }
 
@@ -159,7 +181,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, 
         events.SerializeToArray(buffer.data(), buffer.size());
 
         jbyteArray jb = env->NewByteArray(buffer.size());
-        env->SetByteArrayRegion(jb, 0, buffer.size(), (jbyte*)buffer.data());
+        env->SetByteArrayRegion(jb, 0, buffer.size(), (jbyte *)buffer.data());
         events.Clear();
         return jb;
     });
