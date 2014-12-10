@@ -385,4 +385,25 @@ public interface ToxSimpleChat extends Closeable {
      * @param callback callback to set
      */
     void registerGroupInviteCallback(GroupInviteCallback callback);
+
+    /**
+     * Set the callback for group messages
+     *
+     * @param callback callback to set
+     */
+    void registerGroupMessageCallback(GroupMessageCallback callback);
+
+    /**
+     * Set the callback for group actions
+     *
+     * @param callback callback to set
+     */
+    void registerGroupActionCallback(GroupActionCallback callback);
+
+    /**
+     * Set the callback for group title changes
+     *
+     * @param callback callback to set
+     */
+    void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback);
 }
