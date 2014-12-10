@@ -1,5 +1,3 @@
-find_package(Java REQUIRED)
-
 include(UseJava)
 set(PACKAGE_NAME im.tox.tox4j)
 
