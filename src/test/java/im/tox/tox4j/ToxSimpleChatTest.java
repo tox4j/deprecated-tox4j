@@ -3,6 +3,7 @@ package im.tox.tox4j;
 import org.junit.Test;
 
 import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.exceptions.ToxKilledException;
 
 import static org.junit.Assert.*;
 
@@ -29,7 +30,15 @@ public abstract class ToxSimpleChatTest {
 
     @Test
     public void testClose() throws Exception {
-
+        ToxSimpleChat tox = newTox();
+        tox.close();
+        boolean caught = false;
+        try {
+            tox.close();
+        } catch (ToxKilledException e) {
+            caught = true;
+        }
+        assertTrue(caught);
     }
 
     @Test
