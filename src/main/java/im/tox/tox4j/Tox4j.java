@@ -9,7 +9,7 @@ import im.tox.tox4j.proto.Events;
 
 /**
  * Implementation of a simple 1:1 Wrapper for the Tox API
- * <p/>
+ * <p>
  * Due to the underlying native implementation, one should avoid excessively creating new instances and quickly calling
  * {@link #close()} on them again. If excessive creation and closing of new tox instance is deemed necessary, the calls
  * to {@link #close()} should be done in reverse order of creation in order to preserve memory. The memory overhead is
@@ -23,7 +23,7 @@ public class Tox4j implements ToxSimpleChat {
     static {
         System.loadLibrary("tox4j");
     }
-    
+
     /**
      * Internal instance number
      */
@@ -126,15 +126,45 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
+    /**
+     * Validate an address
+     *
+     * @param address the address
+     * @throws IllegalArgumentException if the address is null or blank
+     */
+    private static void validateAddress(String address) throws IllegalArgumentException {
+        if (address == null) {
+            throw new IllegalArgumentException("Address cannot be null");
+        }
+
+        if (address.trim().isEmpty()) {
+            throw new IllegalArgumentException("Address cannot be empty");
+        }
+    }
+
+    /**
+     * Validate a public key
+     *
+     * @param publicKey
+     * @throws IllegalArgumentException
+     */
+    private static void validatePublicKey(byte[] publicKey) throws IllegalArgumentException {
+        if (publicKey == null) {
+            throw new IllegalArgumentException("Public key cannot be null");
+        }
+
+        if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
+            throw new IllegalArgumentException("Public key size is invalid");
+        }
+    }
+
     private static native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
-        if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
-            throw new IllegalArgumentException("Public key length incorrect!");
-        }
-
+        validateAddress(address);
         validatePort(port);
+        validatePublicKey(publicKey);
 
         int result = bootstrap(this.instanceNumber, address, port, publicKey);
 
@@ -147,15 +177,13 @@ public class Tox4j implements ToxSimpleChat {
 
     @Override
     public void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
-        if (publicKey.length != ToxConstants.CLIENT_ID_SIZE) {
-            throw new IllegalArgumentException("Public key length incorrect!");
-        }
-
+        validateAddress(address);
         validatePort(port);
+        validatePublicKey(publicKey);
 
         int result = addTcpRelay(this.instanceNumber, address, port, publicKey);
 
-        if (result == 1) {
+        if (result == 0) {
             throw new ToxException("Could not resolve address");
         }
     }
@@ -317,7 +345,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public void setStatusMessage(byte[] statusMessage) throws ToxException, IllegalArgumentException {
+    public void setStatusMessage(byte[] statusMessage) throws IllegalArgumentException {
 
     }
 

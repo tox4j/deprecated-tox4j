@@ -8,7 +8,7 @@ package im.tox.tox4j.callbacks;
 public interface GroupInviteCallback {
 
     /**
-     * Method to be executed when a group invite is received
+     * Method to be executed when a group invite is received.
      *
      * @param friendNumber the friendNumber that invites to a chat
      * @param groupType    the group type. One of the constants defined in {@link im.tox.tox4j.ToxConstants}.

@@ -15,7 +15,7 @@ public class FriendAddException extends ToxException {
     }
 
     /**
-     * Get the error code
+     * Get the error code.
      *
      * @return the error code
      */

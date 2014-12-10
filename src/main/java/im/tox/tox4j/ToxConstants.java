@@ -2,7 +2,7 @@ package im.tox.tox4j;
 
 /**
  * This class contains constants, like maximum message sizes for the tox protocol.
- * <p/>
+ * <p>
  * All length are given in bytes, and all Tox Strings are UTF-8. This means that a message might be allowed
  * less characters than a given MAX_LENGTH may seem to imply.
  *
