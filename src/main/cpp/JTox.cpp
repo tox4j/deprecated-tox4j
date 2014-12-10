@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 #include <tox/tox.h>
 #include <mutex>
