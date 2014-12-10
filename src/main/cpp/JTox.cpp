@@ -59,6 +59,11 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
 
     Tox4jStruct const &instance = instance_vector[instance_number];
 
+    if (instance.tox == nullptr) {
+        throw_tox_killed_exception(env, "Tox function invoked on killed tox instance!");
+        return default_value<return_type>();
+    }
+
     std::lock_guard<std::mutex> ilock(*instance.mutex);
     Tox *tox = instance.tox.get();
     ToxEvents &events = *instance.events;
