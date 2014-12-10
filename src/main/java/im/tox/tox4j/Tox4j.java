@@ -47,7 +47,7 @@ public class Tox4j implements ToxSimpleChat {
     private static native void finalize(int instanceNumber);
 
     @Override
-    public void finalize() throws Throwable {
+    public final void finalize() throws Throwable {
         try {
             finalize(instanceNumber);
         } catch (Throwable e) {
