@@ -146,7 +146,7 @@ public class Tox4j implements ToxSimpleChat {
      * Validate a public key
      *
      * @param publicKey
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the key is null or the wrong size
      */
     private static void validatePublicKey(byte[] publicKey) throws IllegalArgumentException {
         if (publicKey == null) {
