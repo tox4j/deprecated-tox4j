@@ -102,7 +102,7 @@ public class Tox4j implements ToxSimpleChat {
      * @param port the port number
      * @throws IllegalArgumentException unless  1 &lt;= port &lt;= 65535
      */
-    private void validatePort(int port) throws IllegalArgumentException {
+    private static void validatePort(int port) throws IllegalArgumentException {
         if (port < 1 || port > 65535) {
             throw new IllegalArgumentException("Port invalid");
         }
