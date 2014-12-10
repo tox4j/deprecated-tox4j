@@ -205,7 +205,6 @@ public abstract class ToxSimpleChatTest {
         ToxSimpleChat tox2 = newTox();
         tox1.close();
         tox1.close();
-        tox2.close();
     }
 
     @Test(expected=ToxKilledException.class)
@@ -214,7 +213,6 @@ public abstract class ToxSimpleChatTest {
         ToxSimpleChat tox2 = newTox();
         tox2.close();
         tox2.close();
-        tox1.close();
     }
 
     @Test(expected=ToxKilledException.class)
@@ -223,7 +221,6 @@ public abstract class ToxSimpleChatTest {
         ToxSimpleChat tox2 = newTox();
         tox1.close();
         tox1.isConnected();
-        tox2.close();
     }
 
     @Test(expected=ToxKilledException.class)
@@ -232,7 +229,6 @@ public abstract class ToxSimpleChatTest {
         ToxSimpleChat tox2 = newTox();
         tox2.close();
         tox2.isConnected();
-        tox1.close();
     }
 
     @Test
