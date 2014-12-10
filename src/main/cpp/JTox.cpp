@@ -17,12 +17,12 @@ struct UTFChars {
     UTFChars(UTFChars const &) = delete;
     ~UTFChars() { env->ReleaseStringUTFChars(string, chars); }
 
-    operator const char *() { return chars; }
+    operator char const *() const { return chars; }
 
 private:
     JNIEnv *env;
     jstring string;
-    const char *chars;
+    char const *chars;
 };
 
 struct ByteArray {
@@ -34,7 +34,7 @@ struct ByteArray {
     ByteArray(ByteArray const &) = delete;
     ~ByteArray() { env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
 
-    operator uint8_t *() { return (uint8_t *)bytes; }
+    operator uint8_t const *() const { return (uint8_t *)bytes; }
 
 private:
     JNIEnv *env;
