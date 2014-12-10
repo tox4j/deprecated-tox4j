@@ -317,6 +317,14 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, 
         return toByteArray(env, buffer);
     });
 }
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_save(JNIEnv *env, jclass, jint instance_number) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        std::vector<uint8_t> buffer(tox_size(tox));
+        tox_save(tox, buffer.data());
+
+        return toByteArray(env, buffer);
+    });
+}
 
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_getAddress(JNIEnv *env, jclass, jint instance_number) {
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
