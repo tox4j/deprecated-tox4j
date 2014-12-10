@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.8.12)
 project (tox4j)
 
+find_package(Java REQUIRED)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" ${CMAKE_MODULE_PATH})
 # Version
@@ -21,5 +22,5 @@ find_package(Protobuf REQUIRED)
 # Subdirectories
 add_subdirectory(src/main/java)
 add_subdirectory(src/main/cpp)
-# add_subdirectory(src/test/java)
+add_subdirectory(src/test/java)
 # add_subdirectory(src/test/cpp)
