@@ -231,9 +231,11 @@ public class Tox4j implements ToxSimpleChat {
 
     }
 
+    private static native byte[] getAddress(int instanceNumber);
+
     @Override
     public byte[] getAddress() {
-        return new byte[0];
+        return getAddress(instanceNumber);
     }
 
     @Override
