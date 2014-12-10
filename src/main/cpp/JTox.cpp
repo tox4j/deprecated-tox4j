@@ -9,6 +9,8 @@
 #include "jniutil.h"
 #include "events.pb.h"
 
+using tox4j::proto::ToxEvents;
+
 struct ToxDeleter {
     void operator()(Tox *tox) {
         tox_kill(tox);
@@ -17,7 +19,7 @@ struct ToxDeleter {
 
 struct Tox4jStruct {
     std::unique_ptr<Tox, ToxDeleter> tox;
-    std::unique_ptr<tox4j::proto::ToxEvents> events;
+    std::unique_ptr<ToxEvents> events;
     std::unique_ptr<std::mutex> mutex;
 };
 
@@ -36,10 +38,10 @@ template<typename T> T default_value() { return T(); }
 template<> void default_value<void>() { }
 
 template<typename Func>
-auto with_instance(JNIEnv *env, jint instance_number, Func func)
-    -> decltype(func(std::declval<Tox *>(), std::declval<tox4j::proto::ToxEvents &>()))
+static auto with_instance(JNIEnv *env, jint instance_number, Func func)
+    -> decltype(func(std::declval<Tox *>(), std::declval<ToxEvents &>()))
 {
-    typedef decltype(func(std::declval<Tox *>(), std::declval<tox4j::proto::ToxEvents &>())) return_type;
+    typedef decltype(func(std::declval<Tox *>(), std::declval<ToxEvents &>())) return_type;
 
     instance_mutex.lock();
     if (instance_number < 0) {
@@ -55,8 +57,8 @@ auto with_instance(JNIEnv *env, jint instance_number, Func func)
     Tox4jStruct &instance = instance_vector.at(instance_number);
 
     std::lock_guard<std::mutex> lock(*instance.mutex);
-    auto tox = instance.tox.get();
-    auto events = *instance.events;
+    Tox *tox = instance.tox.get();
+    ToxEvents &events = *instance.events;
     instance_mutex.unlock();
     return func(tox, events);
 }
@@ -88,7 +90,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jclass, jbool
     std::lock_guard<std::mutex> lock(instance_mutex);
     instance_vector.push_back({
         std::move(tox),
-        std::unique_ptr<tox4j::proto::ToxEvents>(new tox4j::proto::ToxEvents),
+        std::unique_ptr<ToxEvents>(new ToxEvents),
         std::unique_ptr<std::mutex>(new std::mutex)
     });
     return (jint) (instance_vector.size() - 1);
@@ -120,28 +122,28 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jclass, jint in
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, jint instance_number,
     jstring address, jint port, jbyteArray public_key) {
-    return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_bootstrap_from_address(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
 }
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jclass, jint instance_number, jstring address,
     jint port, jbyteArray public_key) {
-    return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_add_tcp_relay(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
 }
 
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_isConnected(JNIEnv *env, jclass, jint instance_number) {
-    return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) { return tox_isconnected(tox); });
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) { return tox_isconnected(tox); });
 }
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_doInterval(JNIEnv *env, jclass, jint instance_number) {
-    return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents) { return tox_do_interval(tox); });
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) { return tox_do_interval(tox); });
 }
 
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, jint instance_number) {
-    return with_instance(env, instance_number, [=](Tox *tox, tox4j::proto::ToxEvents events) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &events) {
         tox_do(tox);
 
         std::vector<char> buffer(events.ByteSize());
