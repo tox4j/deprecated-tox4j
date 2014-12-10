@@ -1,7 +1,8 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.exceptions.ToxException;
 import org.junit.After;
+
+import im.tox.tox4j.exceptions.ToxException;
 
 public class Tox4jTest extends ToxSimpleChatTest {
 
