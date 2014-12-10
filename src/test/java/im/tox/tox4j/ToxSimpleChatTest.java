@@ -189,12 +189,73 @@ public abstract class ToxSimpleChatTest {
             // One of these will fail.
             toxes.add(newTox());
         }
+        // If nothing fails, clean up and return, failing the expected exception test.
+        for (ToxSimpleChat tox : toxes) {
+            tox.close();
+        }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapBadPort1() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 0, new byte[ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapBadPort2() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap("192.254.75.98", -10, new byte[ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test(expected = ToxException.class)
+    public void testBootstrapBadHost() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap(".", 33445, new byte[ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapNullHost() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap(null, 33445, new byte[ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapNullKey() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap("localhost", 33445, null);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapKeyTooShort() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE - 1]);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapKeyTooLong() throws Exception {
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE + 1]);
+        }
+    }
+
+    @Test(timeout = 10000)
     public void testBootstrap() throws Exception {
         try (ToxSimpleChat tox = newTox()) {
             tox.bootstrap("192.254.75.98", 33445, new byte[]{ (byte)0x95, 0x1C, (byte)0x88, (byte)0xB7, (byte)0xE7, 0x5C, (byte)0x86, 0x74, 0x18, (byte)0xAC, (byte)0xDB, 0x5D, 0x27, 0x38, 0x21, 0x37, 0x2B, (byte)0xB5, (byte)0xBD, 0x65, 0x27, 0x40, (byte)0xBC, (byte)0xDF, 0x62, 0x3A, 0x4F, (byte)0xA2, (byte)0x93, (byte)0xE7, 0x5D, 0x2F });
+            while (!tox.isConnected()) {
+                tox.toxDo();
+                try {
+                    Thread.sleep(tox.doInterval());
+                } catch (InterruptedException e) {
+                    // Probably the timeout was reached, so we ought to be killed soon.
+                }
+            }
         }
     }
 
