@@ -26,6 +26,11 @@ public final class ToxConstants {
     public static final int MAX_STATUSMESSAGE_LENGTH = 1007;
 
     /**
+     * Maximum length for a friend request message
+     */
+    public static final int MAX_FRIENDREQUEST_LENGTH = 1016;
+
+    /**
      * Size of a Tox Client ID
      */
     public static final int CLIENT_ID_SIZE = 32;
