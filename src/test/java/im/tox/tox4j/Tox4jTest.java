@@ -9,6 +9,7 @@ public class Tox4jTest extends ToxSimpleChatTest {
     public void tearDown() {
         // Make sure we leave the system in a clean state in the event of exceptions that prevented a cleanup.
         Tox4j.destroyAll();
+        System.gc();
     }
 
     @Override

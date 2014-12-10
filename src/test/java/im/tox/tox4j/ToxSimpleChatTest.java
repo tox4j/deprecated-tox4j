@@ -232,6 +232,15 @@ public abstract class ToxSimpleChatTest {
     }
 
     @Test
+    public void testFinalize() throws Exception {
+        System.gc();
+        ToxSimpleChat tox = newTox();
+        tox.close();
+        tox = null;
+        System.gc();
+    }
+
+    @Test
     public void testDoInterval() throws Exception {
         try (ToxSimpleChat tox = newTox()) {
             assertTrue(tox.doInterval() > 0);
