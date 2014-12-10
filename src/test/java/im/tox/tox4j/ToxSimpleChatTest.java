@@ -24,26 +24,26 @@ public abstract class ToxSimpleChatTest {
     @Test
     public void testIsConnected() throws Exception {
         try (ToxSimpleChat tox = newTox()) {
-            assertFalse(tox.isConnected());
+            assertFalse("A new tox should not be connected", tox.isConnected());
         }
     }
 
-    @Test
-    public void testClose() throws Exception {
+    @Test(expected=ToxKilledException.class)
+    public void testClose_DoubleCloseThrows() throws Exception {
         ToxSimpleChat tox = newTox();
-        tox.close();
-        boolean caught = false;
         try {
             tox.close();
         } catch (ToxKilledException e) {
-            caught = true;
+            fail("The first close should not have thrown");
         }
-        assertTrue(caught);
+        tox.close();
     }
 
     @Test
     public void testDoInterval() throws Exception {
-
+        try (ToxSimpleChat tox = newTox()) {
+            assertTrue(tox.doInterval() > 0);
+        }
     }
 
     @Test
