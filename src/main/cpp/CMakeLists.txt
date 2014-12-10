@@ -21,7 +21,9 @@ else()
 		set(JAVA_INCLUDE_PATH2 ${JNI_MD_H})
 	endif()
 endif()
-find_package(Libtox REQUIRED COMPONENTS core av)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBTOX REQUIRED libtoxcore)
+pkg_check_modules(LIBTOXAV REQUIRED libtoxav)
 # Depending on whether we need jni_md.h or not, define the include directories
 if(${NEED_JNI_MD} MATCHES "y")
 	include_directories(
@@ -29,12 +31,14 @@ if(${NEED_JNI_MD} MATCHES "y")
 		"${JAVA_INCLUDE_PATH}"
 		"${JAVA_INCLUDE_PATH2}"
 		"${LIBTOX_INCLUDE_DIRS}"
+		"${LIBTOXAV_INCLUDE_DIRS}"
 		)
 else()
 	include_directories(
 		"${JNI_HEADER_LOCATION}"
 		"${JAVA_INCLUDE_PATH}"
 		"${LIBTOX_INCLUDE_DIRS}"
+		"${LIBTOXAV_INCLUDE_DIRS}"
 		)
 endif()
 
@@ -42,6 +46,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
 	${CMAKE_SOURCE_DIR}/src/main/protobuf/events.proto
 )
+link_directories(${LIBTOX_LIBRARY_DIRS} ${LIBTOXAV_LIBRARY_DIRS})
 add_library(
 	${LIB_TARGET_NAME}
 	MODULE
@@ -55,6 +60,7 @@ endif()
 target_link_libraries(
 	${LIB_TARGET_NAME}
 	${LIBTOX_LIBRARIES}
+	${LIBTOXAV_LIBRARIES}
 	${PROTOBUF_LITE_LIBRARIES}
 	${WS2_32}
 	)

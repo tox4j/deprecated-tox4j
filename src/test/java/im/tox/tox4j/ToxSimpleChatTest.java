@@ -3,6 +3,7 @@ package im.tox.tox4j;
 import org.junit.Test;
 
 import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.exceptions.ToxKilledException;
 
 import static org.junit.Assert.*;
 
@@ -22,18 +23,27 @@ public abstract class ToxSimpleChatTest {
 
     @Test
     public void testIsConnected() throws Exception {
-        ToxSimpleChat tox = newTox();
-        tox.isConnected();
+        try (ToxSimpleChat tox = newTox()) {
+            assertFalse("A new tox should not be connected", tox.isConnected());
+        }
     }
 
-    @Test
-    public void testClose() throws Exception {
-
+    @Test(expected=ToxKilledException.class)
+    public void testClose_DoubleCloseThrows() throws Exception {
+        ToxSimpleChat tox = newTox();
+        try {
+            tox.close();
+        } catch (ToxKilledException e) {
+            fail("The first close should not have thrown");
+        }
+        tox.close();
     }
 
     @Test
     public void testDoInterval() throws Exception {
-
+        try (ToxSimpleChat tox = newTox()) {
+            assertTrue(tox.doInterval() > 0);
+        }
     }
 
     @Test
