@@ -2,20 +2,85 @@ package im.tox.tox4j;
 
 import org.junit.Test;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.exceptions.ToxKilledException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
 public abstract class ToxSimpleChatTest {
 
+    private static final int TOX_COUNT = 10;
+
     protected abstract ToxSimpleChat newTox() throws ToxException;
     protected abstract ToxSimpleChat newTox(boolean ipv6Enabled, boolean udpDisabled) throws ToxException;
     protected abstract ToxSimpleChat newTox(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort) throws ToxException;
+
+    private class ToxList implements Closeable {
+        private final ToxSimpleChat[] toxes;
+
+        public ToxList(ToxSimpleChat... toxes) {
+            this.toxes = toxes;
+        }
+
+        public ToxList(int count) throws ToxException {
+            this.toxes = new ToxSimpleChat[count];
+            for (int i = 0; i < count; i++) {
+                toxes[i] = newTox();
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            for (ToxSimpleChat tox : toxes) {
+                tox.close();
+            }
+        }
+
+        public boolean isAllConnected() {
+            boolean result = true;
+            for (ToxSimpleChat tox : toxes) {
+                result = result && tox.isConnected();
+            }
+            return result;
+        }
+
+        public boolean isAnyConnected() {
+            for (ToxSimpleChat tox : toxes) {
+                if (tox.isConnected()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void toxDo() {
+            for (ToxSimpleChat tox : toxes) {
+                tox.toxDo();
+            }
+        }
+
+        public int doInterval() {
+            int result = 0;
+            for (ToxSimpleChat tox : toxes) {
+                result = Math.max(result, tox.doInterval());
+            }
+            return result;
+        }
+
+        public ToxSimpleChat get(int index) {
+            return toxes[index];
+        }
+
+        public int size() {
+            return toxes.length;
+        }
+    }
+
 
     @Test
     public void testToxNew00() throws Exception {
@@ -135,21 +200,43 @@ public abstract class ToxSimpleChatTest {
 
     @Test(timeout = 10000)
     public void testBootstrapSelf() throws Exception {
-        try (ToxSimpleChat rootTox = newTox()) {
-            try (ToxSimpleChat clientTox = newTox()) {
-                // TODO: Is this port stable? Probably not, so how do we find our port?
-                clientTox.bootstrap("localhost", 33445, Arrays.copyOf(rootTox.getAddress(), ToxConstants.CLIENT_ID_SIZE));
-                // TODO: Generous timeout required for this; should be made more reliable.
-                while (!clientTox.isConnected()) {
-                    clientTox.toxDo();
-                    rootTox.toxDo();
-                    try {
-                        Thread.sleep(Math.max(clientTox.doInterval(), rootTox.doInterval()));
-                    } catch (InterruptedException e) {
-                        // Probably the timeout was reached, so we ought to be killed soon.
-                    }
+        // TODO: don't know how to test this on localhost
+    }
+
+    @Test(timeout = 10000)
+    public void testLANDiscoveryAll() throws Exception {
+        try (ToxList toxes = new ToxList(TOX_COUNT)) {
+            long start = System.currentTimeMillis();
+            // TODO: Generous timeout required for this; should be made more reliable.
+            while (!toxes.isAllConnected()) {
+                toxes.toxDo();
+                try {
+                    Thread.sleep(toxes.doInterval());
+                } catch (InterruptedException e) {
+                    // Probably the timeout was reached, so we ought to be killed soon.
                 }
             }
+            long end = System.currentTimeMillis();
+            System.out.println("Connecting all of " + toxes.size() + " toxes with LAN discovery " +
+                    "took " + (end - start) + "ms");
+        }
+    }
+
+    @Test(timeout = 10000)
+    public void testLANDiscoveryAny() throws Exception {
+        try (ToxList toxes = new ToxList(TOX_COUNT)) {
+            long start = System.currentTimeMillis();
+            while (!toxes.isAnyConnected()) {
+                toxes.toxDo();
+                try {
+                    Thread.sleep(toxes.doInterval());
+                } catch (InterruptedException e) {
+                    // Probably the timeout was reached, so we ought to be killed soon.
+                }
+            }
+            long end = System.currentTimeMillis();
+            System.out.println("Connecting one of " + toxes.size() + " toxes with LAN discovery " +
+                    "took " + (end - start) + "ms");
         }
     }
 
