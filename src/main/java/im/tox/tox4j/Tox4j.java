@@ -263,8 +263,11 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
+    private static native byte[] save(int instanceNumber);
+
+    @Override
     public byte[] save() {
-        return new byte[0];
+        return save(this.instanceNumber);
     }
 
     @Override
