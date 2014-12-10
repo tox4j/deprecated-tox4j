@@ -172,7 +172,11 @@ public abstract class ToxSimpleChatTest {
                 while (!clientTox.isConnected()) {
                     clientTox.toxDo();
                     rootTox.toxDo();
-                    Thread.sleep(Math.max(clientTox.doInterval(), rootTox.doInterval()));
+                    try {
+                        Thread.sleep(Math.max(clientTox.doInterval(), rootTox.doInterval()));
+                    } catch (InterruptedException e) {
+                        // Probably the timeout was reached, so we ought to be killed soon.
+                    }
                 }
             }
         }
