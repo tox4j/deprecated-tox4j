@@ -38,7 +38,25 @@ public class Tox4j implements ToxSimpleChat {
     private TypingChangeCallback typingChangeCallback;
     private ConnectionStatusCallback connectionStatusCallback;
 
-    private native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
+    /**
+     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
+     * used during testing or debugging.
+     */
+    static native void destroyAll();
+
+    private static native void finalize(int instanceNumber);
+
+    @Override
+    public final void finalize() throws Throwable {
+        try {
+            finalize(instanceNumber);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        super.finalize();
+    }
+
+    private static native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
     /**
      * Creates a new Tox4j instance with the default settings:
@@ -102,13 +120,13 @@ public class Tox4j implements ToxSimpleChat {
      * @param port the port number
      * @throws IllegalArgumentException unless  1 &lt;= port &lt;= 65535
      */
-    private void validatePort(int port) throws IllegalArgumentException {
+    private static void validatePort(int port) throws IllegalArgumentException {
         if (port < 1 || port > 65535) {
             throw new IllegalArgumentException("Port invalid");
         }
     }
 
-    private native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
+    private static native int bootstrap(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void bootstrap(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
@@ -120,12 +138,12 @@ public class Tox4j implements ToxSimpleChat {
 
         int result = bootstrap(this.instanceNumber, address, port, publicKey);
 
-        if (result == 1) {
+        if (result == 0) {
             throw new ToxException("Could not resolve address");
         }
     }
 
-    private native int addTcpRelay(int instanceNumber, String address, int port, byte[] publicKey);
+    private static native int addTcpRelay(int instanceNumber, String address, int port, byte[] publicKey);
 
     @Override
     public void addTcpRelay(String address, int port, byte[] publicKey) throws ToxException, IllegalArgumentException {
@@ -142,28 +160,28 @@ public class Tox4j implements ToxSimpleChat {
         }
     }
 
-    private native boolean isConnected(int instanceNumber);
+    private static native boolean isConnected(int instanceNumber);
 
     @Override
     public boolean isConnected() {
         return isConnected(this.instanceNumber);
     }
 
-    private native void kill(int instanceNumber);
+    private static native void kill(int instanceNumber);
 
     @Override
     public void close() {
         kill(this.instanceNumber);
     }
 
-    private native int doInterval(long instancePointer);
+    private static native int doInterval(int instanceNumber);
 
     @Override
     public int doInterval() {
         return doInterval(this.instanceNumber);
     }
 
-    private native byte[] toxDo(int instanceNumber);
+    private static native byte[] toxDo(int instanceNumber);
 
     @Override
     public void toxDo() {
@@ -231,9 +249,11 @@ public class Tox4j implements ToxSimpleChat {
 
     }
 
+    private static native byte[] getAddress(int instanceNumber);
+
     @Override
     public byte[] getAddress() {
-        return new byte[0];
+        return getAddress(instanceNumber);
     }
 
     @Override
