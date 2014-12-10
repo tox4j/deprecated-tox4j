@@ -121,7 +121,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jclass, jint in
     std::lock_guard<std::mutex> ilock(*t.mutex);
     if ((size_t) instance_number == instance_vector.size() - 1) {
         // TODO: This code is problematic, because under certain circumstances,
-        // TODO: a live Java object can be allowed to call close() twice.
+        // TODO: a live Java object can be allowed to call close() twice (see testDoubleCloseError).
         instance_vector.pop_back();
     }
 }
