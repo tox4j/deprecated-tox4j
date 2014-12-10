@@ -66,7 +66,14 @@ public abstract class ToxSimpleChatTest {
 
     @Test
     public void testBootstrap() throws Exception {
-
+        try (ToxSimpleChat tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 33445, new byte[]{ (byte)0x95, 0x1C, (byte)0x88, (byte)0xB7, (byte)0xE7, 0x5C, (byte)0x86, 0x74, 0x18, (byte)0xAC, (byte)0xDB, 0x5D, 0x27, 0x38, 0x21, 0x37, 0x2B, (byte)0xB5, (byte)0xBD, 0x65, 0x27, 0x40, (byte)0xBC, (byte)0xDF, 0x62, 0x3A, 0x4F, (byte)0xA2, (byte)0x93, (byte)0xE7, 0x5D, 0x2F });
+//            for (int i = 0; i < 100; i++) {
+//                tox.toxDo();
+//                Thread.sleep(tox.doInterval());
+//            }
+//            assertTrue(tox.isConnected());
+        }
     }
 
     @Test
