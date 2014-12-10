@@ -44,6 +44,18 @@ public class Tox4j implements ToxSimpleChat {
      */
     static native void destroyAll();
 
+    private static native void finalize(int instanceNumber);
+
+    @Override
+    public void finalize() throws Throwable {
+        try {
+            finalize(instanceNumber);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        super.finalize();
+    }
+
     private static native int toxNew(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort);
 
     /**
