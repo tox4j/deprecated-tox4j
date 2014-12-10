@@ -38,10 +38,10 @@ template<typename T> T default_value() { return T(); }
 template<> void default_value<void>() { }
 
 template<typename Func>
-static auto with_instance(JNIEnv *env, jint instance_number, Func func)
-    -> decltype(func(std::declval<Tox *>(), std::declval<ToxEvents &>()))
+static typename std::result_of<Func(Tox *, ToxEvents &)>::type
+with_instance(JNIEnv *env, jint instance_number, Func func)
 {
-    typedef decltype(func(std::declval<Tox *>(), std::declval<ToxEvents &>())) return_type;
+    typedef typename std::result_of<Func(Tox *, ToxEvents &)>::type return_type;
 
     instance_mutex.lock();
     if (instance_number < 0) {
@@ -54,7 +54,7 @@ static auto with_instance(JNIEnv *env, jint instance_number, Func func)
         return default_value<return_type>();
     }
 
-    Tox4jStruct &instance = instance_vector.at(instance_number);
+    Tox4jStruct const &instance = instance_vector[instance_number];
 
     std::lock_guard<std::mutex> lock(*instance.mutex);
     Tox *tox = instance.tox.get();
@@ -104,7 +104,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_kill(JNIEnv *env, jclass, jint in
         return;
     }
     if (instance_number >= (jint) instance_vector.size()) {
-        throw_tox_killed_exception(env, "kill called on already killed/nonexistant instance");
+        throw_tox_killed_exception(env, "kill called on already killed/nonexistent instance");
         return;
     }
     Tox4jStruct t(std::move(instance_vector[instance_number]));
@@ -150,9 +150,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, 
         events.SerializeToArray(buffer.data(), buffer.size());
         events.Clear();
 
-        jbyteArray jb = env->NewByteArray(buffer.size());
-        env->SetByteArrayRegion(jb, 0, buffer.size(), (jbyte *)buffer.data());
-        return jb;
+        return toByteArray(env, buffer);
     });
 }
 
@@ -161,8 +159,6 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_getAddress(JNIEnv *env, jcl
         std::vector<uint8_t> address(TOX_FRIEND_ADDRESS_SIZE);
         tox_get_address(tox, address.data());
 
-        jbyteArray jb = env->NewByteArray(address.size());
-        env->SetByteArrayRegion(jb, 0, address.size(), (jbyte *)address.data());
-        return jb;
+        return toByteArray(env, address);
     });
 }
