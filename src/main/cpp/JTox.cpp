@@ -46,12 +46,12 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
 {
     typedef typename std::result_of<Func(Tox *, ToxEvents &)>::type return_type;
 
-    instance_mutex.lock();
     if (instance_number < 0) {
         throw_illegal_state_exception(env, "Tox instance out of range");
         return default_value<return_type>();
     }
 
+    std::unique_lock<std::mutex> lock(instance_mutex);
     if (instance_number >= instance_vector.size()) {
         throw_tox_killed_exception(env, "Tox function invoked on killed tox instance!");
         return default_value<return_type>();
@@ -59,10 +59,10 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
 
     Tox4jStruct const &instance = instance_vector[instance_number];
 
-    std::lock_guard<std::mutex> lock(*instance.mutex);
+    std::lock_guard<std::mutex> ilock(*instance.mutex);
     Tox *tox = instance.tox.get();
     ToxEvents &events = *instance.events;
-    instance_mutex.unlock();
+    lock.unlock();
     return func(tox, events);
 }
 
