@@ -54,6 +54,24 @@ message GroupInvite {
     required bytes data = 3;
 }
 
+message GroupMessage {
+    required int32 groupNumber = 1;
+    required int32 peerNumber = 2;
+    required bytes data = 3;
+}
+
+message GroupAction {
+    required int32 groupNumber = 1;
+    required int32 peerNumber = 2;
+    required bytes action = 3;
+}
+
+message GroupTitleChange {
+    required int32 groupNumber = 1;
+    required int32 peerNumber = 2;
+    required bytes newTitle = 3;
+}
+
 message ToxEvents {
     repeated FriendRequest friendRequest = 1;
     repeated Message msg = 2;
@@ -65,4 +83,7 @@ message ToxEvents {
     repeated Receipt receipt = 8;
     repeated ConnectionStatus cStatus = 9;
     repeated GroupInvite gInvite = 10;
+    repeated GroupMessage gMessage = 11;
+    repeated GroupAction gAction = 12;
+    repeated GroupTitleChange gTitleChange = 13;
 }
