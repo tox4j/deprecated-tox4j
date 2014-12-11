@@ -521,6 +521,16 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
+    public int addGroupChat() {
+        return 0;
+    }
+
+    @Override
+    public int deleteGroupChat(int groupNumber) {
+        return 0;
+    }
+
+    @Override
     public void registerGroupInviteCallback(GroupInviteCallback callback) {
         this.groupInviteCallback = callback;
     }
@@ -538,5 +548,10 @@ public class Tox4j implements ToxSimpleChat {
     @Override
     public void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback) {
         this.groupTitleChangeCallback = callback;
+    }
+
+    @Override
+    public void registerGroupNameListChangeCallback(GroupNameListChangeCallback callback) {
+
     }
 }
