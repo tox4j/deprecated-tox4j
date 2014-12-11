@@ -145,9 +145,9 @@ static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_numb
     throw_illegal_state_exception(env, instance_number, message.c_str());
 }
 
-static inline void tox4j_assert(bool condition, JNIEnv *env, std::string const &message) {
+static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message) {
     if (!condition) {
-        env->FatalError(message.c_str());
+        env->FatalError(message);
     }
 }
 
