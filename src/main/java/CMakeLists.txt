@@ -3,7 +3,7 @@ set(PACKAGE_NAME im.tox.tox4j)
 
 # Java output directory
 set(CMAKE_JAVA_TARGET_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_JAVA_INCLUDE_PATH "${CMAKE_SOURCE_DIR}/lib/protobuf-java-2.6.1.jar")
+set(CMAKE_JAVA_INCLUDE_PATH "${PROTOBUF_FULL}")
 # Define directories for classfiles
 set(CLASSDIR "${CMAKE_JAVA_TARGET_OUTPUT_DIR}/CMakeFiles/${JAR_TARGET_NAME}.dir")
 set(CLEANFILES
