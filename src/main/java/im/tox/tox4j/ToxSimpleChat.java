@@ -4,6 +4,7 @@ import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
 import im.tox.tox4j.exceptions.NoSuchFriendException;
+import im.tox.tox4j.exceptions.GroupAddException;
 import im.tox.tox4j.exceptions.ToxException;
 
 import java.io.Closeable;
@@ -402,17 +403,17 @@ public interface ToxSimpleChat extends Closeable {
     /**
      * Create a new group chat.
      *
-     * @return group number on success, or -1 on failure
+     * @return group number
      */
-    int addGroupChat();
+    int addGroupChat() throws GroupAddException;
 
     /**
      * Delete a group chat.
      *
-     * @param groupNumber
-     * @return 0 on success, or -1 on failure
+     * @param groupNumber the group number to remove
+     * @throws im.tox.tox4j.exceptions.ToxException if the groupNumber is not in the group list
      */
-    int deleteGroupChat(int groupNumber);
+    void deleteGroupChat(int groupNumber) throws ToxException;
 
     /**
      * Set the callback for group invites.
