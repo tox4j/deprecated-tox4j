@@ -145,6 +145,12 @@ static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_numb
     throw_illegal_state_exception(env, instance_number, message.c_str());
 }
 
+static inline void tox4j_assert(bool condition, JNIEnv *env, std::string const &message) {
+    if (!condition) {
+        env->FatalError(message.c_str());
+    }
+}
+
 template<typename T> T default_value() { return T(); }
 template<> void default_value<void>() { }
 
@@ -198,6 +204,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jclass, jbool
     opts.ipv6enabled = (uint8_t) ipv6enabled;
     opts.udp_disabled = (uint8_t) udpDisabled;
     if (proxyEnabled) {
+        tox4j_assert(proxyAddress != NULL, env, "Proxy Address cannot be null when proxy is enabled");
         opts.proxy_enabled = true;
         strncpy(opts.proxy_address, UTFChars(env, proxyAddress), sizeof(opts.proxy_address) - 1);
         opts.proxy_port = (uint16_t) proxyPort;
@@ -275,6 +282,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_finalize(JNIEnv *env, jclass, jin
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, jint instance_number,
     jstring address, jint port, jbyteArray public_key) {
+    tox4j_assert(address != NULL, env, "Bootstrap address cannot be null");
+    tox4j_assert(public_key != NULL, env, "Public key cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_bootstrap_from_address(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
@@ -282,6 +291,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, ji
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jclass, jint instance_number, jstring address,
     jint port, jbyteArray public_key) {
+    tox4j_assert(address != NULL, env, "Relay address cannot be null");
+    tox4j_assert(public_key != NULL, env, "Public key cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_add_tcp_relay(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
@@ -302,6 +313,14 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_toxDo(JNIEnv *env, jclass, 
         std::vector<char> buffer(events.ByteSize());
         events.SerializeToArray(buffer.data(), buffer.size());
         events.Clear();
+
+        return toByteArray(env, buffer);
+    });
+}
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_save(JNIEnv *env, jclass, jint instance_number) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        std::vector<uint8_t> buffer(tox_size(tox));
+        tox_save(tox, buffer.data());
 
         return toByteArray(env, buffer);
     });
