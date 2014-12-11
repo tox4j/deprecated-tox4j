@@ -3,6 +3,7 @@ package im.tox.tox4j;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
+import im.tox.tox4j.exceptions.GroupAddException;
 import im.tox.tox4j.exceptions.ToxException;
 
 import java.io.Closeable;
@@ -121,21 +122,23 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param address address to send request to
      * @param message UTF-8 encoded message to send with the request (needs to be at least 1 byte)
+     * @return friend number
      * @throws im.tox.tox4j.exceptions.FriendAddException possible error codes are defined in {@link im.tox.tox4j.exceptions.FriendAddErrorCode}
      * @throws java.lang.IllegalArgumentException         if the address length is not {@link im.tox.tox4j.ToxConstants#TOX_ADDRESS_SIZE}
      * @throws java.lang.IllegalArgumentException         if the message is not valid UTF-8
      * @throws java.lang.IllegalArgumentException         if the message empty or longer than {@link im.tox.tox4j.ToxConstants#MAX_FRIENDREQUEST_LENGTH}
      */
-    void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException;
+    int addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException;
 
     /**
      * Add the specified clientId (32 bytes) without sending a request. This is mostly used for confirming incoming friend requests.
      *
      * @param clientId the client ID to add
+     * @return friend number
      * @throws im.tox.tox4j.exceptions.FriendAddException in case the friend was already added, or we are adding our own key.
      * @throws java.lang.IllegalArgumentException         if the clientId length is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
-    void addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException;
+    int addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException;
 
     /**
      * Get the friendNumber of the specified client ID.
@@ -384,6 +387,21 @@ public interface ToxSimpleChat extends Closeable {
     /************************************************************************************/
 
     /**
+     * Create a new group chat.
+     *
+     * @return group number
+     */
+    int addGroupChat() throws GroupAddException;
+
+    /**
+     * Delete a group chat.
+     *
+     * @param groupNumber the group number to remove
+     * @throws im.tox.tox4j.exceptions.ToxException if the groupNumber is not in the group list
+     */
+    void deleteGroupChat(int groupNumber) throws ToxException;
+
+    /**
      * Set the callback for group invites.
      *
      * @param callback callback to set
@@ -410,4 +428,11 @@ public interface ToxSimpleChat extends Closeable {
      * @param callback callback to set
      */
     void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback);
+
+    /**
+     * Set the callback for group name list changes.
+     *
+     * @param callback callback to set
+     */
+    void registerGroupNameListChangeCallback(GroupNameListChangeCallback callback);
 }

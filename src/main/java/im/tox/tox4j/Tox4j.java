@@ -4,6 +4,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
+import im.tox.tox4j.exceptions.GroupAddException;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.proto.Events;
 
@@ -288,13 +289,13 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException {
-
+    public int addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException {
+        return 0;
     }
 
     @Override
-    public void addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException {
-
+    public int addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException {
+        return 0;
     }
 
     @Override
@@ -438,6 +439,16 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
+    public int addGroupChat() throws GroupAddException {
+        return 0;
+    }
+
+    @Override
+    public void deleteGroupChat(int groupNumber) throws ToxException {
+
+    }
+
+    @Override
     public void registerGroupInviteCallback(GroupInviteCallback callback) {
 
     }
@@ -454,6 +465,11 @@ public class Tox4j implements ToxSimpleChat {
 
     @Override
     public void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback) {
+
+    }
+
+    @Override
+    public void registerGroupNameListChangeCallback(GroupNameListChangeCallback callback) {
 
     }
 }

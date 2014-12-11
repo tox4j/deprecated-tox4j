@@ -25,6 +25,7 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/exceptions/FriendAddErrorCode.java
 	im/tox/tox4j/exceptions/EncryptedSaveDataException.java
 	im/tox/tox4j/exceptions/ToxKilledException.java
+	im/tox/tox4j/exceptions/GroupAddException.java
 )
 
 set(TOX4J_CALLBACKS
@@ -40,6 +41,7 @@ set(TOX4J_CALLBACKS
 	im/tox/tox4j/callbacks/GroupMessageCallback.java
 	im/tox/tox4j/callbacks/GroupActionCallback.java
 	im/tox/tox4j/callbacks/GroupTitleChangeCallback.java
+	im/tox/tox4j/callbacks/GroupNameListChangeCallback.java
 )
 
 set(TOX4J_SOURCE

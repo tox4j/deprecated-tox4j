@@ -86,6 +86,21 @@ public final class ToxConstants {
     public static final int GROUPCHAT_TYPE_AV = 1;
 
     /**
+     * Peer added to a group chat list
+     */
+    public static final int GROUPCHAT_CHANGE_PEER_ADD = 0;
+
+    /**
+     * Peer deleted from a group chat list
+     */
+    public static final int GROUPCHAT_CHANGE_PEER_DEL = 1;
+
+    /**
+     * Peer changed name in a group chat list
+     */
+    public static final int GROUPCHAT_CHANGE_PEER_NAME = 2;
+
+    /**
      * This class isn't meant to be instantiated.
      */
     private ToxConstants() {
