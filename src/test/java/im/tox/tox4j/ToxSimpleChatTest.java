@@ -556,7 +556,37 @@ public abstract class ToxSimpleChatTest {
     }
 
     @Test
+    public void testAddGroupChat() throws Exception {
+
+    }
+
+    @Test
+    public void testDeleteGroupChat() throws Exception {
+
+    }
+
+    @Test
     public void testRegisterGroupInviteCallback() throws Exception {
+
+    }
+
+    @Test
+    public void testRegisterGroupMessageCallback() throws Exception {
+
+    }
+
+    @Test
+    public void testRegisterGroupActionCallback() throws Exception {
+
+    }
+
+    @Test
+    public void testRegisterGroupTitleChangeCallback() throws Exception {
+
+    }
+
+    @Test
+    public void testRegisterGroupNameListChangeCallback() throws Exception {
 
     }
 

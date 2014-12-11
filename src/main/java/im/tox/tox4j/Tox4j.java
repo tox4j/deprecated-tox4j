@@ -285,13 +285,13 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException {
-
+    public int addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException {
+        return 0;
     }
 
     @Override
-    public void addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException {
-
+    public int addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException {
+        return 0;
     }
 
     @Override
@@ -435,6 +435,16 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
+    public int addGroupChat() {
+        return 0;
+    }
+
+    @Override
+    public int deleteGroupChat(int groupNumber) {
+        return 0;
+    }
+
+    @Override
     public void registerGroupInviteCallback(GroupInviteCallback callback) {
 
     }
@@ -451,6 +461,11 @@ public class Tox4j implements ToxSimpleChat {
 
     @Override
     public void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback) {
+
+    }
+
+    @Override
+    public void registerGroupNameListChangeCallback(GroupNameListChangeCallback callback) {
 
     }
 }
