@@ -400,6 +400,21 @@ public interface ToxSimpleChat extends Closeable {
     /************************************************************************************/
 
     /**
+     * Create a new group chat.
+     *
+     * @return group number on success, or -1 on failure
+     */
+    int addGroupChat();
+
+    /**
+     * Delete a group chat.
+     *
+     * @param groupNumber
+     * @return 0 on success, or -1 on failure
+     */
+    int deleteGroupChat(int groupNumber);
+
+    /**
      * Set the callback for group invites.
      *
      * @param callback callback to set
@@ -426,4 +441,11 @@ public interface ToxSimpleChat extends Closeable {
      * @param callback callback to set
      */
     void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback);
+
+    /**
+     * Set the callback for group name list changes.
+     *
+     * @param callback callback to set
+     */
+    void registerGroupNameListChangeCallback(GroupNameListChangeCallback callback);
 }
