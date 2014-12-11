@@ -521,13 +521,13 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public int addGroupChat() {
+    public int addGroupChat() throws GroupAddException {
         return 0;
     }
 
     @Override
-    public int deleteGroupChat(int groupNumber) {
-        return 0;
+    public void deleteGroupChat(int groupNumber) throws ToxException {
+
     }
 
     @Override
