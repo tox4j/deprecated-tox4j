@@ -3,6 +3,7 @@ package im.tox.tox4j;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
+import im.tox.tox4j.exceptions.GroupAddException;
 import im.tox.tox4j.exceptions.ToxException;
 
 import java.io.Closeable;
@@ -121,7 +122,7 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param address address to send request to
      * @param message UTF-8 encoded message to send with the request (needs to be at least 1 byte)
-     * @return friend number if success
+     * @return friend number
      * @throws im.tox.tox4j.exceptions.FriendAddException possible error codes are defined in {@link im.tox.tox4j.exceptions.FriendAddErrorCode}
      * @throws java.lang.IllegalArgumentException         if the address length is not {@link im.tox.tox4j.ToxConstants#TOX_ADDRESS_SIZE}
      * @throws java.lang.IllegalArgumentException         if the message is not valid UTF-8
@@ -133,7 +134,7 @@ public interface ToxSimpleChat extends Closeable {
      * Add the specified clientId (32 bytes) without sending a request. This is mostly used for confirming incoming friend requests.
      *
      * @param clientId the client ID to add
-     * @return friend number if success, or -1 if failure
+     * @return friend number
      * @throws im.tox.tox4j.exceptions.FriendAddException in case the friend was already added, or we are adding our own key.
      * @throws java.lang.IllegalArgumentException         if the clientId length is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
@@ -388,17 +389,17 @@ public interface ToxSimpleChat extends Closeable {
     /**
      * Create a new group chat.
      *
-     * @return group number on success, or -1 on failure
+     * @return group number
      */
-    int addGroupChat();
+    int addGroupChat() throws GroupAddException;
 
     /**
      * Delete a group chat.
      *
-     * @param groupNumber
-     * @return 0 on success, or -1 on failure
+     * @param groupNumber the group number to remove
+     * @throws im.tox.tox4j.exceptions.ToxException if the groupNumber is not in the group list
      */
-    int deleteGroupChat(int groupNumber);
+    void deleteGroupChat(int groupNumber) throws ToxException;
 
     /**
      * Set the callback for group invites.

@@ -4,6 +4,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
+import im.tox.tox4j.exceptions.GroupAddException;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.proto.Events;
 
@@ -435,13 +436,13 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public int addGroupChat() {
+    public int addGroupChat() throws GroupAddException {
         return 0;
     }
 
     @Override
-    public int deleteGroupChat(int groupNumber) {
-        return 0;
+    public void deleteGroupChat(int groupNumber) throws ToxException {
+
     }
 
     @Override
