@@ -51,6 +51,7 @@ add_library(
 	${LIB_TARGET_NAME}
 	MODULE
 	JTox.cpp
+	Tox4j.cpp
 	${PROTO_SRCS}
 	${PROTO_HDRS}
 )
