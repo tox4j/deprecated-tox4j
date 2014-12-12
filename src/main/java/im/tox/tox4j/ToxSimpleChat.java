@@ -103,11 +103,15 @@ public interface ToxSimpleChat extends Closeable {
 
     /**
      * Load data to the current tox instance and decrypt, if necessary.
+     * <p>
+     * If the save data is not encrypted, this function behaves like {@link #load(byte[])}, and the password argument is
+     * ignored completely. If the save data is encrypted, the given password is used to decrypt the save data.
      *
      * @param data     the data to load
      * @param password the password to use for decryption of data file if it is encrypted
+     * @throws java.lang.IllegalArgumentException if the save data is encrypted and the password is null or empty
      */
-    void load(byte[] data, byte[] password);
+    void load(byte[] data, byte[] password) throws IllegalArgumentException;
 
     /**
      * Get our own address to give to friends.
