@@ -125,20 +125,22 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param address address to send request to
      * @param message UTF-8 encoded message to send with the request (needs to be at least 1 byte)
+     * @return the new friend's friendnumber
      * @throws im.tox.tox4j.exceptions.FriendAddException possible error codes are defined in {@link im.tox.tox4j.exceptions.FriendAddErrorCode}
      * @throws java.lang.IllegalArgumentException         if the address length is not {@link im.tox.tox4j.ToxConstants#TOX_ADDRESS_SIZE}
      * @throws java.lang.IllegalArgumentException         if the message empty or longer than {@link im.tox.tox4j.ToxConstants#MAX_FRIENDREQUEST_LENGTH}
      */
-    void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException;
+    int addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException;
 
     /**
      * Add the specified clientId (32 bytes) without sending a request. This is mostly used for confirming incoming friend requests.
      *
      * @param clientId the client ID to add
+     * @return the new friend's friendnumber
      * @throws im.tox.tox4j.exceptions.FriendAddException in case the friend was already added, or we are adding our own key.
      * @throws java.lang.IllegalArgumentException         if the clientId length is not {@link im.tox.tox4j.ToxConstants#CLIENT_ID_SIZE}
      */
-    void addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException;
+    int addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException;
 
     /**
      * Get the friendNumber of the specified client ID.

@@ -326,10 +326,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_save(JNIEnv *env, jclass, j
     });
 }
 
-JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_load__I_3B(JNIEnv *env, jobject, jint instance_number, jbyteArray data) {
+JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_load(JNIEnv *env, jclass, jint instance_number, jbyteArray data) {
+    tox4j_assert(data != NULL, env, "Data cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         ByteArray bytes(env, data);
-        if (tox_load(tox, bytes, bytes.length()) == 0) {
+        if (tox_load(tox, bytes, (uint32_t) bytes.length()) == 0) {
             return JNI_TRUE;
         }
         return JNI_FALSE;
@@ -342,5 +343,23 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_getAddress(JNIEnv *env, jcl
         tox_get_address(tox, address.data());
 
         return toByteArray(env, address);
+    });
+}
+
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addFriend(JNIEnv *env, jclass, jint instance_number, jbyteArray address,
+    jbyteArray message) {
+    tox4j_assert(address != NULL, env, "Address cannot be null");
+    tox4j_assert(message != NULL, env, "Message cannot be null");
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        ByteArray messageBytes(env, message);
+        return tox_add_friend(tox, ByteArray(env, address), messageBytes, (uint16_t) messageBytes.length());
+    });
+}
+
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addFriendNoRequest(JNIEnv *env, jclass, jint instance_number,
+    jbyteArray clientId) {
+    tox4j_assert(clientId != NULL, env, "Client ID cannot be null");
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        return tox_add_friend_norequest(tox, ByteArray(env, clientId));
     });
 }

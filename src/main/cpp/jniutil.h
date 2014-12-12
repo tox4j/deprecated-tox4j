@@ -29,8 +29,8 @@ struct ByteArray {
 
     operator uint8_t const *() const { return (uint8_t *) bytes; }
 
-    uint32_t length() {
-        return (uint32_t) env->GetArrayLength(byteArray);
+    size_t length() {
+        return (size_t) env->GetArrayLength(byteArray);
     }
 private:
     JNIEnv *env;
