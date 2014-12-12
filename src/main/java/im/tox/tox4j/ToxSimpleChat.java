@@ -3,6 +3,7 @@ package im.tox.tox4j;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
 import im.tox.tox4j.exceptions.FriendAddException;
+import im.tox.tox4j.exceptions.NoSuchFriendException;
 import im.tox.tox4j.exceptions.ToxException;
 
 import java.io.Closeable;
@@ -13,10 +14,13 @@ import java.io.Closeable;
  * All messages sent over the Tox network should be encoded in UTF-8.
  * <p>
  * This interface is designed to be thread-safe. However, once {@link #close()} has been called, all subsequent calls
- * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes {@link #close},
+ * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes {@link #close()},
  * all other threads with pending calls will throw. The exception is unchecked, as it should not occur in a normal
  * execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads should be stopped
- * before one thread invokes {@link #close}, or appropriate exception handlers should be installed in all threads.
+ * before one thread invokes {@link #close()}, or appropriate exception handlers should be installed in all threads.
+ * <p>
+ * All functions that accept a friendNumber argument may throw {@link im.tox.tox4j.exceptions.NoSuchFriendException}.
+ * This exception is unchecked, as using {@link #friendExists(int)} correctly can prevent it from ever occurring.
  *
  * @author Simon Levermann (sonOfRa)
  */
@@ -157,29 +161,32 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber friendNumber to lookup the client ID for
      * @return the client ID that is associated with the given friendNumber
-     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendNumber is not in the friend list
      */
-    byte[] getClientId(int friendNumber) throws ToxException;
+    byte[] getClientId(int friendNumber) throws NoSuchFriendException;
 
     /**
      * Remove the friendNumber from the friend list.
      *
      * @param friendNumber the friendNumber to remove
-     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendNumber is not in the friend list
      */
-    void deleteFriend(int friendNumber) throws ToxException;
+    void deleteFriend(int friendNumber) throws NoSuchFriendException;
 
     /**
      * Get the connection status of the specified friendNumber.
      *
      * @param friendNumber the friendNumber to check connection status for
      * @return true if the friend is connected to us, false otherwise
-     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendNumber is not in the friend list
      */
-    boolean getConnectionStatus(int friendNumber) throws ToxException;
+    boolean getConnectionStatus(int friendNumber) throws NoSuchFriendException;
 
     /**
      * Check whether the specified friendNumber is in our friendlist.
+     * <p>
+     * Thread safety: The return value of this function is valid until this friend is deleted (from any thread) with
+     * {@link #deleteFriend(int)}.
      *
      * @param friendNumber the friendNumber to check for
      * @return true if friend exists, false otherwise
@@ -192,10 +199,11 @@ public interface ToxSimpleChat extends Closeable {
      * @param friendNumber the friendNumber to send a message to
      * @param message      the UTF-8 encoded message to send
      * @return the message number. Store this for read receipts
-     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
-     * @throws java.lang.IllegalArgumentException   if the message is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
+     * @throws im.tox.tox4j.exceptions.ToxException          if the message could not be sent
+     * @throws java.lang.IllegalArgumentException            if the message is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    int sendMessage(int friendNumber, byte[] message) throws ToxException, IllegalArgumentException;
+    int sendMessage(int friendNumber, byte[] message) throws ToxException, IllegalArgumentException, NoSuchFriendException;
 
     /**
      * Sends an action (/me does something) to the specified friendNumber.
@@ -203,10 +211,11 @@ public interface ToxSimpleChat extends Closeable {
      * @param friendNumber the friendNumber to send an action to
      * @param action       the UTF-8 encoded action to send
      * @return the message number. Store this for read receipts
-     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
-     * @throws java.lang.IllegalArgumentException   if the action is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
+     * @throws im.tox.tox4j.exceptions.ToxException          if the action could not be sent
+     * @throws java.lang.IllegalArgumentException            if the action is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    int sendAction(int friendNumber, byte[] action) throws ToxException, IllegalArgumentException;
+    int sendAction(int friendNumber, byte[] action) throws ToxException, IllegalArgumentException, NoSuchFriendException;
 
     /**
      * Sets our nickname. Can be at most {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH} byte, and must be at least 1 byte.
@@ -229,9 +238,10 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber the friendNumber to get the nickname for
      * @return the nickname. Generally, this should be UTF-8, but this is not guaranteed.
-     * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.ToxException          if getting the name failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    byte[] getName(int friendNumber) throws ToxException;
+    byte[] getName(int friendNumber) throws ToxException, NoSuchFriendException;
 
     /**
      * Sets our own status message. Can be at most {@link im.tox.tox4j.ToxConstants#MAX_STATUSMESSAGE_LENGTH} bytes,
@@ -255,9 +265,10 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber friendNumber to fetch status message for
      * @return the status message. Generally, this should be UTF-8, but this is not guaranteed.
-     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.ToxException          if getting the status message failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    byte[] getStatusMessage(int friendNumber) throws ToxException;
+    byte[] getStatusMessage(int friendNumber) throws ToxException, NoSuchFriendException;
 
     /**
      * Set our user status.
@@ -285,36 +296,40 @@ public interface ToxSimpleChat extends Closeable {
      *
      * @param friendNumber the friendNumber to fetch the user status for
      * @return the friend's user status
-     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.ToxException          if getting the userstatus failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    int getUserStatus(int friendNumber) throws ToxException;
+    int getUserStatus(int friendNumber) throws ToxException, NoSuchFriendException;
 
     /**
      * UNIX-Timestamp (seconds) when this friendNumber was last seen.
      *
      * @param friendNumber friendNumber to check timestamp for
      * @return timestamp, 0 if never seen
-     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.ToxException          if getting the timestamp failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    long lastSeen(int friendNumber) throws ToxException;
+    long lastSeen(int friendNumber) throws ToxException, NoSuchFriendException;
 
     /**
      * Set whether or not we are currently typing for this friendNumber.
      *
      * @param friendNumber friendNumber to set typing status for
      * @param typing       true if we are typing, false otherwise
-     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.ToxException          if setting the typing status failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    void setTypingStatus(int friendNumber, boolean typing) throws ToxException;
+    void setTypingStatus(int friendNumber, boolean typing) throws ToxException, NoSuchFriendException;
 
     /**
      * Get the typing status of friendNumber.
      *
      * @param friendNumber friendNumber to check typing status for
      * @return true if friend is typing, false otherwise
-     * @throws im.tox.tox4j.exceptions.ToxException if friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.ToxException          if getting the typing status failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendnumber is not in the friend list
      */
-    boolean getTypingStatus(int friendNumber) throws ToxException;
+    boolean getTypingStatus(int friendNumber) throws ToxException, NoSuchFriendException;
 
     /**
      * Get a list of valid friend IDs.

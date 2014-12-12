@@ -2,10 +2,7 @@ package im.tox.tox4j;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.callbacks.*;
-import im.tox.tox4j.exceptions.EncryptedSaveDataException;
-import im.tox.tox4j.exceptions.FriendAddErrorCode;
-import im.tox.tox4j.exceptions.FriendAddException;
-import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.exceptions.*;
 import im.tox.tox4j.proto.Events;
 
 /**
@@ -146,7 +143,7 @@ public class Tox4j implements ToxSimpleChat {
     /**
      * Validate a public key
      *
-     * @param publicKey
+     * @param publicKey the public key
      * @throws IllegalArgumentException if the key is null or the wrong size
      */
     private static void validatePublicKey(byte[] publicKey) throws IllegalArgumentException {
@@ -366,17 +363,17 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public byte[] getClientId(int friendNumber) throws ToxException {
+    public byte[] getClientId(int friendNumber) throws NoSuchFriendException {
         return new byte[0];
     }
 
     @Override
-    public void deleteFriend(int friendNumber) throws ToxException {
+    public void deleteFriend(int friendNumber) throws NoSuchFriendException {
 
     }
 
     @Override
-    public boolean getConnectionStatus(int friendNumber) throws ToxException {
+    public boolean getConnectionStatus(int friendNumber) throws NoSuchFriendException {
         return false;
     }
 
@@ -386,7 +383,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public int sendMessage(int friendNumber, byte[] message) throws ToxException, IllegalArgumentException {
+    public int sendMessage(int friendNumber, byte[] message) throws ToxException, IllegalArgumentException, NoSuchFriendException {
         return 0;
     }
 
@@ -406,7 +403,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public byte[] getName(int friendNumber) throws ToxException {
+    public byte[] getName(int friendNumber) throws ToxException, NoSuchFriendException {
         return new byte[0];
     }
 
@@ -421,7 +418,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public byte[] getStatusMessage(int friendNumber) throws ToxException {
+    public byte[] getStatusMessage(int friendNumber) throws ToxException, NoSuchFriendException {
         return new byte[0];
     }
 
@@ -436,12 +433,12 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public int getUserStatus(int friendNumber) throws ToxException {
+    public int getUserStatus(int friendNumber) throws ToxException, NoSuchFriendException {
         return 0;
     }
 
     @Override
-    public long lastSeen(int friendNumber) throws ToxException {
+    public long lastSeen(int friendNumber) throws ToxException, NoSuchFriendException {
         return 0;
     }
 
@@ -451,7 +448,7 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
-    public boolean getTypingStatus(int friendNumber) throws ToxException {
+    public boolean getTypingStatus(int friendNumber) throws ToxException, NoSuchFriendException {
         return false;
     }
 
