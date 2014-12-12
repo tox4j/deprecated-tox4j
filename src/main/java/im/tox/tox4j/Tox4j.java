@@ -3,6 +3,7 @@ package im.tox.tox4j;
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.exceptions.EncryptedSaveDataException;
+import im.tox.tox4j.exceptions.FriendAddErrorCode;
 import im.tox.tox4j.exceptions.FriendAddException;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.proto.Events;
@@ -270,7 +271,7 @@ public class Tox4j implements ToxSimpleChat {
         return save(this.instanceNumber);
     }
 
-    private native boolean load(int instanceNumber, byte[] data);
+    private static native boolean load(int instanceNumber, byte[] data);
 
     @Override
     public void load(byte[] data) throws EncryptedSaveDataException {
@@ -291,14 +292,72 @@ public class Tox4j implements ToxSimpleChat {
         return getAddress(instanceNumber);
     }
 
-    @Override
-    public void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException {
+    private static void validateToxAddress(byte[] address) throws IllegalArgumentException {
+        if (address == null) {
+            throw new IllegalArgumentException("Tox address must not be null");
+        }
 
+        if (address.length != ToxConstants.TOX_ADDRESS_SIZE) {
+            throw new IllegalArgumentException("Invalid size for tox address");
+        }
     }
 
-    @Override
-    public void addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException {
+    private static void handleAddFriendError(int errorCode) throws FriendAddException {
+        switch (errorCode) {
+            case -1:
+                throw new FriendAddException(FriendAddErrorCode.TOOLONG, "Message too long");
+            case -2:
+                throw new FriendAddException(FriendAddErrorCode.NOMESSAGE, "Missing message");
+            case -3:
+                throw new FriendAddException(FriendAddErrorCode.OWNKEY, "Cannot add our own key");
+            case -4:
+                throw new FriendAddException(FriendAddErrorCode.ALREADYSENT, "Friend request already sent");
+            case -6:
+                throw new FriendAddException(FriendAddErrorCode.BADCHECKSUM, "Invalid checksum in address");
+            case -7:
+                throw new FriendAddException(FriendAddErrorCode.SETNEWNOSPAM, "Invalid nospam in address");
+            case -8:
+                // Throw OutOfMemoryError here?
+                throw new FriendAddException(FriendAddErrorCode.NOMEM, "Could not allocate memory for new friend");
+            default:
+                throw new FriendAddException(FriendAddErrorCode.UNSPECIFIED, "Unknown error occurred");
+        }
+    }
 
+    private static native int addFriend(int instanceNumber, byte[] address, byte[] message);
+
+    @Override
+    public int addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException {
+        validateToxAddress(address);
+        if (message == null) {
+            throw new IllegalArgumentException("Friend request message cannot be null");
+        }
+        if (message.length == 0) {
+            throw new IllegalArgumentException("Friend request message cannot be empty");
+        }
+        if (message.length > ToxConstants.MAX_FRIENDREQUEST_LENGTH) {
+            throw new IllegalArgumentException("Friend request message size exceeded");
+        }
+
+        int errorCode = addFriend(this.instanceNumber, address, message);
+        if (errorCode < 0) {
+            handleAddFriendError(errorCode);
+        }
+
+        return errorCode;
+    }
+
+    private static native int addFriendNoRequest(int instanceNumber, byte[] clientId);
+
+    @Override
+    public int addFriendNoRequest(byte[] clientId) throws FriendAddException, IllegalArgumentException {
+        validatePublicKey(clientId);
+        int errorCode = addFriendNoRequest(this.instanceNumber, clientId);
+        if (errorCode < 0) {
+            handleAddFriendError(errorCode);
+        }
+
+        return errorCode;
     }
 
     @Override
