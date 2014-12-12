@@ -127,7 +127,6 @@ public interface ToxSimpleChat extends Closeable {
      * @param message UTF-8 encoded message to send with the request (needs to be at least 1 byte)
      * @throws im.tox.tox4j.exceptions.FriendAddException possible error codes are defined in {@link im.tox.tox4j.exceptions.FriendAddErrorCode}
      * @throws java.lang.IllegalArgumentException         if the address length is not {@link im.tox.tox4j.ToxConstants#TOX_ADDRESS_SIZE}
-     * @throws java.lang.IllegalArgumentException         if the message is not valid UTF-8
      * @throws java.lang.IllegalArgumentException         if the message empty or longer than {@link im.tox.tox4j.ToxConstants#MAX_FRIENDREQUEST_LENGTH}
      */
     void addFriend(byte[] address, byte[] message) throws FriendAddException, IllegalArgumentException;
@@ -192,7 +191,6 @@ public interface ToxSimpleChat extends Closeable {
      * @param message      the UTF-8 encoded message to send
      * @return the message number. Store this for read receipts
      * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
-     * @throws java.lang.IllegalArgumentException   if the message is not valid UTF-8
      * @throws java.lang.IllegalArgumentException   if the message is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
      */
     int sendMessage(int friendNumber, byte[] message) throws ToxException, IllegalArgumentException;
@@ -204,7 +202,6 @@ public interface ToxSimpleChat extends Closeable {
      * @param action       the UTF-8 encoded action to send
      * @return the message number. Store this for read receipts
      * @throws im.tox.tox4j.exceptions.ToxException if the friendNumber is not in the friend list
-     * @throws java.lang.IllegalArgumentException   if the action is not valid UTF-8
      * @throws java.lang.IllegalArgumentException   if the action is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
      */
     int sendAction(int friendNumber, byte[] action) throws ToxException, IllegalArgumentException;
@@ -213,7 +210,6 @@ public interface ToxSimpleChat extends Closeable {
      * Sets our nickname. Can be at most {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH} byte, and must be at least 1 byte.
      *
      * @param name the UTF-8 encoded name to set
-     * @throws IllegalArgumentException           if the name is not valid UTF-8
      * @throws java.lang.IllegalArgumentException if the name is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH}
      */
     void setName(byte[] name) throws IllegalArgumentException;
@@ -240,7 +236,6 @@ public interface ToxSimpleChat extends Closeable {
      * and must be at least 1 byte.
      *
      * @param statusMessage the UTF-8 encoded status message to set
-     * @throws java.lang.IllegalArgumentException if the status message is not valid UTF-8
      * @throws java.lang.IllegalArgumentException if the status message is empty or longer than {@link im.tox.tox4j.ToxConstants#MAX_STATUSMESSAGE_LENGTH}
      */
     void setStatusMessage(byte[] statusMessage) throws IllegalArgumentException;
