@@ -270,14 +270,18 @@ public class Tox4j implements ToxSimpleChat {
         return save(this.instanceNumber);
     }
 
+    private native boolean load(int instanceNumber, byte[] data);
+
     @Override
     public void load(byte[] data) throws EncryptedSaveDataException {
-
+        if (!load(this.instanceNumber, data)) {
+            throw new EncryptedSaveDataException("Save data was encrypted!");
+        }
     }
 
     @Override
     public void load(byte[] data, byte[] password) {
-
+        throw new UnsupportedOperationException("Loading encrypted Save files is currently unsupported");
     }
 
     private static native byte[] getAddress(int instanceNumber);
