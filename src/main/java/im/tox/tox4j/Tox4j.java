@@ -35,6 +35,10 @@ public class Tox4j implements ToxSimpleChat {
     private UserStatusCallback userStatusCallback;
     private TypingChangeCallback typingChangeCallback;
     private ConnectionStatusCallback connectionStatusCallback;
+    private GroupInviteCallback groupInviteCallback;
+    private GroupMessageCallback groupMessageCallback;
+    private GroupActionCallback groupActionCallback;
+    private GroupTitleChangeCallback groupTitleChangeCallback;
 
     /**
      * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
@@ -459,61 +463,61 @@ public class Tox4j implements ToxSimpleChat {
 
     @Override
     public void registerFriendRequestCallback(FriendRequestCallback callback) {
-
+        this.friendRequestCallback = callback;
     }
 
     @Override
     public void registerMessageCallback(MessageCallback callback) {
-
+        this.messageCallback = callback;
     }
 
     @Override
     public void registerActionCallback(ActionCallback callback) {
-
+        this.actionCallback = callback;
     }
 
     @Override
     public void registerNameChangeCallback(NameChangeCallback callback) {
-
+        this.nameChangeCallback = callback;
     }
 
     @Override
     public void registerStatusMessageCallback(StatusMessageCallback callback) {
-
+        this.statusMessageCallback = callback;
     }
 
     @Override
     public void registerUserStatusCallback(UserStatusCallback callback) {
-
+        this.userStatusCallback = callback;
     }
 
     @Override
     public void registerTypingChangeCallback(TypingChangeCallback callback) {
-
+        this.typingChangeCallback = callback;
     }
 
     @Override
     public void registerConnectionStatusCallback(ConnectionStatusCallback callback) {
-
+        this.connectionStatusCallback = callback;
     }
 
     @Override
     public void registerGroupInviteCallback(GroupInviteCallback callback) {
-
+        this.groupInviteCallback = callback;
     }
 
     @Override
     public void registerGroupMessageCallback(GroupMessageCallback callback) {
-
+        this.groupMessageCallback = callback;
     }
 
     @Override
     public void registerGroupActionCallback(GroupActionCallback callback) {
-
+        this.groupActionCallback = callback;
     }
 
     @Override
     public void registerGroupTitleChangeCallback(GroupTitleChangeCallback callback) {
-
+        this.groupTitleChangeCallback = callback;
     }
 }
