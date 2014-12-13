@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import org.junit.After;
+import org.junit.Test;
 
 import im.tox.tox4j.exceptions.ToxException;
 
@@ -26,6 +27,13 @@ public class Tox4jTest extends ToxSimpleChatTest {
     @Override
     protected ToxSimpleChat newTox(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort) throws ToxException {
         return new Tox4j(ipv6Enabled, udpDisabled, proxyEnabled, proxyAddress, proxyPort);
+    }
+
+    @Test
+    public void testPlayground() throws Exception {
+        try (Tox4j tox = new Tox4j()) {
+            tox.playground();
+        }
     }
 
 }
