@@ -204,7 +204,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_toxNew(JNIEnv *env, jclass, jbool
     opts.ipv6enabled = (uint8_t) ipv6enabled;
     opts.udp_disabled = (uint8_t) udpDisabled;
     if (proxyEnabled) {
-        tox4j_assert(proxyAddress != NULL, env, "Proxy Address cannot be null when proxy is enabled");
+        tox4j_assert(proxyAddress != nullptr, env, "Proxy Address cannot be null when proxy is enabled");
         opts.proxy_enabled = true;
         strncpy(opts.proxy_address, UTFChars(env, proxyAddress), sizeof(opts.proxy_address) - 1);
         opts.proxy_port = (uint16_t) proxyPort;
@@ -282,8 +282,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_finalize(JNIEnv *env, jclass, jin
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, jint instance_number,
     jstring address, jint port, jbyteArray public_key) {
-    tox4j_assert(address != NULL, env, "Bootstrap address cannot be null");
-    tox4j_assert(public_key != NULL, env, "Public key cannot be null");
+    tox4j_assert(address != nullptr, env, "Bootstrap address cannot be null");
+    tox4j_assert(public_key != nullptr, env, "Public key cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_bootstrap_from_address(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
@@ -291,8 +291,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_bootstrap(JNIEnv *env, jclass, ji
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addTcpRelay(JNIEnv *env, jclass, jint instance_number, jstring address,
     jint port, jbyteArray public_key) {
-    tox4j_assert(address != NULL, env, "Relay address cannot be null");
-    tox4j_assert(public_key != NULL, env, "Public key cannot be null");
+    tox4j_assert(address != nullptr, env, "Relay address cannot be null");
+    tox4j_assert(public_key != nullptr, env, "Public key cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_add_tcp_relay(tox, UTFChars(env, address), (uint16_t) port, ByteArray(env, public_key));
     });
@@ -327,7 +327,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_save(JNIEnv *env, jclass, j
 }
 
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_Tox4j_load(JNIEnv *env, jclass, jint instance_number, jbyteArray data) {
-    tox4j_assert(data != NULL, env, "Data cannot be null");
+    tox4j_assert(data != nullptr, env, "Data cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         ByteArray bytes(env, data);
         if (tox_load(tox, bytes, (uint32_t) bytes.length()) == 0) {
@@ -348,8 +348,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_getAddress(JNIEnv *env, jcl
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addFriend(JNIEnv *env, jclass, jint instance_number, jbyteArray address,
     jbyteArray message) {
-    tox4j_assert(address != NULL, env, "Address cannot be null");
-    tox4j_assert(message != NULL, env, "Message cannot be null");
+    tox4j_assert(address != nullptr, env, "Address cannot be null");
+    tox4j_assert(message != nullptr, env, "Message cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         ByteArray messageBytes(env, message);
         return tox_add_friend(tox, ByteArray(env, address), messageBytes, (uint16_t) messageBytes.length());
@@ -358,8 +358,29 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addFriend(JNIEnv *env, jclass, ji
 
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_addFriendNoRequest(JNIEnv *env, jclass, jint instance_number,
     jbyteArray clientId) {
-    tox4j_assert(clientId != NULL, env, "Client ID cannot be null");
+    tox4j_assert(clientId != nullptr, env, "Client ID cannot be null");
     return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
         return tox_add_friend_norequest(tox, ByteArray(env, clientId));
+    });
+}
+
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_Tox4j_getFriendNumber(JNIEnv *env, jclass, jint instance_number,
+    jbyteArray clientId) {
+    tox4j_assert(clientId != nullptr, env, "Client ID cannot be null");
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        return tox_get_friend_number(tox, ByteArray(env, clientId));
+    });
+}
+
+
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_Tox4j_getClientId(JNIEnv *env, jclass, jint instance_number,
+    jint friendnumber) {
+    return with_instance(env, instance_number, [=](Tox *tox, ToxEvents &) {
+        std::vector<uint8_t> buffer(TOX_CLIENT_ID_SIZE);
+        jbyteArray result = nullptr;
+        if (tox_get_client_id(tox, friendnumber, buffer.data()) != -1) {
+            result = toByteArray(env, buffer);
+        }
+        return result;
     });
 }
