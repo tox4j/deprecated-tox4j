@@ -1,11 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.callbacks.*;
-import im.tox.tox4j.exceptions.EncryptedSaveDataException;
-import im.tox.tox4j.exceptions.FriendAddException;
-import im.tox.tox4j.exceptions.NoSuchFriendException;
-import im.tox.tox4j.exceptions.GroupAddException;
-import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.exceptions.*;
 
 import java.io.Closeable;
 
@@ -414,6 +410,30 @@ public interface ToxSimpleChat extends Closeable {
      * @throws im.tox.tox4j.exceptions.ToxException if the groupNumber is not in the group list
      */
     void deleteGroupChat(int groupNumber) throws ToxException;
+
+    /**
+     * Get name of peer in group
+     *
+     * @param groupNumber the groupNumber to get the peer name for
+     * @param peerNumber the peerNumber to get the peer name for
+     * @return the peer name. Generally, this should be UTF-8, but this is not guaranteed.
+     * @throws im.tox.tox4j.exceptions.ToxException         if getting the name of peer failed
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     * @throws im.tox.tox4j.exceptions.NoSuchPeerException  if the peerNumber is not in the peer list of the group
+     */
+    byte[] getGroupPeerName(int groupNumber, int peerNumber) throws ToxException, NoSuchGroupException, NoSuchPeerException;
+
+    /**
+     * Get public key of peer in group
+     *
+     * @param groupNumber the groupNumber to get the peer public key for
+     * @param peerNumber the peerNumber to get the peer public key for
+     * @return the public key.
+     * @throws im.tox.tox4j.exceptions.ToxException         if getting the name of peer failed
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     * @throws im.tox.tox4j.exceptions.NoSuchPeerException  if the peerNumber is not in the peer list of the group
+     */
+    byte[] getGroupPeerPublicKey(int groupNumber, int peerNumber) throws ToxException, NoSuchGroupException, NoSuchPeerException;
 
     /**
      * Set the callback for group invites.

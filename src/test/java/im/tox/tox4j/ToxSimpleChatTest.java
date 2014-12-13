@@ -569,6 +569,16 @@ public abstract class ToxSimpleChatTest {
     }
 
     @Test
+    public void testGetGroupPeerName() throws Exception {
+
+    }
+
+    @Test
+    public void testGetGroupPeerPublicKey() throws Exception {
+
+    }
+
+    @Test
     public void testRegisterGroupInviteCallback() throws Exception {
 
     }
