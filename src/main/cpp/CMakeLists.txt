@@ -52,6 +52,7 @@ add_library(
 	MODULE
 	JTox.cpp
 	Tox4j.cpp
+	playground.cpp
 	${PROTO_SRCS}
 	${PROTO_HDRS}
 )
