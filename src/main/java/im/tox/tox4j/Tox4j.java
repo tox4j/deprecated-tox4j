@@ -46,6 +46,12 @@ public class Tox4j implements ToxSimpleChat {
      */
     static native void destroyAll();
 
+    static native void playground(int instanceNumber);
+
+    void playground() {
+        playground(instanceNumber);
+    }
+
     private static native void finalize(int instanceNumber);
 
     @Override
