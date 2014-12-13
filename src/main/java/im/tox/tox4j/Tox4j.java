@@ -361,14 +361,27 @@ public class Tox4j implements ToxSimpleChat {
         return errorCode;
     }
 
+    private static native int getFriendNumber(int instanceNumber, byte[] clientId);
+
     @Override
     public int getFriendNumber(byte[] clientId) throws ToxException, IllegalArgumentException {
-        return 0;
+        validatePublicKey(clientId);
+        int errorCode = getFriendNumber(this.instanceNumber, clientId);
+        if (errorCode == -1) {
+            throw new ToxException("No friend with specified client ID found");
+        }
+        return errorCode;
     }
+
+    private static native byte[] getClientId(int instanceNumber, int friendNumber);
 
     @Override
     public byte[] getClientId(int friendNumber) throws NoSuchFriendException {
-        return new byte[0];
+        byte[] clientId = getClientId(this.instanceNumber, friendNumber);
+        if (clientId == null) {
+            throw new NoSuchFriendException("Friend with specified friend number does not exist:" + friendNumber);
+        }
+        return clientId;
     }
 
     @Override
