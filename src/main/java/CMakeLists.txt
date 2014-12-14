@@ -27,6 +27,8 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/exceptions/ToxKilledException.java
 	im/tox/tox4j/exceptions/NoSuchFriendException.java
 	im/tox/tox4j/exceptions/GroupAddException.java
+	im/tox/tox4j/exceptions/NoSuchGroupException.java
+	im/tox/tox4j/exceptions/NoSuchPeerException.java
 )
 
 set(TOX4J_CALLBACKS

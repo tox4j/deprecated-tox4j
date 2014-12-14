@@ -431,6 +431,46 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
+    public byte[] getGroupPeerName(int groupNumber, int peerNumber) throws ToxException, NoSuchGroupException, NoSuchPeerException {
+        return new byte[0];
+    }
+
+    @Override
+    public byte[] getGroupPeerPublicKey(int groupNumber, int peerNumber) throws ToxException, NoSuchGroupException, NoSuchPeerException {
+        return new byte[0];
+    }
+
+    @Override
+    public void inviteFriend(int friendNumber, int groupNumber) throws ToxException, NoSuchFriendException, NoSuchGroupException {
+
+    }
+
+    @Override
+    public void joinToGroup(int friendNumber, byte[] data) throws ToxException, IllegalArgumentException, NoSuchFriendException {
+
+    }
+
+    @Override
+    public void sendGroupMessage(int groupNumber, byte[] message) throws ToxException, IllegalArgumentException, NoSuchGroupException {
+
+    }
+
+    @Override
+    public void sendGroupAction(int groupNumber, byte[] action) throws ToxException, IllegalArgumentException, NoSuchGroupException {
+
+    }
+
+    @Override
+    public byte[] getGroupTitle(int groupNumber) throws ToxException, NoSuchGroupException {
+        return new byte[0];
+    }
+
+    @Override
+    public void setGroupTitle(int groupNumber, byte[] title) throws ToxException, IllegalArgumentException, NoSuchGroupException {
+
+    }
+
+    @Override
     public void setStatusMessage(byte[] statusMessage) throws IllegalArgumentException {
 
     }

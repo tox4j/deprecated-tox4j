@@ -1,11 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.callbacks.*;
-import im.tox.tox4j.exceptions.EncryptedSaveDataException;
-import im.tox.tox4j.exceptions.FriendAddException;
-import im.tox.tox4j.exceptions.NoSuchFriendException;
-import im.tox.tox4j.exceptions.GroupAddException;
-import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.exceptions.*;
 
 import java.io.Closeable;
 
@@ -414,6 +410,95 @@ public interface ToxSimpleChat extends Closeable {
      * @throws im.tox.tox4j.exceptions.ToxException if the groupNumber is not in the group list
      */
     void deleteGroupChat(int groupNumber) throws ToxException;
+
+    /**
+     * Get name of peer in group.
+     *
+     * @param groupNumber the groupNumber to get the peer name for
+     * @param peerNumber the peerNumber to get the peer name for
+     * @return the peer name. Generally, this should be UTF-8, but this is not guaranteed.
+     * @throws im.tox.tox4j.exceptions.ToxException         if getting the name of peer failed
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     * @throws im.tox.tox4j.exceptions.NoSuchPeerException  if the peerNumber is not in the peer list of the group
+     */
+    byte[] getGroupPeerName(int groupNumber, int peerNumber) throws ToxException, NoSuchGroupException, NoSuchPeerException;
+
+    /**
+     * Get public key of peer in group.
+     *
+     * @param groupNumber the groupNumber to get the peer public key for
+     * @param peerNumber the peerNumber to get the peer public key for
+     * @return the public key.
+     * @throws im.tox.tox4j.exceptions.ToxException         if getting the name of peer failed
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     * @throws im.tox.tox4j.exceptions.NoSuchPeerException  if the peerNumber is not in the peer list of the group
+     */
+    byte[] getGroupPeerPublicKey(int groupNumber, int peerNumber) throws ToxException, NoSuchGroupException, NoSuchPeerException;
+
+    /**
+     * Invite friend to group.
+     *
+     * @param friendNumber the friendNumber you want to invite
+     * @param groupNumber the groupNumber you want invite to
+     * @throws im.tox.tox4j.exceptions.ToxException          if invitation failed
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendNumber is not in the friend list
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException  if the groupNumber is not in the group list
+     */
+    void inviteFriend(int friendNumber, int groupNumber) throws ToxException, NoSuchFriendException, NoSuchGroupException;
+
+    /**
+     * Join a group (you need to have been invited first).
+     *
+     * @param friendNumber the friendNumber who invited to group
+     * @param data the data
+     * @throws im.tox.tox4j.exceptions.ToxException          if join to group failed
+     * @throws java.lang.IllegalArgumentException            if the data is empty
+     * @throws im.tox.tox4j.exceptions.NoSuchFriendException if the friendNumber is not in the friend list
+     */
+    void joinToGroup(int friendNumber, byte[] data) throws ToxException, IllegalArgumentException, NoSuchFriendException;
+
+    /**
+     * Sends a message to a specified groupNumber.
+     *
+     * @param groupNumber the groupNumber to send a message to
+     * @param message     the UTF-8 encoded message to send
+     * @throws im.tox.tox4j.exceptions.ToxException         if the message could not be sent
+     * @throws java.lang.IllegalArgumentException           if the message is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     */
+    void sendGroupMessage(int groupNumber, byte[] message) throws ToxException, IllegalArgumentException, NoSuchGroupException;
+
+    /**
+     * Sends an action (/me does something) to the specified groupNumber.
+     *
+     * @param groupNumber the groupNumber to send an action to
+     * @param action      the UTF-8 encoded action to send
+     * @throws im.tox.tox4j.exceptions.ToxException         if the action could not be sent
+     * @throws java.lang.IllegalArgumentException           if the action is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_MESSAGE_LENGTH}
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     */
+    void sendGroupAction(int groupNumber, byte[] action) throws ToxException, IllegalArgumentException, NoSuchGroupException;
+
+    /**
+     * Gets title of the specified groupNumber
+     *
+     * @param groupNumber the groupNumber to get title of
+     * @return the title. Generally, this should be UTF-8, but this is not guaranteed.
+     * @throws im.tox.tox4j.exceptions.ToxException         if getting the title failed
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     */
+    byte[] getGroupTitle(int groupNumber) throws ToxException, NoSuchGroupException;
+
+    /**
+     * Sets title to the specified groupNumber
+     *
+     * @param groupNumber the groupNumber to set title to
+     * @param title       the UTF-8 encoded title to set
+     * @throws im.tox.tox4j.exceptions.ToxException         if the title could not be set
+     * @throws java.lang.IllegalArgumentException           if the title is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH}
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     */
+    void setGroupTitle(int groupNumber, byte[] title) throws ToxException, IllegalArgumentException, NoSuchGroupException;
 
     /**
      * Set the callback for group invites.
