@@ -461,6 +461,16 @@ public class Tox4j implements ToxSimpleChat {
     }
 
     @Override
+    public byte[] getGroupTitle(int groupNumber) throws ToxException, NoSuchGroupException {
+        return new byte[0];
+    }
+
+    @Override
+    public void setGroupTitle(int groupNumber, byte[] title) throws ToxException, IllegalArgumentException, NoSuchGroupException {
+
+    }
+
+    @Override
     public void setStatusMessage(byte[] statusMessage) throws IllegalArgumentException {
 
     }

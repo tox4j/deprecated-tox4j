@@ -480,6 +480,27 @@ public interface ToxSimpleChat extends Closeable {
     void sendGroupAction(int groupNumber, byte[] action) throws ToxException, IllegalArgumentException, NoSuchGroupException;
 
     /**
+     * Gets title of the specified groupNumber
+     *
+     * @param groupNumber the groupNumber to get title of
+     * @return the title. Generally, this should be UTF-8, but this is not guaranteed.
+     * @throws im.tox.tox4j.exceptions.ToxException         if getting the title failed
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     */
+    byte[] getGroupTitle(int groupNumber) throws ToxException, NoSuchGroupException;
+
+    /**
+     * Sets title to the specified groupNumber
+     *
+     * @param groupNumber the groupNumber to set title to
+     * @param title       the UTF-8 encoded title to set
+     * @throws im.tox.tox4j.exceptions.ToxException         if the title could not be set
+     * @throws java.lang.IllegalArgumentException           if the title is empty, or longer than {@link im.tox.tox4j.ToxConstants#MAX_NAME_LENGTH}
+     * @throws im.tox.tox4j.exceptions.NoSuchGroupException if the groupNumber is not in the group list
+     */
+    void setGroupTitle(int groupNumber, byte[] title) throws ToxException, IllegalArgumentException, NoSuchGroupException;
+
+    /**
      * Set the callback for group invites.
      *
      * @param callback callback to set

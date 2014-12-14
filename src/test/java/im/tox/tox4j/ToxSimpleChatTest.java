@@ -599,6 +599,16 @@ public abstract class ToxSimpleChatTest {
     }
 
     @Test
+    public void testGetGroupTitle() throws Exception {
+
+    }
+
+    @Test
+    public void testSetGroupTitle() throws Exception {
+
+    }
+
+    @Test
     public void testRegisterGroupInviteCallback() throws Exception {
 
     }
