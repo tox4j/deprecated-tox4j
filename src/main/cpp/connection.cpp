@@ -15,12 +15,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxBootstrap
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         TOX_ERR_BOOTSTRAP error;
-        tox_bootstrap(tox,
-            address ? UTFChars(env, address).data() : nullptr,
-            port,
-            public_key ? ByteArray(env, public_key).data() : nullptr,
-            &error
-        );
+        tox_bootstrap(tox, UTFChars(env, address).data(), port, ByteArray(env, public_key).data(), &error);
         switch (error) {
             case TOX_ERR_BOOTSTRAP_OK:
                 return;

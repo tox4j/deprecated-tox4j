@@ -431,9 +431,17 @@ new_tox_get_self_status (new_Tox const *tox)
 uint32_t
 new_tox_add_friend (new_Tox *tox, uint8_t const *address, uint8_t const *message, size_t length, TOX_ERR_ADD_FRIEND *error)
 {
-  assert (false);
-  *error = TOX_ERR_ADD_FRIEND_OK;
-  return 0;
+  switch (int32_t friend_number = tox_add_friend (tox->tox, address, message, length))
+    {
+    case TOX_FAERR_TOOLONG     : *error = TOX_ERR_ADD_FRIEND_TOO_LONG;       return 0;
+    case TOX_FAERR_NOMESSAGE   : *error = TOX_ERR_ADD_FRIEND_NO_MESSAGE;     return 0;
+    case TOX_FAERR_OWNKEY      : *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
+    case TOX_FAERR_ALREADYSENT : *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
+    case TOX_FAERR_BADCHECKSUM : *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
+    case TOX_FAERR_SETNEWNOSPAM: *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
+    case TOX_FAERR_NOMEM       : *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
+    default                    : *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
+    }
 }
 
 uint32_t

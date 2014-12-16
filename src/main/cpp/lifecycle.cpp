@@ -218,14 +218,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
     opts.udp_enabled = udpEnabled;
     opts.proxy_type = (TOX_PROXY_TYPE) proxyType;
 
-    std::vector<char> proxy_address;
-    if (proxyAddress == nullptr) {
-        opts.proxy_address = nullptr;
-    } else {
-        proxy_address = UTFChars(env, proxyAddress);
-        proxy_address.push_back('\0');
-        opts.proxy_address = proxy_address.data();
-    }
+    UTFChars proxyAddressChars(env, proxyAddress);
+    opts.proxy_address = proxyAddressChars.data();
     opts.proxy_port = proxyPort;
 
     TOX_ERR_NEW error;

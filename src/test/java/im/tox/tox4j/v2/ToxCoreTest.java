@@ -151,6 +151,19 @@ public abstract class ToxCoreTest {
         return array;
     }
 
+    private static byte[] randomAddress() {
+        byte[] array = new byte[ToxConstants.ADDRESS_SIZE];
+        new Random().nextBytes(array);
+        array[ToxConstants.ADDRESS_SIZE - 2] = 0;
+        array[ToxConstants.ADDRESS_SIZE - 1] = 0;
+        for (int i = 0; i < array.length - 2; i++) {
+            int offset = i % 2 == 0 ? 2 : 1;
+            System.out.println(i + " => " + (ToxConstants.ADDRESS_SIZE - offset));
+            array[ToxConstants.ADDRESS_SIZE - offset] ^= array[i];
+        }
+        return array;
+    }
+
 
     @Test
     public void testToxNew00() throws Exception {
@@ -786,33 +799,35 @@ public abstract class ToxCoreTest {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     public void testAddFriend() throws Exception {
-
+        try (ToxCore tox = newTox()) {
+            System.out.println(tox.addFriend(randomAddress(), "hey ho".getBytes()));
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     public void testAddFriendNoRequest() throws Exception {

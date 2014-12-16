@@ -2,7 +2,7 @@
 
 
 static uint32_t
-handle_tox_add_friend_result(JNIEnv *env, uint32_t friend_number, TOX_ERR_ADD_FRIEND error)
+handle_tox_add_friend_result(JNIEnv *env, int32_t friend_number, TOX_ERR_ADD_FRIEND error)
 {
     switch (error) {
         case TOX_ERR_ADD_FRIEND_OK:
@@ -49,8 +49,9 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriend
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         TOX_ERR_ADD_FRIEND error;
+
         ByteArray messageBytes(env, message);
-        uint32_t friend_number = tox_add_friend(tox, ByteArray(env, address), messageBytes.data(), messageBytes.size(), &error);
+        int32_t friend_number = tox_add_friend(tox, ByteArray(env, address).data(), messageBytes.data(), messageBytes.size(), &error);
         return handle_tox_add_friend_result(env, friend_number, error);
     });
 }
