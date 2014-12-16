@@ -906,6 +906,17 @@ public abstract class ToxCoreTest {
         }
     }
 
+    @Test
+    public void testGetFriendClientID() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 1);
+            assertEquals(tox.getClientID(0).length, ToxConstants.CLIENT_ID_SIZE);
+            assertArrayEquals(tox.getClientID(0), tox.getClientID(0));
+            double e = entropy(tox.getClientID(0));
+            assertTrue("Entropy of friend's client ID should be >= 0.5, but was " + e, e >= 0.5);
+        }
+    }
+
 
 
 
@@ -930,11 +941,6 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testGetFriendNumber() throws Exception {
-
-    }
-
-    @Test
-    public void testGetFriendClientID() throws Exception {
 
     }
 
