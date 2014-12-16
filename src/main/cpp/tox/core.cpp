@@ -347,7 +347,7 @@ new_tox_get_secret_key (new_Tox const *tox, uint8_t *secret_key)
 bool
 new_tox_set_self_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR_SET_INFO *error)
 {
-  if (length >= TOX_MAX_NAME_LENGTH)
+  if (length > TOX_MAX_NAME_LENGTH)
     {
       *error = TOX_ERR_SET_INFO_TOO_LONG;
       return false;
@@ -381,7 +381,7 @@ new_tox_get_self_name (new_Tox const *tox, uint8_t *name)
 bool
 new_tox_set_self_status_message (new_Tox *tox, uint8_t const *status, size_t length, TOX_ERR_SET_INFO *error)
 {
-  if (length >= TOX_MAX_STATUS_MESSAGE_LENGTH)
+  if (length > TOX_MAX_STATUS_MESSAGE_LENGTH)
     {
       *error = TOX_ERR_SET_INFO_TOO_LONG;
       return false;
