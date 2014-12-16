@@ -2,6 +2,8 @@ package im.tox.tox4j.v2;
 
 import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
+import im.tox.tox4j.v2.callbacks.FriendConnectedCallback;
+import im.tox.tox4j.v2.callbacks.FriendMessageCallback;
 import im.tox.tox4j.v2.enums.ToxProxyType;
 import im.tox.tox4j.v2.enums.ToxStatus;
 import im.tox.tox4j.v2.exceptions.*;
@@ -9,10 +11,7 @@ import org.junit.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -831,7 +830,7 @@ public abstract class ToxCoreTest {
     public void testFriendList() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 5);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
+            assertArrayEquals(tox.getFriendList(), new int[]{0, 1, 2, 3, 4});
         }
     }
 
@@ -954,6 +953,96 @@ public abstract class ToxCoreTest {
     }
 
 
+    private static class ChatClient implements ConnectionStatusCallback, FriendConnectedCallback, FriendMessageCallback {
+
+        public interface Task {
+            void perform(ToxCore tox) throws SpecificToxException;
+        }
+
+        private final List<Task> tasks = new ArrayList<>();
+        private final String name;
+        private boolean connected;
+        private boolean isChatting = true;
+
+        public ChatClient(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void call(boolean isConnected) {
+            if (isConnected)
+                System.out.println(name + " is now connected to the network");
+            else
+                System.out.println(name + " is now disconnected from the network");
+            connected = isConnected;
+        }
+
+        public boolean chatting() {
+            return isChatting;
+        }
+
+        @Override
+        public void call(final int friendNumber, boolean isConnected) {
+            System.out.println(name + " is now connected to friend " + friendNumber);
+            tasks.add(new Task() {
+                @Override
+                public void perform(ToxCore tox) throws SpecificToxException {
+                    tox.sendMessage(friendNumber, "hey ho".getBytes());
+                }
+            });
+        }
+
+        @Override
+        public void call(int friendNumber, int timeDelta, byte[] message) {
+            System.out.println(name + " received a message: " + new String(message));
+            assertEquals(friendNumber, 0);
+            assertTrue(timeDelta >= 0);
+            assertEquals("hey ho", new String(message));
+            isChatting = false;
+        }
+
+        public void performTasks(ToxCore tox) throws SpecificToxException {
+            List<Task> tasks = new ArrayList<>(this.tasks);
+            this.tasks.clear();
+            for (Task task : tasks) {
+                task.perform(tox);
+            }
+        }
+    }
+
+    @Test
+    public void testSendMessage() throws Exception {
+        try (ToxCore alice = newTox()) {
+            try (ToxCore bob = newTox()) {
+                alice.addFriendNoRequest(bob.getClientID());
+                bob.addFriendNoRequest(alice.getClientID());
+
+                ChatClient aliceChat = new ChatClient("Alice");
+                alice.callbackConnectionStatus(aliceChat);
+                alice.callbackFriendConnected(aliceChat);
+                alice.callbackFriendMessage(aliceChat);
+
+                ChatClient bobChat = new ChatClient("Bob");
+                bob.callbackConnectionStatus(bobChat);
+                bob.callbackFriendConnected(bobChat);
+                bob.callbackFriendMessage(bobChat);
+
+                while (aliceChat.chatting() || bobChat.chatting()) {
+                    alice.iteration();
+                    bob.iteration();
+
+                    Thread.sleep(Math.max(alice.iterationTime(), bob.iterationTime()));
+
+                    aliceChat.performTasks(alice);
+                    bobChat.performTasks(bob);
+                }
+
+                System.out.println("Both clients stopped chatting");
+            }
+        }
+    }
+
+
 
 
 
@@ -997,11 +1086,6 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testCallbackFriendTyping() throws Exception {
-
-    }
-
-    @Test
-    public void testSendMessage() throws Exception {
 
     }
 
