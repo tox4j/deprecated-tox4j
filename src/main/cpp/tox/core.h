@@ -49,8 +49,8 @@ extern "C" {
  * It is possible to run multiple concurrent threads with a Tox instance for
  * each thread. It is also possible to run all Tox instances in the same thread.
  * A common way to run Tox (multiple or single instance) is to have one thread
- * running a simple tox_do loop, sleeping for tox_do_interval milliseconds on
- * each iteration.
+ * running a simple tox_iteration loop, sleeping for tox_iteration_time
+ * milliseconds on each iteration.
  *
  * If you want to access a single Tox instance from multiple threads, access
  * to the instance must be synchronised. While multiple threads can concurrently
@@ -332,7 +332,7 @@ typedef enum TOX_ERR_NEW {
  * @param options An options object as described above. If this parameter is
  *   NULL, the default options are used.
  *
- * @see tox_do for the event loop.
+ * @see tox_iteration for the event loop.
  */
 Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error);
 
@@ -486,16 +486,16 @@ uint16_t tox_get_port(Tox const *tox, TOX_ERR_GET_PORT *error);
 
 
 /**
- * Return the time in milliseconds before tox_do() should be called again
+ * Return the time in milliseconds before tox_iteration() should be called again
  * for optimal performance.
  */
-uint32_t tox_do_interval(Tox const *tox);
+uint32_t tox_iteration_time(Tox const *tox);
 
 
 /**
- * The main loop that needs to be run in intervals of tox_do_interval() ms.
+ * The main loop that needs to be run in intervals of tox_iteration_time() ms.
  */
-void tox_do(Tox *tox);
+void tox_iteration(Tox *tox);
 
 
 /*******************************************************************************
