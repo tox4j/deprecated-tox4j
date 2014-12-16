@@ -659,9 +659,20 @@ new_tox_set_typing (new_Tox *tox, uint32_t friend_number, bool is_typing, TOX_ER
 uint32_t
 new_tox_send_message (new_Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, TOX_ERR_SEND_MESSAGE *error)
 {
-  assert (false);
-  *error = TOX_ERR_SEND_MESSAGE_OK;
-  return 0;
+  if (message == nullptr)
+    {
+      *error = TOX_ERR_SEND_MESSAGE_NULL;
+      return 0;
+    }
+  switch (uint32_t message_id = tox_send_message (tox->tox, friend_number, message, length))
+    {
+    case 0:
+      *error = TOX_ERR_SEND_MESSAGE_SENDQ; // Arbitrary.. we don't know what happened.
+      return 0;
+    default:
+      *error = TOX_ERR_SEND_MESSAGE_OK;
+      return message_id;
+    }
 }
 
 uint32_t
