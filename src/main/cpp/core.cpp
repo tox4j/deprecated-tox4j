@@ -1,4 +1,3 @@
-#include <tox/core.h>
 #include "Tox4j.h"
 
 template<typename T> void unused(T const &) { }
@@ -244,6 +243,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_destroyAll
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
   (JNIEnv *env, jclass, jboolean ipv6Enabled, jboolean udpEnabled, jint proxyType, jstring proxyAddress, jint proxyPort)
 {
+    assert(proxyType >= 0);
+    assert(proxyPort >= 0);
+    assert(proxyPort <= 65535);
+
     auto opts = Tox_Options();
     opts.ipv6_enabled = ipv6Enabled;
     opts.udp_enabled = udpEnabled;
@@ -254,6 +257,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
         opts.proxy_address = nullptr;
     } else {
         proxy_address = UTFChars(env, proxyAddress);
+        proxy_address.push_back('\0');
+        opts.proxy_address = proxy_address.data();
     }
     opts.proxy_port = proxyPort;
 
@@ -295,26 +300,24 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
             std::lock_guard<std::mutex> lock(ToxInstances::self.mutex);
             return ToxInstances::self.add(std::move(instance));
         }
-        case TOX_ERR_NEW_MALLOC: {
+        case TOX_ERR_NEW_NULL:
+            throw_tox_exception(env, "New", "NULL");
+            return 0;
+        case TOX_ERR_NEW_MALLOC:
             throw_tox_exception(env, "New", "MALLOC");
             return 0;
-        }
-        case TOX_ERR_NEW_PORT_ALLOC: {
+        case TOX_ERR_NEW_PORT_ALLOC:
             throw_tox_exception(env, "New", "PORT_ALLOC");
             return 0;
-        }
-        case TOX_ERR_NEW_PROXY_BAD_HOST: {
+        case TOX_ERR_NEW_PROXY_BAD_HOST:
             throw_tox_exception(env, "New", "PROXY_BAD_HOST");
             return 0;
-        }
-        case TOX_ERR_NEW_PROXY_BAD_PORT: {
+        case TOX_ERR_NEW_PROXY_BAD_PORT:
             throw_tox_exception(env, "New", "PROXY_BAD_PORT");
             return 0;
-        }
-        case TOX_ERR_NEW_PROXY_NOT_FOUND: {
+        case TOX_ERR_NEW_PROXY_NOT_FOUND:
             throw_tox_exception(env, "New", "PROXY_NOT_FOUND");
             return 0;
-        }
     }
 
     throw_illegal_state_exception(env, error, "Unknown error code");
@@ -350,6 +353,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxKill
         return;
     }
 
+    assert(dying.isLive());
     std::lock_guard<std::mutex> ilock(*dying.mutex);
 }
 
@@ -385,6 +389,14 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_finalize
         return;
     }
 
+    // This instance was leaked, kill it before setting it free.
+    if (ToxInstances::self[instanceNumber].isLive()) {
+        Tox4jStruct dying(ToxInstances::self.remove(instanceNumber));
+        assert(dying.isLive());
+        std::lock_guard<std::mutex> ilock(*dying.mutex);
+    }
+
+    assert(ToxInstances::self[instanceNumber].isDead());
     ToxInstances::self.setFree(instanceNumber);
 }
 
@@ -444,10 +456,18 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxLoad
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxBootstrap
   (JNIEnv *env, jclass, jint instanceNumber, jstring address, jint port, jbyteArray public_key)
 {
+    assert(port >= 0);
+    assert(port <= 65535);
+
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         TOX_ERR_BOOTSTRAP error;
-        tox_bootstrap(tox, UTFChars(env, address), port, ByteArray(env, public_key), &error);
+        tox_bootstrap(tox,
+            address ? UTFChars(env, address).data() : nullptr,
+            port,
+            public_key ? ByteArray(env, public_key).data() : nullptr,
+            &error
+        );
         switch (error) {
             case TOX_ERR_BOOTSTRAP_OK:
                 return;
