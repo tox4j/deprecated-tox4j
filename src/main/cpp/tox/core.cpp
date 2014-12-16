@@ -317,38 +317,51 @@ new_tox_iteration (new_Tox *tox)
 void
 new_tox_get_address (new_Tox const *tox, uint8_t *address)
 {
-  assert (false);
+  tox_get_address (tox->tox, address);
 }
 
 void
 new_tox_set_nospam (new_Tox *tox, uint32_t nospam)
 {
-  assert (false);
+  tox_set_nospam (tox->tox, nospam);
 }
 
 uint32_t
 new_tox_get_nospam (new_Tox const *tox)
 {
-  assert (false);
-  return 0;
+  return tox_get_nospam (tox->tox);
 }
 
 void
 new_tox_get_self_client_id (new_Tox const *tox, uint8_t *client_id)
 {
-  assert (false);
+  tox_get_keys (tox->tox, client_id, nullptr);
 }
 
 void
 new_tox_get_secret_key (new_Tox const *tox, uint8_t *secret_key)
 {
-  assert (false);
+  tox_get_keys (tox->tox, nullptr, secret_key);
 }
 
 bool
 new_tox_set_self_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR_SET_INFO *error)
 {
-  assert (false);
+  if (length >= TOX_MAX_NAME_LENGTH)
+    {
+      *error = TOX_ERR_SET_INFO_TOO_LONG;
+      return false;
+    }
+  if (length > 0 && name == nullptr)
+    {
+      *error = TOX_ERR_SET_INFO_NULL;
+      return false;
+    }
+  if (tox_set_name (tox->tox, name, length) == -1)
+    {
+      *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
+      return false;
+    }
   *error = TOX_ERR_SET_INFO_OK;
   return true;
 }
@@ -356,20 +369,33 @@ new_tox_set_self_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR
 size_t
 new_tox_self_name_size (new_Tox const *tox)
 {
-  assert (false);
-  return 0;
+  return tox_get_self_name_size (tox->tox);
 }
 
 void
 new_tox_get_self_name (new_Tox const *tox, uint8_t *name)
 {
-  assert (false);
+  tox_get_self_name (tox->tox, name);
 }
 
 bool
 new_tox_set_self_status_message (new_Tox *tox, uint8_t const *status, size_t length, TOX_ERR_SET_INFO *error)
 {
-  assert (false);
+  if (length >= TOX_MAX_STATUS_MESSAGE_LENGTH)
+    {
+      *error = TOX_ERR_SET_INFO_TOO_LONG;
+      return false;
+    }
+  if (length > 0 && status == nullptr)
+    {
+      *error = TOX_ERR_SET_INFO_NULL;
+      return false;
+    }
+  if (tox_set_status_message (tox->tox, status, length) == -1)
+    {
+      *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
+      return false;
+    }
   *error = TOX_ERR_SET_INFO_OK;
   return true;
 }
@@ -377,14 +403,17 @@ new_tox_set_self_status_message (new_Tox *tox, uint8_t const *status, size_t len
 size_t
 new_tox_self_status_message_size (new_Tox const *tox)
 {
-  assert (false);
-  return 0;
+  return tox_get_self_status_message_size (tox->tox);
 }
 
 void
 new_tox_get_self_status_message (new_Tox const *tox, uint8_t *status)
 {
-  assert (false);
+  // XXX: current tox core doesn't do what it says, which is to truncate if it
+  // goes over the length. instead, it simply writes as much as the length
+  // indicates, so we need to ask for the length again here.
+  size_t length = new_tox_self_status_message_size (tox);
+  tox_get_self_status_message (tox->tox, status, length);
 }
 
 void

@@ -429,7 +429,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxLoad
         unused(events);
         ByteArray bytes(env, data);
         TOX_ERR_LOAD error;
-        tox_load(tox, bytes.data(), bytes.length(), &error);
+        tox_load(tox, bytes.data(), bytes.size(), &error);
         switch (error) {
             case TOX_ERR_LOAD_OK:
                 return;
@@ -498,7 +498,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetPort
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxGetPort");
         return 0;
     });
 }
@@ -545,11 +545,10 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetSelfClientId
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
-        return nullptr;
+        std::vector<uint8_t> client_id(TOX_CLIENT_ID_SIZE);
+        tox_get_self_client_id(tox, client_id.data());
+        return toByteArray(env, client_id);
     });
 }
 
@@ -562,11 +561,10 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetSecretKey
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
-        return nullptr;
+        std::vector<uint8_t> secret_key(TOX_CLIENT_ID_SIZE);
+        tox_get_secret_key(tox, secret_key.data());
+        return toByteArray(env, secret_key);
     });
 }
 
@@ -576,13 +574,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetSecretKey
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetNospam
-  (JNIEnv *env, jclass, jint instanceNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint nospam)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        tox_set_nospam(tox, nospam);
     });
 }
 
@@ -595,11 +591,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetNospam
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
-        return 0;
+        return tox_get_nospam(tox);
     });
 }
 
@@ -626,13 +619,27 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetAddress
  * Signature: (I[B)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetName
-  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray)
+  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray name)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        TOX_ERR_SET_INFO error;
+        if (name == nullptr) {
+            tox_set_self_name(tox, nullptr, 0, &error);
+        } else {
+            ByteArray name_array(env, name);
+            tox_set_self_name(tox, name_array.data(), name_array.size(), &error);
+        }
+        switch (error) {
+            case TOX_ERR_SET_INFO_OK:
+                return;
+            case TOX_ERR_SET_INFO_NULL:
+                throw_tox_exception(env, "SetInfo", "NULL");
+                return;
+            case TOX_ERR_SET_INFO_TOO_LONG:
+                throw_tox_exception(env, "SetInfo", "TOO_LONG");
+                return;
+        }
     });
 }
 
@@ -644,12 +651,16 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetName
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetName
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
+    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> jbyteArray {
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
-        return nullptr;
+        size_t size = tox_self_name_size(tox);
+        if (size == 0) {
+            return nullptr;
+        }
+        std::vector<uint8_t> name(size);
+        tox_get_self_name(tox, name.data());
+
+        return toByteArray(env, name);
     });
 }
 
@@ -659,13 +670,27 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetName
  * Signature: (I[B)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetStatusMessage
-  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray)
+  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray statusMessage)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        TOX_ERR_SET_INFO error;
+        if (statusMessage == nullptr) {
+            tox_set_self_status_message(tox, nullptr, 0, &error);
+        } else {
+            ByteArray status_message_array(env, statusMessage);
+            tox_set_self_status_message(tox, status_message_array.data(), status_message_array.size(), &error);
+        }
+        switch (error) {
+            case TOX_ERR_SET_INFO_OK:
+                return;
+            case TOX_ERR_SET_INFO_NULL:
+                throw_tox_exception(env, "SetInfo", "NULL");
+                return;
+            case TOX_ERR_SET_INFO_TOO_LONG:
+                throw_tox_exception(env, "SetInfo", "TOO_LONG");
+                return;
+        }
     });
 }
 
@@ -677,12 +702,16 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetStatusMessage
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetStatusMessage
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
+    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> jbyteArray {
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
-        return nullptr;
+        size_t size = tox_self_status_message_size(tox);
+        if (size == 0) {
+            return nullptr;
+        }
+        std::vector<uint8_t> name(size);
+        tox_get_self_status_message(tox, name.data());
+
+        return toByteArray(env, name);
     });
 }
 
@@ -698,7 +727,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetStatus
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxSetStatus");
     });
 }
 
@@ -714,7 +743,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetStatus
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxGetStatus");
         return 0;
     });
 }
@@ -769,7 +798,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriend
         unused(events);
         TOX_ERR_ADD_FRIEND error;
         ByteArray messageBytes(env, message);
-        uint32_t friend_number = tox_add_friend(tox, ByteArray(env, address), messageBytes.data(), messageBytes.length(), &error);
+        uint32_t friend_number = tox_add_friend(tox, ByteArray(env, address), messageBytes.data(), messageBytes.size(), &error);
         return handle_tox_add_friend_result(env, friend_number, error);
     });
 }
@@ -802,7 +831,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxDeleteFriend
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxDeleteFriend");
     });
 }
 
@@ -875,7 +904,7 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFriendExists
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxFriendExists");
         return false;
     });
 }
@@ -892,7 +921,7 @@ JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendList
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxGetFriendList");
         return nullptr;
     });
 }
@@ -909,7 +938,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetTyping
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxSetTyping");
     });
 }
 
@@ -925,7 +954,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendMessage
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxSendMessage");
     });
 }
 
@@ -941,7 +970,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendAction
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxSendAction");
     });
 }
 
@@ -957,7 +986,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxFileControl");
     });
 }
 
@@ -973,7 +1002,7 @@ JNIEXPORT jbyte JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxFileSend");
         return 0;
     });
 }
@@ -990,7 +1019,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSendChunk
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxFileSendChunk");
     });
 }
 
@@ -1006,7 +1035,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendLossyPacket
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxSendLossyPacket");
     });
 }
 
@@ -1022,6 +1051,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendLosslessPacket
         unused(tox);
         unused(events);
         unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
+        throw_unsupported_operation_exception(env, instanceNumber, "toxSendLosslessPacket");
     });
 }
