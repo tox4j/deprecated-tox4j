@@ -89,12 +89,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetName
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         TOX_ERR_SET_INFO error;
-        if (name == nullptr) {
-            tox_set_self_name(tox, nullptr, 0, &error);
-        } else {
-            ByteArray name_array(env, name);
-            tox_set_self_name(tox, name_array.data(), name_array.size(), &error);
-        }
+        ByteArray name_array(env, name);
+        tox_set_self_name(tox, name_array.data(), name_array.size(), &error);
         switch (error) {
             case TOX_ERR_SET_INFO_OK:
                 return;
@@ -140,12 +136,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetStatusMessage
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         TOX_ERR_SET_INFO error;
-        if (statusMessage == nullptr) {
-            tox_set_self_status_message(tox, nullptr, 0, &error);
-        } else {
-            ByteArray status_message_array(env, statusMessage);
-            tox_set_self_status_message(tox, status_message_array.data(), status_message_array.size(), &error);
-        }
+        ByteArray status_message_array(env, statusMessage);
+        tox_set_self_status_message(tox, status_message_array.data(), status_message_array.size(), &error);
         switch (error) {
             case TOX_ERR_SET_INFO_OK:
                 return;

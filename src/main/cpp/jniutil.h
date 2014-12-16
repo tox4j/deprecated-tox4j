@@ -5,13 +5,13 @@ struct UTFChars {
     UTFChars(JNIEnv *env, jstring string)
     : env(env)
     , string(string)
-    , chars(env->GetStringUTFChars(string, 0)) { }
+    , chars(string ? env->GetStringUTFChars(string, 0) : nullptr) { }
 
     UTFChars(UTFChars const &) = delete;
-    ~UTFChars() { env->ReleaseStringUTFChars(string, chars); }
+    ~UTFChars() { if (string) env->ReleaseStringUTFChars(string, chars); }
 
     char const *data() const { return chars; }
-    size_t size() const { return (size_t) env->GetStringUTFLength(string); }
+    size_t size() const { return (size_t) string ? env->GetStringUTFLength(string) : 0; }
 
     operator char const *() const { return data(); }
     operator std::vector<char>() const { return std::vector<char>(data(), data() + size()); }
@@ -26,13 +26,13 @@ struct ByteArray {
     ByteArray(JNIEnv *env, jbyteArray byteArray)
     : env(env)
     , byteArray(byteArray)
-    , bytes(env->GetByteArrayElements(byteArray, 0)) { }
+    , bytes(byteArray ? env->GetByteArrayElements(byteArray, 0) : nullptr) { }
 
     ByteArray(ByteArray const &) = delete;
-    ~ByteArray() { env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
+    ~ByteArray() { if (byteArray) env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
 
     uint8_t const *data() const { return (uint8_t *) bytes; }
-    size_t size() const { return (size_t) env->GetArrayLength(byteArray); }
+    size_t size() const { return (size_t) byteArray ? env->GetArrayLength(byteArray) : 0; }
 
     operator uint8_t const *() const { return data(); }
     operator std::vector<uint8_t>() const { return std::vector<uint8_t>(data(), data() + size()); }
