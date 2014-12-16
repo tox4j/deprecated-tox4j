@@ -498,9 +498,21 @@ new_tox_delete_friend (new_Tox *tox, uint32_t friend_number, TOX_ERR_DELETE_FRIE
 uint32_t
 new_tox_get_friend_number (new_Tox const *tox, uint8_t const *client_id, TOX_ERR_GET_FRIEND_NUMBER *error)
 {
+  if (client_id == nullptr)
+    {
+      *error = TOX_ERR_GET_FRIEND_NUMBER_NULL;
+      return 0;
+    }
+  switch (int32_t friend_number = tox_get_friend_number (tox->tox, client_id))
+    {
+    case -1:
+      *error = TOX_ERR_GET_FRIEND_NUMBER_NOT_FOUND;
+      return 0;
+    default:
+      *error = TOX_ERR_GET_FRIEND_NUMBER_OK;
+      return friend_number;
+    }
   assert (false);
-  *error = TOX_ERR_GET_FRIEND_NUMBER_OK;
-  return 0;
 }
 
 bool

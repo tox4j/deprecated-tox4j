@@ -917,32 +917,37 @@ public abstract class ToxCoreTest {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     public void testGetFriendNumber() throws Exception {
-
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 10);
+            for (int i = 0; i < 10; i++) {
+                assertEquals(tox.getFriendNumber(tox.getClientID(i)), i);
+            }
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     public void testCallbackFriendName() throws Exception {
