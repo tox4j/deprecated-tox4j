@@ -1,6 +1,8 @@
 #ifndef JNIUTIL_H
 #define JNIUTIL_H
 
+#include <type_traits>
+
 struct UTFChars {
     UTFChars(JNIEnv *env, jstring string)
     : env(env)
@@ -57,21 +59,27 @@ struct make_java_array
     }
 };
 
-template<size_t Size>
+template<typename JType>
 struct java_array;
 
-template<> struct java_array<sizeof(jbyte )> { typedef make_java_array<jbyte , jbyteArray , &JNIEnv::NewByteArray , &JNIEnv::SetByteArrayRegion > type; };
-template<> struct java_array<sizeof(jshort)> { typedef make_java_array<jshort, jshortArray, &JNIEnv::NewShortArray, &JNIEnv::SetShortArrayRegion> type; };
-template<> struct java_array<sizeof(jint  )> { typedef make_java_array<jint  , jintArray  , &JNIEnv::NewIntArray  , &JNIEnv::SetIntArrayRegion  > type; };
-template<> struct java_array<sizeof(jlong )> { typedef make_java_array<jlong , jlongArray , &JNIEnv::NewLongArray , &JNIEnv::SetLongArrayRegion > type; };
+template<> struct java_array<jboolean> { typedef make_java_array<jboolean, jbooleanArray, &JNIEnv::NewBooleanArray, &JNIEnv::SetBooleanArrayRegion> type; };
+template<> struct java_array<jbyte   > { typedef make_java_array<jbyte   , jbyteArray   , &JNIEnv::NewByteArray   , &JNIEnv::SetByteArrayRegion   > type; };
+template<> struct java_array<jshort  > { typedef make_java_array<jshort  , jshortArray  , &JNIEnv::NewShortArray  , &JNIEnv::SetShortArrayRegion  > type; };
+template<> struct java_array<jint    > { typedef make_java_array<jint    , jintArray    , &JNIEnv::NewIntArray    , &JNIEnv::SetIntArrayRegion    > type; };
+template<> struct java_array<jlong   > { typedef make_java_array<jlong   , jlongArray   , &JNIEnv::NewLongArray   , &JNIEnv::SetLongArrayRegion   > type; };
+template<> struct java_array<jfloat  > { typedef make_java_array<jfloat  , jfloatArray  , &JNIEnv::NewFloatArray  , &JNIEnv::SetFloatArrayRegion  > type; };
+template<> struct java_array<jdouble > { typedef make_java_array<jdouble , jdoubleArray , &JNIEnv::NewDoubleArray , &JNIEnv::SetDoubleArrayRegion > type; };
+
+template<typename CType>
+using java_array_t = typename java_array<typename std::make_signed<CType>::type>::type;
 
 
 template<typename T>
-typename java_array<sizeof(T)>::type::array_type
+typename java_array_t<T>::array_type
 toJavaArray(JNIEnv *env, std::vector<T> const &data) {
-    typedef typename java_array<sizeof(T)>::type::java_type java_type;
-    static_assert(sizeof(T) == sizeof(java_type), "Size requirements for java array not met");
-    return java_array<sizeof(T)>::type::make(env, data.size(), reinterpret_cast<java_type const *>(data.data()));
+    typedef typename java_array_t<T>::java_type java_type;
+    static_assert(sizeof(T) == sizeof(java_type), "Size requirements for Java array not met");
+    return java_array_t<T>::make(env, data.size(), reinterpret_cast<java_type const *>(data.data()));
 }
 
 #endif /* JNIUTIL_H */
