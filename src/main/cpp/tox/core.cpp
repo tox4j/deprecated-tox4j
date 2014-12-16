@@ -506,9 +506,21 @@ new_tox_get_friend_number (new_Tox const *tox, uint8_t const *client_id, TOX_ERR
 bool
 new_tox_get_friend_client_id (new_Tox const *tox, uint32_t friend_number, uint8_t *client_id, TOX_ERR_GET_CLIENT_ID *error)
 {
+  if (client_id == nullptr)
+    {
+      *error = TOX_ERR_GET_CLIENT_ID_NULL;
+      return false;
+    }
+  switch (tox_get_client_id (tox->tox, friend_number, client_id))
+    {
+    case -1:
+      *error = TOX_ERR_GET_CLIENT_ID_NOT_FOUND;
+      return false;
+    case 0:
+      *error = TOX_ERR_GET_CLIENT_ID_OK;
+      return true;
+    }
   assert (false);
-  *error = TOX_ERR_GET_CLIENT_ID_OK;
-  return true;
 }
 
 bool
