@@ -4,6 +4,7 @@ import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.v2.enums.ToxProxyType;
 import im.tox.tox4j.v2.enums.ToxStatus;
+import im.tox.tox4j.v2.exceptions.ToxAddFriendException;
 import im.tox.tox4j.v2.exceptions.ToxBootstrapException;
 import im.tox.tox4j.v2.exceptions.ToxNewException;
 import im.tox.tox4j.v2.exceptions.ToxSetInfoException;
@@ -148,19 +149,6 @@ public abstract class ToxCoreTest {
     private static byte[] randomBytes(int length) {
         byte[] array = new byte[length];
         new Random().nextBytes(array);
-        return array;
-    }
-
-    private static byte[] randomAddress() {
-        byte[] array = new byte[ToxConstants.ADDRESS_SIZE];
-        new Random().nextBytes(array);
-        array[ToxConstants.ADDRESS_SIZE - 2] = 0;
-        array[ToxConstants.ADDRESS_SIZE - 1] = 0;
-        for (int i = 0; i < array.length - 2; i++) {
-            int offset = i % 2 == 0 ? 2 : 1;
-            System.out.println(i + " => " + (ToxConstants.ADDRESS_SIZE - offset));
-            array[ToxConstants.ADDRESS_SIZE - offset] ^= array[i];
-        }
         return array;
     }
 
@@ -799,10 +787,32 @@ public abstract class ToxCoreTest {
         }
     }
 
+    private void addFriends(ToxCore tox, int count) throws ToxNewException, ToxAddFriendException {
+        byte[] message = "heyo".getBytes();
+        for (int i = 0; i < count; i++) {
+            try (ToxCore friend = newTox()) {
+                tox.addFriend(friend.getAddress(), message);
+            }
+        }
+    }
+
     @Test
     public void testAddFriend() throws Exception {
         try (ToxCore tox = newTox()) {
-            System.out.println(tox.addFriend(randomAddress(), "hey ho".getBytes()));
+            for (int i = 0; i < 1000; i++) {
+                try (ToxCore friend = newTox()) {
+                    int friendNumber = tox.addFriend(friend.getAddress(), "heyo".getBytes());
+                    assertEquals(i, friendNumber);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testFriendListSize() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 1000);
+            assertEquals(tox.getFriendList().length, 1000);
         }
     }
 
@@ -851,11 +861,6 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testFriendExists() throws Exception {
-
-    }
-
-    @Test
-    public void testGetFriendList() throws Exception {
 
     }
 

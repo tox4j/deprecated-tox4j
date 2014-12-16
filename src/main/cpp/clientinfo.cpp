@@ -13,7 +13,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetSelfClientId
         unused(events);
         std::vector<uint8_t> client_id(TOX_CLIENT_ID_SIZE);
         tox_get_self_client_id(tox, client_id.data());
-        return toByteArray(env, client_id);
+        return toJavaArray(env, client_id);
     });
 }
 
@@ -29,7 +29,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetSecretKey
         unused(events);
         std::vector<uint8_t> secret_key(TOX_CLIENT_ID_SIZE);
         tox_get_secret_key(tox, secret_key.data());
-        return toByteArray(env, secret_key);
+        return toJavaArray(env, secret_key);
     });
 }
 
@@ -74,7 +74,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetAddress
         std::vector<uint8_t> address(TOX_ADDRESS_SIZE);
         tox_get_address(tox, address.data());
 
-        return toByteArray(env, address);
+        return toJavaArray(env, address);
     });
 }
 
@@ -121,7 +121,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetName
         std::vector<uint8_t> name(size);
         tox_get_self_name(tox, name.data());
 
-        return toByteArray(env, name);
+        return toJavaArray(env, name);
     });
 }
 
@@ -168,7 +168,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetStatusMessag
         std::vector<uint8_t> name(size);
         tox_get_self_status_message(tox, name.data());
 
-        return toByteArray(env, name);
+        return toJavaArray(env, name);
     });
 }
 

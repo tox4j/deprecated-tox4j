@@ -80,6 +80,6 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxIteration
         events.SerializeToArray(buffer.data(), buffer.size());
         events.Clear();
 
-        return toByteArray(env, buffer);
+        return toJavaArray(env, buffer);
     });
 }

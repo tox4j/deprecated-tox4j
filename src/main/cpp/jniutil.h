@@ -43,12 +43,35 @@ private:
     jbyte *bytes;
 };
 
+
+template<typename JType, typename JavaArray, JavaArray (JNIEnv::*New)(jsize size), void (JNIEnv::*Set)(JavaArray, jsize, jsize, JType const *)>
+struct make_java_array
+{
+    typedef JType java_type;
+    typedef JavaArray array_type;
+
+    static JavaArray make(JNIEnv *env, jsize size, JType const *data) {
+        JavaArray array = (env->*New)(size);
+        (env->*Set)(array, 0, size, data);
+        return array;
+    }
+};
+
+template<size_t Size>
+struct java_array;
+
+template<> struct java_array<sizeof(jbyte )> { typedef make_java_array<jbyte , jbyteArray , &JNIEnv::NewByteArray , &JNIEnv::SetByteArrayRegion > type; };
+template<> struct java_array<sizeof(jshort)> { typedef make_java_array<jshort, jshortArray, &JNIEnv::NewShortArray, &JNIEnv::SetShortArrayRegion> type; };
+template<> struct java_array<sizeof(jint  )> { typedef make_java_array<jint  , jintArray  , &JNIEnv::NewIntArray  , &JNIEnv::SetIntArrayRegion  > type; };
+template<> struct java_array<sizeof(jlong )> { typedef make_java_array<jlong , jlongArray , &JNIEnv::NewLongArray , &JNIEnv::SetLongArrayRegion > type; };
+
+
 template<typename T>
-jbyteArray toByteArray(JNIEnv *env, std::vector<T> const &data) {
-    static_assert(sizeof(T) == sizeof(jbyte), "Size requirements for byte array not met");
-    jbyteArray jb = env->NewByteArray(data.size());
-    env->SetByteArrayRegion(jb, 0, data.size(), (jbyte *) data.data());
-    return jb;
+typename java_array<sizeof(T)>::type::array_type
+toJavaArray(JNIEnv *env, std::vector<T> const &data) {
+    typedef typename java_array<sizeof(T)>::type::java_type java_type;
+    static_assert(sizeof(T) == sizeof(java_type), "Size requirements for java array not met");
+    return java_array<sizeof(T)>::type::make(env, data.size(), reinterpret_cast<java_type const *>(data.data()));
 }
 
 #endif /* JNIUTIL_H */

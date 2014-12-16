@@ -13,7 +13,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSave
         std::vector<uint8_t> buffer(tox_save_size(tox));
         tox_save(tox, buffer.data());
 
-        return toByteArray(env, buffer);
+        return toJavaArray(env, buffer);
     });
 }
 
