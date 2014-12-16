@@ -4,43 +4,43 @@ import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.v2.enums.ToxProxyType;
+import im.tox.tox4j.v2.exceptions.ToxBootstrapException;
+import im.tox.tox4j.v2.exceptions.ToxNewException;
 import org.junit.Test;
+import org.omg.CORBA.TIMEOUT;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public abstract class ToxCoreTest {
 
-    protected abstract ToxCore newTox(ToxOptions options);
+    protected abstract ToxCore newTox(ToxOptions options) throws ToxNewException;
 
-    protected ToxCore newTox() {
+    protected ToxCore newTox() throws ToxNewException {
         return newTox(new ToxOptions());
     }
 
-    protected ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) {
+    protected ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
         ToxOptions options = new ToxOptions();
-        options.ipv6Enabled = ipv6Enabled;
-        options.udpEnabled = udpEnabled;
+        options.setIpv6Enabled(ipv6Enabled);
+        options.setUdpEnabled(udpEnabled);
         return newTox(options);
     }
 
-    protected ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) {
+    protected ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) throws ToxNewException {
         ToxOptions options = new ToxOptions();
-        options.ipv6Enabled = ipv6Enabled;
-        options.udpEnabled = udpEnabled;
-        options.proxyType = proxyType;
-        options.proxyAddress = proxyAddress;
-        options.proxyPort = proxyPort;
+        options.setIpv6Enabled(ipv6Enabled);
+        options.setUdpEnabled(udpEnabled);
+        options.enableProxy(proxyType, proxyAddress, proxyPort);
         return newTox(options);
     }
 
     private static final int TOX_COUNT = 10;
+    private static final int TIMEOUT = 10000;
 
     private static class ConnectedListener implements ConnectionStatusCallback {
         private boolean value;
@@ -59,7 +59,7 @@ public abstract class ToxCoreTest {
         private final ToxCore[] toxes;
         private final boolean[] connected;
 
-        public ToxList(int count) throws ToxException {
+        public ToxList(int count) throws ToxNewException {
             this.toxes = new ToxCore[count];
             this.connected = new boolean[toxes.length];
             for (int i = 0; i < count; i++) {
@@ -124,62 +124,100 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testToxNew00() throws Exception {
+		System.err.println("testToxNew00");
         newTox(false, false).close();
     }
 
     @Test
     public void testToxNew01() throws Exception {
+		System.err.println("testToxNew01");
         newTox(false, true).close();
     }
 
     @Test
     public void testToxNew10() throws Exception {
+		System.err.println("testToxNew10");
         newTox(true, false).close();
     }
 
     @Test
     public void testToxNew11() throws Exception {
+		System.err.println("testToxNew11");
         newTox(true, true).close();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testToxNewProxyNull() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, null, 0).close();
+		System.err.println("testToxNewProxyNull");
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, null, 0).close();
+            fail();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.NULL, e.getCode());
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testToxNewProxyEmpty() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, "", 0).close();
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, "", 1).close();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testToxNewProxyBadPort0() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
+		System.err.println("testToxNewProxyBadPort0");
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testToxNewProxyBadPortNegative() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
+    @Test
+    public void testToxNewProxyBadPortNegative() {
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
+            fail();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testToxNewProxyBadPortTooLarge() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
+		System.err.println("testToxNewProxyBadPortTooLarge");
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
+            fail();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
+        }
     }
 
-    // TODO: this should return a more precise error
-    @Test(expected = ToxException.class)
+    @Test
     public void testToxNewProxyBadAddress1() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, "\u2639", 1).close();
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, "\u2639", 1).close();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+        }
     }
 
-    @Test(expected = ToxException.class)
+    @Test
     public void testToxNewProxyBadAddress2() throws Exception {
-        newTox(true, true, ToxProxyType.SOCKS5, ".", 1).close();
+        try {
+            newTox(true, true, ToxProxyType.SOCKS5, ".", 1).close();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+        }
     }
 
     @Test
     public void testToxNewProxyGood() throws Exception {
+		System.err.println("testToxNewProxyGood");
         newTox(true, true, ToxProxyType.SOCKS5, "localhost", 1).close();
         newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0xffff).close();
     }
@@ -187,11 +225,12 @@ public abstract class ToxCoreTest {
     @Test
     public void testToxNewNoProxyBadAddress() throws Exception {
         // Should ignore the bad address.
-        newTox(true, true, ToxProxyType.SOCKS5, "\u2639", 1).close();
+        newTox(true, true, ToxProxyType.NONE, "\u2639", 1).close();
     }
 
     @Test
     public void testToxCreationAndImmediateDestruction() throws Exception {
+		System.err.println("testToxCreationAndImmediateDestruction");
         int iterations = 1000;
         long start = System.currentTimeMillis();
         for (int i = 0; i < iterations; i++) {
@@ -203,6 +242,7 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testToxCreationAndDelayedDestruction() throws Exception {
+		System.err.println("testToxCreationAndDelayedDestruction");
         int iterations = 30;
         ArrayList<ToxCore> toxes = new ArrayList<>();
 
@@ -222,70 +262,115 @@ public abstract class ToxCoreTest {
         System.out.println("Destroying " + iterations + " toxes took " + (end - start) + "ms");
     }
 
-    @Test(expected = ToxException.class)
+    @Test
     public void testTooManyToxCreations() throws Exception {
-        ArrayList<ToxCore> toxes = new ArrayList<>();
-        for (int i = 0; i < 102; i++) {
-            // One of these will fail.
-            toxes.add(newTox());
-        }
-        // If nothing fails, clean up and return, failing the expected exception test.
-        for (ToxCore tox : toxes) {
-            tox.close();
+        try {
+            ArrayList<ToxCore> toxes = new ArrayList<>();
+            for (int i = 0; i < 102; i++) {
+                // One of these will fail.
+                toxes.add(newTox());
+            }
+            // If nothing fails, clean up and fail.
+            for (ToxCore tox : toxes) {
+                tox.close();
+            }
+            fail();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.PORT_ALLOC, e.getCode());
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBootstrapBadPort1() throws Exception {
+		System.err.println("testBootstrapBadPort1");
         try (ToxCore tox = newTox()) {
             tox.bootstrap("192.254.75.98", 0, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
+            fail();
+        } catch (ToxBootstrapException e) {
+            assertEquals(ToxBootstrapException.Code.BAD_PORT, e.getCode());
         }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBootstrapBadPort2() throws Exception {
+        System.err.println("testBootstrapBadPort2");
         try (ToxCore tox = newTox()) {
             tox.bootstrap("192.254.75.98", -10, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
-    @Test(expected = ToxException.class)
+    @Test(expected = IllegalArgumentException.class)
+    public void testBootstrapBadPort3() throws Exception {
+        System.err.println("testBootstrapBadPort2");
+        try (ToxCore tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 65536, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test
+    public void testBootstrapBorderlinePort1() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 1, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test
+    public void testBootstrapBorderlinePort2() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.bootstrap("192.254.75.98", 65535, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
+        }
+    }
+
+    @Test
     public void testBootstrapBadHost() throws Exception {
         try (ToxCore tox = newTox()) {
             tox.bootstrap(".", 33445, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
+            fail();
+        } catch (ToxBootstrapException e) {
+            assertEquals(ToxBootstrapException.Code.BAD_ADDRESS, e.getCode());
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBootstrapNullHost() throws Exception {
+		System.err.println("testBootstrapNullHost");
         try (ToxCore tox = newTox()) {
             tox.bootstrap(null, 33445, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE]);
+            fail();
+        } catch (ToxBootstrapException e) {
+            assertEquals(ToxBootstrapException.Code.NULL, e.getCode());
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBootstrapNullKey() throws Exception {
         try (ToxCore tox = newTox()) {
             tox.bootstrap("localhost", 33445, null);
+            fail();
+        } catch (ToxBootstrapException e) {
+            assertEquals(ToxBootstrapException.Code.NULL, e.getCode());
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBootstrapKeyTooShort() throws Exception {
+		System.err.println("testBootstrapKeyTooShort");
         try (ToxCore tox = newTox()) {
             tox.bootstrap("192.254.75.98", 33445, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE - 1]);
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBootstrapKeyTooLong() throws Exception {
+		System.err.println("testBootstrapKeyTooLong");
         try (ToxCore tox = newTox()) {
             tox.bootstrap("192.254.75.98", 33445, new byte[im.tox.tox4j.ToxConstants.CLIENT_ID_SIZE + 1]);
         }
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = TIMEOUT)
     public void testBootstrap() throws Exception {
+		System.err.println("testBootstrap");
         try (ToxCore tox = newTox()) {
             long start = System.currentTimeMillis();
             tox.bootstrap("192.254.75.98", 33445, new byte[]{ (byte)0x95, 0x1C, (byte)0x88, (byte)0xB7, (byte)0xE7, 0x5C, (byte)0x86, 0x74, 0x18, (byte)0xAC, (byte)0xDB, 0x5D, 0x27, 0x38, 0x21, 0x37, 0x2B, (byte)0xB5, (byte)0xBD, 0x65, 0x27, 0x40, (byte)0xBC, (byte)0xDF, 0x62, 0x3A, 0x4F, (byte)0xA2, (byte)0x93, (byte)0xE7, 0x5D, 0x2F });
@@ -304,13 +389,15 @@ public abstract class ToxCoreTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = TIMEOUT)
     public void testBootstrapSelf() throws Exception {
+		System.err.println("testBootstrapSelf");
         // TODO: don't know how to test this on localhost
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = TIMEOUT)
     public void testLANDiscoveryAll() throws Exception {
+		System.err.println("testLANDiscoveryAll");
         try (ToxList toxes = new ToxList(TOX_COUNT)) {
             long start = System.currentTimeMillis();
             // TODO: Generous timeout required for this; should be made more reliable.
@@ -328,8 +415,9 @@ public abstract class ToxCoreTest {
         }
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = TIMEOUT)
     public void testLANDiscoveryAny() throws Exception {
+		System.err.println("testLANDiscoveryAny");
         try (ToxList toxes = new ToxList(TOX_COUNT)) {
             long start = System.currentTimeMillis();
             while (!toxes.isAnyConnected()) {
@@ -348,6 +436,7 @@ public abstract class ToxCoreTest {
 
     @Test(expected=ToxKilledException.class)
     public void testClose_DoubleCloseThrows() throws Exception {
+		System.err.println("testClose_DoubleCloseThrows");
         ToxCore tox = newTox();
         try {
             tox.close();
@@ -359,6 +448,7 @@ public abstract class ToxCoreTest {
 
     @Test(expected=ToxKilledException.class)
     public void testDoubleCloseError() throws Exception {
+		System.err.println("testDoubleCloseError");
         ToxCore tox1 = newTox();
         tox1.close();
         newTox();
@@ -367,6 +457,7 @@ public abstract class ToxCoreTest {
 
     @Test(expected=ToxKilledException.class)
     public void testDoubleCloseInOrder() throws Exception {
+		System.err.println("testDoubleCloseInOrder");
         ToxCore tox1 = newTox();
         ToxCore tox2 = newTox();
         tox1.close();
@@ -375,6 +466,7 @@ public abstract class ToxCoreTest {
 
     @Test(expected=ToxKilledException.class)
     public void testDoubleCloseReverseOrder() throws Exception {
+		System.err.println("testDoubleCloseReverseOrder");
         ToxCore tox1 = newTox();
         ToxCore tox2 = newTox();
         tox2.close();
@@ -383,6 +475,7 @@ public abstract class ToxCoreTest {
 
     @Test(expected=ToxKilledException.class)
     public void testUseAfterCloseInOrder() throws Exception {
+		System.err.println("testUseAfterCloseInOrder");
         ToxCore tox1 = newTox();
         ToxCore tox2 = newTox();
         tox1.close();
@@ -391,6 +484,7 @@ public abstract class ToxCoreTest {
 
     @Test(expected=ToxKilledException.class)
     public void testUseAfterCloseReverseOrder() throws Exception {
+		System.err.println("testUseAfterCloseReverseOrder");
         ToxCore tox1 = newTox();
         ToxCore tox2 = newTox();
         tox2.close();
@@ -413,42 +507,54 @@ public abstract class ToxCoreTest {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     public void testClose() throws Exception {
         newTox().close();
     }
 
     @Test
-    public void testSave() throws Exception {
-
+    public void testSaveNotEmpty() throws Exception {
+        ToxCore tox = newTox();
+        byte[] data = tox.save();
+        assertNotNull(data);
+        assertNotEquals(0, data.length);
     }
 
     @Test
-    public void testLoad() throws Exception {
-
+    public void testSaveRepeatable() throws Exception {
+        ToxCore tox = newTox();
+        assertArrayEquals(tox.save(), tox.save());
     }
+
+    @Test
+    public void testLoadSave() throws Exception {
+        ToxCore tox = newTox();
+        byte[] data = tox.save();
+        tox.load(data);
+        assertArrayEquals(data, tox.save());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     public void testCallbackConnectionStatus() throws Exception {

@@ -52,8 +52,7 @@ link_directories(${LIBTOX_LIBRARY_DIRS} ${LIBTOXAV_LIBRARY_DIRS})
 add_library(
 	${LIB_TARGET_NAME}
 	MODULE
-	tox/core.c
-	JTox.cpp
+	tox/core.cpp
 	Tox4j.cpp
 	core.cpp
 	playground.cpp

@@ -297,6 +297,7 @@ void tox_options_free(struct Tox_Options *options);
 
 typedef enum TOX_ERR_NEW {
   TOX_ERR_NEW_OK,
+  TOX_ERR_NEW_NULL,
   /**
    * The function was unable to allocate enough memory to store the internal
    * structures for the Tox object.

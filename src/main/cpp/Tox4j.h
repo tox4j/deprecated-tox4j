@@ -6,11 +6,13 @@
 #include <stdexcept>
 #include <utility>
 
+#include <tox/core.h>
 #include "JTox.h"
 #include "jniutil.h"
 #include "events.pb.h"
 
 using im::tox::tox4j::proto::ToxEvents;
+
 
 struct ToxDeleter {
     void operator()(Tox *tox) {
@@ -51,7 +53,8 @@ public:
     // Move members from another object into this existing one, then set the right hand side to the DEAD state.
     // This object is then live again.
     Tox4jStruct &operator=(Tox4jStruct &&rhs) {
-        assert(!live);
+        assert(this->isDead());
+        assert(rhs.isLive());
 
         tox = std::move(rhs.tox);
         events = std::move(rhs.events);

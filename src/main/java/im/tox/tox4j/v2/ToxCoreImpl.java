@@ -57,15 +57,15 @@ public class ToxCoreImpl implements ToxCore {
             int proxyType,
             String proxyAddress,
             int proxyPort
-    );
+    ) throws ToxNewException;
 
-    public ToxCoreImpl(ToxOptions options) {
+    public ToxCoreImpl(ToxOptions options) throws ToxNewException {
         instanceNumber = toxNew(
-                options.ipv6Enabled,
-                options.udpEnabled,
-                options.proxyType.ordinal(),
-                options.proxyAddress,
-                options.proxyPort
+                options.isIpv6Enabled(),
+                options.isUdpEnabled(),
+                options.getProxyType().ordinal(),
+                options.getProxyAddress(),
+                options.getProxyPort()
         );
     }
 
@@ -94,10 +94,16 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxBootstrap(int instanceNumber, String address, int port, byte[] public_key);
+    private static native void toxBootstrap(int instanceNumber, String address, int port, byte[] public_key) throws ToxBootstrapException;
 
     @Override
     public void bootstrap(String address, int port, byte[] public_key) throws ToxBootstrapException {
+        if (port < 0) {
+            throw new IllegalArgumentException("Ports cannot be negative");
+        }
+        if (port > 65535) {
+            throw new IllegalArgumentException("Ports cannot be larger than 65535");
+        }
         toxBootstrap(instanceNumber, address, port, public_key);
     }
 
@@ -108,7 +114,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native int toxGetPort(int instanceNumber);
+    private static native int toxGetPort(int instanceNumber) throws ToxGetPortException;
 
     @Override
     public int getPort() throws ToxGetPortException {
@@ -285,7 +291,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxSetName(int instanceNumber, byte[] name);
+    private static native void toxSetName(int instanceNumber, byte[] name) throws ToxSetInfoException;
 
     @Override
     public void setName(byte[] name) throws ToxSetInfoException {
@@ -301,7 +307,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxSetStatusMessage(int instanceNumber, byte[] message);
+    private static native void toxSetStatusMessage(int instanceNumber, byte[] message) throws ToxSetInfoException;
 
     @Override
     public void setStatusMessage(byte[] message) throws ToxSetInfoException {
@@ -333,7 +339,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native int toxAddFriend(int instanceNumber, byte[] address, byte[] message);
+    private static native int toxAddFriend(int instanceNumber, byte[] address, byte[] message) throws ToxAddFriendException;
 
     @Override
     public int addFriend(byte[] address, byte[] message) throws ToxAddFriendException {
@@ -341,7 +347,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native int toxAddFriendNorequest(int instanceNumber, byte[] clientId);
+    private static native int toxAddFriendNorequest(int instanceNumber, byte[] clientId) throws ToxAddFriendException;
 
     @Override
     public int addFriendNoRequest(byte[] clientId) throws ToxAddFriendException {
@@ -349,7 +355,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxDeleteFriend(int instanceNumber, int friendNumber);
+    private static native void toxDeleteFriend(int instanceNumber, int friendNumber) throws ToxDeleteFriendException;
 
     @Override
     public void deleteFriend(int friendNumber) throws ToxDeleteFriendException {
@@ -357,7 +363,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native int toxGetFriendNumber(int instanceNumber, byte[] clientId);
+    private static native int toxGetFriendNumber(int instanceNumber, byte[] clientId) throws ToxGetFriendNumberException;
 
     @Override
     public int getFriendNumber(byte[] clientId) throws ToxGetFriendNumberException {
@@ -365,7 +371,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native byte[] toxGetFriendClientId(int instanceNumber, int friendNumber);
+    private static native byte[] toxGetFriendClientId(int instanceNumber, int friendNumber) throws ToxGetClientIdException;
 
     @Override
     public byte[] getClientID(int friendNumber) throws ToxGetClientIdException {
@@ -415,7 +421,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxSetTyping(int instanceNumber, int friendNumber, boolean typing);
+    private static native void toxSetTyping(int instanceNumber, int friendNumber, boolean typing) throws ToxSetTypingException;
 
     @Override
     public void setTyping(int friendNumber, boolean typing) throws ToxSetTypingException {
@@ -423,7 +429,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxSendMessage(int instanceNumber, int friendNumber, byte[] message);
+    private static native void toxSendMessage(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
 
     @Override
     public void sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException {
@@ -431,7 +437,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxSendAction(int instanceNumber, int friendNumber, byte[] message);
+    private static native void toxSendAction(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
 
     @Override
     public void sendAction(int friendNumber, byte[] action) throws ToxSendMessageException {
@@ -459,7 +465,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxFileControl(int instanceNumber, int friendNumber, byte fileNumber, int control);
+    private static native void toxFileControl(int instanceNumber, int friendNumber, byte fileNumber, int control) throws ToxFileControlException;
 
     @Override
     public void fileControl(int friendNumber, byte fileNumber, ToxFileControl control) throws ToxFileControlException {
@@ -472,7 +478,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native byte toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, byte[] filename);
+    private static native byte toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, byte[] filename) throws ToxFileSendException;
 
     @Override
     public byte fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException {
@@ -480,7 +486,7 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
-    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, byte fileNumber, byte[] data);
+    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, byte fileNumber, byte[] data) throws ToxFileSendChunkException;
 
     @Override
     public void fileSendChunk(int friendNumber, byte fileNumber, byte[] data) throws ToxFileSendChunkException {

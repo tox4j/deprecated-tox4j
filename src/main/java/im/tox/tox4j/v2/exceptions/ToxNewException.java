@@ -3,6 +3,7 @@ package im.tox.tox4j.v2.exceptions;
 public class ToxNewException extends SpecificToxException {
 
     public static enum Code {
+        NULL,
         MALLOC,
         PORT_ALLOC,
         PROXY_BAD_HOST,
