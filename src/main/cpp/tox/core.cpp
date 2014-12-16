@@ -129,21 +129,34 @@ struct new_Tox
 void
 new_tox_options_default (struct new_Tox_Options *options)
 {
-  assert (false);
+  *options = new_Tox_Options ();
+  options->ipv6_enabled = true;
+  options->udp_enabled = true;
+  options->proxy_type = TOX_PROXY_TYPE_NONE;
+  options->proxy_address = nullptr;
+  options->proxy_port = 0;
 }
 
 struct new_Tox_Options *
 new_tox_options_new (TOX_ERR_OPTIONS_NEW *error)
 {
-  assert (false);
-  *error = TOX_ERR_OPTIONS_NEW_OK;
-  return 0;
+  new_Tox_Options *options = new new_Tox_Options;
+  if (options == nullptr)
+    {
+      if (error) *error = TOX_ERR_OPTIONS_NEW_MALLOC;
+      return nullptr;
+    }
+
+  new_tox_options_default (options);
+
+  if (error) *error = TOX_ERR_OPTIONS_NEW_OK;
+  return options;
 }
 
 void
 new_tox_options_free (struct new_Tox_Options *options)
 {
-  assert (false);
+  delete options;
 }
 
 new_Tox *
@@ -153,25 +166,25 @@ new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
     {
       if (options->proxy_address == nullptr)
         {
-          *error = TOX_ERR_NEW_NULL;
+          if (error) *error = TOX_ERR_NEW_NULL;
           return nullptr;
         }
       for (char const *p = options->proxy_address; *p; p++)
         if (!std::isprint(*p))
           {
-            *error = TOX_ERR_NEW_PROXY_BAD_HOST;
+            if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
             return nullptr;
           }
       switch (options->proxy_address[0])
         {
         case '\0':
         case '.':
-          *error = TOX_ERR_NEW_PROXY_BAD_HOST;
+          if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
           return nullptr;
         }
       if (options->proxy_port == 0)
         {
-          *error = TOX_ERR_NEW_PROXY_BAD_PORT;
+          if (error) *error = TOX_ERR_NEW_PROXY_BAD_PORT;
           return nullptr;
         }
     }
@@ -188,9 +201,13 @@ new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
 
   Tox *tox = tox_new (&opts);
   if (!tox)
-    *error = TOX_ERR_NEW_MALLOC;
+    {
+      if (error) *error = TOX_ERR_NEW_MALLOC;
+    }
   else
-    *error = TOX_ERR_NEW_OK;
+    {
+      if (error) *error = TOX_ERR_NEW_OK;
+    }
 
   return tox ? new new_Tox(tox) : nullptr;
 }
@@ -219,19 +236,19 @@ new_tox_load (new_Tox *tox, uint8_t const *data, size_t length, TOX_ERR_LOAD *er
 {
   if (data == nullptr)
     {
-      *error = TOX_ERR_LOAD_NULL;
+      if (error) *error = TOX_ERR_LOAD_NULL;
       return false;
     }
   switch (tox_load (tox->tox, data, length))
     {
     case 0:
-      *error = TOX_ERR_LOAD_OK;
+      if (error) *error = TOX_ERR_LOAD_OK;
       return true;
     case -1:
-      *error = TOX_ERR_LOAD_BAD_FORMAT;
+      if (error) *error = TOX_ERR_LOAD_BAD_FORMAT;
       return false;
     case +1:
-      *error = TOX_ERR_LOAD_ENCRYPTED;
+      if (error) *error = TOX_ERR_LOAD_ENCRYPTED;
       return false;
     }
   assert (false);
@@ -242,20 +259,20 @@ new_tox_bootstrap (new_Tox *tox, char const *address, uint16_t port, uint8_t con
 {
   if (!address || !public_key)
     {
-      *error = TOX_ERR_BOOTSTRAP_NULL;
+      if (error) *error = TOX_ERR_BOOTSTRAP_NULL;
       return false;
     }
   if (port == 0)
     {
-      *error = TOX_ERR_BOOTSTRAP_BAD_PORT;
+      if (error) *error = TOX_ERR_BOOTSTRAP_BAD_PORT;
       return false;
     }
   if (!tox_bootstrap_from_address (tox->tox, address, port, public_key))
     {
-      *error = TOX_ERR_BOOTSTRAP_BAD_ADDRESS;
+      if (error) *error = TOX_ERR_BOOTSTRAP_BAD_ADDRESS;
       return false;
     }
-  *error = TOX_ERR_BOOTSTRAP_OK;
+  if (error) *error = TOX_ERR_BOOTSTRAP_OK;
   return true;
 }
 
@@ -276,7 +293,7 @@ uint16_t
 new_tox_get_port (new_Tox const *tox, TOX_ERR_GET_PORT *error)
 {
   assert (false);
-  *error = TOX_ERR_GET_PORT_OK;
+  if (error) *error = TOX_ERR_GET_PORT_OK;
   return 0;
 }
 
@@ -333,20 +350,20 @@ new_tox_set_self_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR
 {
   if (length > TOX_MAX_NAME_LENGTH)
     {
-      *error = TOX_ERR_SET_INFO_TOO_LONG;
+      if (error) *error = TOX_ERR_SET_INFO_TOO_LONG;
       return false;
     }
   if (length > 0 && name == nullptr)
     {
-      *error = TOX_ERR_SET_INFO_NULL;
+      if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;
     }
   if (tox_set_name (tox->tox, name, length) == -1)
     {
-      *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
+      if (error) *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
       return false;
     }
-  *error = TOX_ERR_SET_INFO_OK;
+  if (error) *error = TOX_ERR_SET_INFO_OK;
   return true;
 }
 
@@ -367,20 +384,20 @@ new_tox_set_self_status_message (new_Tox *tox, uint8_t const *status, size_t len
 {
   if (length > TOX_MAX_STATUS_MESSAGE_LENGTH)
     {
-      *error = TOX_ERR_SET_INFO_TOO_LONG;
+      if (error) *error = TOX_ERR_SET_INFO_TOO_LONG;
       return false;
     }
   if (length > 0 && status == nullptr)
     {
-      *error = TOX_ERR_SET_INFO_NULL;
+      if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;
     }
   if (tox_set_status_message (tox->tox, status, length) == -1)
     {
-      *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
+      if (error) *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
       return false;
     }
-  *error = TOX_ERR_SET_INFO_OK;
+  if (error) *error = TOX_ERR_SET_INFO_OK;
   return true;
 }
 
@@ -417,14 +434,14 @@ new_tox_add_friend (new_Tox *tox, uint8_t const *address, uint8_t const *message
 {
   switch (int32_t friend_number = tox_add_friend (tox->tox, address, message, length))
     {
-    case TOX_FAERR_TOOLONG     : *error = TOX_ERR_ADD_FRIEND_TOO_LONG;       return 0;
-    case TOX_FAERR_NOMESSAGE   : *error = TOX_ERR_ADD_FRIEND_NO_MESSAGE;     return 0;
-    case TOX_FAERR_OWNKEY      : *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
-    case TOX_FAERR_ALREADYSENT : *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
-    case TOX_FAERR_BADCHECKSUM : *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
-    case TOX_FAERR_SETNEWNOSPAM: *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
-    case TOX_FAERR_NOMEM       : *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
-    default                    : *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
+    case TOX_FAERR_TOOLONG     : if (error) *error = TOX_ERR_ADD_FRIEND_TOO_LONG;       return 0;
+    case TOX_FAERR_NOMESSAGE   : if (error) *error = TOX_ERR_ADD_FRIEND_NO_MESSAGE;     return 0;
+    case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
+    case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
+    case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
+    case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
+    case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
+    default                    : if (error) *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
     }
   assert (false);
 }
@@ -434,12 +451,12 @@ new_tox_add_friend_norequest (new_Tox *tox, uint8_t const *client_id, TOX_ERR_AD
 {
   switch (int32_t friend_number = tox_add_friend_norequest (tox->tox, client_id))
     {
-    case TOX_FAERR_OWNKEY      : *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
-    case TOX_FAERR_ALREADYSENT : *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
-    case TOX_FAERR_BADCHECKSUM : *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
-    case TOX_FAERR_SETNEWNOSPAM: *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
-    case TOX_FAERR_NOMEM       : *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
-    default                    : *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
+    case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
+    case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
+    case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
+    case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
+    case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
+    default                    : if (error) *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
     }
   assert (false);
 }
@@ -464,13 +481,13 @@ new_tox_delete_friend (new_Tox *tox, uint32_t friend_number, TOX_ERR_DELETE_FRIE
       if (!contained)
         {
           // The friend didn't exist, so he wasn't removed.
-          *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+          if (error) *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
           return false;
         }
-      *error = TOX_ERR_DELETE_FRIEND_OK;
+      if (error) *error = TOX_ERR_DELETE_FRIEND_OK;
       return true;
     case -1:
-      *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+      if (error) *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
       return false;
     }
   assert (false);
@@ -481,16 +498,16 @@ new_tox_get_friend_number (new_Tox const *tox, uint8_t const *client_id, TOX_ERR
 {
   if (client_id == nullptr)
     {
-      *error = TOX_ERR_GET_FRIEND_NUMBER_NULL;
+      if (error) *error = TOX_ERR_GET_FRIEND_NUMBER_NULL;
       return 0;
     }
   switch (int32_t friend_number = tox_get_friend_number (tox->tox, client_id))
     {
     case -1:
-      *error = TOX_ERR_GET_FRIEND_NUMBER_NOT_FOUND;
+      if (error) *error = TOX_ERR_GET_FRIEND_NUMBER_NOT_FOUND;
       return 0;
     default:
-      *error = TOX_ERR_GET_FRIEND_NUMBER_OK;
+      if (error) *error = TOX_ERR_GET_FRIEND_NUMBER_OK;
       return friend_number;
     }
   assert (false);
@@ -501,16 +518,16 @@ new_tox_get_friend_client_id (new_Tox const *tox, uint32_t friend_number, uint8_
 {
   if (client_id == nullptr)
     {
-      *error = TOX_ERR_GET_CLIENT_ID_NULL;
+      if (error) *error = TOX_ERR_GET_CLIENT_ID_NULL;
       return false;
     }
   switch (tox_get_client_id (tox->tox, friend_number, client_id))
     {
     case -1:
-      *error = TOX_ERR_GET_CLIENT_ID_NOT_FOUND;
+      if (error) *error = TOX_ERR_GET_CLIENT_ID_NOT_FOUND;
       return false;
     case 0:
-      *error = TOX_ERR_GET_CLIENT_ID_OK;
+      if (error) *error = TOX_ERR_GET_CLIENT_ID_OK;
       return true;
     }
   assert (false);
@@ -540,7 +557,7 @@ size_t
 new_tox_get_friend_name_size (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return 0;
 }
 
@@ -548,7 +565,7 @@ bool
 new_tox_get_friend_name (new_Tox const *tox, uint32_t friend_number, uint8_t *name, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return true;
 }
 
@@ -562,7 +579,7 @@ size_t
 new_tox_get_friend_status_message_size (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return 0;
 }
 
@@ -570,7 +587,7 @@ bool
 new_tox_get_friend_status_message (new_Tox const *tox, uint32_t friend_number, uint8_t *message, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return true;
 }
 
@@ -584,7 +601,7 @@ TOX_STATUS
 new_tox_get_friend_status (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return TOX_STATUS_NONE;
 }
 
@@ -598,7 +615,7 @@ bool
 new_tox_get_friend_is_connected (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return true;
 }
 
@@ -612,7 +629,7 @@ bool
 new_tox_get_friend_is_typing (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
-  *error = TOX_ERR_FRIEND_QUERY_OK;
+  if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
   return true;
 }
 
@@ -628,10 +645,10 @@ new_tox_set_typing (new_Tox *tox, uint32_t friend_number, bool is_typing, TOX_ER
   switch (tox_set_user_is_typing (tox->tox, friend_number, is_typing))
     {
     case -1:
-      *error = TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND;
+      if (error) *error = TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND;
       return false;
     case 0:
-      *error = TOX_ERR_SET_TYPING_OK;
+      if (error) *error = TOX_ERR_SET_TYPING_OK;
       return true;
     }
   assert (false);
@@ -642,16 +659,16 @@ new_tox_send_message (new_Tox *tox, uint32_t friend_number, uint8_t const *messa
 {
   if (message == nullptr)
     {
-      *error = TOX_ERR_SEND_MESSAGE_NULL;
+      if (error) *error = TOX_ERR_SEND_MESSAGE_NULL;
       return 0;
     }
   switch (uint32_t message_id = tox_send_message (tox->tox, friend_number, message, length))
     {
     case 0:
-      *error = TOX_ERR_SEND_MESSAGE_SENDQ; // Arbitrary.. we don't know what happened.
+      if (error) *error = TOX_ERR_SEND_MESSAGE_SENDQ; // Arbitrary.. we don't know what happened.
       return 0;
     default:
-      *error = TOX_ERR_SEND_MESSAGE_OK;
+      if (error) *error = TOX_ERR_SEND_MESSAGE_OK;
       return message_id;
     }
 }
@@ -660,7 +677,7 @@ uint32_t
 new_tox_send_action (new_Tox *tox, uint32_t friend_number, uint8_t const *action, size_t length, TOX_ERR_SEND_MESSAGE *error)
 {
   assert (false);
-  *error = TOX_ERR_SEND_MESSAGE_OK;
+  if (error) *error = TOX_ERR_SEND_MESSAGE_OK;
   return 0;
 }
 
@@ -699,7 +716,7 @@ bool
 new_tox_file_control (new_Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, TOX_ERR_FILE_CONTROL *error)
 {
   assert (false);
-  *error = TOX_ERR_FILE_CONTROL_OK;
+  if (error) *error = TOX_ERR_FILE_CONTROL_OK;
   return true;
 }
 
@@ -713,7 +730,7 @@ uint8_t
 new_tox_file_send (new_Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error)
 {
   assert (false);
-  *error = TOX_ERR_FILE_SEND_OK;
+  if (error) *error = TOX_ERR_FILE_SEND_OK;
   return 0;
 }
 
@@ -721,7 +738,7 @@ void
 new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint8_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error)
 {
   assert (false);
-  *error = TOX_ERR_FILE_SEND_CHUNK_OK;
+  if (error) *error = TOX_ERR_FILE_SEND_CHUNK_OK;
 }
 
 void
@@ -746,7 +763,7 @@ bool
 new_tox_send_lossy_packet (new_Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error)
 {
   assert (false);
-  *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
+  if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
   return true;
 }
 
@@ -760,7 +777,7 @@ bool
 new_tox_send_lossless_packet (new_Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error)
 {
   assert (false);
-  *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
+  if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
   return true;
 }
 
