@@ -514,8 +514,7 @@ new_tox_get_friend_client_id (new_Tox const *tox, uint32_t friend_number, uint8_
 bool
 new_tox_friend_exists (new_Tox const *tox, uint32_t friend_number)
 {
-  assert (false);
-  return true;
+  return tox_friend_exists (tox->tox, friend_number);
 }
 
 size_t

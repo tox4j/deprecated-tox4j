@@ -157,14 +157,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendClient
  * Signature: (II)Z
  */
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFriendExists
-  (JNIEnv *env, jclass, jint instanceNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxFriendExists");
-        return false;
+        return tox_friend_exists(tox, friendNumber);
     });
 }
 
