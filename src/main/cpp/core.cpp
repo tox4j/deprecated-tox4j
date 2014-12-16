@@ -172,7 +172,7 @@ static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t f
     msg->set_length(length);
 }
 
-static void tox4j_file_recv_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
+static void tox4j_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
@@ -194,7 +194,7 @@ static void tox4j_file_recv_cb(Tox *tox, uint32_t friend_number, uint8_t file_nu
     msg->set_filename(filename, filename_length);
 }
 
-static void tox4j_file_recv_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data)
+static void tox4j_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
@@ -279,8 +279,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
             tox_callback_friend_action        (tox.get(), tox4j_friend_action_cb,         events.get());
             tox_callback_file_control         (tox.get(), tox4j_file_control_cb,          events.get());
             tox_callback_file_send_chunk      (tox.get(), tox4j_file_send_chunk_cb,       events.get());
-            tox_callback_file_recv            (tox.get(), tox4j_file_recv_cb,             events.get());
-            tox_callback_file_recv_chunk      (tox.get(), tox4j_file_recv_chunk_cb,       events.get());
+            tox_callback_file_receive         (tox.get(), tox4j_file_receive_cb,          events.get());
+            tox_callback_file_receive_chunk   (tox.get(), tox4j_file_receive_chunk_cb,    events.get());
             tox_callback_lossy_packet         (tox.get(), tox4j_lossy_packet_cb,          events.get());
             tox_callback_lossless_packet      (tox.get(), tox4j_lossless_packet_cb,       events.get());
 

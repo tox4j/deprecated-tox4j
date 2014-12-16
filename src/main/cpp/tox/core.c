@@ -60,8 +60,8 @@ void tox_callback_file_control(Tox *tox, tox_file_control_cb *function, void *us
 uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error) { return 0; }
 void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint8_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error) { }
 void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, void *user_data) { }
-void tox_callback_file_recv(Tox *tox, tox_file_recv_cb *function, void *user_data) { }
-void tox_callback_file_recv_chunk(Tox *tox, tox_file_recv_chunk_cb *function, void *user_data) { }
+void tox_callback_file_receive(Tox *tox, tox_file_receive_cb *function, void *user_data) { }
+void tox_callback_file_receive_chunk(Tox *tox, tox_file_receive_chunk_cb *function, void *user_data) { }
 bool tox_send_lossy_packet(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error) { return 0; }
 void tox_callback_lossy_packet(Tox *tox, tox_lossy_packet_cb *function, void *user_data) { }
 bool tox_send_lossless_packet(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error) { return 0; }

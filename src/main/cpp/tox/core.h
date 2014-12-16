@@ -1492,7 +1492,7 @@ void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, vo
 
 
 /**
- * The function type for the `file_recv` callback.
+ * The function type for the `file_receive` callback.
  *
  * The client should acquire resources to be associated with the file transfer.
  * Incoming file transfers start in the PAUSED state. After this callback
@@ -1505,18 +1505,18 @@ void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, vo
  * @param file_number The friend-specific file number the data received is
  *   associated with.
  */
-typedef void tox_file_recv_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data);
+typedef void tox_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data);
 
 /**
- * Set the callback for the `file_recv` event.
+ * Set the callback for the `file_receive` event.
  *
  * This event is triggered when a file transfer request is received.
  */
-void tox_callback_file_recv(Tox *tox, tox_file_recv_cb *function, void *user_data);
+void tox_callback_file_receive(Tox *tox, tox_file_receive_cb *function, void *user_data);
 
 
 /**
- * The function type for the `file_recv_chunk` callback.
+ * The function type for the `file_receive_chunk` callback.
  *
  * This function is first called when a file transfer request is received, and
  * subsequently when a chunk of file data for an accepted request was received.
@@ -1525,8 +1525,8 @@ void tox_callback_file_recv(Tox *tox, tox_file_recv_cb *function, void *user_dat
  * resources it acquired for the transfer. After a call with length = 0, the
  * file number can be reused for new file transfers.
  *
- * If position is equal to file_size (received in the file_recv callback) when
- * the transfer finishes, the file was received completely. Otherwise, if
+ * If position is equal to file_size (received in the file_receive callback)
+ * when the transfer finishes, the file was received completely. Otherwise, if
  * file_size was 0, streaming ended successfully when length is 0.
  *
  * @param friend_number The friend number of the friend who is sending the file.
@@ -1536,12 +1536,12 @@ void tox_callback_file_recv(Tox *tox, tox_file_recv_cb *function, void *user_dat
  * @param data A byte array containing the received chunk.
  * @param length The length of the received chunk.
  */
-typedef void tox_file_recv_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data);
+typedef void tox_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data);
 
 /**
- * Set the callback for the `file_recv_chunk` event.
+ * Set the callback for the `file_receive_chunk` event.
  */
-void tox_callback_file_recv_chunk(Tox *tox, tox_file_recv_chunk_cb *function, void *user_data);
+void tox_callback_file_receive_chunk(Tox *tox, tox_file_receive_chunk_cb *function, void *user_data);
 
 
 /*******************************************************************************
