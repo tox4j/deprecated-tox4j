@@ -49,7 +49,7 @@ public abstract class ToxCoreTest {
         private boolean value;
 
         @Override
-        public void call(boolean isConnected) {
+        public void connectionStatus(boolean isConnected) {
             value = isConnected;
         }
 
@@ -70,7 +70,7 @@ public abstract class ToxCoreTest {
                 toxes[i] = newTox();
                 toxes[i].callbackConnectionStatus(new ConnectionStatusCallback() {
                     @Override
-                    public void call(boolean isConnected) {
+                    public void connectionStatus(boolean isConnected) {
                         connected[id] = isConnected;
                     }
                 });
@@ -962,14 +962,18 @@ public abstract class ToxCoreTest {
         private final List<Task> tasks = new ArrayList<>();
         private final String name;
         private boolean connected;
-        private boolean isChatting = true;
+        private boolean chatting = true;
 
         public ChatClient(String name) {
             this.name = name;
         }
 
+        public boolean isChatting() {
+            return chatting;
+        }
+
         @Override
-        public void call(boolean isConnected) {
+        public void connectionStatus(boolean isConnected) {
             if (isConnected)
                 System.out.println(name + " is now connected to the network");
             else
@@ -977,12 +981,8 @@ public abstract class ToxCoreTest {
             connected = isConnected;
         }
 
-        public boolean chatting() {
-            return isChatting;
-        }
-
         @Override
-        public void call(final int friendNumber, boolean isConnected) {
+        public void friendConnected(final int friendNumber, boolean isConnected) {
             System.out.println(name + " is now connected to friend " + friendNumber);
             tasks.add(new Task() {
                 @Override
@@ -993,12 +993,12 @@ public abstract class ToxCoreTest {
         }
 
         @Override
-        public void call(int friendNumber, int timeDelta, byte[] message) {
+        public void friendMessage(int friendNumber, int timeDelta, byte[] message) {
             System.out.println(name + " received a message: " + new String(message));
             assertEquals(friendNumber, 0);
             assertTrue(timeDelta >= 0);
             assertEquals("hey ho", new String(message));
-            isChatting = false;
+            chatting = false;
         }
 
         public void performTasks(ToxCore tox) throws SpecificToxException {
@@ -1027,7 +1027,7 @@ public abstract class ToxCoreTest {
                 bob.callbackFriendConnected(bobChat);
                 bob.callbackFriendMessage(bobChat);
 
-                while (aliceChat.chatting() || bobChat.chatting()) {
+                while (aliceChat.isChatting() || bobChat.isChatting()) {
                     alice.iteration();
                     bob.iteration();
 
