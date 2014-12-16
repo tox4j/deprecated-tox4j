@@ -54,7 +54,14 @@ add_library(
 	MODULE
 	tox/core.cpp
 	Tox4j.cpp
-	core.cpp
+	clientinfo.cpp
+	connection.cpp
+	custom.cpp
+	filetransfer.cpp
+	friendlist.cpp
+	interaction.cpp
+	lifecycle.cpp
+	loadsave.cpp
 	playground.cpp
 	${PROTO_SRCS}
 	${PROTO_HDRS}

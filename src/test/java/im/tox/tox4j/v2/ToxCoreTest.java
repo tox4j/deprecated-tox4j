@@ -830,7 +830,7 @@ public abstract class ToxCoreTest {
     }
 
     @Test
-    public void testGetClientID1() throws Exception {
+    public void testGetFriendClientID() throws Exception {
 
     }
 
