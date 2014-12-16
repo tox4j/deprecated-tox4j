@@ -10,7 +10,7 @@
 #include "jniutil.h"
 #include "events.pb.h"
 
-using tox4j::proto::ToxEvents;
+using im::tox::tox4j::proto::ToxEvents;
 
 struct ToxDeleter {
     void operator()(Tox *tox) {

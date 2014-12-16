@@ -1,5 +1,7 @@
 package im.tox.tox4j.v2;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import im.tox.tox4j.proto.Events;
 import im.tox.tox4j.v2.callbacks.*;
 import im.tox.tox4j.v2.enums.ToxFileControl;
 import im.tox.tox4j.v2.enums.ToxFileKind;
@@ -13,6 +15,22 @@ public class ToxCoreImpl implements ToxCore {
     }
 
     private final int instanceNumber;
+    private ConnectionStatusCallback connectionStatusCallback;
+    private FriendNameCallback friendNameCallback;
+    private FriendStatusMessageCallback friendStatusMessageCallback;
+    private FriendStatusCallback friendStatusCallback;
+    private FriendConnectedCallback friendConnectedCallback;
+    private FriendTypingCallback friendTypingCallback;
+    private ReadReceiptCallback readReceiptCallback;
+    private FriendRequestCallback friendRequestCallback;
+    private FriendMessageCallback friendMessageCallback;
+    private FriendActionCallback friendActionCallback;
+    private FileControlCallback fileControlCallback;
+    private FileSendChunkCallback fileSendChunkCallback;
+    private FileReceiveCallback fileReceiveCallback;
+    private FileReceiveChunkCallback fileReceiveChunkCallback;
+    private LossyPacketCallback lossyPacketCallback;
+    private LosslessPacketCallback losslessPacketCallback;
 
     /**
      * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
@@ -86,7 +104,7 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackConnectionStatus(ConnectionStatusCallback callback) {
-
+        this.connectionStatusCallback = callback;
     }
 
 
@@ -106,11 +124,124 @@ public class ToxCoreImpl implements ToxCore {
     }
 
 
+    private static ToxStatus convert(Events.FriendStatus.Kind status) {
+        switch (status) {
+            case NONE: return ToxStatus.NONE;
+            case AWAY: return ToxStatus.AWAY;
+            case BUSY: return ToxStatus.BUSY;
+        }
+        throw new IllegalStateException("Bad enumerator: " + status);
+    }
+
+    private static ToxFileControl convert(Events.FileControl.Kind control) {
+        switch (control) {
+            case RESUME: return ToxFileControl.RESUME;
+            case PAUSE: return ToxFileControl.PAUSE;
+            case CANCEL: return ToxFileControl.CANCEL;
+        }
+        throw new IllegalStateException("Bad enumerator: " + control);
+    }
+
+    private static ToxFileKind convert(Events.FileKind kind) {
+        switch (kind) {
+            case AVATAR: return ToxFileKind.AVATAR;
+            case DATA: return ToxFileKind.DATA;
+        }
+        throw new IllegalStateException("Bad enumerator: " + kind);
+    }
+
     private static native byte[] toxIteration(int instanceNumber);
 
     @Override
     public void iteration() {
         byte[] events = toxIteration(instanceNumber);
+        Events.ToxEvents toxEvents;
+        try {
+            toxEvents = Events.ToxEvents.parseFrom(events);
+        } catch (InvalidProtocolBufferException e) {
+            toxEvents = Events.ToxEvents.getDefaultInstance();
+        }
+
+        if (connectionStatusCallback != null) {
+			for (Events.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
+				connectionStatusCallback.call(connectionStatus.getIsConnected());
+			}
+		}
+        if (friendNameCallback != null) {
+			for (Events.FriendName friendName : toxEvents.getFriendNameList()) {
+				friendNameCallback.call(friendName.getFriendNumber(), friendName.getName().toByteArray());
+			}
+		}
+        if (friendStatusMessageCallback != null) {
+			for (Events.FriendStatusMessage friendStatusMessage : toxEvents.getFriendStatusMessageList()) {
+				friendStatusMessageCallback.call(friendStatusMessage.getFriendNumber(), friendStatusMessage.getMessage().toByteArray());
+			}
+		}
+        if (friendStatusCallback != null) {
+			for (Events.FriendStatus friendStatus : toxEvents.getFriendStatusList()) {
+				friendStatusCallback.call(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
+			}
+		}
+        if (friendConnectedCallback != null) {
+			for (Events.FriendConnected friendConnected : toxEvents.getFriendConnectedList()) {
+				friendConnectedCallback.call(friendConnected.getFriendNumber(), friendConnected.getIsConnected());
+			}
+		}
+        if (friendTypingCallback != null) {
+			for (Events.FriendTyping friendTyping : toxEvents.getFriendTypingList()) {
+				friendTypingCallback.call(friendTyping.getFriendNumber(), friendTyping.getIsTyping());
+			}
+		}
+        if (readReceiptCallback != null) {
+			for (Events.ReadReceipt readReceipt : toxEvents.getReadReceiptList()) {
+				readReceiptCallback.call(readReceipt.getFriendNumber(), readReceipt.getMessageId());
+			}
+		}
+        if (friendRequestCallback != null) {
+			for (Events.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
+				friendRequestCallback.call(friendRequest.getAddress().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
+			}
+		}
+        if (friendMessageCallback != null) {
+			for (Events.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
+                friendMessageCallback.call(friendMessage.getFriendNumber(), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
+			}
+		}
+        if (friendActionCallback != null) {
+			for (Events.FriendAction friendAction : toxEvents.getFriendActionList()) {
+				friendActionCallback.call(friendAction.getFriendNumber(), friendAction.getTimeDelta(), friendAction.getAction().toByteArray());
+			}
+		}
+        if (fileControlCallback != null) {
+			for (Events.FileControl fileControl : toxEvents.getFileControlList()) {
+				fileControlCallback.call(fileControl.getFriendNumber(), (byte) fileControl.getFileNumber(), convert(fileControl.getControl()));
+			}
+		}
+        if (fileSendChunkCallback != null) {
+			for (Events.FileSendChunk fileSendChunk : toxEvents.getFileSendChunkList()) {
+				fileSendChunkCallback.call(fileSendChunk.getFriendNumber(), (byte) fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getData().toByteArray());
+			}
+		}
+        if (fileReceiveCallback != null) {
+			for (Events.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
+				fileReceiveCallback.call(fileReceive.getFriendNumber(), (byte) fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
+			}
+		}
+        if (fileReceiveChunkCallback != null) {
+			for (Events.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
+				fileReceiveChunkCallback.call(fileReceiveChunk.getFriendNumber(), (byte) fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
+			}
+		}
+        if (lossyPacketCallback != null) {
+			for (Events.LossyPacket lossyPacket : toxEvents.getLossyPacketList()) {
+				lossyPacketCallback.call(lossyPacket.getFriendNumber(), lossyPacket.getData().toByteArray());
+			}
+		}
+        if (losslessPacketCallback != null) {
+			for (Events.LosslessPacket losslessPacket : toxEvents.getLosslessPacketList()) {
+				losslessPacketCallback.call(losslessPacket.getFriendNumber(), losslessPacket.getData().toByteArray());
+			}
+		}
     }
 
 
@@ -260,27 +391,27 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackFriendName(FriendNameCallback callback) {
-
+        this.friendNameCallback = callback;
     }
 
     @Override
     public void callbackFriendStatusMessage(FriendStatusMessageCallback callback) {
-
+        this.friendStatusMessageCallback = callback;
     }
 
     @Override
     public void callbackFriendStatus(FriendStatusCallback callback) {
-
+        this.friendStatusCallback = callback;
     }
 
     @Override
     public void callbackFriendConnected(FriendConnectedCallback callback) {
-
+        this.friendConnectedCallback = callback;
     }
 
     @Override
     public void callbackFriendTyping(FriendTypingCallback callback) {
-
+        this.friendTypingCallback = callback;
     }
 
 
@@ -309,22 +440,22 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackReadReceipt(ReadReceiptCallback callback) {
-
+        this.readReceiptCallback = callback;
     }
 
     @Override
     public void callbackFriendRequest(FriendRequestCallback callback) {
-
+        this.friendRequestCallback = callback;
     }
 
     @Override
     public void callbackFriendMessage(FriendMessageCallback callback) {
-
+        this.friendMessageCallback = callback;
     }
 
     @Override
     public void callbackFriendAction(FriendActionCallback callback) {
-
+        this.friendActionCallback = callback;
     }
 
 
@@ -337,7 +468,7 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackFileControl(FileControlCallback callback) {
-
+        this.fileControlCallback = callback;
     }
 
 
@@ -350,17 +481,17 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackFileSendChunk(FileSendChunkCallback callback) {
-
+        this.fileSendChunkCallback = callback;
     }
 
     @Override
     public void callbackFileReceive(FileReceiveCallback callback) {
-
+        this.fileReceiveCallback = callback;
     }
 
     @Override
     public void callbackFileReceiveChunk(FileReceiveChunkCallback callback) {
-
+        this.fileReceiveChunkCallback = callback;
     }
 
 
@@ -373,7 +504,7 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackLossyPacket(LossyPacketCallback callback) {
-
+        this.lossyPacketCallback = callback;
     }
 
 
@@ -386,6 +517,6 @@ public class ToxCoreImpl implements ToxCore {
 
     @Override
     public void callbackLosslessPacket(LosslessPacketCallback callback) {
-
+        this.losslessPacketCallback = callback;
     }
 }
