@@ -213,17 +213,28 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
     assert(proxyPort >= 0);
     assert(proxyPort <= 65535);
 
-    auto opts = Tox_Options();
-    opts.ipv6_enabled = ipv6Enabled;
-    opts.udp_enabled = udpEnabled;
-    opts.proxy_type = (TOX_PROXY_TYPE) proxyType;
+    struct Tox_Options_Deleter {
+        void operator()(Tox_Options *options) {
+            tox_options_free(options);
+        }
+    };
 
+    std::unique_ptr<Tox_Options, Tox_Options_Deleter> opts(tox_options_new(nullptr));
+    if (!opts) {
+        throw_tox_exception(env, "New", "MALLOC");
+        return 0;
+    }
+
+    opts->ipv6_enabled = ipv6Enabled;
+    opts->udp_enabled = udpEnabled;
+
+    opts->proxy_type = (TOX_PROXY_TYPE) proxyType;
     UTFChars proxyAddressChars(env, proxyAddress);
-    opts.proxy_address = proxyAddressChars.data();
-    opts.proxy_port = proxyPort;
+    opts->proxy_address = proxyAddressChars.data();
+    opts->proxy_port = proxyPort;
 
     TOX_ERR_NEW error;
-    std::unique_ptr<Tox, ToxDeleter> tox(tox_new(&opts, &error));
+    std::unique_ptr<Tox, ToxDeleter> tox(tox_new(opts.get(), &error));
     switch (error) {
         case TOX_ERR_NEW_OK: {
             assert(tox != nullptr);
