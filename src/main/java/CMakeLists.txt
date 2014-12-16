@@ -103,7 +103,7 @@ add_jar(${JAR_TARGET_NAME} ${TOX4J_SOURCE})
 # Set arguments for javah
 set(JAVAH_ARGS
 	"-classpath"
-	"${CLASSDIR}"
+        "${CLASSDIR}:${PROTOBUF_FULL}"
 	"-o"
 	"${JNI_HEADER_LOCATION}/${JNI_HEADER_NAME}"
         "${PACKAGE_NAME}.v2.ToxCoreImpl"

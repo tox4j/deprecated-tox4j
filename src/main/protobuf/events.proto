@@ -19,15 +19,15 @@ message FileControl {
     required Kind control = 3;
 }
 
-enum FileKind {
-    DATA = 1;
-    AVATAR = 2;
-}
-
 message FileReceive {
+    enum Kind {
+        DATA = 1;
+        AVATAR = 2;
+    }
+
     required uint32 friendNumber = 1;
     required uint32 fileNumber = 2;
-    required FileKind kind = 3;
+    required Kind kind = 3;
     required uint64 fileSize = 4;
     required bytes filename = 5;
 }
@@ -69,7 +69,7 @@ message FriendName {
 }
 
 message FriendRequest {
-    required bytes address = 1;
+    required bytes clientId = 1;
     required uint32 timeDelta = 2;
     required bytes message = 3;
 }
