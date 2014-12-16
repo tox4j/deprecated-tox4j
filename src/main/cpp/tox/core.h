@@ -514,7 +514,7 @@ void tox_iteration(Tox *tox);
  *   parameter is NULL, this function has no effect.
  * @see TOX_ADDRESS_SIZE for the address format.
  */
-void tox_get_self_address(Tox const *tox, uint8_t *address);
+void tox_get_address(Tox const *tox, uint8_t *address);
 
 
 /**
@@ -711,7 +711,7 @@ typedef enum TOX_ERR_ADD_FRIEND {
  * If more than UINT32_MAX friends are added, this function causes undefined
  * behaviour.
  *
- * @param address The address of the friend (returned by tox_self_address of the
+ * @param address The address of the friend (returned by tox_get_address of the
  *   friend you wish to add) it must be TOX_ADDRESS_SIZE bytes.
  * @param message The message that will be sent along with the friend request.
  * @param length The length of the data byte array.
@@ -1041,11 +1041,7 @@ typedef enum TOX_ERR_SET_TYPING {
   /**
    * The friend number did not designate a valid friend.
    */
-  TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND,
-  /**
-   * An allocation error occurred while increasing the send queue size.
-   */
-  TOX_ERR_SET_TYPING_SENDQ
+  TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND
 } TOX_ERR_SET_TYPING;
 
 /**

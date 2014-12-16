@@ -3,7 +3,7 @@
 void tox_options_default(struct Tox_Options *options) { }
 struct Tox_Options *tox_options_new(TOX_ERR_OPTIONS_NEW *error) { return 0; }
 void tox_options_free(struct Tox_Options *options) { }
-Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error) { return 0; }
+Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error) { *error = TOX_ERR_NEW_MALLOC; return 0; }
 void tox_kill(Tox *tox) { }
 size_t tox_save_size(Tox const *tox) { return 0; }
 void tox_save(Tox const *tox, uint8_t *data) { }
@@ -12,8 +12,8 @@ bool tox_bootstrap(Tox *tox, char const *address, uint16_t port, uint8_t const *
 bool tox_is_connected(Tox const *tox) { return 0; }
 void tox_callback_connection_status(Tox *tox, tox_connection_status_cb *function, void *user_data) { }
 uint16_t tox_get_port(Tox const *tox, TOX_ERR_GET_PORT *error) { return 0; }
-uint32_t tox_do_interval(Tox const *tox) { return 0; }
-void tox_do(Tox *tox) { }
+uint32_t tox_iteration_time(Tox const *tox) { return 0; }
+void tox_iteration(Tox *tox) { }
 void tox_get_self_address(Tox const *tox, uint8_t *address) { }
 void tox_set_nospam(Tox *tox, uint32_t nospam) { }
 uint32_t tox_get_nospam(Tox const *tox) { return 0; }

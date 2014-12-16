@@ -10,8 +10,8 @@
 #define tox_is_connected new_tox_is_connected
 #define tox_callback_connection_status new_tox_callback_connection_status
 #define tox_get_port new_tox_get_port
-#define tox_do_interval new_tox_do_interval
-#define tox_do new_tox_do
+#define tox_iteration_time new_tox_iteration_time
+#define tox_iteration new_tox_iteration
 #define tox_get_self_address new_tox_get_self_address
 #define tox_set_nospam new_tox_set_nospam
 #define tox_get_nospam new_tox_get_nospam
