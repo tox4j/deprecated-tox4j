@@ -5,6 +5,7 @@ import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.v2.enums.ToxProxyType;
 import im.tox.tox4j.v2.exceptions.ToxBootstrapException;
 import im.tox.tox4j.v2.exceptions.ToxNewException;
+import im.tox.tox4j.v2.exceptions.ToxSetInfoException;
 import org.junit.Test;
 
 import java.io.Closeable;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -139,6 +141,13 @@ public abstract class ToxCoreTest {
         }
 
         return entropy;
+    }
+
+
+    private static byte[] randomBytes(int length) {
+        byte[] array = new byte[length];
+        new Random().nextBytes(array);
+        return array;
     }
 
 
@@ -631,10 +640,51 @@ public abstract class ToxCoreTest {
     }
 
     @Test
+    public void testSetNameMinSize() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] array = randomBytes(1);
+            tox.setName(array);
+            assertArrayEquals(array, tox.getName());
+        }
+    }
+
+    @Test
+    public void testSetNameMaxSize() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] array = randomBytes(ToxConstants.MAX_NAME_LENGTH);
+            tox.setName(array);
+            assertArrayEquals(array, tox.getName());
+        }
+    }
+
+    @Test
+    public void testSetNameTooLong() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] array = randomBytes(ToxConstants.MAX_NAME_LENGTH + 1);
+            tox.setName(array);
+            fail();
+        } catch (ToxSetInfoException e) {
+            assertEquals(ToxSetInfoException.Code.TOO_LONG, e.getCode());
+        }
+    }
+
+    @Test
+    public void testSetNameExhaustive() throws Exception {
+        try (ToxCore tox = newTox()) {
+            for (int i = 1; i <= ToxConstants.MAX_NAME_LENGTH; i++) {
+                byte[] array = randomBytes(i);
+                tox.setName(array);
+                assertArrayEquals(array, tox.getName());
+            }
+        }
+    }
+
+    @Test
     public void testUnsetName1() throws Exception {
         try (ToxCore tox = newTox()) {
             assertNull(tox.getName());
             tox.setName("myname".getBytes());
+            assertNotNull(tox.getName());
             tox.setName(null);
             assertNull(tox.getName());
         }
@@ -645,6 +695,7 @@ public abstract class ToxCoreTest {
         try (ToxCore tox = newTox()) {
             assertNull(tox.getName());
             tox.setName("myname".getBytes());
+            assertNotNull(tox.getName());
             tox.setName(new byte[0]);
             assertNull(tox.getName());
         }
@@ -656,6 +707,68 @@ public abstract class ToxCoreTest {
             assertNull(tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertArrayEquals("message".getBytes(), tox.getStatusMessage());
+        }
+    }
+
+    @Test
+    public void testSetStatusMessageMinSize() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] array = randomBytes(1);
+            tox.setStatusMessage(array);
+            assertArrayEquals(array, tox.getStatusMessage());
+        }
+    }
+
+    @Test
+    public void testSetStatusMessageMaxSize() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] array = randomBytes(ToxConstants.MAX_STATUS_MESSAGE_LENGTH);
+            tox.setStatusMessage(array);
+            assertArrayEquals(array, tox.getStatusMessage());
+        }
+    }
+
+    @Test
+    public void testSetStatusMessageTooLong() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] array = randomBytes(ToxConstants.MAX_STATUS_MESSAGE_LENGTH + 1);
+            tox.setStatusMessage(array);
+            fail();
+        } catch (ToxSetInfoException e) {
+            assertEquals(ToxSetInfoException.Code.TOO_LONG, e.getCode());
+        }
+    }
+
+    @Test
+    public void testSetStatusMessageExhaustive() throws Exception {
+        try (ToxCore tox = newTox()) {
+            for (int i = 1; i <= ToxConstants.MAX_STATUS_MESSAGE_LENGTH; i++) {
+                byte[] array = randomBytes(i);
+                tox.setStatusMessage(array);
+                assertArrayEquals(array, tox.getStatusMessage());
+            }
+        }
+    }
+
+    @Test
+    public void testUnsetStatusMessage1() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertNull(tox.getStatusMessage());
+            tox.setStatusMessage("message".getBytes());
+            assertNotNull(tox.getStatusMessage());
+            tox.setStatusMessage(null);
+            assertNull(tox.getStatusMessage());
+        }
+    }
+
+    @Test
+    public void testUnsetStatusMessage2() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertNull(tox.getStatusMessage());
+            tox.setStatusMessage("message".getBytes());
+            assertNotNull(tox.getStatusMessage());
+            tox.setStatusMessage(new byte[0]);
+            assertNull(tox.getStatusMessage());
         }
     }
 
