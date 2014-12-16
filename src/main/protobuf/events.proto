@@ -1,96 +1,130 @@
-package tox4j.proto;
+package im.tox.tox4j.proto;
 
 option java_package = "im.tox.tox4j.proto";
 option optimize_for = LITE_RUNTIME;
 
-message FriendRequest {
-    required bytes address = 1;
-    required bytes data = 2;
-}
-
-message Message {
-    required int32 friendNumber = 1;
-    required bytes data = 2;
-}
-
-message Action {
-    required int32 friendNumber = 1;
-    required bytes action = 2;
-}
-
-message NameChange {
-    required int32 friendNumber = 1;
-    required bytes newName = 2;
-}
-
-message StatusMessage {
-    required int32 friendNumber = 1;
-    required bytes status = 2;
-}
-
-message UserStatus {
-    required int32 friendNumber = 1;
-    required uint32 status = 2;
-}
-
-message TypingStatus {
-    required int32 friendNumber = 1;
-    required bool typing = 2;
-}
-
-message Receipt {
-    required int32 friendNumber = 1;
-    required uint32 receipt = 2;
-}
-
 message ConnectionStatus {
-    required int32 friendNumber = 1;
-    required bool status = 2;
+    required bool isConnected = 1;
 }
 
-message GroupInvite {
-    required int32 friendNumber = 1;
-    required uint32 type = 2;
-    required bytes data = 3;
+message FileControl {
+    enum Kind {
+        RESUME = 1;
+        PAUSE  = 2;
+        CANCEL = 3;
+    }
+
+    required uint32 friendNumber = 1;
+    required uint32 fileNumber = 2;
+    required Kind control = 3;
 }
 
-message GroupMessage {
-    required int32 groupNumber = 1;
-    required int32 peerNumber = 2;
-    required bytes data = 3;
+enum FileKind {
+    DATA = 1;
+    AVATAR = 2;
 }
 
-message GroupAction {
-    required int32 groupNumber = 1;
-    required int32 peerNumber = 2;
+message FileReceive {
+    required uint32 friendNumber = 1;
+    required uint32 fileNumber = 2;
+    required FileKind kind = 3;
+    required uint64 fileSize = 4;
+    required bytes filename = 5;
+}
+
+message FileReceiveChunk {
+    required uint32 friendNumber = 1;
+    required uint32 fileNumber = 2;
+    required uint64 position = 3;
+    required bytes data = 4;
+}
+
+message FileSendChunk {
+    required uint32 friendNumber = 1;
+    required uint32 fileNumber = 2;
+    required uint64 position = 3;
+    required bytes data = 4;
+}
+
+message FriendAction {
+    required uint32 friendNumber = 1;
+    required uint32 timeDelta = 2;
     required bytes action = 3;
 }
 
-message GroupTitleChange {
-    required int32 groupNumber = 1;
-    required int32 peerNumber = 2;
-    required bytes newTitle = 3;
+message FriendConnected {
+    required uint32 friendNumber = 1;
+    required bool isConnected = 2;
 }
 
-message GroupNameListChange {
-    required int32 groupNumber = 1;
-    required int32 peerNumber = 2;
-    required bytes change = 3;
+message FriendMessage {
+    required uint32 friendNumber = 1;
+    required uint32 timeDelta = 2;
+    required bytes message = 3;
+}
+
+message FriendName {
+    required uint32 friendNumber = 1;
+    required bytes name = 2;
+}
+
+message FriendRequest {
+    required bytes address = 1;
+    required uint32 timeDelta = 2;
+    required bytes message = 3;
+}
+
+message FriendStatus {
+    enum Kind {
+        NONE = 1;
+        AWAY = 2;
+        BUSY = 3;
+    }
+
+    required uint32 friendNumber = 1;
+    required Kind status = 2;
+}
+
+message FriendStatusMessage {
+    required uint32 friendNumber = 1;
+    required bytes message = 2;
+}
+
+message FriendTyping {
+    required uint32 friendNumber = 1;
+    required bool isTyping = 2;
+}
+
+message LosslessPacket {
+    required uint32 friendNumber = 1;
+    required bytes data = 2;
+}
+
+message LossyPacket {
+    required uint32 friendNumber = 1;
+    required bytes data = 2;
+}
+
+message ReadReceipt {
+    required uint32 friendNumber = 1;
+    required uint32 messageId = 2;
 }
 
 message ToxEvents {
-    repeated FriendRequest friendRequest = 1;
-    repeated Message msg = 2;
-    repeated Action action = 3;
-    repeated NameChange nameChange = 4;
-    repeated StatusMessage sMsg = 5;
-    repeated UserStatus uStatus = 6;
-    repeated TypingStatus tStatus = 7;
-    repeated Receipt receipt = 8;
-    repeated ConnectionStatus cStatus = 9;
-    repeated GroupInvite gInvite = 10;
-    repeated GroupMessage gMessage = 11;
-    repeated GroupAction gAction = 12;
-    repeated GroupTitleChange gTitleChange = 13;
-    repeated GroupNameListChange gNameListChange = 14;
+    repeated ConnectionStatus    connectionStatus    = 1;
+    repeated FileControl         fileControl         = 2;
+    repeated FileReceive         fileReceive         = 3;
+    repeated FileReceiveChunk    fileReceiveChunk    = 4;
+    repeated FileSendChunk       fileSendChunk       = 5;
+    repeated FriendAction        friendAction        = 6;
+    repeated FriendConnected     friendConnected     = 7;
+    repeated FriendMessage       friendMessage       = 8;
+    repeated FriendName          friendName          = 9;
+    repeated FriendRequest       friendRequest       = 10;
+    repeated FriendStatus        friendStatus        = 11;
+    repeated FriendStatusMessage friendStatusMessage = 12;
+    repeated FriendTyping        friendTyping        = 13;
+    repeated LosslessPacket      losslessPacket      = 14;
+    repeated LossyPacket         lossyPacket         = 15;
+    repeated ReadReceipt         readReceipt         = 16;
 }

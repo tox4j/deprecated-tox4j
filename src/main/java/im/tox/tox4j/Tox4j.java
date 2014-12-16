@@ -222,6 +222,7 @@ public class Tox4j implements ToxSimpleChat {
     @Override
     public void toxDo() {
         byte[] events = toxDo(this.instanceNumber);
+        /* BROKEN FOR NOW
         Events.ToxEvents toxEvents;
         try {
             toxEvents = Events.ToxEvents.parseFrom(events);
@@ -269,6 +270,7 @@ public class Tox4j implements ToxSimpleChat {
                 this.connectionStatusCallback.execute(connectionStatus.getFriendNumber(), connectionStatus.getStatus());
             }
         }
+        */
     }
 
     private static native byte[] save(int instanceNumber);
