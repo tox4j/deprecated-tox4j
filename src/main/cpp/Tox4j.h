@@ -10,8 +10,6 @@
 #include "jniutil.h"
 #include "events.pb.h"
 
-#include <tox/tox.h>
-
 using tox4j::proto::ToxEvents;
 
 struct ToxDeleter {
@@ -138,6 +136,11 @@ static inline void throw_tox_killed_exception(JNIEnv *env, jint instance_number,
         fullMessage(instance_number, message).c_str());
 }
 
+static inline void throw_unsupported_operation_exception(JNIEnv *env, jint instance_number, char const *message) {
+    env->ThrowNew(env->FindClass("java/lang/UnsupportedOperationException"),
+        fullMessage(instance_number, message).c_str());
+}
+
 static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message) {
     env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
         fullMessage(instance_number, message).c_str());
@@ -145,6 +148,7 @@ static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_numb
 static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message) {
     throw_illegal_state_exception(env, instance_number, message.c_str());
 }
+
 
 static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message) {
     if (!condition) {

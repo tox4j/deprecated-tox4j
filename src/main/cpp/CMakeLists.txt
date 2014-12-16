@@ -32,6 +32,7 @@ if(${NEED_JNI_MD} MATCHES "y")
 		"${JAVA_INCLUDE_PATH2}"
 		"${LIBTOX_INCLUDE_DIRS}"
 		"${LIBTOXAV_INCLUDE_DIRS}"
+		"${CMAKE_CURRENT_SOURCE_DIR}"
 		)
 else()
 	include_directories(
@@ -39,6 +40,7 @@ else()
 		"${JAVA_INCLUDE_PATH}"
 		"${LIBTOX_INCLUDE_DIRS}"
 		"${LIBTOXAV_INCLUDE_DIRS}"
+		"${CMAKE_CURRENT_SOURCE_DIR}"
 		)
 endif()
 
@@ -50,8 +52,10 @@ link_directories(${LIBTOX_LIBRARY_DIRS} ${LIBTOXAV_LIBRARY_DIRS})
 add_library(
 	${LIB_TARGET_NAME}
 	MODULE
+	tox/core.c
 	JTox.cpp
 	Tox4j.cpp
+	core.cpp
 	playground.cpp
 	${PROTO_SRCS}
 	${PROTO_HDRS}
@@ -73,4 +77,4 @@ add_dependencies(${LIB_TARGET_NAME} ${JAR_TARGET_NAME})
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set_target_properties(${LIB_TARGET_NAME} PROPERTIES PREFIX "")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -fno-exceptions -fno-rtti -DGOOGLE_PROTOBUF_NO_RTTI")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -fno-exceptions -fno-rtti -DGOOGLE_PROTOBUF_NO_RTTI -Wl,-z,defs")
