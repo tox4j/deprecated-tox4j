@@ -125,25 +125,6 @@ struct new_Tox
   }
 };
 
-#if 0
-typedef void tox_connection_status_cb(Tox *tox, bool is_connected, void *user_data);
-typedef void tox_friend_name_cb(Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, void *user_data);
-typedef void tox_friend_status_message_cb(Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, void *user_data);
-typedef void tox_friend_status_cb(Tox *tox, uint32_t friend_number, TOX_STATUS status, void *user_data);
-typedef void tox_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_connected, void *user_data);
-typedef void tox_friend_typing_cb(Tox *tox, uint32_t friend_number, bool is_typing, void *user_data);
-typedef void tox_read_receipt_cb(Tox *tox, uint32_t friend_number, uint32_t message_id, void *user_data);
-typedef void tox_friend_request_cb(Tox *tox, uint8_t const *client_id, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data);
-typedef void tox_friend_message_cb(Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data);
-typedef void tox_friend_action_cb(Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */uint8_t const *action, size_t length, void *user_data);
-typedef void tox_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, void *user_data);
-typedef void tox_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data);
-typedef void tox_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data);
-typedef void tox_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data);
-typedef void tox_lossy_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data);
-typedef void tox_lossless_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data);
-#endif
-
 
 void
 new_tox_options_default (struct new_Tox_Options *options)
