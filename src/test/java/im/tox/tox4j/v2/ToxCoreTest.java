@@ -880,6 +880,31 @@ public abstract class ToxCoreTest {
         }
     }
 
+    @Test
+    public void testFriendExists() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 3);
+            assertTrue(tox.friendExists(0));
+            assertTrue(tox.friendExists(1));
+            assertTrue(tox.friendExists(2));
+            assertFalse(tox.friendExists(3));
+            assertFalse(tox.friendExists(4));
+        }
+    }
+
+    @Test
+    public void testFriendExists2() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 3);
+            assertTrue(tox.friendExists(0));
+            assertTrue(tox.friendExists(1));
+            assertTrue(tox.friendExists(2));
+            tox.deleteFriend(1);
+            assertTrue(tox.friendExists(0));
+            assertFalse(tox.friendExists(1));
+            assertTrue(tox.friendExists(2));
+        }
+    }
 
 
 
@@ -910,11 +935,6 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testGetFriendClientID() throws Exception {
-
-    }
-
-    @Test
-    public void testFriendExists() throws Exception {
 
     }
 
