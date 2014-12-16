@@ -78,13 +78,19 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriendNorequest
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxDeleteFriend
-  (JNIEnv *env, jclass, jint instanceNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxDeleteFriend");
+        TOX_ERR_DELETE_FRIEND error;
+        tox_delete_friend(tox, friendNumber, &error);
+        switch (error) {
+            case TOX_ERR_DELETE_FRIEND_OK:
+                return;
+            case TOX_ERR_DELETE_FRIEND_NOT_FOUND:
+                throw_tox_exception(env, "DeleteFriend", "NOT_FOUND");
+                return;
+        }
     });
 }
 

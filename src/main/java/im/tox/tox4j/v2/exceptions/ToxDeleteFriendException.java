@@ -1,6 +1,6 @@
 package im.tox.tox4j.v2.exceptions;
 
-public class ToxDeleteFriendException extends Exception {
+public class ToxDeleteFriendException extends SpecificToxException {
 
     public static enum Code {
         NOT_FOUND,
@@ -8,9 +8,11 @@ public class ToxDeleteFriendException extends Exception {
 
     public final Code code;
 
-    public ToxDeleteFriendException(Code code, String message) {
-        super(message);
+    public ToxDeleteFriendException(Code code) {
         this.code = code;
     }
 
+    public Code getCode() {
+        return code;
+    }
 }

@@ -4,10 +4,7 @@ import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.v2.enums.ToxProxyType;
 import im.tox.tox4j.v2.enums.ToxStatus;
-import im.tox.tox4j.v2.exceptions.ToxAddFriendException;
-import im.tox.tox4j.v2.exceptions.ToxBootstrapException;
-import im.tox.tox4j.v2.exceptions.ToxNewException;
-import im.tox.tox4j.v2.exceptions.ToxSetInfoException;
+import im.tox.tox4j.v2.exceptions.*;
 import org.junit.Test;
 
 import java.io.Closeable;
@@ -799,7 +796,7 @@ public abstract class ToxCoreTest {
     @Test
     public void testAddFriend() throws Exception {
         try (ToxCore tox = newTox()) {
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < ITERATIONS; i++) {
                 try (ToxCore friend = newTox()) {
                     int friendNumber = tox.addFriend(friend.getAddress(), "heyo".getBytes());
                     assertEquals(i, friendNumber);
@@ -809,10 +806,77 @@ public abstract class ToxCoreTest {
     }
 
     @Test
+    public void testAddFriendNoRequest() throws Exception {
+        try (ToxCore tox = newTox()) {
+            for (int i = 0; i < ITERATIONS; i++) {
+                try (ToxCore friend = newTox()) {
+                    int friendNumber = tox.addFriendNoRequest(friend.getClientID());
+                    assertEquals(i, friendNumber);
+                }
+            }
+            assertEquals(tox.getFriendList().length, ITERATIONS);
+        }
+    }
+
+    @Test
     public void testFriendListSize() throws Exception {
         try (ToxCore tox = newTox()) {
-            addFriends(tox, 1000);
-            assertEquals(tox.getFriendList().length, 1000);
+            addFriends(tox, ITERATIONS);
+            assertEquals(tox.getFriendList().length, ITERATIONS);
+        }
+    }
+
+    @Test
+    public void testFriendList() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 5);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
+        }
+    }
+
+    @Test
+    public void testDeleteAndReAddFriend() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 5);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
+            tox.deleteFriend(2);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 3, 4 });
+            tox.deleteFriend(3);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 4 });
+            addFriends(tox, 1);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 4 });
+            addFriends(tox, 1);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
+        }
+    }
+
+    @Test
+    public void testDeleteFriendTwice() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 5);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
+            tox.deleteFriend(2);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 3, 4 });
+            try {
+                tox.deleteFriend(2);
+                fail();
+            } catch (ToxDeleteFriendException e) {
+                assertEquals(ToxDeleteFriendException.Code.NOT_FOUND, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testDeleteNonExistentFriend() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 5);
+            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
+            try {
+                tox.deleteFriend(5);
+                fail();
+            } catch (ToxDeleteFriendException e) {
+                assertEquals(ToxDeleteFriendException.Code.NOT_FOUND, e.getCode());
+            }
         }
     }
 
@@ -838,16 +902,6 @@ public abstract class ToxCoreTest {
 
 
 
-
-    @Test
-    public void testAddFriendNoRequest() throws Exception {
-
-    }
-
-    @Test
-    public void testDeleteFriend() throws Exception {
-
-    }
 
     @Test
     public void testGetFriendNumber() throws Exception {

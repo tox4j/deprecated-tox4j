@@ -7,6 +7,9 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+#include <vector>
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 template<typename FuncT>
@@ -442,22 +445,54 @@ new_tox_add_friend (new_Tox *tox, uint8_t const *address, uint8_t const *message
     case TOX_FAERR_NOMEM       : *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
     default                    : *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
     }
+  assert (false);
 }
 
 uint32_t
 new_tox_add_friend_norequest (new_Tox *tox, uint8_t const *client_id, TOX_ERR_ADD_FRIEND *error)
 {
+  switch (int32_t friend_number = tox_add_friend_norequest (tox->tox, client_id))
+    {
+    case TOX_FAERR_OWNKEY      : *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
+    case TOX_FAERR_ALREADYSENT : *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
+    case TOX_FAERR_BADCHECKSUM : *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
+    case TOX_FAERR_SETNEWNOSPAM: *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
+    case TOX_FAERR_NOMEM       : *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
+    default                    : *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
+    }
   assert (false);
-  *error = TOX_ERR_ADD_FRIEND_OK;
-  return 0;
 }
 
 bool
 new_tox_delete_friend (new_Tox *tox, uint32_t friend_number, TOX_ERR_DELETE_FRIEND *error)
 {
+  // XXX: tox_del_friend is broken in that it doesn't detect if an already
+  // deleted friend is being deleted again, if the highest friend number is
+  // greater than the friend number passed to delete. we fix that behaviour
+  // here.
+  bool contained;
+  {
+    size_t size = tox_count_friendlist (tox->tox);
+    std::vector<int32_t> list (size);
+    tox_get_friendlist (tox->tox, list.data (), size);
+    contained = std::find (list.begin (), list.end (), friend_number) != list.end ();
+  }
+  switch (tox_del_friend (tox->tox, friend_number))
+    {
+    case 0:
+      if (!contained)
+        {
+          // The friend didn't exist, so he wasn't removed.
+          *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+          return false;
+        }
+      *error = TOX_ERR_DELETE_FRIEND_OK;
+      return true;
+    case -1:
+      *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+      return false;
+    }
   assert (false);
-  *error = TOX_ERR_DELETE_FRIEND_OK;
-  return true;
 }
 
 uint32_t
