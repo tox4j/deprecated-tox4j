@@ -43,7 +43,7 @@ message FileSendChunk {
     required uint32 friendNumber = 1;
     required uint32 fileNumber = 2;
     required uint64 position = 3;
-    required bytes data = 4;
+    required uint32 length = 4;
 }
 
 message FriendAction {

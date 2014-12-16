@@ -1346,27 +1346,27 @@ void tox_callback_file_control(Tox *tox, tox_file_control_cb *function, void *us
  ******************************************************************************/
 
 
-typedef enum TOX_ERR_SEND_FILE {
-  TOX_ERR_SEND_FILE_OK,
-  TOX_ERR_SEND_FILE_NULL,
+typedef enum TOX_ERR_FILE_SEND {
+  TOX_ERR_FILE_SEND_OK,
+  TOX_ERR_FILE_SEND_NULL,
   /**
    * The friend_number passed did not designate a valid friend.
    */
-  TOX_ERR_SEND_FILE_FRIEND_NOT_FOUND,
+  TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND,
   /**
    * Filename length was 0. Not relevant for TOX_FILE_KIND_AVATAR.
    */
-  TOX_ERR_SEND_FILE_NAME_EMPTY,
+  TOX_ERR_FILE_SEND_NAME_EMPTY,
   /**
    * Filename length exceeded 255 bytes. Not relevant for TOX_FILE_KIND_AVATAR.
    */
-  TOX_ERR_SEND_FILE_NAME_TOO_LONG,
+  TOX_ERR_FILE_SEND_NAME_TOO_LONG,
   /**
    * Too many ongoing transfers. The maximum number of concurrent file transfers
    * per friend is 256.
    */
-  TOX_ERR_SEND_FILE_TOO_MANY
-} TOX_ERR_SEND_FILE;
+  TOX_ERR_FILE_SEND_TOO_MANY
+} TOX_ERR_FILE_SEND;
 
 /**
  * Send a file transmission request.
@@ -1423,7 +1423,33 @@ typedef enum TOX_ERR_SEND_FILE {
  * @return A file number used as an identifier in subsequent callbacks. This
  *   number is per friend. File numbers are reused after a transfer terminates.
  */
-uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_SEND_FILE *error);
+uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error);
+
+
+typedef enum TOX_ERR_FILE_SEND_CHUNK {
+  TOX_ERR_FILE_SEND_CHUNK_OK,
+  /**
+   * The length parameter was non-zero, but data was NULL.
+   */
+  TOX_ERR_FILE_SEND_CHUNK_NULL,
+  /**
+   * The friend_number passed did not designate a valid friend.
+   */
+  TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_FOUND,
+  /**
+   * No file transfer with the given file number was found for the given friend.
+   */
+  TOX_ERR_FILE_SEND_CHUNK_NOT_FOUND
+} TOX_ERR_FILE_SEND_CHUNK;
+
+/**
+ * Send a chunk of file data to a friend.
+ *
+ * This function is called in response to the `file_send_chunk` callback. The
+ * length parameter should be equal to or less than the one received though the
+ * callback. If it is less, the transfer is assumed complete.
+ */
+void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint8_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error);
 
 
 /**
@@ -1440,16 +1466,17 @@ uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint
  * This happens when a chunk was requested, but the send failed. A seek-back
  * request can occur an arbitrary number of times for any given chunk.
  *
+ * In response to receiving this callback, the client should call the function
+ * `tox_file_send_chunk` with the requested chunk. If the number of bytes sent
+ * through that function is less than the length parameter in this callback,
+ * the file transfer is assumed complete.
+ *
  * @param friend_number The friend number of the receiving friend for this file.
  * @param file_number The file transfer identifier returned by tox_file_send.
  * @param position The file or stream position from which to continue reading.
- * @param data A memory location to which to write data from the file.
  * @param length The number of bytes requested for the current chunk.
- *
- * @return The actual number of bytes written. If this number is less than the
- *   length parameter, the file transfer is assumed complete.
  */
-typedef size_t tox_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t *data, size_t length, void *user_data);
+typedef void tox_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data);
 
 /**
  * Set the callback for the `file_send_chunk` event.
