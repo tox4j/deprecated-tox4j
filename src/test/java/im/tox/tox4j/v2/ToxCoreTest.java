@@ -18,6 +18,13 @@ import static org.junit.Assert.*;
 
 public abstract class ToxCoreTest {
 
+    private static final boolean SLOW_TESTS = true;
+    private static final boolean LOGGING = false;
+    private static final int TOX_COUNT = 10;
+    private static final int TIMEOUT = 10000;
+    private static final int ITERATIONS = 500;
+
+
     protected abstract ToxCore newTox(ToxOptions options) throws ToxNewException;
 
     protected ToxCore newTox() throws ToxNewException {
@@ -38,12 +45,6 @@ public abstract class ToxCoreTest {
         options.enableProxy(proxyType, proxyAddress, proxyPort);
         return newTox(options);
     }
-
-    private static final int TOX_COUNT = 10;
-    private static final boolean SLOW_TESTS = false;
-    private static final int TIMEOUT = 10000;
-    private static final boolean LOGGING = false;
-    private static final int ITERATIONS = 500;
 
     private static class ConnectedListener implements ConnectionStatusCallback {
         private boolean value;
@@ -396,7 +397,7 @@ public abstract class ToxCoreTest {
                 }
             }
             long end = System.currentTimeMillis();
-            System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
+            if (LOGGING) System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
         }
     }
 
@@ -420,7 +421,7 @@ public abstract class ToxCoreTest {
                 }
             }
             long end = System.currentTimeMillis();
-            System.out.println("Connecting all of " + toxes.size() + " toxes with LAN discovery " +
+            if (LOGGING) System.out.println("Connecting all of " + toxes.size() + " toxes with LAN discovery " +
                     "took " + (end - start) + "ms");
         }
     }
@@ -439,7 +440,7 @@ public abstract class ToxCoreTest {
                 }
             }
             long end = System.currentTimeMillis();
-            System.out.println("Connecting one of " + toxes.size() + " toxes with LAN discovery " +
+            if (LOGGING) System.out.println("Connecting one of " + toxes.size() + " toxes with LAN discovery " +
                     "took " + (end - start) + "ms");
         }
     }
