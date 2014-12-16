@@ -170,82 +170,82 @@ public class ToxCoreImpl implements ToxCore {
 
         if (connectionStatusCallback != null) {
 			for (Events.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
-				connectionStatusCallback.call(connectionStatus.getIsConnected());
+				connectionStatusCallback.connectionStatus(connectionStatus.getIsConnected());
 			}
 		}
         if (friendNameCallback != null) {
 			for (Events.FriendName friendName : toxEvents.getFriendNameList()) {
-				friendNameCallback.call(friendName.getFriendNumber(), friendName.getName().toByteArray());
+				friendNameCallback.friendName(friendName.getFriendNumber(), friendName.getName().toByteArray());
 			}
 		}
         if (friendStatusMessageCallback != null) {
 			for (Events.FriendStatusMessage friendStatusMessage : toxEvents.getFriendStatusMessageList()) {
-				friendStatusMessageCallback.call(friendStatusMessage.getFriendNumber(), friendStatusMessage.getMessage().toByteArray());
+				friendStatusMessageCallback.friendStatusMessage(friendStatusMessage.getFriendNumber(), friendStatusMessage.getMessage().toByteArray());
 			}
 		}
         if (friendStatusCallback != null) {
 			for (Events.FriendStatus friendStatus : toxEvents.getFriendStatusList()) {
-				friendStatusCallback.call(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
+				friendStatusCallback.friendStatus(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
 			}
 		}
         if (friendConnectedCallback != null) {
 			for (Events.FriendConnected friendConnected : toxEvents.getFriendConnectedList()) {
-				friendConnectedCallback.call(friendConnected.getFriendNumber(), friendConnected.getIsConnected());
+				friendConnectedCallback.friendConnected(friendConnected.getFriendNumber(), friendConnected.getIsConnected());
 			}
 		}
         if (friendTypingCallback != null) {
 			for (Events.FriendTyping friendTyping : toxEvents.getFriendTypingList()) {
-				friendTypingCallback.call(friendTyping.getFriendNumber(), friendTyping.getIsTyping());
+				friendTypingCallback.friendTyping(friendTyping.getFriendNumber(), friendTyping.getIsTyping());
 			}
 		}
         if (readReceiptCallback != null) {
 			for (Events.ReadReceipt readReceipt : toxEvents.getReadReceiptList()) {
-				readReceiptCallback.call(readReceipt.getFriendNumber(), readReceipt.getMessageId());
+				readReceiptCallback.readReceipt(readReceipt.getFriendNumber(), readReceipt.getMessageId());
 			}
 		}
         if (friendRequestCallback != null) {
 			for (Events.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
-				friendRequestCallback.call(friendRequest.getClientId().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
+				friendRequestCallback.friendRequest(friendRequest.getClientId().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
 			}
 		}
         if (friendMessageCallback != null) {
 			for (Events.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
-                friendMessageCallback.call(friendMessage.getFriendNumber(), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
+                friendMessageCallback.friendMessage(friendMessage.getFriendNumber(), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
 			}
 		}
         if (friendActionCallback != null) {
 			for (Events.FriendAction friendAction : toxEvents.getFriendActionList()) {
-				friendActionCallback.call(friendAction.getFriendNumber(), friendAction.getTimeDelta(), friendAction.getAction().toByteArray());
+				friendActionCallback.friendAction(friendAction.getFriendNumber(), friendAction.getTimeDelta(), friendAction.getAction().toByteArray());
 			}
 		}
         if (fileControlCallback != null) {
 			for (Events.FileControl fileControl : toxEvents.getFileControlList()) {
-				fileControlCallback.call(fileControl.getFriendNumber(), (byte) fileControl.getFileNumber(), convert(fileControl.getControl()));
+				fileControlCallback.fileControl(fileControl.getFriendNumber(), (byte) fileControl.getFileNumber(), convert(fileControl.getControl()));
 			}
 		}
         if (fileSendChunkCallback != null) {
 			for (Events.FileSendChunk fileSendChunk : toxEvents.getFileSendChunkList()) {
-				fileSendChunkCallback.call(fileSendChunk.getFriendNumber(), (byte) fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getLength());
+				fileSendChunkCallback.fileSendChunk(fileSendChunk.getFriendNumber(), (byte) fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getLength());
 			}
 		}
         if (fileReceiveCallback != null) {
 			for (Events.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
-				fileReceiveCallback.call(fileReceive.getFriendNumber(), (byte) fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
+				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), (byte) fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
 			}
 		}
         if (fileReceiveChunkCallback != null) {
 			for (Events.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
-				fileReceiveChunkCallback.call(fileReceiveChunk.getFriendNumber(), (byte) fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
+				fileReceiveChunkCallback.fileReceiveChunk(fileReceiveChunk.getFriendNumber(), (byte) fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
 			}
 		}
         if (lossyPacketCallback != null) {
 			for (Events.LossyPacket lossyPacket : toxEvents.getLossyPacketList()) {
-				lossyPacketCallback.call(lossyPacket.getFriendNumber(), lossyPacket.getData().toByteArray());
+				lossyPacketCallback.lossyPacket(lossyPacket.getFriendNumber(), lossyPacket.getData().toByteArray());
 			}
 		}
         if (losslessPacketCallback != null) {
 			for (Events.LosslessPacket losslessPacket : toxEvents.getLosslessPacketList()) {
-				losslessPacketCallback.call(losslessPacket.getFriendNumber(), losslessPacket.getData().toByteArray());
+				losslessPacketCallback.losslessPacket(losslessPacket.getFriendNumber(), losslessPacket.getData().toByteArray());
 			}
 		}
     }
