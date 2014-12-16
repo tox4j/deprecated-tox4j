@@ -57,7 +57,8 @@ void tox_callback_friend_action(Tox *tox, tox_friend_action_cb *function, void *
 bool tox_hash(uint8_t *hash, uint8_t const *data, size_t length) { return 0; }
 bool tox_file_control(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, TOX_ERR_FILE_CONTROL *error) { return 0; }
 void tox_callback_file_control(Tox *tox, tox_file_control_cb *function, void *user_data) { }
-uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_SEND_FILE *error) { return 0; }
+uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error) { return 0; }
+void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint8_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error) { }
 void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, void *user_data) { }
 void tox_callback_file_recv(Tox *tox, tox_file_recv_cb *function, void *user_data) { }
 void tox_callback_file_recv_chunk(Tox *tox, tox_file_recv_chunk_cb *function, void *user_data) { }

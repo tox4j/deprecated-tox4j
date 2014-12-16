@@ -142,7 +142,7 @@ public class ToxCoreImpl implements ToxCore {
         throw new IllegalStateException("Bad enumerator: " + control);
     }
 
-    private static ToxFileKind convert(Events.FileKind kind) {
+    private static ToxFileKind convert(Events.FileReceive.Kind kind) {
         switch (kind) {
             case AVATAR: return ToxFileKind.AVATAR;
             case DATA: return ToxFileKind.DATA;
@@ -199,7 +199,7 @@ public class ToxCoreImpl implements ToxCore {
 		}
         if (friendRequestCallback != null) {
 			for (Events.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
-				friendRequestCallback.call(friendRequest.getAddress().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
+				friendRequestCallback.call(friendRequest.getClientId().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
 			}
 		}
         if (friendMessageCallback != null) {
@@ -219,7 +219,7 @@ public class ToxCoreImpl implements ToxCore {
 		}
         if (fileSendChunkCallback != null) {
 			for (Events.FileSendChunk fileSendChunk : toxEvents.getFileSendChunkList()) {
-				fileSendChunkCallback.call(fileSendChunk.getFriendNumber(), (byte) fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getData().toByteArray());
+				fileSendChunkCallback.call(fileSendChunk.getFriendNumber(), (byte) fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getLength());
 			}
 		}
         if (fileReceiveCallback != null) {
@@ -475,9 +475,18 @@ public class ToxCoreImpl implements ToxCore {
     private static native byte toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, byte[] filename);
 
     @Override
-    public byte fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxSendFileException {
+    public byte fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException {
         return toxFileSend(instanceNumber, friendNumber, kind.ordinal(), fileSize, filename);
     }
+
+
+    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, byte fileNumber, byte[] data);
+
+    @Override
+    public void fileSendChunk(int friendNumber, byte fileNumber, byte[] data) throws ToxFileSendChunkException {
+        toxFileSendChunk(instanceNumber, friendNumber, fileNumber, data);
+    }
+
 
     @Override
     public void callbackFileSendChunk(FileSendChunkCallback callback) {

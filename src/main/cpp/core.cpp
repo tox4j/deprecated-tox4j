@@ -150,7 +150,7 @@ static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file
             break;
     }
 }
-static size_t tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t *data, size_t length, void *user_data)
+static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
@@ -158,8 +158,7 @@ static size_t tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t
     msg->set_friendnumber(friend_number);
     msg->set_filenumber(file_number);
     msg->set_position(position);
-    msg->set_data(data, length);
-    return 0; // TODO: this is BROKEN!
+    msg->set_length(length);
 }
 static void tox4j_file_recv_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
 {
@@ -941,6 +940,22 @@ JNIEXPORT jbyte JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
         unused(tox_callback_lossless_packet);
         throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
         return 0;
+    });
+}
+
+/*
+ * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Method:    toxFileSendChunk
+ * Signature: (IIB[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSendChunk
+  (JNIEnv *env, jclass, jint instanceNumber, jint, jbyte, jbyteArray)
+{
+    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+        unused(tox);
+        unused(events);
+        unused(tox_callback_lossless_packet);
+        throw_unsupported_operation_exception(env, instanceNumber, "tox_callback_lossless_packet");
     });
 }
 

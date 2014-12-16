@@ -42,6 +42,8 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/v2/exceptions/ToxBootstrapException.java
 	im/tox/tox4j/v2/exceptions/ToxDeleteFriendException.java
 	im/tox/tox4j/v2/exceptions/ToxFileControlException.java
+	im/tox/tox4j/v2/exceptions/ToxFileSendException.java
+	im/tox/tox4j/v2/exceptions/ToxFileSendChunkException.java
 	im/tox/tox4j/v2/exceptions/ToxFriendQueryException.java
 	im/tox/tox4j/v2/exceptions/ToxGetClientIdException.java
 	im/tox/tox4j/v2/exceptions/ToxGetFriendNumberException.java
@@ -49,7 +51,6 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/v2/exceptions/ToxLoadException.java
 	im/tox/tox4j/v2/exceptions/ToxNewException.java
 	im/tox/tox4j/v2/exceptions/ToxSendCustomPacketException.java
-	im/tox/tox4j/v2/exceptions/ToxSendFileException.java
 	im/tox/tox4j/v2/exceptions/ToxSendMessageException.java
 	im/tox/tox4j/v2/exceptions/ToxSetInfoException.java
 	im/tox/tox4j/v2/exceptions/ToxSetTypingException.java
@@ -103,11 +104,11 @@ add_jar(${JAR_TARGET_NAME} ${TOX4J_SOURCE})
 # Set arguments for javah
 set(JAVAH_ARGS
 	"-classpath"
-        "${CLASSDIR}:${PROTOBUF_FULL}"
+	"${CLASSDIR}:${PROTOBUF_FULL}"
 	"-o"
 	"${JNI_HEADER_LOCATION}/${JNI_HEADER_NAME}"
-        "${PACKAGE_NAME}.v2.ToxCoreImpl"
-        "${PACKAGE_NAME}.Tox4j"
+	"${PACKAGE_NAME}.v2.ToxCoreImpl"
+	"${PACKAGE_NAME}.Tox4j"
 )
 
 add_custom_command(

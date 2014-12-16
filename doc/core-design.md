@@ -187,7 +187,7 @@ general concepts used throughout the API, and will know what to expect from all
 other functions. All callbacks behave the same, all error handling is the same,
 naming conventions aid readers in their learning.
 
-Changing the calling convention for 10 (12) of the 65 functions (at the time of
+Changing the calling convention for 10 (12) of the 66 functions (at the time of
 writing) will be surprising to users, giving more potential for making mistakes
 and getting confused.
 
