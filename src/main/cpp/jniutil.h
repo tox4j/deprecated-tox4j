@@ -11,10 +11,10 @@ struct UTFChars {
     ~UTFChars() { env->ReleaseStringUTFChars(string, chars); }
 
     char const *data() const { return chars; }
-    size_t length() const { return (size_t) env->GetStringUTFLength(string); }
+    size_t size() const { return (size_t) env->GetStringUTFLength(string); }
 
     operator char const *() const { return data(); }
-    operator std::vector<char>() const { return std::vector<char>(data(), data() + length()); }
+    operator std::vector<char>() const { return std::vector<char>(data(), data() + size()); }
 
 private:
     JNIEnv *env;
@@ -32,10 +32,10 @@ struct ByteArray {
     ~ByteArray() { env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
 
     uint8_t const *data() const { return (uint8_t *) bytes; }
-    size_t length() const { return (size_t) env->GetArrayLength(byteArray); }
+    size_t size() const { return (size_t) env->GetArrayLength(byteArray); }
 
     operator uint8_t const *() const { return data(); }
-    operator std::vector<uint8_t>() const { return std::vector<uint8_t>(data(), data() + length()); }
+    operator std::vector<uint8_t>() const { return std::vector<uint8_t>(data(), data() + size()); }
 
 private:
     JNIEnv *env;
