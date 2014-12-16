@@ -17,6 +17,17 @@ set(TOX4J_CORE
 	im/tox/tox4j/Tox4j.java
 	im/tox/tox4j/ToxConstants.java
 	im/tox/tox4j/ToxSimpleChat.java
+	im/tox/tox4j/v2/ToxConstants.java
+	im/tox/tox4j/v2/ToxCore.java
+	im/tox/tox4j/v2/ToxCoreImpl.java
+	im/tox/tox4j/v2/ToxOptions.java
+)
+
+set(TOX4J_ENUMS
+	im/tox/tox4j/v2/enums/ToxFileControl.java
+	im/tox/tox4j/v2/enums/ToxFileKind.java
+	im/tox/tox4j/v2/enums/ToxProxyType.java
+	im/tox/tox4j/v2/enums/ToxStatus.java
 )
 
 set(TOX4J_EXCEPTIONS
@@ -27,6 +38,21 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/exceptions/ToxKilledException.java
 	im/tox/tox4j/exceptions/NoSuchFriendException.java
 	im/tox/tox4j/exceptions/GroupAddException.java
+	im/tox/tox4j/v2/exceptions/ToxAddFriendException.java
+	im/tox/tox4j/v2/exceptions/ToxBootstrapException.java
+	im/tox/tox4j/v2/exceptions/ToxDeleteFriendException.java
+	im/tox/tox4j/v2/exceptions/ToxFileControlException.java
+	im/tox/tox4j/v2/exceptions/ToxFriendQueryException.java
+	im/tox/tox4j/v2/exceptions/ToxGetClientIdException.java
+	im/tox/tox4j/v2/exceptions/ToxGetFriendNumberException.java
+	im/tox/tox4j/v2/exceptions/ToxGetPortException.java
+	im/tox/tox4j/v2/exceptions/ToxLoadException.java
+	im/tox/tox4j/v2/exceptions/ToxNewException.java
+	im/tox/tox4j/v2/exceptions/ToxSendCustomPacketException.java
+	im/tox/tox4j/v2/exceptions/ToxSendFileException.java
+	im/tox/tox4j/v2/exceptions/ToxSendMessageException.java
+	im/tox/tox4j/v2/exceptions/ToxSetInfoException.java
+	im/tox/tox4j/v2/exceptions/ToxSetTypingException.java
 )
 
 set(TOX4J_CALLBACKS
@@ -43,10 +69,27 @@ set(TOX4J_CALLBACKS
 	im/tox/tox4j/callbacks/GroupActionCallback.java
 	im/tox/tox4j/callbacks/GroupTitleChangeCallback.java
 	im/tox/tox4j/callbacks/GroupNameListChangeCallback.java
+	im/tox/tox4j/v2/callbacks/ConnectionStatusCallback.java
+	im/tox/tox4j/v2/callbacks/FileControlCallback.java
+	im/tox/tox4j/v2/callbacks/FileReceiveCallback.java
+	im/tox/tox4j/v2/callbacks/FileReceiveChunkCallback.java
+	im/tox/tox4j/v2/callbacks/FileSendChunkCallback.java
+	im/tox/tox4j/v2/callbacks/FriendActionCallback.java
+	im/tox/tox4j/v2/callbacks/FriendConnectedCallback.java
+	im/tox/tox4j/v2/callbacks/FriendMessageCallback.java
+	im/tox/tox4j/v2/callbacks/FriendNameCallback.java
+	im/tox/tox4j/v2/callbacks/FriendRequestCallback.java
+	im/tox/tox4j/v2/callbacks/FriendStatusCallback.java
+	im/tox/tox4j/v2/callbacks/FriendStatusMessageCallback.java
+	im/tox/tox4j/v2/callbacks/FriendTypingCallback.java
+	im/tox/tox4j/v2/callbacks/LosslessPacketCallback.java
+	im/tox/tox4j/v2/callbacks/LossyPacketCallback.java
+	im/tox/tox4j/v2/callbacks/ReadReceiptCallback.java
 )
 
 set(TOX4J_SOURCE
 	${TOX4J_CORE}
+	${TOX4J_ENUMS}
 	${TOX4J_EXCEPTIONS}
 	${TOX4J_CALLBACKS}
 	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Events.java"
@@ -63,7 +106,8 @@ set(JAVAH_ARGS
 	"${CLASSDIR}"
 	"-o"
 	"${JNI_HEADER_LOCATION}/${JNI_HEADER_NAME}"
-	"${PACKAGE_NAME}.Tox4j"
+        "${PACKAGE_NAME}.v2.ToxCoreImpl"
+        "${PACKAGE_NAME}.Tox4j"
 )
 
 add_custom_command(
@@ -86,6 +130,7 @@ file(MAKE_DIRECTORY ${JNI_HEADER_LOCATION})
 if (BUILD_JAVADOC)
 	set(JAVADOC_SOURCE
 		${TOX4J_CORE}
+		${TOX4J_ENUMS}
 		${TOX4J_EXCEPTIONS}
 		${TOX4J_CALLBACKS}
 	)

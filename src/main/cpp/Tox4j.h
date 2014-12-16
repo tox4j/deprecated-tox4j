@@ -131,21 +131,25 @@ static inline std::string fullMessage(jint instance_number, char const *message)
     return result.str();
 }
 
-static inline void throw_tox_killed_exception(JNIEnv *env, jint instance_number, char const *message) {
+static inline void
+throw_tox_killed_exception(JNIEnv *env, jint instance_number, char const *message) {
     env->ThrowNew(env->FindClass("im/tox/tox4j/exceptions/ToxKilledException"),
         fullMessage(instance_number, message).c_str());
 }
 
-static inline void throw_unsupported_operation_exception(JNIEnv *env, jint instance_number, char const *message) {
+static inline void
+throw_unsupported_operation_exception(JNIEnv *env, jint instance_number, char const *message) {
     env->ThrowNew(env->FindClass("java/lang/UnsupportedOperationException"),
         fullMessage(instance_number, message).c_str());
 }
 
-static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message) {
+static inline void
+throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message) {
     env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
         fullMessage(instance_number, message).c_str());
 }
-static inline void throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message) {
+static inline void
+throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message) {
     throw_illegal_state_exception(env, instance_number, message.c_str());
 }
 
@@ -155,6 +159,17 @@ static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message
         env->FatalError(message);
     }
 }
+
+#ifdef assert
+#undef assert
+#endif
+
+#define STR(token) STR_(token)
+#define STR_(token) #token
+#define assert(condition) do {                                                                  \
+    tox4j_assert(condition, env, __FILE__ ":" STR(__LINE__) ": Assertion failed: " #condition); \
+} while (0)
+
 
 template<typename T> static inline T default_value() { return T(); }
 template<> inline void default_value<void>() { }

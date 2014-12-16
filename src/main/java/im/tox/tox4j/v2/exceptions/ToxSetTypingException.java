@@ -1,17 +1,20 @@
 package im.tox.tox4j.v2.exceptions;
 
-public class ToxSetTypingException extends Exception {
+public class ToxSetTypingException extends SpecificToxException {
 
     public static enum Code {
         FRIEND_NOT_FOUND,
-        SENDQ,
     }
 
     public final Code code;
 
-    public ToxSetTypingException(Code code, String message) {
-        super(message);
+    public ToxSetTypingException(Code code) {
         this.code = code;
+    }
+
+    @Override
+    public Code getCode() {
+        return code;
     }
 
 }

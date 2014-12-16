@@ -1,19 +1,15 @@
 package im.tox.tox4j.v2.exceptions;
 
-public class ToxSendCustomPacketException extends SpecificToxException {
+public class ToxGetClientIdException extends SpecificToxException {
 
     public static enum Code {
         NULL,
-        FRIEND_NOT_FOUND,
-        INVALID,
-        EMPTY,
-        TOO_LONG,
-        SENDQ,
+        NOT_FOUND,
     }
 
     public final Code code;
 
-    public ToxSendCustomPacketException(Code code) {
+    public ToxGetClientIdException(Code code) {
         this.code = code;
     }
 

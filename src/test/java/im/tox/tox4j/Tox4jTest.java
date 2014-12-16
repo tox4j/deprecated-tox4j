@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import im.tox.tox4j.exceptions.ToxException;
