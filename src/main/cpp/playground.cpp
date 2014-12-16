@@ -1,3 +1,4 @@
+#include <tox/tox.h>
 #include "Tox4j.h"
 
 static uint16_t compute_checksum(uint8_t const *address) {
