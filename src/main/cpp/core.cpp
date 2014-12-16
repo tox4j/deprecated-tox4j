@@ -42,6 +42,7 @@ static void tox4j_connection_status_cb(Tox *tox, bool is_connected, void *user_d
     auto msg = events.add_connectionstatus();
     msg->set_isconnected(is_connected);
 }
+
 static void tox4j_friend_name_cb(Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, void *user_data)
 {
     unused(tox);
@@ -50,6 +51,7 @@ static void tox4j_friend_name_cb(Tox *tox, uint32_t friend_number, uint8_t const
     msg->set_friendnumber(friend_number);
     msg->set_name(name, length);
 }
+
 static void tox4j_friend_status_message_cb(Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, void *user_data)
 {
     unused(tox);
@@ -58,6 +60,7 @@ static void tox4j_friend_status_message_cb(Tox *tox, uint32_t friend_number, uin
     msg->set_friendnumber(friend_number);
     msg->set_message(message, length);
 }
+
 static void tox4j_friend_status_cb(Tox *tox, uint32_t friend_number, TOX_STATUS status, void *user_data)
 {
     unused(tox);
@@ -78,6 +81,7 @@ static void tox4j_friend_status_cb(Tox *tox, uint32_t friend_number, TOX_STATUS 
             break;
     }
 }
+
 static void tox4j_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_connected, void *user_data)
 {
     unused(tox);
@@ -86,6 +90,7 @@ static void tox4j_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_
     msg->set_friendnumber(friend_number);
     msg->set_isconnected(is_connected);
 }
+
 static void tox4j_friend_typing_cb(Tox *tox, uint32_t friend_number, bool is_typing, void *user_data)
 {
     unused(tox);
@@ -94,6 +99,7 @@ static void tox4j_friend_typing_cb(Tox *tox, uint32_t friend_number, bool is_typ
     msg->set_friendnumber(friend_number);
     msg->set_istyping(is_typing);
 }
+
 static void tox4j_read_receipt_cb(Tox *tox, uint32_t friend_number, uint32_t message_id, void *user_data)
 {
     unused(tox);
@@ -102,6 +108,7 @@ static void tox4j_read_receipt_cb(Tox *tox, uint32_t friend_number, uint32_t mes
     msg->set_friendnumber(friend_number);
     msg->set_messageid(message_id);
 }
+
 static void tox4j_friend_request_cb(Tox *tox, uint8_t const *client_id, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data)
 {
     unused(tox);
@@ -111,6 +118,7 @@ static void tox4j_friend_request_cb(Tox *tox, uint8_t const *client_id, /*uint32
     msg->set_timedelta(0);
     msg->set_message(message, length);
 }
+
 static void tox4j_friend_message_cb(Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data)
 {
     unused(tox);
@@ -120,6 +128,7 @@ static void tox4j_friend_message_cb(Tox *tox, uint32_t friend_number, /*uint32_t
     msg->set_timedelta(0);
     msg->set_message(message, length);
 }
+
 static void tox4j_friend_action_cb(Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */uint8_t const *action, size_t length, void *user_data)
 {
     unused(tox);
@@ -129,6 +138,7 @@ static void tox4j_friend_action_cb(Tox *tox, uint32_t friend_number, /*uint32_t 
     msg->set_timedelta(0);
     msg->set_action(action, length);
 }
+
 static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, void *user_data)
 {
     unused(tox);
@@ -150,6 +160,7 @@ static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file
             break;
     }
 }
+
 static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data)
 {
     unused(tox);
@@ -160,6 +171,7 @@ static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t f
     msg->set_position(position);
     msg->set_length(length);
 }
+
 static void tox4j_file_recv_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
 {
     unused(tox);
@@ -181,6 +193,7 @@ static void tox4j_file_recv_cb(Tox *tox, uint32_t friend_number, uint8_t file_nu
     msg->set_filesize(file_size);
     msg->set_filename(filename, filename_length);
 }
+
 static void tox4j_file_recv_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data)
 {
     unused(tox);
@@ -191,6 +204,7 @@ static void tox4j_file_recv_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t f
     msg->set_position(position);
     msg->set_data(data, length);
 }
+
 static void tox4j_lossy_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data)
 {
     unused(tox);
@@ -199,6 +213,7 @@ static void tox4j_lossy_packet_cb(Tox *tox, uint32_t friend_number, uint8_t cons
     msg->set_friendnumber(friend_number);
     msg->set_data(data, length);
 }
+
 static void tox4j_lossless_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data)
 {
     unused(tox);
