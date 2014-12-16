@@ -156,6 +156,8 @@ throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string con
     throw_illegal_state_exception(env, instance_number, message.c_str());
 }
 
+void throw_tox_exception(JNIEnv *env, char const *method, char const *code);
+
 
 static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message) {
     if (!condition) {
@@ -172,6 +174,9 @@ static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message
 #define assert(condition) do {                                                                  \
     tox4j_assert(condition, env, __FILE__ ":" STR(__LINE__) ": Assertion failed: " #condition); \
 } while (0)
+
+
+template<typename T> static inline void unused(T const &) { }
 
 
 template<typename T> static inline T default_value() { return T(); }
