@@ -7,7 +7,7 @@ template<typename T> void unused(T const &) { }
 void
 throw_tox_exception(JNIEnv *env, char const *method, char const *code)
 {
-    std::string className = "im/tox/tox4j/api/exceptions/Tox";
+    std::string className = "im/tox/tox4j/v2/exceptions/Tox";
     className += method;
     className += "Exception";
     jclass exClass = env->FindClass(className.c_str());
