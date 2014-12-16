@@ -1,6 +1,6 @@
 package im.tox.tox4j.v2.exceptions;
 
-public class ToxSendFileException extends Exception {
+public class ToxSendFileException extends SpecificToxException {
 
     public static enum Code {
         NULL,
@@ -12,9 +12,13 @@ public class ToxSendFileException extends Exception {
 
     public final Code code;
 
-    public ToxSendFileException(Code code, String message) {
-        super(message);
+    public ToxSendFileException(Code code) {
         this.code = code;
+    }
+
+    @Override
+    public Code getCode() {
+        return code;
     }
 
 }

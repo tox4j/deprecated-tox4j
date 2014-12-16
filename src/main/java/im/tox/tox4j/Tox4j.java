@@ -40,17 +40,17 @@ public class Tox4j implements ToxSimpleChat {
     private GroupActionCallback groupActionCallback;
     private GroupTitleChangeCallback groupTitleChangeCallback;
 
-    /**
-     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
-     * used during testing or debugging.
-     */
-    static native void destroyAll();
-
     static native void playground(int instanceNumber);
 
     void playground() {
         playground(instanceNumber);
     }
+
+    /**
+     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
+     * used during testing or debugging.
+     */
+    static native void destroyAll();
 
     private static native void finalize(int instanceNumber);
 

@@ -1,6 +1,6 @@
 package im.tox.tox4j.v2.exceptions;
 
-public class ToxAddFriendException extends Exception {
+public class ToxAddFriendException extends SpecificToxException {
 
     public static enum Code {
         NULL,
@@ -15,9 +15,13 @@ public class ToxAddFriendException extends Exception {
 
     public final Code code;
 
-    public ToxAddFriendException(Code code, String message) {
-        super(message);
+    public ToxAddFriendException(Code code) {
         this.code = code;
+    }
+
+    @Override
+    public Code getCode() {
+        return code;
     }
 
 }

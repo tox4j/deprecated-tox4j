@@ -1,9 +1,6 @@
 package im.tox.tox4j.v2;
 
-import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.v2.enums.ToxProxyType;
-
-import java.io.Closeable;
 
 /**
  * This class contains all the startup options for Tox. You can either allocate
@@ -20,7 +17,7 @@ public class ToxOptions {
      * If it is set to true, an IPv6 socket is created, allowing both IPv4 and
      * IPv6 communication.
      */
-    public boolean ipv6Enabled;
+    public boolean ipv6Enabled = true;
 
     /**
      * Enable the use of UDP communication when available.
@@ -29,12 +26,12 @@ public class ToxOptions {
      * need to be relayed through a TCP relay node, potentially slowing them down.
      * Disabling UDP support is necessary when using anonymous proxies or Tor.
      */
-    public boolean udpEnabled;
+    public boolean udpEnabled = true;
 
     /**
      * Pass communications through a proxy.
      */
-    public ToxProxyType proxyType;
+    public ToxProxyType proxyType = ToxProxyType.NONE;
 
     /**
      * The IP address or DNS name of the proxy to be used.
@@ -44,7 +41,7 @@ public class ToxOptions {
      *
      * This member is ignored (it can be NULL) if proxyEnabled is false.
      */
-    public String proxyAddress;
+    public String proxyAddress = null;
 
     /**
      * The port to use to connect to the proxy server.
@@ -52,6 +49,6 @@ public class ToxOptions {
      * Ports must be in the range (1, 65535). The value is ignored if
      * proxyEnabled is false.
      */
-    public int proxyPort;
+    public int proxyPort = 0;
 
 }
