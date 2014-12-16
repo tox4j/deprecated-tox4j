@@ -419,14 +419,13 @@ new_tox_get_self_status_message (new_Tox const *tox, uint8_t *status)
 void
 new_tox_set_self_status (new_Tox *tox, TOX_STATUS user_status)
 {
-  assert (false);
+  tox_set_user_status (tox->tox, user_status);
 }
 
 TOX_STATUS
 new_tox_get_self_status (new_Tox const *tox)
 {
-  assert (false);
-  return TOX_STATUS_NONE;
+  return (TOX_STATUS) tox_get_self_user_status (tox->tox);
 }
 
 uint32_t

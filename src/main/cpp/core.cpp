@@ -721,13 +721,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetStatusMessag
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetStatus
-  (JNIEnv *env, jclass, jint instanceNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint status)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxSetStatus");
+        tox_set_self_status(tox, (TOX_STATUS) status); // TODO: better use a switch
     });
 }
 
@@ -740,11 +738,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetStatus
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxGetStatus");
-        return 0;
+        return tox_get_self_status(tox);
     });
 }
 
