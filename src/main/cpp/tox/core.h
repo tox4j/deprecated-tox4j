@@ -1629,9 +1629,9 @@ bool tox_send_lossless_packet(Tox *tox, uint32_t friend_number, uint8_t const *d
 typedef void tox_lossless_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data);
 
 /**
- * Set the callback for the `lossy_packet` event.
+ * Set the callback for the `lossless_packet` event.
  */
-void tox_callback_lossless_packet(Tox *tox, tox_lossy_packet_cb *function, void *user_data);
+void tox_callback_lossless_packet(Tox *tox, tox_lossless_packet_cb *function, void *user_data);
 
 #ifdef __cplusplus
 }
