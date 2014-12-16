@@ -7,13 +7,19 @@
  * Signature: (IIZ)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetTyping
-  (JNIEnv *env, jclass, jint instanceNumber, jint, jboolean)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean isTyping)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxSetTyping");
+        TOX_ERR_SET_TYPING error;
+        tox_set_typing(tox, friendNumber, isTyping, &error);
+        switch (error) {
+            case TOX_ERR_SET_TYPING_OK:
+                return;
+            case TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND:
+                throw_tox_exception(env, "SetTyping", "FRIEND_NOT_FOUND");
+                return;
+        }
     });
 }
 

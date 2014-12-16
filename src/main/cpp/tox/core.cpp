@@ -644,9 +644,16 @@ new_tox_callback_friend_typing (new_Tox *tox, tox_friend_typing_cb *function, vo
 bool
 new_tox_set_typing (new_Tox *tox, uint32_t friend_number, bool is_typing, TOX_ERR_SET_TYPING *error)
 {
+  switch (tox_set_user_is_typing (tox->tox, friend_number, is_typing))
+    {
+    case -1:
+      *error = TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND;
+      return false;
+    case 0:
+      *error = TOX_ERR_SET_TYPING_OK;
+      return true;
+    }
   assert (false);
-  *error = TOX_ERR_SET_TYPING_OK;
-  return true;
 }
 
 uint32_t

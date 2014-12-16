@@ -927,6 +927,31 @@ public abstract class ToxCoreTest {
         }
     }
 
+    @Test
+    public void testSetTyping() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 1);
+            tox.setTyping(0, false);
+            tox.setTyping(0, true);
+            tox.setTyping(0, false);
+            tox.setTyping(0, false);
+            tox.setTyping(0, true);
+            tox.setTyping(0, true);
+        }
+    }
+
+    @Test
+    public void testSetTypingToNonExistent() throws Exception {
+        try (ToxCore tox = newTox()) {
+            addFriends(tox, 1);
+            try {
+                tox.setTyping(1, true);
+            } catch (ToxSetTypingException e) {
+                assertEquals(ToxSetTypingException.Code.FRIEND_NOT_FOUND, e.getCode());
+            }
+        }
+    }
+
 
 
 
@@ -971,11 +996,6 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testCallbackFriendTyping() throws Exception {
-
-    }
-
-    @Test
-    public void testSetTyping() throws Exception {
 
     }
 
