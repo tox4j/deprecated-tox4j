@@ -14,11 +14,11 @@ import static org.junit.Assert.*;
 
 public abstract class ToxSimpleChatTest {
 
-    private static final int TOX_COUNT = 10;
-
     protected abstract ToxSimpleChat newTox() throws ToxException;
     protected abstract ToxSimpleChat newTox(boolean ipv6Enabled, boolean udpDisabled) throws ToxException;
     protected abstract ToxSimpleChat newTox(boolean ipv6Enabled, boolean udpDisabled, boolean proxyEnabled, String proxyAddress, int proxyPort) throws ToxException;
+
+    private static final int TOX_COUNT = 10;
 
     private class ToxList implements Closeable {
         private final ToxSimpleChat[] toxes;
