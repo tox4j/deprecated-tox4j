@@ -3,6 +3,7 @@ package im.tox.tox4j.v2;
 import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.v2.enums.ToxProxyType;
+import im.tox.tox4j.v2.enums.ToxStatus;
 import im.tox.tox4j.v2.exceptions.ToxBootstrapException;
 import im.tox.tox4j.v2.exceptions.ToxNewException;
 import im.tox.tox4j.v2.exceptions.ToxSetInfoException;
@@ -772,38 +773,41 @@ public abstract class ToxCoreTest {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
-    public void testSetStatus() throws Exception {
-
+    public void testGetAndSetStatus() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertEquals(ToxStatus.NONE, tox.getStatus());
+            for (int i = 0; i < 2; i++) {
+                for (ToxStatus status : ToxStatus.values()) {
+                    tox.setStatus(status);
+                    assertEquals(status, tox.getStatus());
+                }
+            }
+        }
     }
 
-    @Test
-    public void testGetStatus() throws Exception {
 
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     public void testAddFriend() throws Exception {
