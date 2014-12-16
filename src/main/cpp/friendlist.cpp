@@ -132,7 +132,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendClient
         tox_get_friend_client_id(tox, friendNumber, buffer.data(), &error);
         switch (error) {
             case TOX_ERR_GET_CLIENT_ID_OK:
-                result = toByteArray(env, buffer);
+                result = toJavaArray(env, buffer);
                 break;
             case TOX_ERR_GET_CLIENT_ID_NULL:
                 throw_tox_exception(env, "GetClientId", "NULL");
@@ -171,10 +171,9 @@ JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendList
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxGetFriendList");
-        return nullptr;
+        std::vector<uint32_t> list(tox_friend_list_size(tox));
+        tox_get_friend_list(tox, list.data());
+        return toJavaArray(env, list);
     });
 }

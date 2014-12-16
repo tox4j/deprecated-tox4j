@@ -486,14 +486,15 @@ new_tox_friend_exists (new_Tox const *tox, uint32_t friend_number)
 size_t
 new_tox_friend_list_size (new_Tox const *tox)
 {
-  assert (false);
-  return 0;
+  return tox_count_friendlist (tox->tox);
 }
 
 void
 new_tox_get_friend_list (new_Tox const *tox, uint32_t *list)
 {
-  assert (false);
+  // XXX: need to count again to tell the old API we want everything.
+  size_t size = tox_count_friendlist (tox->tox);
+  tox_get_friendlist (tox->tox, (int32_t *) list, size);
 }
 
 size_t
