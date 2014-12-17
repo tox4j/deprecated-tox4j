@@ -1,4 +1,5 @@
-#include "Tox4j.h"
+#include "tox4j/Tox4j.h"
+#include "jniutil.h"
 
 /*
  * Class:     im_tox_tox4j_v2_ToxCoreImpl
@@ -25,25 +26,19 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSave
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxLoad
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray data)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(events);
-        ByteArray bytes(env, data);
-        TOX_ERR_LOAD error;
-        tox_load(tox, bytes.data(), bytes.size(), &error);
+    ByteArray bytes(env, data);
+    return with_instance(env, instanceNumber, "Load", [](TOX_ERR_LOAD error) {
         switch (error) {
             case TOX_ERR_LOAD_OK:
-                return;
+                return success();
             case TOX_ERR_LOAD_NULL:
-                throw_tox_exception(env, "Load", "NULL");
-                return;
+                return failure("NULL");
             case TOX_ERR_LOAD_ENCRYPTED:
-                throw_tox_exception(env, "Load", "ENCRYPTED");
-                return;
+                return failure("ENCRYPTED");
             case TOX_ERR_LOAD_BAD_FORMAT:
-                throw_tox_exception(env, "Load", "BAD_FORMAT");
-                return;
+                return failure("BAD_FORMAT");
         }
-
-        throw_illegal_state_exception(env, error, "Unknown error code");
-    });
+        return unhandled();
+    }, [](bool) {
+    }, tox_load, bytes.data(), bytes.size());
 }

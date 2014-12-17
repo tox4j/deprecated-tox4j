@@ -1,15 +1,11 @@
-#include <algorithm>
-#include <vector>
-#include <mutex>
-#include <memory>
-#include <sstream>
-#include <stdexcept>
-#include <utility>
+#pragma once
 
 #include <tox/core.h>
 #include "JTox.h"
-#include "jniutil.h"
 #include "events.pb.h"
+
+#include <memory>
+#include <mutex>
 
 using im::tox::tox4j::proto::ToxEvents;
 
@@ -21,7 +17,7 @@ struct ToxDeleter {
 };
 
 class Tox4jStruct {
-    // Objects of this class can conceptionally have three states:
+    // Objects of this class can conceptually have three states:
     // - LIVE: A tox instance is alive and running.
     // - DEAD: The object is empty, all pointers are nullptr.
     // - COLLECTED: state is DEAD, and the object's instance_number is in instance_freelist.
@@ -126,89 +122,3 @@ public:
 
     static ToxInstances self;
 };
-
-
-static inline std::string fullMessage(jint instance_number, char const *message) {
-    std::ostringstream result;
-    result << message << ", instance_number = " << instance_number;
-    return result.str();
-}
-
-static inline void
-throw_tox_killed_exception(JNIEnv *env, jint instance_number, char const *message) {
-    env->ThrowNew(env->FindClass("im/tox/tox4j/exceptions/ToxKilledException"),
-        fullMessage(instance_number, message).c_str());
-}
-
-static inline void
-throw_unsupported_operation_exception(JNIEnv *env, jint instance_number, char const *message) {
-    env->ThrowNew(env->FindClass("java/lang/UnsupportedOperationException"),
-        fullMessage(instance_number, message).c_str());
-}
-
-static inline void
-throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message) {
-    env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
-        fullMessage(instance_number, message).c_str());
-}
-static inline void
-throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message) {
-    throw_illegal_state_exception(env, instance_number, message.c_str());
-}
-
-void throw_tox_exception(JNIEnv *env, char const *method, char const *code);
-
-
-static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message) {
-    if (!condition) {
-        env->FatalError(message);
-    }
-}
-
-#ifdef assert
-#undef assert
-#endif
-
-#define STR(token) STR_(token)
-#define STR_(token) #token
-#define assert(condition) do {                                                                  \
-    tox4j_assert(condition, env, __FILE__ ":" STR(__LINE__) ": Assertion failed: " #condition); \
-} while (0)
-
-
-template<typename T> static inline void unused(T const &) { }
-
-
-template<typename T> static inline T default_value() { return T(); }
-template<> inline void default_value<void>() { }
-
-template<typename Func>
-static typename std::result_of<Func(Tox *, ToxEvents &)>::type
-with_instance(JNIEnv *env, jint instance_number, Func func)
-{
-    typedef typename std::result_of<Func(Tox *, ToxEvents &)>::type return_type;
-
-    if (instance_number == 0) {
-        throw_illegal_state_exception(env, instance_number, "Function called on incomplete object");
-        return default_value<return_type>();
-    }
-
-    std::unique_lock<std::mutex> lock(ToxInstances::self.mutex);
-    if (!ToxInstances::self.isValid(instance_number)) {
-        throw_tox_killed_exception(env, instance_number, "Tox function invoked on invalid tox instance");
-        return default_value<return_type>();
-    }
-
-    Tox4jStruct const &instance = ToxInstances::self[instance_number];
-
-    if (!instance.isLive()) {
-        throw_tox_killed_exception(env, instance_number, "Tox function invoked on killed tox instance");
-        return default_value<return_type>();
-    }
-
-    std::lock_guard<std::mutex> ilock(*instance.mutex);
-    Tox *tox = instance.tox.get();
-    ToxEvents &events = *instance.events;
-    lock.unlock();
-    return func(tox, events);
-}

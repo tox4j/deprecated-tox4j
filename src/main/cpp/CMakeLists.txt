@@ -53,7 +53,8 @@ add_library(
 	${LIB_TARGET_NAME}
 	MODULE
 	tox/core.cpp
-	Tox4j.cpp
+	tox4j/ErrorHandling.cpp
+	tox4j/Tox4j.cpp
 	clientinfo.cpp
 	connection.cpp
 	custom.cpp

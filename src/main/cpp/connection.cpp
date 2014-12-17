@@ -1,4 +1,5 @@
-#include "Tox4j.h"
+#include "tox4j/Tox4j.h"
+#include "jniutil.h"
 
 
 /*
@@ -12,26 +13,20 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxBootstrap
     assert(port >= 0);
     assert(port <= 65535);
 
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(events);
-        TOX_ERR_BOOTSTRAP error;
-        tox_bootstrap(tox, UTFChars(env, address).data(), port, ByteArray(env, public_key).data(), &error);
+    return with_instance(env, instanceNumber, "Bootstrap", [](TOX_ERR_BOOTSTRAP error) {
         switch (error) {
             case TOX_ERR_BOOTSTRAP_OK:
-                return;
+                return success();
             case TOX_ERR_BOOTSTRAP_NULL:
-                throw_tox_exception(env, "Bootstrap", "NULL");
-                return;
+                return failure("NULL");
             case TOX_ERR_BOOTSTRAP_BAD_ADDRESS:
-                throw_tox_exception(env, "Bootstrap", "BAD_ADDRESS");
-                return;
+                return failure("BAD_ADDRESS");
             case TOX_ERR_BOOTSTRAP_BAD_PORT:
-                throw_tox_exception(env, "Bootstrap", "BAD_PORT");
-                return;
+                return failure("BAD_PORT");
         }
-
-        throw_illegal_state_exception(env, error, "Unknown error code");
-    });
+        return unhandled();
+    }, [](bool) {
+    }, tox_bootstrap, UTFChars(env, address).data(), port, ByteArray(env, public_key).data());
 }
 
 /*
@@ -42,21 +37,17 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxBootstrap
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetPort
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> uint16_t {
-        unused(events);
-        TOX_ERR_GET_PORT error;
-        uint16_t port = tox_get_port(tox, &error);
+    return with_instance(env, instanceNumber, "GetPort", [](TOX_ERR_GET_PORT error) {
         switch (error) {
             case TOX_ERR_GET_PORT_OK:
-                return port;
+                return success();
             case TOX_ERR_GET_PORT_NOT_BOUND:
-                throw_tox_exception(env, "GetPort", "NOT_BOUND");
-                return 0;
+                return failure("NOT_BOUND");
         }
-
-        throw_illegal_state_exception(env, error, "Unknown error code");
-        return 0;
-    });
+        return unhandled();
+    }, [](uint16_t port) {
+        return port;
+    }, tox_get_port);
 }
 
 /*

@@ -1,4 +1,5 @@
-#include "Tox4j.h"
+#include "tox4j/Tox4j.h"
+#include "jniutil.h"
 
 static uint16_t compute_checksum(uint8_t const *address) {
     uint16_t checksum = 0;

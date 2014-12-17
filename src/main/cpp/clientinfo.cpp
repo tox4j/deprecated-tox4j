@@ -1,4 +1,5 @@
-#include "Tox4j.h"
+#include "tox4j/Tox4j.h"
+#include "jniutil.h"
 
 
 /*
@@ -86,22 +87,19 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetAddress
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetName
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray name)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(events);
-        TOX_ERR_SET_INFO error;
-        ByteArray name_array(env, name);
-        tox_set_self_name(tox, name_array.data(), name_array.size(), &error);
+    ByteArray name_array(env, name);
+    return with_instance(env, instanceNumber, "SetInfo", [](TOX_ERR_SET_INFO error) {
         switch (error) {
             case TOX_ERR_SET_INFO_OK:
-                return;
+                return success();
             case TOX_ERR_SET_INFO_NULL:
-                throw_tox_exception(env, "SetInfo", "NULL");
-                return;
+                return failure("NULL");
             case TOX_ERR_SET_INFO_TOO_LONG:
-                throw_tox_exception(env, "SetInfo", "TOO_LONG");
-                return;
+                return failure("TOO_LONG");
         }
-    });
+        return unhandled();
+    }, [](bool) {
+    }, tox_set_self_name, name_array.data(), name_array.size());
 }
 
 /*
@@ -133,22 +131,19 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetName
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSetStatusMessage
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray statusMessage)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(events);
-        TOX_ERR_SET_INFO error;
-        ByteArray status_message_array(env, statusMessage);
-        tox_set_self_status_message(tox, status_message_array.data(), status_message_array.size(), &error);
+    ByteArray status_message_array(env, statusMessage);
+    return with_instance(env, instanceNumber, "SetInfo", [](TOX_ERR_SET_INFO error) {
         switch (error) {
             case TOX_ERR_SET_INFO_OK:
-                return;
+                return success();
             case TOX_ERR_SET_INFO_NULL:
-                throw_tox_exception(env, "SetInfo", "NULL");
-                return;
+                return failure("NULL");
             case TOX_ERR_SET_INFO_TOO_LONG:
-                throw_tox_exception(env, "SetInfo", "TOO_LONG");
-                return;
+                return failure("TOO_LONG");
         }
-    });
+        return unhandled();
+    }, [](bool) {
+    }, tox_set_self_status_message, status_message_array.data(), status_message_array.size());
 }
 
 /*
