@@ -38,12 +38,12 @@ function(add_junit_test TARGET_NAME CLASSPATH TEST_CLASSES)
 endfunction(add_junit_test)
 
 set(TEST_FILES
-    im/tox/tox4j/Tox4jTest.java
-    im/tox/tox4j/ToxSimpleChatTest.java
+    im/tox/tox4j/v2/ToxCoreImplTest.java
+    im/tox/tox4j/v2/ToxCoreTest.java
 )
 
 set(TEST_CLASSES
-    im.tox.tox4j.Tox4jTest
+    im.tox.tox4j.v2.ToxCoreImplTest
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")

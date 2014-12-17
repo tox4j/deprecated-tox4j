@@ -40,17 +40,17 @@ public class Tox4j implements ToxSimpleChat {
     private GroupActionCallback groupActionCallback;
     private GroupTitleChangeCallback groupTitleChangeCallback;
 
-    /**
-     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
-     * used during testing or debugging.
-     */
-    static native void destroyAll();
-
     static native void playground(int instanceNumber);
 
     void playground() {
         playground(instanceNumber);
     }
+
+    /**
+     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
+     * used during testing or debugging.
+     */
+    static native void destroyAll();
 
     private static native void finalize(int instanceNumber);
 
@@ -222,6 +222,7 @@ public class Tox4j implements ToxSimpleChat {
     @Override
     public void toxDo() {
         byte[] events = toxDo(this.instanceNumber);
+        /* BROKEN FOR NOW
         Events.ToxEvents toxEvents;
         try {
             toxEvents = Events.ToxEvents.parseFrom(events);
@@ -269,6 +270,7 @@ public class Tox4j implements ToxSimpleChat {
                 this.connectionStatusCallback.execute(connectionStatus.getFriendNumber(), connectionStatus.getStatus());
             }
         }
+        */
     }
 
     private static native byte[] save(int instanceNumber);
