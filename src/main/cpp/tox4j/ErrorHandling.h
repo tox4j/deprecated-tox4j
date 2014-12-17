@@ -11,7 +11,6 @@ template<typename T> static inline T default_value() { return T(); }
 template<> inline void default_value<void>() { }
 
 
-void throw_unsupported_operation_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_tox_killed_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message);
