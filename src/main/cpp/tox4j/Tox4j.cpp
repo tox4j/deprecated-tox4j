@@ -2,7 +2,7 @@
 #include "Tox4j.h"
 
 
-ToxInstances ToxInstances::self;
+InstanceManager InstanceManager::self;
 
 
 /*

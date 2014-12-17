@@ -17,7 +17,7 @@ struct ToxDeleter {
     }
 };
 
-class Tox4jStruct {
+class ToxInstance {
     // Objects of this class can conceptually have three states:
     // - LIVE: A tox instance is alive and running.
     // - DEAD: The object is empty, all pointers are nullptr.
@@ -32,7 +32,7 @@ public:
     bool isLive() const { return live; }
     bool isDead() const { return !live; }
 
-    Tox4jStruct(std::unique_ptr<Tox, ToxDeleter> &&tox,
+    ToxInstance(std::unique_ptr<Tox, ToxDeleter> &&tox,
                 std::unique_ptr<ToxEvents> &&events,
                 std::unique_ptr<std::mutex> &&mutex)
     : tox(std::move(tox))
@@ -41,7 +41,7 @@ public:
     { }
 
     // Move members from another object into this new one, then set the old one to the DEAD state.
-    Tox4jStruct(Tox4jStruct &&rhs)
+    ToxInstance(ToxInstance &&rhs)
     : tox(std::move(rhs.tox))
     , events(std::move(rhs.events))
     , mutex(std::move(rhs.mutex))
@@ -49,7 +49,7 @@ public:
 
     // Move members from another object into this existing one, then set the right hand side to the DEAD state.
     // This object is then live again.
-    Tox4jStruct &operator=(Tox4jStruct &&rhs) {
+    ToxInstance &operator=(ToxInstance &&rhs) {
         assert(this->isDead());
         assert(rhs.isLive());
 
@@ -63,11 +63,11 @@ public:
     }
 };
 // This struct should remain small. Check some assumptions here.
-static_assert(sizeof(Tox4jStruct) == sizeof(void *) * 4,
-    "Tox4jStruct has unexpected members or padding");
+static_assert(sizeof(ToxInstance) == sizeof(void *) * 4,
+    "ToxInstance has unexpected members or padding");
 
-class ToxInstances {
-    std::vector<Tox4jStruct> instances;
+class InstanceManager {
+    std::vector<ToxInstance> instances;
     std::vector<jint> freelist;
 
 public:
@@ -86,11 +86,11 @@ public:
         freelist.push_back(instance_number);
     }
 
-    Tox4jStruct const &operator[](jint instance_number) const {
+    ToxInstance const &operator[](jint instance_number) const {
         return instances[instance_number - 1];
     }
 
-    jint add(Tox4jStruct &&instance) {
+    jint add(ToxInstance &&instance) {
         // If there are free objects we can reuse..
         if (!freelist.empty()) {
             // ..use the last object that became unreachable (it will most likely be in cache).
@@ -108,18 +108,18 @@ public:
         return (jint) instances.size();
     }
 
-    Tox4jStruct remove(jint instance_number) {
+    ToxInstance remove(jint instance_number) {
         return std::move(instances[instance_number - 1]);
     }
 
     void destroyAll() {
-        for (Tox4jStruct &instance : instances) {
-            Tox4jStruct dying(std::move(instance));
+        for (ToxInstance &instance : instances) {
+            ToxInstance dying(std::move(instance));
         }
     }
 
     bool empty() const { return instances.empty(); }
     size_t size() const { return instances.size(); }
 
-    static ToxInstances self;
+    static InstanceManager self;
 };

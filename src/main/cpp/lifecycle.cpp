@@ -198,8 +198,8 @@ static void tox4j_lossless_packet_cb(Tox *tox, uint32_t friend_number, uint8_t c
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_destroyAll
   (JNIEnv *, jclass)
 {
-    std::unique_lock<std::mutex> lock(ToxInstances::self.mutex);
-    ToxInstances::self.destroyAll();
+    std::unique_lock<std::mutex> lock(InstanceManager::self.mutex);
+    InstanceManager::self.destroyAll();
 }
 
 /*
@@ -277,16 +277,16 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
         tox_callback_lossy_packet         (tox.get(), tox4j_lossy_packet_cb,          events.get());
         tox_callback_lossless_packet      (tox.get(), tox4j_lossless_packet_cb,       events.get());
 
-        // We can create the new instance outside ToxInstances' critical section.
-        Tox4jStruct instance {
+        // We can create the new instance outside InstanceManager' critical section.
+        ToxInstance instance {
             std::move(tox),
             std::move(events),
             std::unique_ptr<std::mutex>(new std::mutex)
         };
 
         // This lock guards the instance manager.
-        std::lock_guard<std::mutex> lock(ToxInstances::self.mutex);
-        return ToxInstances::self.add(std::move(instance));
+        std::lock_guard<std::mutex> lock(InstanceManager::self.mutex);
+        return InstanceManager::self.add(std::move(instance));
     }, tox_new, opts.get());
 }
 
@@ -298,20 +298,20 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxKill
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    std::lock_guard<std::mutex> lock(ToxInstances::self.mutex);
+    std::lock_guard<std::mutex> lock(InstanceManager::self.mutex);
 
     if (instanceNumber < 0) {
         throw_illegal_state_exception(env, instanceNumber, "Tox instance out of range");
         return;
     }
 
-    if (!ToxInstances::self.isValid(instanceNumber)) {
+    if (!InstanceManager::self.isValid(instanceNumber)) {
         throw_tox_killed_exception(env, instanceNumber, "close called on invalid instance");
         return;
     }
 
     // After this move, the pointers in instance_vector[instance_number] will all be nullptr...
-    Tox4jStruct dying(ToxInstances::self.remove(instanceNumber));
+    ToxInstance dying(InstanceManager::self.remove(instanceNumber));
 
     // ... so that this check will fail, if the function is called twice on the same instance.
     if (!dying.tox) {
@@ -337,31 +337,31 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_finalize
         return;
     }
 
-    if (ToxInstances::self.empty()) {
+    if (InstanceManager::self.empty()) {
         throw_illegal_state_exception(env, instanceNumber, "Tox instance manager is empty");
         return;
     }
 
-    std::lock_guard<std::mutex> lock(ToxInstances::self.mutex);
-    if (!ToxInstances::self.isValid(instanceNumber)) {
+    std::lock_guard<std::mutex> lock(InstanceManager::self.mutex);
+    if (!InstanceManager::self.isValid(instanceNumber)) {
         throw_illegal_state_exception(env, instanceNumber,
-            "Tox instance out of range (max: " + std::to_string(ToxInstances::self.size() - 1) + ")");
+            "Tox instance out of range (max: " + std::to_string(InstanceManager::self.size() - 1) + ")");
         return;
     }
 
     // An instance should never be on this list twice.
-    if (ToxInstances::self.isFree(instanceNumber)) {
+    if (InstanceManager::self.isFree(instanceNumber)) {
         throw_illegal_state_exception(env, instanceNumber, "Tox instance already on free list");
         return;
     }
 
     // This instance was leaked, kill it before setting it free.
-    if (ToxInstances::self[instanceNumber].isLive()) {
-        Tox4jStruct dying(ToxInstances::self.remove(instanceNumber));
+    if (InstanceManager::self[instanceNumber].isLive()) {
+        ToxInstance dying(InstanceManager::self.remove(instanceNumber));
         assert(dying.isLive());
         std::lock_guard<std::mutex> ilock(*dying.mutex);
     }
 
-    assert(ToxInstances::self[instanceNumber].isDead());
-    ToxInstances::self.setFree(instanceNumber);
+    assert(InstanceManager::self[instanceNumber].isDead());
+    InstanceManager::self.setFree(instanceNumber);
 }

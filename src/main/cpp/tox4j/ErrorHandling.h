@@ -29,13 +29,13 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
         return default_value<return_type>();
     }
 
-    std::unique_lock<std::mutex> lock(ToxInstances::self.mutex);
-    if (!ToxInstances::self.isValid(instance_number)) {
+    std::unique_lock<std::mutex> lock(InstanceManager::self.mutex);
+    if (!InstanceManager::self.isValid(instance_number)) {
         throw_tox_killed_exception(env, instance_number, "Tox function invoked on invalid tox instance");
         return default_value<return_type>();
     }
 
-    Tox4jStruct const &instance = ToxInstances::self[instance_number];
+    ToxInstance const &instance = InstanceManager::self[instance_number];
 
     if (!instance.isLive()) {
         throw_tox_killed_exception(env, instance_number, "Tox function invoked on killed tox instance");
