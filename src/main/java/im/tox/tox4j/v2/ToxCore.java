@@ -299,13 +299,13 @@ public interface ToxCore extends Closeable {
 
     void callbackFriendAction(FriendActionCallback callback);
 
-    void fileControl(int friendNumber, byte fileNumber, ToxFileControl control) throws ToxFileControlException;
+    void fileControl(int friendNumber, int fileNumber, ToxFileControl control) throws ToxFileControlException;
 
     void callbackFileControl(FileControlCallback callback);
 
     int fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException;
 
-    void fileSendChunk(int friendNumber, byte fileNumber, byte[] data) throws ToxFileSendChunkException;
+    void fileSendChunk(int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException;
 
     void callbackFileSendChunk(FileSendChunkCallback callback);
 
