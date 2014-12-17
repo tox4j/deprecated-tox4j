@@ -87,11 +87,11 @@ public interface ToxCore extends Closeable {
     void iteration();
 
     /**
-     * Gets our own client ID (public key).
+     * Gets our own Client ID (public key).
      *
-     * @return our own client ID
+     * @return our own Client ID.
      */
-    byte[] getClientID();
+    byte[] getClientId();
 
     /**
      * Gets our own secret key
@@ -119,7 +119,7 @@ public interface ToxCore extends Closeable {
     /**
      * Get our current tox address to give to friends
      * <p>
-     * The format is the following: [clientId (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
+     * The format is the following: [Client ID (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
      * {@link #setNoSpam(int)}, the old address can no longer be used to send friend requests to this instance.
      *
      * @return our current tox address
@@ -152,7 +152,14 @@ public interface ToxCore extends Closeable {
 
     int getFriendNumber(byte[] clientId) throws ToxGetFriendNumberException;
 
-    byte[] getClientID(int friendNumber) throws ToxGetClientIdException;
+    /**
+     * Gets the Client ID for the specified friend number.
+     *
+     * @param friendNumber the friend number.
+     * @return the Client ID associated with the friend number.
+     * @throws ToxGetClientIdException if an error occurs.
+     */
+    byte[] getClientId(int friendNumber) throws ToxGetClientIdException;
 
     boolean friendExists(int friendNumber);
 

@@ -254,7 +254,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native byte[] toxGetSelfClientId(int instanceNumber);
 
     @Override
-    public byte[] getClientID() {
+    public byte[] getClientId() {
         return toxGetSelfClientId(instanceNumber);
     }
 
@@ -374,7 +374,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native byte[] toxGetFriendClientId(int instanceNumber, int friendNumber) throws ToxGetClientIdException;
 
     @Override
-    public byte[] getClientID(int friendNumber) throws ToxGetClientIdException {
+    public byte[] getClientId(int friendNumber) throws ToxGetClientIdException {
         return toxGetFriendClientId(instanceNumber, friendNumber);
     }
 
