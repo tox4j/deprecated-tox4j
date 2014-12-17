@@ -46,25 +46,27 @@ handle_send_message_error(TOX_ERR_SEND_MESSAGE error)
 /*
  * Class:     im_tox_tox4j_v2_ToxCoreImpl
  * Method:    toxSendMessage
- * Signature: (II[B)V
+ * Signature: (II[B)I
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendMessage
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendMessage
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray message)
 {
     ByteArray message_array(env, message);
-    return with_instance(env, instanceNumber, "SendMessage", handle_send_message_error, [](bool) {
+    return with_instance(env, instanceNumber, "SendMessage", handle_send_message_error, [](uint32_t message_id) {
+        return message_id;
     }, tox_send_message, friendNumber, message_array.data(), message_array.size());
 }
 
 /*
  * Class:     im_tox_tox4j_v2_ToxCoreImpl
  * Method:    toxSendAction
- * Signature: (II[B)V
+ * Signature: (II[B)I
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendAction
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendAction
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray action)
 {
     ByteArray action_array(env, action);
-    return with_instance(env, instanceNumber, "SendMessage", handle_send_message_error, [](bool) {
+    return with_instance(env, instanceNumber, "SendMessage", handle_send_message_error, [](uint32_t message_id) {
+        return message_id;
     }, tox_send_action, friendNumber, action_array.data(), action_array.size());
 }

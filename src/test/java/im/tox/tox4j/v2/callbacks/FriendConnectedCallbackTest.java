@@ -14,6 +14,11 @@ public class FriendConnectedCallbackTest extends AliceBobTestBase {
         return new ToxCoreImpl(options);
     }
 
+    @Override
+    protected ChatClient newClient() {
+        return new Client();
+    }
+
 
     private static class Client extends ChatClient {
 
@@ -23,11 +28,6 @@ public class FriendConnectedCallbackTest extends AliceBobTestBase {
             finish();
         }
 
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testFriendConnected() throws Exception {
-        runAliceBob(new Client(), new Client());
     }
 
 }
