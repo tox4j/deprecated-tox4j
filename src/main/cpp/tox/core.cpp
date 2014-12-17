@@ -202,7 +202,18 @@ new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
   Tox *tox = tox_new (&opts);
   if (!tox)
     {
-      if (error) *error = TOX_ERR_NEW_MALLOC;
+      if (error)
+        {
+          // Try to allocate 1KB.
+          void *ptr = malloc (1024);
+          if (ptr == nullptr)
+            // Failed due to OOM.
+            *error = TOX_ERR_NEW_MALLOC;
+          else
+            // Failed due to port allocation.
+            *error = TOX_ERR_NEW_PORT_ALLOC;
+          free (ptr);
+        }
     }
   else
     {
