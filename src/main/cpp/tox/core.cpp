@@ -686,9 +686,20 @@ new_tox_send_message (new_Tox *tox, uint32_t friend_number, uint8_t const *messa
 uint32_t
 new_tox_send_action (new_Tox *tox, uint32_t friend_number, uint8_t const *action, size_t length, TOX_ERR_SEND_MESSAGE *error)
 {
-  assert (false);
-  if (error) *error = TOX_ERR_SEND_MESSAGE_OK;
-  return 0;
+  if (action == nullptr)
+    {
+      if (error) *error = TOX_ERR_SEND_MESSAGE_NULL;
+      return 0;
+    }
+  switch (uint32_t message_id = tox_send_action (tox->tox, friend_number, action, length))
+    {
+    case 0:
+      if (error) *error = TOX_ERR_SEND_MESSAGE_SENDQ; // Arbitrary.. we don't know what happened.
+      return 0;
+    default:
+      if (error) *error = TOX_ERR_SEND_MESSAGE_OK;
+      return message_id;
+    }
 }
 
 void
