@@ -2,8 +2,11 @@ package im.tox.tox4j.v2;
 
 import im.tox.tox4j.v2.callbacks.ToxEventAdapter;
 import im.tox.tox4j.v2.exceptions.SpecificToxException;
+import im.tox.tox4j.v2.exceptions.ToxDeleteFriendException;
+import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class AliceBobTestBase extends ToxCoreTestBase {
@@ -17,8 +20,17 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
         private final List<Task> tasks = new ArrayList<>();
         private String name = "<unnamed>";
         private String friendName = "<unnamed>";
+        private byte[] friendAddress;
         private boolean connected;
         private boolean chatting = true;
+
+        protected boolean isAlice() {
+            return name.equals("Alice");
+        }
+
+        protected boolean isBob() {
+            return name.equals("Bob");
+        }
 
         public boolean isChatting() {
             return chatting;
@@ -34,6 +46,17 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
         public String getFriendName() {
             return friendName;
+        }
+
+        public byte[] getFriendAddress() {
+            return friendAddress;
+        }
+
+        public byte[] getFriendClientID() {
+            return Arrays.copyOf(friendAddress, ToxConstants.CLIENT_ID_SIZE);
+        }
+
+        public void setup(ToxCore tox) throws SpecificToxException {
         }
 
         protected void finish() {
@@ -68,7 +91,16 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
         }
     }
 
-    protected void runAliceBob(ChatClient aliceChat, ChatClient bobChat) throws Exception {
+    protected abstract ChatClient newClient();
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest() throws Exception {
+        if (LOGGING) {
+            System.out.println("--- " + getClass().getSimpleName() + " ---");
+        }
+        ChatClient aliceChat = newClient();
+        ChatClient bobChat = newClient();
+
         aliceChat.name = bobChat.friendName = "Alice";
         bobChat.name = aliceChat.friendName = "Bob";
 
@@ -77,8 +109,14 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
                 alice.addFriendNoRequest(bob.getClientID());
                 bob.addFriendNoRequest(alice.getClientID());
 
+                aliceChat.friendAddress = bob.getAddress();
+                bobChat.friendAddress = alice.getAddress();
+
                 alice.callback(aliceChat);
                 bob.callback(bobChat);
+
+                aliceChat.setup(alice);
+                bobChat.setup(bob);
 
                 while (aliceChat.isChatting() || bobChat.isChatting()) {
                     alice.iteration();

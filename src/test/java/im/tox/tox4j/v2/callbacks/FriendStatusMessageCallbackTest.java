@@ -6,12 +6,10 @@ import im.tox.tox4j.v2.ToxCoreImpl;
 import im.tox.tox4j.v2.ToxOptions;
 import im.tox.tox4j.v2.exceptions.SpecificToxException;
 import im.tox.tox4j.v2.exceptions.ToxNewException;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class FriendMessageCallbackTest extends AliceBobTestBase {
+public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
 
     @Override
     protected ToxCore newTox(ToxOptions options) throws ToxNewException {
@@ -32,17 +30,16 @@ public class FriendMessageCallbackTest extends AliceBobTestBase {
             addTask(new Task() {
                 @Override
                 public void perform(ToxCore tox) throws SpecificToxException {
-                    tox.sendMessage(friendNumber, ("My name is " + getName()).getBytes());
+                    tox.setStatusMessage(("I like " + getFriendName()).getBytes());
                 }
             });
         }
 
         @Override
-        public void friendMessage(int friendNumber, int timeDelta, byte[] message) {
-            debug("received a message: " + new String(message));
+        public void friendStatusMessage(int friendNumber, byte[] message) {
+            debug("friend changed status message to: " + new String(message));
             assertEquals(friendNumber, 0);
-            assertTrue(timeDelta >= 0);
-            assertEquals("My name is " + getFriendName(), new String(message));
+            assertEquals("I like " + getName(), new String(message));
             finish();
         }
 
