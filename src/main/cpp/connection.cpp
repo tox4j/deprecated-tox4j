@@ -42,11 +42,19 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxBootstrap
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetPort
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        unused(tox);
+    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> uint16_t {
         unused(events);
-        unused(tox_callback_lossless_packet);
-        throw_unsupported_operation_exception(env, instanceNumber, "toxGetPort");
+        TOX_ERR_GET_PORT error;
+        uint16_t port = tox_get_port(tox, &error);
+        switch (error) {
+            case TOX_ERR_GET_PORT_OK:
+                return port;
+            case TOX_ERR_GET_PORT_NOT_BOUND:
+                throw_tox_exception(env, "GetPort", "NOT_BOUND");
+                return 0;
+        }
+
+        throw_illegal_state_exception(env, error, "Unknown error code");
         return 0;
     });
 }

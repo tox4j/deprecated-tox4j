@@ -67,6 +67,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendAction
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray action)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+        unused(events);
         TOX_ERR_SEND_MESSAGE error;
         ByteArray action_array(env, action);
         tox_send_action(tox, friendNumber, action_array.data(), action_array.size(), &error);

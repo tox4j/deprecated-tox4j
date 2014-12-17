@@ -44,6 +44,16 @@ extern "C" {
  * and one possible action for the function to take is to have no effect.
  */
 
+/** \subsection events Events and callbacks
+ *
+ * Events are handled by callbacks. One callback can be registered per event.
+ * All events have a callback function type named `tox_${event}_cb` and a
+ * function to register it named `tox_callback_${event}`. Passing a NULL
+ * callback will result in no callback being registered for that event. Only
+ * one callback per event can be registered, so if a client needs multiple
+ * event listeners, it needs to implement the dispatch functionality itself.
+ */
+
 /** \subsection threading Threading implications
  *
  * It is possible to run multiple concurrent threads with a Tox instance for
@@ -458,7 +468,7 @@ bool tox_is_connected(Tox const *tox);
 typedef void tox_connection_status_cb(Tox *tox, bool is_connected, void *user_data);
 
 /**
- * Set the callback for the `connection_status` event.
+ * Set the callback for the `connection_status` event. Pass NULL to unset.
  *
  * This event is triggered whenever there is a change in the DHT connection
  * state. When disconnected, a client may choose to call tox_bootstrap again, to
@@ -897,7 +907,7 @@ bool tox_get_friend_name(Tox const *tox, uint32_t friend_number, uint8_t *name, 
 typedef void tox_friend_name_cb(Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, void *user_data);
 
 /**
- * Set the callback for the `friend_name` event.
+ * Set the callback for the `friend_name` event. Pass NULL to unset.
  *
  * This event is triggered when a friend changes their name.
  */
@@ -934,7 +944,7 @@ bool tox_get_friend_status_message(Tox const *tox, uint32_t friend_number, uint8
 typedef void tox_friend_status_message_cb(Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, void *user_data);
 
 /**
- * Set the callback for the `friend_status_message` event.
+ * Set the callback for the `friend_status_message` event. Pass NULL to unset.
  *
  * This event is triggered when a friend changes their name.
  */
@@ -957,7 +967,7 @@ TOX_STATUS tox_get_friend_status(Tox const *tox, uint32_t friend_number, TOX_ERR
 typedef void tox_friend_status_cb(Tox *tox, uint32_t friend_number, TOX_STATUS status, void *user_data);
 
 /**
- * Set the callback for the `friend_status` event.
+ * Set the callback for the `friend_status` event. Pass NULL to unset.
  *
  * This event is triggered when a friend changes their user status.
  */
@@ -990,7 +1000,7 @@ bool tox_get_friend_is_connected(Tox const *tox, uint32_t friend_number, TOX_ERR
 typedef void tox_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_connected, void *user_data);
 
 /**
- * Set the callback for the `friend_connected` event.
+ * Set the callback for the `friend_connected` event. Pass NULL to unset.
  *
  * This event is triggered when a friend goes offline after having been online,
  * or when a friend goes online.
@@ -1023,7 +1033,7 @@ bool tox_get_friend_is_typing(Tox const *tox, uint32_t friend_number, TOX_ERR_FR
 typedef void tox_friend_typing_cb(Tox *tox, uint32_t friend_number, bool is_typing, void *user_data);
 
 /**
- * Set the callback for the `friend_typing` event.
+ * Set the callback for the `friend_typing` event. Pass NULL to unset.
  *
  * This event is triggered when a friend starts or stops typing.
  */
@@ -1123,7 +1133,7 @@ uint32_t tox_send_action(Tox *tox, uint32_t friend_number, uint8_t const *action
 typedef void tox_read_receipt_cb(Tox *tox, uint32_t friend_number, uint32_t message_id, void *user_data);
 
 /**
- * Set the callback for the `read_receipt` event.
+ * Set the callback for the `read_receipt` event. Pass NULL to unset.
  *
  * This event is triggered when a read receipt is received from a friend. This
  * normally means that the message has been received by the friend, however a
@@ -1156,7 +1166,7 @@ void tox_callback_read_receipt(Tox *tox, tox_read_receipt_cb *function, void *us
 typedef void tox_friend_request_cb(Tox *tox, uint8_t const *client_id, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data);
 
 /**
- * Set the callback for the `friend_request` event.
+ * Set the callback for the `friend_request` event. Pass NULL to unset.
  *
  * This event is triggered when a friend request is received.
  */
@@ -1176,7 +1186,7 @@ void tox_callback_friend_request(Tox *tox, tox_friend_request_cb *function, void
 typedef void tox_friend_message_cb(Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data);
 
 /**
- * Set the callback for the `friend_message` event.
+ * Set the callback for the `friend_message` event. Pass NULL to unset.
  *
  * This event is triggered when a message from a friend is received.
  */
@@ -1196,7 +1206,7 @@ void tox_callback_friend_message(Tox *tox, tox_friend_message_cb *function, void
 typedef void tox_friend_action_cb(Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */uint8_t const *action, size_t length, void *user_data);
 
 /**
- * Set the callback for the `friend_action` event.
+ * Set the callback for the `friend_action` event. Pass NULL to unset.
  *
  * This event is triggered when an action from a friend is received.
  */
@@ -1332,7 +1342,7 @@ bool tox_file_control(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX
 typedef void tox_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, void *user_data);
 
 /**
- * Set the callback for the `file_control` event.
+ * Set the callback for the `file_control` event. Pass NULL to unset.
  *
  * This event is triggered when a file control command is received from a
  * friend.
@@ -1480,7 +1490,7 @@ void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint8_t file_number, 
 typedef void tox_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data);
 
 /**
- * Set the callback for the `file_send_chunk` event.
+ * Set the callback for the `file_send_chunk` event. Pass NULL to unset.
  */
 void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, void *user_data);
 
@@ -1509,7 +1519,7 @@ void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, vo
 typedef void tox_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data);
 
 /**
- * Set the callback for the `file_receive` event.
+ * Set the callback for the `file_receive` event. Pass NULL to unset.
  *
  * This event is triggered when a file transfer request is received.
  */
@@ -1540,7 +1550,7 @@ void tox_callback_file_receive(Tox *tox, tox_file_receive_cb *function, void *us
 typedef void tox_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data);
 
 /**
- * Set the callback for the `file_receive_chunk` event.
+ * Set the callback for the `file_receive_chunk` event. Pass NULL to unset.
  */
 void tox_callback_file_receive_chunk(Tox *tox, tox_file_receive_chunk_cb *function, void *user_data);
 
@@ -1624,7 +1634,7 @@ bool tox_send_lossy_packet(Tox *tox, uint32_t friend_number, uint8_t const *data
 typedef void tox_lossy_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data);
 
 /**
- * Set the callback for the `lossy_packet` event.
+ * Set the callback for the `lossy_packet` event. Pass NULL to unset.
  */
 void tox_callback_lossy_packet(Tox *tox, tox_lossy_packet_cb *function, void *user_data);
 
@@ -1657,7 +1667,7 @@ bool tox_send_lossless_packet(Tox *tox, uint32_t friend_number, uint8_t const *d
 typedef void tox_lossless_packet_cb(Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data);
 
 /**
- * Set the callback for the `lossless_packet` event.
+ * Set the callback for the `lossless_packet` event. Pass NULL to unset.
  */
 void tox_callback_lossless_packet(Tox *tox, tox_lossless_packet_cb *function, void *user_data);
 
