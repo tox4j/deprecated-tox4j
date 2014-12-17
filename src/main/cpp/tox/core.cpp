@@ -292,8 +292,7 @@ new_tox_callback_connection_status (new_Tox *tox, tox_connection_status_cb *func
 uint16_t
 new_tox_get_port (new_Tox const *tox, TOX_ERR_GET_PORT *error)
 {
-  assert (false);
-  if (error) *error = TOX_ERR_GET_PORT_OK;
+  if (error) *error = TOX_ERR_GET_PORT_NOT_BOUND;
   return 0;
 }
 

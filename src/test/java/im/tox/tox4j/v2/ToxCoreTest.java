@@ -1042,6 +1042,14 @@ public abstract class ToxCoreTest {
         }
     }
 
+    @Test
+    public void testGetPort() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertNotEquals(0, tox.getPort());
+            assertTrue(tox.getPort() >  0);
+            assertTrue(tox.getPort() <= 65535);
+        }
+    }
 
 
 
@@ -1161,11 +1169,6 @@ public abstract class ToxCoreTest {
 
     @Test
     public void testCallbackLosslessPacket() throws Exception {
-
-    }
-
-    @Test
-    public void testGetPort() throws Exception {
 
     }
 
