@@ -86,6 +86,8 @@ set(TOX4J_CALLBACKS
 	im/tox/tox4j/v2/callbacks/LosslessPacketCallback.java
 	im/tox/tox4j/v2/callbacks/LossyPacketCallback.java
 	im/tox/tox4j/v2/callbacks/ReadReceiptCallback.java
+	im/tox/tox4j/v2/callbacks/ToxEventAdapter.java
+	im/tox/tox4j/v2/callbacks/ToxEventListener.java
 )
 
 set(TOX4J_SOURCE

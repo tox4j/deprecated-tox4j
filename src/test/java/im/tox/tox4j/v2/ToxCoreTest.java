@@ -4,6 +4,7 @@ import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.v2.callbacks.FriendConnectedCallback;
 import im.tox.tox4j.v2.callbacks.FriendMessageCallback;
+import im.tox.tox4j.v2.callbacks.ToxEventAdapter;
 import im.tox.tox4j.v2.enums.ToxProxyType;
 import im.tox.tox4j.v2.enums.ToxStatus;
 import im.tox.tox4j.v2.exceptions.*;
@@ -953,7 +954,7 @@ public abstract class ToxCoreTest {
     }
 
 
-    private static class ChatClient implements ConnectionStatusCallback, FriendConnectedCallback, FriendMessageCallback {
+    private static class ChatClient extends ToxEventAdapter {
 
         public interface Task {
             void perform(ToxCore tox) throws SpecificToxException;
@@ -1018,14 +1019,10 @@ public abstract class ToxCoreTest {
                 bob.addFriendNoRequest(alice.getClientID());
 
                 ChatClient aliceChat = new ChatClient("Alice");
-                alice.callbackConnectionStatus(aliceChat);
-                alice.callbackFriendConnected(aliceChat);
-                alice.callbackFriendMessage(aliceChat);
+                alice.callback(aliceChat);
 
                 ChatClient bobChat = new ChatClient("Bob");
-                bob.callbackConnectionStatus(bobChat);
-                bob.callbackFriendConnected(bobChat);
-                bob.callbackFriendMessage(bobChat);
+                bob.callback(bobChat);
 
                 while (aliceChat.isChatting() || bobChat.isChatting()) {
                     alice.iteration();

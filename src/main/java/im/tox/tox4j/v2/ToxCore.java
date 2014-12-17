@@ -92,4 +92,11 @@ public interface ToxCore extends Closeable {
     void sendLosslessPacket(int friendNumber, byte[] data);
     void callbackLosslessPacket(LosslessPacketCallback callback);
 
+    /**
+     * Convenience method to set all event handlers at once.
+     *
+     * @param handler    An event handler capable of handling all Tox events.
+     */
+    void callback(ToxEventListener handler);
+
 }

@@ -8,7 +8,7 @@ import im.tox.tox4j.v2.enums.ToxFileKind;
 import im.tox.tox4j.v2.enums.ToxStatus;
 import im.tox.tox4j.v2.exceptions.*;
 
-public class ToxCoreImpl implements ToxCore {
+public final class ToxCoreImpl extends AbstractToxCore {
 
     static {
         System.loadLibrary("tox4j");
