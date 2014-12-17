@@ -313,11 +313,11 @@ public interface ToxCore extends Closeable {
 
     void callbackFileReceiveChunk(FileReceiveChunkCallback callback);
 
-    void sendLossyPacket(int friendNumber, byte[] data);
+    void sendLossyPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
     void callbackLossyPacket(LossyPacketCallback callback);
 
-    void sendLosslessPacket(int friendNumber, byte[] data);
+    void sendLosslessPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
     void callbackLosslessPacket(LosslessPacketCallback callback);
 

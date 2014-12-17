@@ -1172,12 +1172,33 @@ new_tox_callback_file_receive_chunk (new_Tox *tox, tox_file_receive_chunk_cb *fu
   tox->callbacks.file_receive_chunk = { function, user_data };
 }
 
+static bool
+new_tox_send_custom_packet (int send (Tox const *tox, int32_t friendnumber, uint8_t const *data, uint32_t length),
+                            new_Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error)
+{
+  if (!new_tox_friend_exists (tox, friend_number))
+    {
+      if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_FOUND;
+      return false;
+    }
+  if (!new_tox_get_friend_is_connected (tox, friend_number, nullptr))
+    {
+      if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_CONNECTED;
+      return false;
+    }
+  if (send (tox->tox, friend_number, data, length) == -1)
+    {
+      if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_SENDQ;
+      return false;
+    }
+  if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
+  return true;
+}
+
 bool
 new_tox_send_lossy_packet (new_Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error)
 {
-  assert (false);
-  if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
-  return true;
+  return new_tox_send_custom_packet (tox_send_lossy_packet, tox, friend_number, data, length, error);
 }
 
 void
@@ -1189,9 +1210,7 @@ new_tox_callback_lossy_packet (new_Tox *tox, tox_lossy_packet_cb *function, void
 bool
 new_tox_send_lossless_packet (new_Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, TOX_ERR_SEND_CUSTOM_PACKET *error)
 {
-  assert (false);
-  if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_OK;
-  return true;
+  return new_tox_send_custom_packet (tox_send_lossless_packet, tox, friend_number, data, length, error);
 }
 
 void
