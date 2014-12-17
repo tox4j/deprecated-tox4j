@@ -49,6 +49,8 @@ set(TEST_FILES
     im/tox/tox4j/v2/callbacks/FriendStatusCallbackTest.java
     im/tox/tox4j/v2/callbacks/FriendStatusMessageCallbackTest.java
     im/tox/tox4j/v2/callbacks/FriendTypingCallbackTest.java
+    im/tox/tox4j/v2/callbacks/LosslessPacketCallbackTest.java
+    im/tox/tox4j/v2/callbacks/LossyPacketCallbackTest.java
     im/tox/tox4j/v2/callbacks/ReadReceiptCallbackTest.java
     im/tox/tox4j/v2/AliceBobTestBase.java
     im/tox/tox4j/v2/ToxCoreImplTest.java
@@ -69,6 +71,8 @@ set(TEST_CLASSES
     im.tox.tox4j.v2.callbacks.FriendStatusCallbackTest
     im.tox.tox4j.v2.callbacks.FriendStatusMessageCallbackTest
     im.tox.tox4j.v2.callbacks.FriendTypingCallbackTest
+    im.tox.tox4j.v2.callbacks.LosslessPacketCallbackTest
+    im.tox.tox4j.v2.callbacks.LossyPacketCallbackTest
     im.tox.tox4j.v2.callbacks.ReadReceiptCallbackTest
 )
 

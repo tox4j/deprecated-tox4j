@@ -288,6 +288,22 @@ struct new_Tox
           assert (result == 0);
         }
     }
+
+    static int lossy_packet (Tox *tox, int32_t friendnumber, const uint8_t *data, uint32_t length, void *userdata)
+    {
+      auto self = static_cast<new_Tox *> (userdata);
+      auto cb = self->callbacks.lossy_packet;
+      cb.func (self, friendnumber, data, length, cb.user_data);
+      return 0;
+    }
+
+    static int lossless_packet (Tox *tox, int32_t friendnumber, const uint8_t *data, uint32_t length, void *userdata)
+    {
+      auto self = static_cast<new_Tox *> (userdata);
+      auto cb = self->callbacks.lossless_packet;
+      cb.func (self, friendnumber, data, length, cb.user_data);
+      return 0;
+    }
   };
 
   new_Tox (Tox *tox)
@@ -305,6 +321,14 @@ struct new_Tox
     tox_callback_file_send_request(tox, CB::file_send_request, this);
     tox_callback_file_control(tox, CB::file_control, this);
     tox_callback_file_data(tox, CB::file_data, this);
+  }
+
+  void register_custom_packet_handlers (uint32_t friend_number)
+  {
+    for (uint8_t byte = 200; byte <= 254; byte++)
+      tox_lossy_packet_registerhandler (tox, friend_number, byte, CB::lossy_packet, this);
+    for (uint8_t byte = 160; byte <= 191; byte++)
+      tox_lossless_packet_registerhandler (tox, friend_number, byte, CB::lossless_packet, this);
   }
 
   void add_transfer (uint32_t friend_number, uint32_t file_number, uint64_t file_size)
@@ -418,13 +442,19 @@ new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
             *error = TOX_ERR_NEW_PORT_ALLOC;
           free (ptr);
         }
-    }
-  else
-    {
-      if (error) *error = TOX_ERR_NEW_OK;
+
+      return nullptr;
     }
 
-  return tox ? new new_Tox(tox) : nullptr;
+  std::vector<int32_t> friends (tox_count_friendlist (tox));
+  tox_get_friendlist (tox, friends.data (), friends.size ());
+
+  new_Tox *new_tox = new new_Tox (tox);
+  for (int32_t friend_number : friends)
+    new_tox->register_custom_packet_handlers (friend_number);
+
+  if (error) *error = TOX_ERR_NEW_OK;
+  return new_tox;
 }
 
 void
@@ -669,7 +699,8 @@ new_tox_get_self_status (new_Tox const *tox)
 uint32_t
 new_tox_add_friend (new_Tox *tox, uint8_t const *address, uint8_t const *message, size_t length, TOX_ERR_ADD_FRIEND *error)
 {
-  switch (int32_t friend_number = tox_add_friend (tox->tox, address, message, length))
+  int32_t friend_number = tox_add_friend (tox->tox, address, message, length);
+  switch (friend_number)
     {
     case TOX_FAERR_TOOLONG     : if (error) *error = TOX_ERR_ADD_FRIEND_TOO_LONG;       return 0;
     case TOX_FAERR_NOMESSAGE   : if (error) *error = TOX_ERR_ADD_FRIEND_NO_MESSAGE;     return 0;
@@ -678,24 +709,29 @@ new_tox_add_friend (new_Tox *tox, uint8_t const *address, uint8_t const *message
     case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
     case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
     case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
-    default                    : if (error) *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
     }
-  assert (false);
+
+  tox->register_custom_packet_handlers (friend_number);
+  if (error) *error = TOX_ERR_ADD_FRIEND_OK;
+  return friend_number;
 }
 
 uint32_t
 new_tox_add_friend_norequest (new_Tox *tox, uint8_t const *client_id, TOX_ERR_ADD_FRIEND *error)
 {
-  switch (int32_t friend_number = tox_add_friend_norequest (tox->tox, client_id))
+  int32_t friend_number = tox_add_friend_norequest (tox->tox, client_id);
+  switch (friend_number)
     {
     case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
     case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
     case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
     case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
     case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
-    default                    : if (error) *error = TOX_ERR_ADD_FRIEND_OK;             return friend_number;
     }
-  assert (false);
+
+  tox->register_custom_packet_handlers (friend_number);
+  if (error) *error = TOX_ERR_ADD_FRIEND_OK;
+  return friend_number;
 }
 
 bool
