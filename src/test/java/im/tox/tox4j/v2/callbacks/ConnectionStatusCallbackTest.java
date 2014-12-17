@@ -4,10 +4,13 @@ import im.tox.tox4j.v2.AliceBobTestBase;
 import im.tox.tox4j.v2.ToxCore;
 import im.tox.tox4j.v2.ToxCoreImpl;
 import im.tox.tox4j.v2.ToxOptions;
+import im.tox.tox4j.v2.exceptions.SpecificToxException;
 import im.tox.tox4j.v2.exceptions.ToxNewException;
-import org.junit.Test;
 
-public class FriendConnectedCallbackTest extends AliceBobTestBase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
     @Override
     protected ToxCore newTox(ToxOptions options) throws ToxNewException {
@@ -23,8 +26,8 @@ public class FriendConnectedCallbackTest extends AliceBobTestBase {
     private static class Client extends ChatClient {
 
         @Override
-        public void friendConnected(final int friendNumber, boolean isConnected) {
-            debug("is now connected to friend " + friendNumber);
+        public void connectionStatus(boolean isConnected) {
+            assertTrue(isConnected);
             finish();
         }
 

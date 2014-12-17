@@ -64,8 +64,8 @@ public interface ToxCore extends Closeable {
 
     void setTyping(int friendNumber, boolean typing) throws ToxSetTypingException;
 
-    void sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException;
-    void sendAction(int friendNumber, byte[] action) throws ToxSendMessageException;
+    int sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException;
+    int sendAction(int friendNumber, byte[] action) throws ToxSendMessageException;
 
     void callbackReadReceipt(ReadReceiptCallback callback);
 

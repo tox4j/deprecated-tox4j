@@ -429,19 +429,19 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxSendMessage(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
+    private static native int toxSendMessage(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
 
     @Override
-    public void sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException {
-        toxSendMessage(instanceNumber, friendNumber, message);
+    public int sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException {
+        return toxSendMessage(instanceNumber, friendNumber, message);
     }
 
 
-    private static native void toxSendAction(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
+    private static native int toxSendAction(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
 
     @Override
-    public void sendAction(int friendNumber, byte[] action) throws ToxSendMessageException {
-        toxSendAction(instanceNumber, friendNumber, action);
+    public int sendAction(int friendNumber, byte[] action) throws ToxSendMessageException {
+        return toxSendAction(instanceNumber, friendNumber, action);
     }
 
     @Override
