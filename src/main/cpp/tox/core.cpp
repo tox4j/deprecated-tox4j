@@ -331,6 +331,14 @@ struct new_Tox
       tox_lossless_packet_registerhandler (tox, friend_number, byte, CB::lossless_packet, this);
   }
 
+  void unregister_custom_packet_handlers (uint32_t friend_number)
+  {
+    for (uint8_t byte = 200; byte <= 254; byte++)
+      tox_lossy_packet_registerhandler (tox, friend_number, byte, nullptr, nullptr);
+    for (uint8_t byte = 160; byte <= 191; byte++)
+      tox_lossless_packet_registerhandler (tox, friend_number, byte, nullptr, nullptr);
+  }
+
   void add_transfer (uint32_t friend_number, uint32_t file_number, uint64_t file_size)
   {
     assert (!get_transfer (friend_number, file_number));
@@ -385,6 +393,27 @@ void
 new_tox_options_free (struct new_Tox_Options *options)
 {
   delete options;
+}
+
+
+static void
+register_custom_packet_handlers (new_Tox *tox)
+{
+  std::vector<int32_t> friends (tox_count_friendlist (tox->tox));
+  tox_get_friendlist (tox->tox, friends.data (), friends.size ());
+
+  for (int32_t friend_number : friends)
+    tox->register_custom_packet_handlers (friend_number);
+}
+
+static void
+unregister_custom_packet_handlers (new_Tox *tox)
+{
+  std::vector<int32_t> friends (tox_count_friendlist (tox->tox));
+  tox_get_friendlist (tox->tox, friends.data (), friends.size ());
+
+  for (int32_t friend_number : friends)
+    tox->unregister_custom_packet_handlers (friend_number);
 }
 
 new_Tox *
@@ -446,12 +475,8 @@ new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
       return nullptr;
     }
 
-  std::vector<int32_t> friends (tox_count_friendlist (tox));
-  tox_get_friendlist (tox, friends.data (), friends.size ());
-
   new_Tox *new_tox = new new_Tox (tox);
-  for (int32_t friend_number : friends)
-    new_tox->register_custom_packet_handlers (friend_number);
+  register_custom_packet_handlers (new_tox);
 
   if (error) *error = TOX_ERR_NEW_OK;
   return new_tox;
@@ -484,9 +509,11 @@ new_tox_load (new_Tox *tox, uint8_t const *data, size_t length, TOX_ERR_LOAD *er
       if (error) *error = TOX_ERR_LOAD_NULL;
       return false;
     }
+  unregister_custom_packet_handlers (tox);
   switch (tox_load (tox->tox, data, length))
     {
     case 0:
+      register_custom_packet_handlers (tox);
       if (error) *error = TOX_ERR_LOAD_OK;
       return true;
     case -1:
