@@ -987,4 +987,30 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         }
     }
 
+    @Test
+    public void testSendLossyPacketNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendLossyPacket(friendNumber, new byte[]{(byte) 200, 0, 1, 2, 3});
+                fail();
+            } catch (ToxSendCustomPacketException e) {
+                assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testSendLosslessPacketNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendLosslessPacket(friendNumber, new byte[]{(byte) 160, 0, 1, 2, 3});
+                fail();
+            } catch (ToxSendCustomPacketException e) {
+                assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
+    }
+
 }
