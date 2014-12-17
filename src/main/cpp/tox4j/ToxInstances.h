@@ -1,0 +1,125 @@
+#pragma once
+
+#include <tox/core.h>
+#include "JTox.h"
+#include "events.pb.h"
+
+#include <algorithm>
+#include <memory>
+#include <mutex>
+
+using im::tox::tox4j::proto::ToxEvents;
+
+
+struct ToxDeleter {
+    void operator()(Tox *tox) {
+        tox_kill(tox);
+    }
+};
+
+class ToxInstance {
+    // Objects of this class can conceptually have three states:
+    // - LIVE: A tox instance is alive and running.
+    // - DEAD: The object is empty, all pointers are nullptr.
+    // - COLLECTED: state is DEAD, and the object's instance_number is in instance_freelist.
+    bool live = true;
+
+public:
+    std::unique_ptr<Tox, ToxDeleter> tox;
+    std::unique_ptr<ToxEvents> events;
+    std::unique_ptr<std::mutex> mutex;
+
+    bool isLive() const { return live; }
+    bool isDead() const { return !live; }
+
+    ToxInstance(std::unique_ptr<Tox, ToxDeleter> &&tox,
+                std::unique_ptr<ToxEvents> &&events,
+                std::unique_ptr<std::mutex> &&mutex)
+    : tox(std::move(tox))
+    , events(std::move(events))
+    , mutex(std::move(mutex))
+    { }
+
+    // Move members from another object into this new one, then set the old one to the DEAD state.
+    ToxInstance(ToxInstance &&rhs)
+    : tox(std::move(rhs.tox))
+    , events(std::move(rhs.events))
+    , mutex(std::move(rhs.mutex))
+    { rhs.live = false; }
+
+    // Move members from another object into this existing one, then set the right hand side to the DEAD state.
+    // This object is then live again.
+    ToxInstance &operator=(ToxInstance &&rhs) {
+        assert(this->isDead());
+        assert(rhs.isLive());
+
+        tox = std::move(rhs.tox);
+        events = std::move(rhs.events);
+        mutex = std::move(rhs.mutex);
+        rhs.live = false;
+        this->live = true;
+
+        return *this;
+    }
+};
+// This struct should remain small. Check some assumptions here.
+static_assert(sizeof(ToxInstance) == sizeof(void *) * 4,
+    "ToxInstance has unexpected members or padding");
+
+class InstanceManager {
+    std::vector<ToxInstance> instances;
+    std::vector<jint> freelist;
+
+public:
+    std::mutex mutex;
+
+    bool isValid(jint instance_number) const {
+        return instance_number > 0
+            && (size_t) instance_number <= instances.size();
+    }
+
+    bool isFree(jint instance_number) const {
+        return std::find(freelist.begin(), freelist.end(), instance_number) != freelist.end();
+    }
+
+    void setFree(jint instance_number) {
+        freelist.push_back(instance_number);
+    }
+
+    ToxInstance const &operator[](jint instance_number) const {
+        return instances[instance_number - 1];
+    }
+
+    jint add(ToxInstance &&instance) {
+        // If there are free objects we can reuse..
+        if (!freelist.empty()) {
+            // ..use the last object that became unreachable (it will most likely be in cache).
+            jint instance_number = freelist.back();
+            assert(instance_number >= 1);
+            freelist.pop_back(); // Remove it from the free list.
+            assert(instances[instance_number - 1].isDead());
+            instances[instance_number - 1] = std::move(instance);
+            assert(instances[instance_number - 1].isLive());
+            return instance_number;
+        }
+
+        // Otherwise, add a new one.
+        instances.push_back(std::move(instance));
+        return (jint) instances.size();
+    }
+
+    ToxInstance remove(jint instance_number) {
+        return std::move(instances[instance_number - 1]);
+    }
+
+    void destroyAll() {
+        for (ToxInstance &instance : instances) {
+            ToxInstance dying(std::move(instance));
+        }
+    }
+
+    bool empty() const { return instances.empty(); }
+    size_t size() const { return instances.size(); }
+
+    static InstanceManager self;
+};
