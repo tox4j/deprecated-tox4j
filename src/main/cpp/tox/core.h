@@ -1475,8 +1475,10 @@ typedef enum TOX_ERR_FILE_SEND_CHUNK {
  * This function is called in response to the `file_send_chunk` callback. The
  * length parameter should be equal to or less than the one received though the
  * callback. If it is less, the transfer is assumed complete.
+ *
+ * @return true on success.
  */
-void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error);
+bool tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint8_t const *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error);
 
 
 /**

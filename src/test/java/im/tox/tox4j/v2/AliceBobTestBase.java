@@ -2,19 +2,22 @@ package im.tox.tox4j.v2;
 
 import im.tox.tox4j.v2.callbacks.ToxEventAdapter;
 import im.tox.tox4j.v2.exceptions.SpecificToxException;
-import im.tox.tox4j.v2.exceptions.ToxDeleteFriendException;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
+
 public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
     protected static class ChatClient extends ToxEventAdapter {
 
-        public interface Task {
-            void perform(ToxCore tox) throws SpecificToxException;
+        public abstract class Task {
+            private StackTraceElement[] creationTrace = null;
+
+            public abstract void perform(ToxCore tox) throws SpecificToxException;
         }
 
         private final List<Task> tasks = new ArrayList<>();
@@ -79,14 +82,34 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
         }
 
         protected void addTask(Task task) {
+            task.creationTrace = new Throwable().getStackTrace();
             tasks.add(task);
         }
 
-        public void performTasks(ToxCore tox) throws SpecificToxException {
+        public final void performTasks(ToxCore tox) throws SpecificToxException {
             List<Task> tasks = new ArrayList<>(this.tasks);
             this.tasks.clear();
             for (Task task : tasks) {
-                task.perform(tox);
+                try {
+                    task.perform(tox);
+                } catch (SpecificToxException e) {
+                    // Assemble stack trace.
+                    List<StackTraceElement> trace = new ArrayList<>();
+                    for (StackTraceElement callSite : e.getStackTrace()) {
+                        // Until the performTasks method.
+                        if (callSite.getClassName().equals(ChatClient.class.getName()) &&
+                                callSite.getMethodName().equals("performTasks")) {
+                            break;
+                        }
+                        trace.add(callSite);
+                    }
+                    // After that, add the task creation trace, minus the "addTask" method.
+                    trace.addAll(Arrays.asList(task.creationTrace).subList(1, task.creationTrace.length));
+
+                    // Put the assembled trace into the exception and throw it.
+                    e.setStackTrace(trace.toArray(new StackTraceElement[trace.size()]));
+                    throw e;
+                }
             }
         }
     }
