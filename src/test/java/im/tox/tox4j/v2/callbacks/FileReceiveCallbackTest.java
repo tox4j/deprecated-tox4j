@@ -29,7 +29,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
     private static class Client extends ChatClient {
 
         private byte[] fileData;
-        private Byte fileNumber = null;
+        private Integer fileNumber = null;
 
         @Override
         public void setup(ToxCore tox) throws SpecificToxException {
@@ -41,11 +41,13 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void connectionStatus(boolean isConnected) {
+        public void friendConnected(final int friendNumber, boolean isConnected) {
+            debug("is now connected to friend " + friendNumber);
+            assertEquals(0, friendNumber);
             addTask(new Task() {
                 @Override
                 public void perform(ToxCore tox) throws SpecificToxException {
-                    fileNumber = tox.fileSend(0, ToxFileKind.DATA, fileData.length,
+                    fileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
                             ("file for " + getFriendName() + ".png").getBytes());
                 }
             });
@@ -53,6 +55,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
 
         @Override
         public void fileReceive(int friendNumber, byte fileNumber, ToxFileKind kind, long fileSize, byte[] filename) {
+            debug("received file send request from friend number " + friendNumber);
             assertEquals(0, friendNumber);
             assertEquals(0, fileNumber);
             assertEquals(ToxFileKind.DATA, kind);
@@ -62,6 +65,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
                 assertEquals("This is a file for Bob".length(), fileSize);
             }
             assertEquals("file for " + getName() + ".png", new String(filename));
+            finish();
         }
     }
 
