@@ -533,9 +533,9 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testGetClientID() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] id = tox.getClientID();
+            byte[] id = tox.getClientId();
             assertEquals(ToxConstants.CLIENT_ID_SIZE, id.length);
-            assertArrayEquals(id, tox.getClientID());
+            assertArrayEquals(id, tox.getClientId());
         }
     }
 
@@ -552,7 +552,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     public void testPublicKeyEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getClientID());
+                double e = entropy(tox.getClientId());
                 assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }
@@ -795,7 +795,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         try (ToxCore tox = newTox()) {
             for (int i = 0; i < ITERATIONS; i++) {
                 try (ToxCore friend = newTox()) {
-                    int friendNumber = tox.addFriendNoRequest(friend.getClientID());
+                    int friendNumber = tox.addFriendNoRequest(friend.getClientId());
                     assertEquals(i, friendNumber);
                 }
             }
@@ -895,9 +895,9 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     public void testGetFriendClientID() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 1);
-            assertEquals(tox.getClientID(0).length, ToxConstants.CLIENT_ID_SIZE);
-            assertArrayEquals(tox.getClientID(0), tox.getClientID(0));
-            double e = entropy(tox.getClientID(0));
+            assertEquals(tox.getClientId(0).length, ToxConstants.CLIENT_ID_SIZE);
+            assertArrayEquals(tox.getClientId(0), tox.getClientId(0));
+            double e = entropy(tox.getClientId(0));
             assertTrue("Entropy of friend's client ID should be >= 0.5, but was " + e, e >= 0.5);
         }
     }
@@ -907,7 +907,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 10);
             for (int i = 0; i < 10; i++) {
-                assertEquals(tox.getFriendNumber(tox.getClientID(i)), i);
+                assertEquals(tox.getFriendNumber(tox.getClientId(i)), i);
             }
         }
     }

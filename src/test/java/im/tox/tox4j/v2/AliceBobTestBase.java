@@ -106,8 +106,8 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
         try (ToxCore alice = newTox()) {
             try (ToxCore bob = newTox()) {
-                alice.addFriendNoRequest(bob.getClientID());
-                bob.addFriendNoRequest(alice.getClientID());
+                alice.addFriendNoRequest(bob.getClientId());
+                bob.addFriendNoRequest(alice.getClientId());
 
                 aliceChat.friendAddress = bob.getAddress();
                 bobChat.friendAddress = alice.getAddress();
