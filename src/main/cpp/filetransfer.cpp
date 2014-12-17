@@ -5,7 +5,7 @@
 /*
  * Class:     im_tox_tox4j_v2_ToxCoreImpl
  * Method:    toxFileControl
- * Signature: (IIBI)V
+ * Signature: (IIII)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
   (JNIEnv *env, jclass, jint instanceNumber, jint, jint, jint)
@@ -21,7 +21,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
 /*
  * Class:     im_tox_tox4j_v2_ToxCoreImpl
  * Method:    toxFileSend
- * Signature: (IIIJ[B)B
+ * Signature: (IIIJ[B)I
  */
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
@@ -53,7 +53,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
 /*
  * Class:     im_tox_tox4j_v2_ToxCoreImpl
  * Method:    toxFileSendChunk
- * Signature: (IIB[B)V
+ * Signature: (III[B)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSendChunk
   (JNIEnv *env, jclass, jint instanceNumber, jint, jint, jbyteArray)

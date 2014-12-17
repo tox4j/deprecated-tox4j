@@ -465,10 +465,10 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxFileControl(int instanceNumber, int friendNumber, byte fileNumber, int control) throws ToxFileControlException;
+    private static native void toxFileControl(int instanceNumber, int friendNumber, int fileNumber, int control) throws ToxFileControlException;
 
     @Override
-    public void fileControl(int friendNumber, byte fileNumber, ToxFileControl control) throws ToxFileControlException {
+    public void fileControl(int friendNumber, int fileNumber, ToxFileControl control) throws ToxFileControlException {
         toxFileControl(instanceNumber, friendNumber, fileNumber, control.ordinal());
     }
 
@@ -486,10 +486,10 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, byte fileNumber, byte[] data) throws ToxFileSendChunkException;
+    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException;
 
     @Override
-    public void fileSendChunk(int friendNumber, byte fileNumber, byte[] data) throws ToxFileSendChunkException {
+    public void fileSendChunk(int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException {
         toxFileSendChunk(instanceNumber, friendNumber, fileNumber, data);
     }
 
