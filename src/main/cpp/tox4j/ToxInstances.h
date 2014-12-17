@@ -4,6 +4,7 @@
 #include "JTox.h"
 #include "events.pb.h"
 
+#include <algorithm>
 #include <memory>
 #include <mutex>
 
