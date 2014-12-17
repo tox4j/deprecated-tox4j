@@ -2,6 +2,8 @@ package im.tox.tox4j.v2;
 
 import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.v2.callbacks.ConnectionStatusCallback;
+import im.tox.tox4j.v2.enums.ToxFileControl;
+import im.tox.tox4j.v2.enums.ToxFileKind;
 import im.tox.tox4j.v2.enums.ToxProxyType;
 import im.tox.tox4j.v2.enums.ToxStatus;
 import im.tox.tox4j.v2.exceptions.*;
@@ -761,13 +763,19 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         }
     }
 
-    private void addFriends(ToxCore tox, int count) throws ToxNewException, ToxAddFriendException {
+    // return one of the friends (the last one)
+    private int addFriends(ToxCore tox, int count) throws ToxNewException, ToxAddFriendException {
+        if (count < 1) {
+            throw new IllegalArgumentException("Cannot add less than 1 friend: " + count);
+        }
+        int friendNumber = -1;
         byte[] message = "heyo".getBytes();
         for (int i = 0; i < count; i++) {
             try (ToxCore friend = newTox()) {
-                tox.addFriend(friend.getAddress(), message);
+                friendNumber = tox.addFriend(friend.getAddress(), message);
             }
         }
+        return friendNumber;
     }
 
     @Test
@@ -923,6 +931,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             addFriends(tox, 1);
             try {
                 tox.setTyping(1, true);
+                fail();
             } catch (ToxSetTypingException e) {
                 assertEquals(ToxSetTypingException.Code.FRIEND_NOT_FOUND, e.getCode());
             }
@@ -936,6 +945,45 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             assertNotEquals(0, tox.getPort());
             assertTrue(tox.getPort() >  0);
             assertTrue(tox.getPort() <= 65535);
+        }
+    }
+
+    @Test
+    public void testFileSendNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.fileSend(friendNumber, ToxFileKind.DATA, 123, "filename".getBytes());
+                fail();
+            } catch (ToxFileSendException e) {
+                assertEquals(ToxFileSendException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testSendMessageNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendMessage(friendNumber, "hello".getBytes());
+                fail();
+            } catch (ToxSendMessageException e) {
+                assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testSendActionNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendAction(friendNumber, "hello".getBytes());
+                fail();
+            } catch (ToxSendMessageException e) {
+                assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
         }
     }
 
@@ -1017,11 +1065,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
 
     @Test
     public void testCallbackFileControl() throws Exception {
-
-    }
-
-    @Test
-    public void testFileSend() throws Exception {
 
     }
 
