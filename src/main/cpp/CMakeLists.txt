@@ -51,7 +51,7 @@ PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
 link_directories(${LIBTOX_LIBRARY_DIRS} ${LIBTOXAV_LIBRARY_DIRS})
 add_library(
 	${LIB_TARGET_NAME}
-	MODULE
+	SHARED
 	tox/core.cpp
 	tox4j/ErrorHandling.cpp
 	tox4j/Tox4j.cpp
