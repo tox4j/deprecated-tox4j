@@ -6,10 +6,10 @@ import im.tox.tox4j.v2.enums.ToxStatus;
 
 public class ToxEventAdapter implements ToxEventListener {
     @Override public void connectionStatus(boolean isConnected) { }
-    @Override public void fileControl(int friendNumber, byte fileNumber, ToxFileControl control) { }
-    @Override public void fileReceive(int friendNumber, byte fileNumber, ToxFileKind kind, long fileSize, byte[] filename) { }
-    @Override public void fileReceiveChunk(int friendNumber, byte fileNumber, long position, byte[] data) { }
-    @Override public void fileSendChunk(int friendNumber, byte fileNumber, long position, int length) { }
+    @Override public void fileControl(int friendNumber, int fileNumber, ToxFileControl control) { }
+    @Override public void fileReceive(int friendNumber, int fileNumber, ToxFileKind kind, long fileSize, byte[] filename) { }
+    @Override public void fileReceiveChunk(int friendNumber, int fileNumber, long position, byte[] data) { }
+    @Override public void fileSendChunk(int friendNumber, int fileNumber, long position, int length) { }
     @Override public void friendAction(int friendNumber, int timeDelta, byte[] message) { }
     @Override public void friendConnected(int friendNumber, boolean isConnected) { }
     @Override public void friendMessage(int friendNumber, int timeDelta, byte[] message) { }
