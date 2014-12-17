@@ -18,6 +18,11 @@ public class FriendActionCallbackTest extends AliceBobTestBase {
         return new ToxCoreImpl(options);
     }
 
+    @Override
+    protected ChatClient newClient() {
+        return new Client();
+    }
+
 
     private static class Client extends ChatClient {
 
@@ -41,11 +46,6 @@ public class FriendActionCallbackTest extends AliceBobTestBase {
             finish();
         }
 
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testSendAction() throws Exception {
-        runAliceBob(new Client(), new Client());
     }
 
 }
