@@ -33,6 +33,8 @@ handle_send_message_error(TOX_ERR_SEND_MESSAGE error)
             return failure("NULL");
         case TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND:
             return failure("FRIEND_NOT_FOUND");
+        case TOX_ERR_SEND_MESSAGE_FRIEND_NOT_CONNECTED:
+            return failure("FRIEND_NOT_CONNECTED");
         case TOX_ERR_SEND_MESSAGE_SENDQ:
             return failure("SENDQ");
         case TOX_ERR_SEND_MESSAGE_TOO_LONG:

@@ -624,9 +624,15 @@ new_tox_callback_friend_status (new_Tox *tox, tox_friend_status_cb *function, vo
 bool
 new_tox_get_friend_is_connected (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
-  assert (false);
+  if (!new_tox_friend_exists (tox, friend_number))
+    {
+      if (error) *error = TOX_ERR_FRIEND_QUERY_NOT_FOUND;
+      return false;
+    }
+  int result = tox_get_friend_connection_status (tox->tox, friend_number);
+  assert (result != -1);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
-  return true;
+  return result;
 }
 
 void
@@ -664,15 +670,26 @@ new_tox_set_typing (new_Tox *tox, uint32_t friend_number, bool is_typing, TOX_ER
   assert (false);
 }
 
-uint32_t
-new_tox_send_message (new_Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, TOX_ERR_SEND_MESSAGE *error)
+static uint32_t
+new_tox_send_something (uint32_t tox_send (Tox *tox, int32_t friendnumber, const uint8_t *message, uint32_t length),
+                        new_Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, TOX_ERR_SEND_MESSAGE *error)
 {
   if (message == nullptr)
     {
       if (error) *error = TOX_ERR_SEND_MESSAGE_NULL;
       return 0;
     }
-  switch (uint32_t message_id = tox_send_message (tox->tox, friend_number, message, length))
+  if (!new_tox_friend_exists (tox, friend_number))
+    {
+      if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND;
+      return 0;
+    }
+  if (!new_tox_get_friend_is_connected (tox, friend_number, NULL))
+    {
+      if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_CONNECTED;
+      return 0;
+    }
+  switch (uint32_t message_id = tox_send (tox->tox, friend_number, message, length))
     {
     case 0:
       if (error) *error = TOX_ERR_SEND_MESSAGE_SENDQ; // Arbitrary.. we don't know what happened.
@@ -684,22 +701,15 @@ new_tox_send_message (new_Tox *tox, uint32_t friend_number, uint8_t const *messa
 }
 
 uint32_t
+new_tox_send_message (new_Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, TOX_ERR_SEND_MESSAGE *error)
+{
+  return new_tox_send_something (tox_send_message, tox, friend_number, message, length, error);
+}
+
+uint32_t
 new_tox_send_action (new_Tox *tox, uint32_t friend_number, uint8_t const *action, size_t length, TOX_ERR_SEND_MESSAGE *error)
 {
-  if (action == nullptr)
-    {
-      if (error) *error = TOX_ERR_SEND_MESSAGE_NULL;
-      return 0;
-    }
-  switch (uint32_t message_id = tox_send_action (tox->tox, friend_number, action, length))
-    {
-    case 0:
-      if (error) *error = TOX_ERR_SEND_MESSAGE_SENDQ; // Arbitrary.. we don't know what happened.
-      return 0;
-    default:
-      if (error) *error = TOX_ERR_SEND_MESSAGE_OK;
-      return message_id;
-    }
+  return new_tox_send_something (tox_send_action, tox, friend_number, action, length, error);
 }
 
 void
@@ -750,9 +760,42 @@ new_tox_callback_file_control (new_Tox *tox, tox_file_control_cb *function, void
 uint8_t
 new_tox_file_send (new_Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error)
 {
-  assert (false);
+  if (filename_length > 255)
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_NAME_TOO_LONG;
+      return 0;
+    }
+  if (filename_length == 0 && kind != TOX_FILE_KIND_AVATAR)
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_NAME_EMPTY;
+      return 0;
+    }
+  if (filename == nullptr && kind != TOX_FILE_KIND_AVATAR)
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_NULL;
+      return 0;
+    }
+  if (!new_tox_friend_exists (tox, friend_number))
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND;
+      return 0;
+    }
+  if (!new_tox_get_friend_is_connected (tox, friend_number, NULL))
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED;
+      return 0;
+    }
+  int sender = tox_new_file_sender (tox->tox, friend_number, file_size, filename, filename_length);
+  if (sender == -1)
+    {
+      // Something else went wrong, probably ran out of numbers?
+      if (error) *error = TOX_ERR_FILE_SEND_TOO_MANY;
+      return 0;
+    }
+  assert (sender >= 0);
+  assert (sender <= 255);
   if (error) *error = TOX_ERR_FILE_SEND_OK;
-  return 0;
+  return sender;
 }
 
 void

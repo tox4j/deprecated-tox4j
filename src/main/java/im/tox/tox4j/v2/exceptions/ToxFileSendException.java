@@ -5,6 +5,7 @@ public class ToxFileSendException extends SpecificToxException {
     public static enum Code {
         NULL,
         FRIEND_NOT_FOUND,
+        FRIEND_NOT_CONNECTED,
         NAME_EMPTY,
         NAME_TOO_LONG,
         TOO_MANY,

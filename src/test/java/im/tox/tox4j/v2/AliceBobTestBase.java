@@ -122,10 +122,10 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
                     alice.iteration();
                     bob.iteration();
 
-                    Thread.sleep(Math.max(alice.iterationTime(), bob.iterationTime()));
-
                     aliceChat.performTasks(alice);
                     bobChat.performTasks(bob);
+
+                    Thread.sleep(Math.max(alice.iterationTime(), bob.iterationTime()));
                 }
             }
         }
