@@ -191,11 +191,11 @@ static void tox4j_lossless_packet_cb(Tox *tox, uint32_t friend_number, uint8_t c
 
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    destroyAll
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_destroyAll
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_destroyAll
   (JNIEnv *, jclass)
 {
     std::unique_lock<std::mutex> lock(InstanceManager::self.mutex);
@@ -203,11 +203,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_destroyAll
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxNew
  * Signature: (ZZILjava/lang/String;I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
   (JNIEnv *env, jclass, jboolean ipv6Enabled, jboolean udpEnabled, jint proxyType, jstring proxyAddress, jint proxyPort)
 {
     assert(proxyType >= 0);
@@ -291,11 +291,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxKill
  * Signature: (I)I
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxKill
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxKill
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     std::lock_guard<std::mutex> lock(InstanceManager::self.mutex);
@@ -324,11 +324,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxKill
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    finalize
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_finalize
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_finalize
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     if (instanceNumber == 0) {

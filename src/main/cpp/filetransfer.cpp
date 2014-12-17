@@ -3,11 +3,11 @@
 
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxFileControl
  * Signature: (IIII)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint fileNumber, jint control)
 {
     return with_instance(env, instanceNumber, "FileControl", [](TOX_ERR_FILE_CONTROL error) {
@@ -33,11 +33,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxFileSend
  * Signature: (IIIJ[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSend
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
 {
     ByteArray filenameData(env, filename);
@@ -65,11 +65,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxFileSendChunk
  * Signature: (III[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSendChunk
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint fileNumber, jbyteArray chunk)
 {
     ByteArray chunkData(env, chunk);

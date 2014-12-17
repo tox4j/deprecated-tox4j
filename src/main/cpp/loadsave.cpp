@@ -2,11 +2,11 @@
 #include "jniutil.h"
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSave
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSave
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSave
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
@@ -19,11 +19,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSave
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxLoad
  * Signature: (I[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxLoad
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxLoad
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray data)
 {
     ByteArray bytes(env, data);
