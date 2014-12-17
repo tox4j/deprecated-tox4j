@@ -478,10 +478,10 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native byte toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, byte[] filename) throws ToxFileSendException;
+    private static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, byte[] filename) throws ToxFileSendException;
 
     @Override
-    public byte fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException {
+    public int fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException {
         return toxFileSend(instanceNumber, friendNumber, kind.ordinal(), fileSize, filename);
     }
 
