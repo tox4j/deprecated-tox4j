@@ -1,4 +1,5 @@
-#include "Tox4j.h"
+#include "tox4j/Tox4j.h"
+#include "jniutil.h"
 
 
 /*

@@ -1,4 +1,5 @@
-#include "Tox4j.h"
+#include "tox4j/Tox4j.h"
+#include "jniutil.h"
 
 static void tox4j_connection_status_cb(Tox *tox, bool is_connected, void *user_data)
 {
@@ -229,70 +230,64 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxNew
     opts->udp_enabled = udpEnabled;
 
     opts->proxy_type = (TOX_PROXY_TYPE) proxyType;
-    UTFChars proxyAddressChars(env, proxyAddress);
-    opts->proxy_address = proxyAddressChars.data();
+    UTFChars proxy_address(env, proxyAddress);
+    opts->proxy_address = proxy_address.data();
     opts->proxy_port = proxyPort;
 
-    TOX_ERR_NEW error;
-    std::unique_ptr<Tox, ToxDeleter> tox(tox_new(opts.get(), &error));
-    switch (error) {
-        case TOX_ERR_NEW_OK: {
-            assert(tox != nullptr);
-
-            // Create the master events object.
-            std::unique_ptr<ToxEvents> events(new ToxEvents);
-
-            // Set up our callbacks.
-            tox_callback_connection_status    (tox.get(), tox4j_connection_status_cb,     events.get());
-            tox_callback_friend_name          (tox.get(), tox4j_friend_name_cb,           events.get());
-            tox_callback_friend_status_message(tox.get(), tox4j_friend_status_message_cb, events.get());
-            tox_callback_friend_status        (tox.get(), tox4j_friend_status_cb,         events.get());
-            tox_callback_friend_connected     (tox.get(), tox4j_friend_connected_cb,      events.get());
-            tox_callback_friend_typing        (tox.get(), tox4j_friend_typing_cb,         events.get());
-            tox_callback_read_receipt         (tox.get(), tox4j_read_receipt_cb,          events.get());
-            tox_callback_friend_request       (tox.get(), tox4j_friend_request_cb,        events.get());
-            tox_callback_friend_message       (tox.get(), tox4j_friend_message_cb,        events.get());
-            tox_callback_friend_action        (tox.get(), tox4j_friend_action_cb,         events.get());
-            tox_callback_file_control         (tox.get(), tox4j_file_control_cb,          events.get());
-            tox_callback_file_send_chunk      (tox.get(), tox4j_file_send_chunk_cb,       events.get());
-            tox_callback_file_receive         (tox.get(), tox4j_file_receive_cb,          events.get());
-            tox_callback_file_receive_chunk   (tox.get(), tox4j_file_receive_chunk_cb,    events.get());
-            tox_callback_lossy_packet         (tox.get(), tox4j_lossy_packet_cb,          events.get());
-            tox_callback_lossless_packet      (tox.get(), tox4j_lossless_packet_cb,       events.get());
-
-            // We can create the new instance outside ToxInstances' critical section.
-            Tox4jStruct instance {
-                std::move(tox),
-                std::move(events),
-                std::unique_ptr<std::mutex>(new std::mutex)
-            };
-
-            // This lock guards the instance manager.
-            std::lock_guard<std::mutex> lock(ToxInstances::self.mutex);
-            return ToxInstances::self.add(std::move(instance));
+    return with_error_handling(env, "New", [](TOX_ERR_NEW error) {
+        switch (error) {
+            case TOX_ERR_NEW_OK:
+                return success();
+            case TOX_ERR_NEW_NULL:
+                return failure("NULL");
+            case TOX_ERR_NEW_MALLOC:
+                return failure("MALLOC");
+            case TOX_ERR_NEW_PORT_ALLOC:
+                return failure("PORT_ALLOC");
+            case TOX_ERR_NEW_PROXY_BAD_HOST:
+                return failure("PROXY_BAD_HOST");
+            case TOX_ERR_NEW_PROXY_BAD_PORT:
+                return failure("PROXY_BAD_PORT");
+            case TOX_ERR_NEW_PROXY_NOT_FOUND:
+                return failure("PROXY_NOT_FOUND");
         }
-        case TOX_ERR_NEW_NULL:
-            throw_tox_exception(env, "New", "NULL");
-            return 0;
-        case TOX_ERR_NEW_MALLOC:
-            throw_tox_exception(env, "New", "MALLOC");
-            return 0;
-        case TOX_ERR_NEW_PORT_ALLOC:
-            throw_tox_exception(env, "New", "PORT_ALLOC");
-            return 0;
-        case TOX_ERR_NEW_PROXY_BAD_HOST:
-            throw_tox_exception(env, "New", "PROXY_BAD_HOST");
-            return 0;
-        case TOX_ERR_NEW_PROXY_BAD_PORT:
-            throw_tox_exception(env, "New", "PROXY_BAD_PORT");
-            return 0;
-        case TOX_ERR_NEW_PROXY_NOT_FOUND:
-            throw_tox_exception(env, "New", "PROXY_NOT_FOUND");
-            return 0;
-    }
+        return unhandled();
+    }, [env](Tox *tox_pointer) {
+        std::unique_ptr<Tox, ToxDeleter> tox(tox_pointer);
+        assert(tox != nullptr);
 
-    throw_illegal_state_exception(env, error, "Unknown error code");
-    return 0;
+        // Create the master events object.
+        std::unique_ptr<ToxEvents> events(new ToxEvents);
+
+        // Set up our callbacks.
+        tox_callback_connection_status    (tox.get(), tox4j_connection_status_cb,     events.get());
+        tox_callback_friend_name          (tox.get(), tox4j_friend_name_cb,           events.get());
+        tox_callback_friend_status_message(tox.get(), tox4j_friend_status_message_cb, events.get());
+        tox_callback_friend_status        (tox.get(), tox4j_friend_status_cb,         events.get());
+        tox_callback_friend_connected     (tox.get(), tox4j_friend_connected_cb,      events.get());
+        tox_callback_friend_typing        (tox.get(), tox4j_friend_typing_cb,         events.get());
+        tox_callback_read_receipt         (tox.get(), tox4j_read_receipt_cb,          events.get());
+        tox_callback_friend_request       (tox.get(), tox4j_friend_request_cb,        events.get());
+        tox_callback_friend_message       (tox.get(), tox4j_friend_message_cb,        events.get());
+        tox_callback_friend_action        (tox.get(), tox4j_friend_action_cb,         events.get());
+        tox_callback_file_control         (tox.get(), tox4j_file_control_cb,          events.get());
+        tox_callback_file_send_chunk      (tox.get(), tox4j_file_send_chunk_cb,       events.get());
+        tox_callback_file_receive         (tox.get(), tox4j_file_receive_cb,          events.get());
+        tox_callback_file_receive_chunk   (tox.get(), tox4j_file_receive_chunk_cb,    events.get());
+        tox_callback_lossy_packet         (tox.get(), tox4j_lossy_packet_cb,          events.get());
+        tox_callback_lossless_packet      (tox.get(), tox4j_lossless_packet_cb,       events.get());
+
+        // We can create the new instance outside ToxInstances' critical section.
+        Tox4jStruct instance {
+            std::move(tox),
+            std::move(events),
+            std::unique_ptr<std::mutex>(new std::mutex)
+        };
+
+        // This lock guards the instance manager.
+        std::lock_guard<std::mutex> lock(ToxInstances::self.mutex);
+        return ToxInstances::self.add(std::move(instance));
+    }, tox_new, opts.get());
 }
 
 /*
