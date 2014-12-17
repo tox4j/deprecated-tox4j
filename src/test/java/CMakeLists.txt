@@ -57,6 +57,7 @@ set(TEST_FILES
 )
 
 set(TEST_CLASSES
+    im.tox.tox4j.v2.ToxCoreImplTest
     im.tox.tox4j.v2.callbacks.ConnectionStatusCallbackTest
     im.tox.tox4j.v2.callbacks.FileReceiveCallbackTest
     im.tox.tox4j.v2.callbacks.FileTransferTest
@@ -69,7 +70,6 @@ set(TEST_CLASSES
     im.tox.tox4j.v2.callbacks.FriendStatusMessageCallbackTest
     im.tox.tox4j.v2.callbacks.FriendTypingCallbackTest
     im.tox.tox4j.v2.callbacks.ReadReceiptCallbackTest
-    im.tox.tox4j.v2.ToxCoreImplTest
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")
