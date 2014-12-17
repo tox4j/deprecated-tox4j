@@ -1076,6 +1076,10 @@ typedef enum TOX_ERR_SEND_MESSAGE {
    */
   TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND,
   /**
+   * This client is currently not connected to the friend.
+   */
+  TOX_ERR_SEND_MESSAGE_FRIEND_NOT_CONNECTED,
+  /**
    * An allocation error occurred while increasing the send queue size.
    */
   TOX_ERR_SEND_MESSAGE_SENDQ,
@@ -1297,6 +1301,10 @@ typedef enum TOX_ERR_FILE_CONTROL {
    */
   TOX_ERR_FILE_CONTROL_FRIEND_NOT_FOUND,
   /**
+   * This client is currently not connected to the friend.
+   */
+  TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED,
+  /**
    * No file transfer with the given file number was found for the given friend.
    */
   TOX_ERR_FILE_CONTROL_NOT_FOUND,
@@ -1364,6 +1372,10 @@ typedef enum TOX_ERR_FILE_SEND {
    * The friend_number passed did not designate a valid friend.
    */
   TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND,
+  /**
+   * This client is currently not connected to the friend.
+   */
+  TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED,
   /**
    * Filename length was 0. Not relevant for TOX_FILE_KIND_AVATAR.
    */
@@ -1447,6 +1459,10 @@ typedef enum TOX_ERR_FILE_SEND_CHUNK {
    * The friend_number passed did not designate a valid friend.
    */
   TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_FOUND,
+  /**
+   * This client is currently not connected to the friend.
+   */
+  TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_CONNECTED,
   /**
    * No file transfer with the given file number was found for the given friend.
    */
@@ -1583,6 +1599,10 @@ typedef enum TOX_ERR_SEND_CUSTOM_PACKET {
    * The friend number did not designate a valid friend.
    */
   TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_FOUND,
+  /**
+   * This client is currently not connected to the friend.
+   */
+  TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_CONNECTED,
   /**
    * The first byte of data was not in the specified range for the packet type.
    */

@@ -5,6 +5,7 @@ public class ToxSendCustomPacketException extends SpecificToxException {
     public static enum Code {
         NULL,
         FRIEND_NOT_FOUND,
+        FRIEND_NOT_CONNECTED,
         INVALID,
         EMPTY,
         TOO_LONG,

@@ -5,6 +5,7 @@ public class ToxSendMessageException extends SpecificToxException {
     public static enum Code {
         NULL,
         FRIEND_NOT_FOUND,
+        FRIEND_NOT_CONNECTED,
         SENDQ,
         TOO_LONG,
         EMPTY,
