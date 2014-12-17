@@ -27,11 +27,11 @@ handle_send_custom_packet_error(TOX_ERR_SEND_CUSTOM_PACKET error)
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSendLossyPacket
  * Signature: (II[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendLossyPacket
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLossyPacket
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
     ByteArray packetData(env, packet);
@@ -40,11 +40,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendLossyPacket
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSendLosslessPacket
  * Signature: (II[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxSendLosslessPacket
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLosslessPacket
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
     ByteArray packetData(env, packet);

@@ -38,7 +38,7 @@ throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string con
 void
 throw_tox_exception(JNIEnv *env, char const *method, char const *code)
 {
-    std::string className = "im/tox/tox4j/v2/exceptions/Tox";
+    std::string className = "im/tox/tox4j/exceptions/Tox";
     className += method;
     className += "Exception";
     jclass exClass = env->FindClass(className.c_str());
