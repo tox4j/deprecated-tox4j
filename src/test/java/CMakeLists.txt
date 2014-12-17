@@ -38,17 +38,43 @@ function(add_junit_test TARGET_NAME CLASSPATH TEST_CLASSES)
 endfunction(add_junit_test)
 
 set(TEST_FILES
+    im/tox/tox4j/v2/callbacks/ConnectionStatusCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FileReceiveCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FileTransferTest.java
+    im/tox/tox4j/v2/callbacks/FriendActionCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendConnectedCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendMessageCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendNameCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendRequestCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendStatusCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendStatusMessageCallbackTest.java
+    im/tox/tox4j/v2/callbacks/FriendTypingCallbackTest.java
+    im/tox/tox4j/v2/callbacks/ReadReceiptCallbackTest.java
+    im/tox/tox4j/v2/AliceBobTestBase.java
     im/tox/tox4j/v2/ToxCoreImplTest.java
     im/tox/tox4j/v2/ToxCoreTest.java
+    im/tox/tox4j/v2/ToxCoreTestBase.java
 )
 
 set(TEST_CLASSES
     im.tox.tox4j.v2.ToxCoreImplTest
+    im.tox.tox4j.v2.callbacks.ConnectionStatusCallbackTest
+    im.tox.tox4j.v2.callbacks.FileReceiveCallbackTest
+    im.tox.tox4j.v2.callbacks.FileTransferTest
+    im.tox.tox4j.v2.callbacks.FriendActionCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendConnectedCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendMessageCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendNameCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendRequestCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendStatusCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendStatusMessageCallbackTest
+    im.tox.tox4j.v2.callbacks.FriendTypingCallbackTest
+    im.tox.tox4j.v2.callbacks.ReadReceiptCallbackTest
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")
 add_jar(unit-tests ${TEST_FILES})
 add_dependencies(unit-tests ${LIB_TARGET_NAME})
-add_junit_test(test-tox4j "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" ${TEST_CLASSES})
+add_junit_test(test-tox4j "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${TEST_CLASSES}")
 add_dependencies(test-tox4j unit-tests)
 add_dependencies(junit test-tox4j)

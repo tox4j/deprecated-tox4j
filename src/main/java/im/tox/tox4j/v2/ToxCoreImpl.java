@@ -510,10 +510,10 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxSendLossyPacket(int instanceNumber, int friendNumber, byte[] data);
+    private static native void toxSendLossyPacket(int instanceNumber, int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
     @Override
-    public void sendLossyPacket(int friendNumber, byte[] data) {
+    public void sendLossyPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException {
         toxSendLossyPacket(instanceNumber, friendNumber, data);
     }
 
@@ -523,10 +523,10 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, byte[] data);
+    private static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
     @Override
-    public void sendLosslessPacket(int friendNumber, byte[] data) {
+    public void sendLosslessPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException {
         toxSendLosslessPacket(instanceNumber, friendNumber, data);
     }
 

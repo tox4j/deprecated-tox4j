@@ -987,120 +987,30 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
-    public void testCallbackFriendName() throws Exception {
-
+    public void testSendLossyPacketNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendLossyPacket(friendNumber, new byte[]{(byte) 200, 0, 1, 2, 3});
+                fail();
+            } catch (ToxSendCustomPacketException e) {
+                assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
     }
 
     @Test
-    public void testCallbackFriendStatusMessage() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFriendStatus() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFriendConnected() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFriendTyping() throws Exception {
-
-    }
-
-    @Test
-    public void testSendAction() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackReadReceipt() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFriendRequest() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFriendMessage() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFriendAction() throws Exception {
-
-    }
-
-    @Test
-    public void testFileControl() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFileControl() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFileSendChunk() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFileReceive() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackFileReceiveChunk() throws Exception {
-
-    }
-
-    @Test
-    public void testSendLossyPacket() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackLossyPacket() throws Exception {
-
-    }
-
-    @Test
-    public void testSendLosslessPacket() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackLosslessPacket() throws Exception {
-
+    public void testSendLosslessPacketNotConnected() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendLosslessPacket(friendNumber, new byte[]{(byte) 160, 0, 1, 2, 3});
+                fail();
+            } catch (ToxSendCustomPacketException e) {
+                assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
     }
 
 }

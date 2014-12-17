@@ -58,6 +58,7 @@
 #define tox_file_control new_tox_file_control
 #define tox_callback_file_control new_tox_callback_file_control
 #define tox_file_send new_tox_file_send
+#define tox_file_send_chunk new_tox_file_send_chunk
 #define tox_callback_file_send_chunk new_tox_callback_file_send_chunk
 #define tox_callback_file_receive new_tox_callback_file_receive
 #define tox_callback_file_receive_chunk new_tox_callback_file_receive_chunk
