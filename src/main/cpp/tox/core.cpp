@@ -108,6 +108,45 @@ struct new_Tox
       auto cb = self->callbacks.friend_connected;
       cb.func (self, friendnumber, status, cb.user_data);
     }
+
+    static void file_send_request(Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)
+    {
+      auto self = static_cast<new_Tox *> (userdata);
+      auto cb = self->callbacks.file_receive;
+      // XXX: it's always DATA. We could break protocol and send it in one of
+      // the filesize bits, but then we would no longer be able to send to old
+      // clients (receiving would work). Also, toxcore might not like it (I
+      // don't know whether it interprets filesize).
+      cb.func (self, friendnumber, filenumber, TOX_FILE_KIND_DATA, filesize, filename, filename_length, cb.user_data);
+    }
+
+    static void file_control(Tox *tox, int32_t friendnumber, uint8_t receive_send, uint8_t filenumber, uint8_t control_type, const uint8_t *data, uint16_t length, void *userdata)
+    {
+      auto self = static_cast<new_Tox *> (userdata);
+      auto cb = self->callbacks.file_control;
+      // File numbers are per-direction in the old API, but not in the new one.
+      uint32_t file_number = filenumber;
+      if (receive_send)
+        file_number += 256;
+      TOX_FILE_CONTROL control;
+      switch (control_type)
+        {
+        case TOX_FILECONTROL_ACCEPT       : control_type = TOX_FILE_CONTROL_PAUSE;
+        case TOX_FILECONTROL_PAUSE        : control_type = TOX_FILE_CONTROL_PAUSE;
+        case TOX_FILECONTROL_KILL         : control_type = TOX_FILE_CONTROL_PAUSE;
+        case TOX_FILECONTROL_FINISHED     : control_type = TOX_FILE_CONTROL_PAUSE;
+        case TOX_FILECONTROL_RESUME_BROKEN: control_type = TOX_FILE_CONTROL_RESUME;
+        }
+      cb.func (self, friendnumber, file_number, control, cb.user_data);
+    }
+
+    static void file_data(Tox *tox, int32_t friendnumber, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata)
+    {
+      auto self = static_cast<new_Tox *> (userdata);
+      //auto cb = self->callbacks.friend_connected;
+      //cb.func (self, friendnumber, status, cb.user_data);
+      assert (false);
+    }
   };
 
   new_Tox (Tox *tox)
@@ -122,6 +161,9 @@ struct new_Tox
     tox_callback_typing_change(tox, CB::typing_change, this);
     tox_callback_read_receipt(tox, CB::read_receipt, this);
     tox_callback_connection_status(tox, CB::connection_status, this);
+    tox_callback_file_send_request(tox, CB::file_send_request, this);
+    tox_callback_file_control(tox, CB::file_control, this);
+    tox_callback_file_data(tox, CB::file_data, this);
   }
 };
 
@@ -744,7 +786,7 @@ new_tox_hash (uint8_t *hash, uint8_t const *data, size_t length)
 }
 
 bool
-new_tox_file_control (new_Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, TOX_ERR_FILE_CONTROL *error)
+new_tox_file_control (new_Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, TOX_ERR_FILE_CONTROL *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FILE_CONTROL_OK;
@@ -757,7 +799,7 @@ new_tox_callback_file_control (new_Tox *tox, tox_file_control_cb *function, void
   tox->callbacks.file_control = { function, user_data };
 }
 
-uint8_t
+uint32_t
 new_tox_file_send (new_Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error)
 {
   if (filename_length > 255)
@@ -799,7 +841,7 @@ new_tox_file_send (new_Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uin
 }
 
 void
-new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint8_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error)
+new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FILE_SEND_CHUNK_OK;

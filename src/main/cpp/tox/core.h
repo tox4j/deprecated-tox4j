@@ -1333,7 +1333,7 @@ typedef enum TOX_ERR_FILE_CONTROL {
  *
  * @return true on success.
  */
-bool tox_file_control(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, TOX_ERR_FILE_CONTROL *error);
+bool tox_file_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, TOX_ERR_FILE_CONTROL *error);
 
 
 /**
@@ -1347,7 +1347,7 @@ bool tox_file_control(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX
  *   associated with.
  * @param control The file control command received.
  */
-typedef void tox_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, void *user_data);
+typedef void tox_file_control_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *user_data);
 
 /**
  * Set the callback for the `file_control` event. Pass NULL to unset.
@@ -1446,7 +1446,7 @@ typedef enum TOX_ERR_FILE_SEND {
  * @return A file number used as an identifier in subsequent callbacks. This
  *   number is per friend. File numbers are reused after a transfer terminates.
  */
-uint8_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error);
+uint32_t tox_file_send(Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, TOX_ERR_FILE_SEND *error);
 
 
 typedef enum TOX_ERR_FILE_SEND_CHUNK {
@@ -1476,7 +1476,7 @@ typedef enum TOX_ERR_FILE_SEND_CHUNK {
  * length parameter should be equal to or less than the one received though the
  * callback. If it is less, the transfer is assumed complete.
  */
-void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint8_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error);
+void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint8_t *data, size_t length, TOX_ERR_FILE_SEND_CHUNK *error);
 
 
 /**
@@ -1503,7 +1503,7 @@ void tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint8_t file_number, 
  * @param position The file or stream position from which to continue reading.
  * @param length The number of bytes requested for the current chunk.
  */
-typedef void tox_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data);
+typedef void tox_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data);
 
 /**
  * Set the callback for the `file_send_chunk` event. Pass NULL to unset.
@@ -1532,7 +1532,7 @@ void tox_callback_file_send_chunk(Tox *tox, tox_file_send_chunk_cb *function, vo
  * @param file_number The friend-specific file number the data received is
  *   associated with.
  */
-typedef void tox_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data);
+typedef void tox_file_receive_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data);
 
 /**
  * Set the callback for the `file_receive` event. Pass NULL to unset.
@@ -1563,7 +1563,7 @@ void tox_callback_file_receive(Tox *tox, tox_file_receive_cb *function, void *us
  * @param data A byte array containing the received chunk.
  * @param length The length of the received chunk.
  */
-typedef void tox_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data);
+typedef void tox_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data);
 
 /**
  * Set the callback for the `file_receive_chunk` event. Pass NULL to unset.

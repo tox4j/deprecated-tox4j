@@ -8,7 +8,7 @@
  * Signature: (IIBI)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
-  (JNIEnv *env, jclass, jint instanceNumber, jint, jbyte, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint, jint, jint)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(tox);
@@ -23,7 +23,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileControl
  * Method:    toxFileSend
  * Signature: (IIIJ[B)B
  */
-JNIEXPORT jbyte JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
 {
     ByteArray filenameData(env, filename);
@@ -45,7 +45,7 @@ JNIEXPORT jbyte JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
                 return failure("TOO_MANY");
         }
         return unhandled();
-    }, [](uint8_t file_number) {
+    }, [](uint32_t file_number) {
         return file_number;
     }, tox_file_send, friendNumber, (TOX_FILE_KIND) kind, fileSize, filenameData.data(), filenameData.size());
 }
@@ -56,7 +56,7 @@ JNIEXPORT jbyte JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSend
  * Signature: (IIB[B)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFileSendChunk
-  (JNIEnv *env, jclass, jint instanceNumber, jint, jbyte, jbyteArray)
+  (JNIEnv *env, jclass, jint instanceNumber, jint, jint, jbyteArray)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(tox);
