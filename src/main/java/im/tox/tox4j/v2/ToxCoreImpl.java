@@ -220,22 +220,22 @@ public final class ToxCoreImpl extends AbstractToxCore {
 		}
         if (fileControlCallback != null) {
 			for (Events.FileControl fileControl : toxEvents.getFileControlList()) {
-				fileControlCallback.fileControl(fileControl.getFriendNumber(), (byte) fileControl.getFileNumber(), convert(fileControl.getControl()));
+				fileControlCallback.fileControl(fileControl.getFriendNumber(), fileControl.getFileNumber(), convert(fileControl.getControl()));
 			}
 		}
         if (fileSendChunkCallback != null) {
 			for (Events.FileSendChunk fileSendChunk : toxEvents.getFileSendChunkList()) {
-				fileSendChunkCallback.fileSendChunk(fileSendChunk.getFriendNumber(), (byte) fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getLength());
+				fileSendChunkCallback.fileSendChunk(fileSendChunk.getFriendNumber(), fileSendChunk.getFileNumber(), fileSendChunk.getPosition(), fileSendChunk.getLength());
 			}
 		}
         if (fileReceiveCallback != null) {
 			for (Events.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
-				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), (byte) fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
+				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
 			}
 		}
         if (fileReceiveChunkCallback != null) {
 			for (Events.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
-				fileReceiveChunkCallback.fileReceiveChunk(fileReceiveChunk.getFriendNumber(), (byte) fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
+				fileReceiveChunkCallback.fileReceiveChunk(fileReceiveChunk.getFriendNumber(), fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
 			}
 		}
         if (lossyPacketCallback != null) {

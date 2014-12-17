@@ -105,7 +105,7 @@ static void tox4j_friend_action_cb(Tox *tox, uint32_t friend_number, /*uint32_t 
     msg->set_action(action, length);
 }
 
-static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_CONTROL control, void *user_data)
+static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
@@ -127,7 +127,7 @@ static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint8_t file
     }
 }
 
-static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, size_t length, void *user_data)
+static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
@@ -138,7 +138,7 @@ static void tox4j_file_send_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t f
     msg->set_length(length);
 }
 
-static void tox4j_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
+static void tox4j_file_receive_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
@@ -160,7 +160,7 @@ static void tox4j_file_receive_cb(Tox *tox, uint32_t friend_number, uint8_t file
     msg->set_filename(filename, filename_length);
 }
 
-static void tox4j_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint8_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data)
+static void tox4j_file_receive_chunk_cb(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
