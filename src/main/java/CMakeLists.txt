@@ -17,6 +17,7 @@ set(TOX4J_CORE
 	im/tox/tox4j/Tox4j.java
 	im/tox/tox4j/ToxConstants.java
 	im/tox/tox4j/ToxSimpleChat.java
+	im/tox/tox4j/v2/AbstractToxCore.java
 	im/tox/tox4j/v2/ToxConstants.java
 	im/tox/tox4j/v2/ToxCore.java
 	im/tox/tox4j/v2/ToxCoreImpl.java
@@ -38,6 +39,7 @@ set(TOX4J_EXCEPTIONS
 	im/tox/tox4j/exceptions/ToxKilledException.java
 	im/tox/tox4j/exceptions/NoSuchFriendException.java
 	im/tox/tox4j/exceptions/GroupAddException.java
+	im/tox/tox4j/v2/exceptions/SpecificToxException.java
 	im/tox/tox4j/v2/exceptions/ToxAddFriendException.java
 	im/tox/tox4j/v2/exceptions/ToxBootstrapException.java
 	im/tox/tox4j/v2/exceptions/ToxDeleteFriendException.java
