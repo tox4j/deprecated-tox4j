@@ -1029,8 +1029,9 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testSendActionEmpty() throws Exception {
         try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
             try {
-                tox.sendAction(1, "  ".getBytes());
+                tox.sendAction(friendNumber, "  ".getBytes());
                 fail();
             } catch (ToxSendMessageException e) {
                 assertEquals(ToxSendMessageException.Code.EMPTY, e.getCode());
@@ -1041,9 +1042,8 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testSendActionFriendNotFound() throws Exception {
         try (ToxCore tox = newTox()) {
-            int friendNumber = addFriends(tox, 1);
             try {
-                tox.sendAction(friendNumber, "hello".getBytes());
+                tox.sendAction(1, "hello".getBytes());
                 fail();
             } catch (ToxSendMessageException e) {
                 assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
