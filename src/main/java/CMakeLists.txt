@@ -14,82 +14,60 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 
 # Source Files
 set(TOX4J_CORE
-	im/tox/tox4j/Tox4j.java
+	im/tox/tox4j/AbstractToxCore.java
 	im/tox/tox4j/ToxConstants.java
-	im/tox/tox4j/ToxSimpleChat.java
-	im/tox/tox4j/v2/AbstractToxCore.java
-	im/tox/tox4j/v2/ToxConstants.java
-	im/tox/tox4j/v2/ToxCore.java
-	im/tox/tox4j/v2/ToxCoreImpl.java
-	im/tox/tox4j/v2/ToxOptions.java
+	im/tox/tox4j/ToxCore.java
+	im/tox/tox4j/ToxCoreImpl.java
+	im/tox/tox4j/ToxOptions.java
 )
 
 set(TOX4J_ENUMS
-	im/tox/tox4j/v2/enums/ToxFileControl.java
-	im/tox/tox4j/v2/enums/ToxFileKind.java
-	im/tox/tox4j/v2/enums/ToxProxyType.java
-	im/tox/tox4j/v2/enums/ToxStatus.java
+	im/tox/tox4j/enums/ToxFileControl.java
+	im/tox/tox4j/enums/ToxFileKind.java
+	im/tox/tox4j/enums/ToxProxyType.java
+	im/tox/tox4j/enums/ToxStatus.java
 )
 
 set(TOX4J_EXCEPTIONS
+	im/tox/tox4j/exceptions/ToxAddFriendException.java
+	im/tox/tox4j/exceptions/ToxBootstrapException.java
+	im/tox/tox4j/exceptions/ToxDeleteFriendException.java
 	im/tox/tox4j/exceptions/ToxException.java
-	im/tox/tox4j/exceptions/FriendAddException.java
-	im/tox/tox4j/exceptions/FriendAddErrorCode.java
-	im/tox/tox4j/exceptions/EncryptedSaveDataException.java
+	im/tox/tox4j/exceptions/ToxFileControlException.java
+	im/tox/tox4j/exceptions/ToxFileSendException.java
+	im/tox/tox4j/exceptions/ToxFileSendChunkException.java
+	im/tox/tox4j/exceptions/ToxFriendQueryException.java
+	im/tox/tox4j/exceptions/ToxGetClientIdException.java
+	im/tox/tox4j/exceptions/ToxGetFriendNumberException.java
+	im/tox/tox4j/exceptions/ToxGetPortException.java
+	im/tox/tox4j/exceptions/ToxLoadException.java
 	im/tox/tox4j/exceptions/ToxKilledException.java
-	im/tox/tox4j/exceptions/NoSuchFriendException.java
-	im/tox/tox4j/exceptions/GroupAddException.java
-	im/tox/tox4j/v2/exceptions/SpecificToxException.java
-	im/tox/tox4j/v2/exceptions/ToxAddFriendException.java
-	im/tox/tox4j/v2/exceptions/ToxBootstrapException.java
-	im/tox/tox4j/v2/exceptions/ToxDeleteFriendException.java
-	im/tox/tox4j/v2/exceptions/ToxFileControlException.java
-	im/tox/tox4j/v2/exceptions/ToxFileSendException.java
-	im/tox/tox4j/v2/exceptions/ToxFileSendChunkException.java
-	im/tox/tox4j/v2/exceptions/ToxFriendQueryException.java
-	im/tox/tox4j/v2/exceptions/ToxGetClientIdException.java
-	im/tox/tox4j/v2/exceptions/ToxGetFriendNumberException.java
-	im/tox/tox4j/v2/exceptions/ToxGetPortException.java
-	im/tox/tox4j/v2/exceptions/ToxLoadException.java
-	im/tox/tox4j/v2/exceptions/ToxNewException.java
-	im/tox/tox4j/v2/exceptions/ToxSendCustomPacketException.java
-	im/tox/tox4j/v2/exceptions/ToxSendMessageException.java
-	im/tox/tox4j/v2/exceptions/ToxSetInfoException.java
-	im/tox/tox4j/v2/exceptions/ToxSetTypingException.java
+	im/tox/tox4j/exceptions/ToxNewException.java
+	im/tox/tox4j/exceptions/ToxSendCustomPacketException.java
+	im/tox/tox4j/exceptions/ToxSendMessageException.java
+	im/tox/tox4j/exceptions/ToxSetInfoException.java
+	im/tox/tox4j/exceptions/ToxSetTypingException.java
 )
 
 set(TOX4J_CALLBACKS
-	im/tox/tox4j/callbacks/ActionCallback.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallback.java
+	im/tox/tox4j/callbacks/FileControlCallback.java
+	im/tox/tox4j/callbacks/FileReceiveCallback.java
+	im/tox/tox4j/callbacks/FileReceiveChunkCallback.java
+	im/tox/tox4j/callbacks/FileSendChunkCallback.java
+	im/tox/tox4j/callbacks/FriendActionCallback.java
+	im/tox/tox4j/callbacks/FriendConnectedCallback.java
+	im/tox/tox4j/callbacks/FriendMessageCallback.java
+	im/tox/tox4j/callbacks/FriendNameCallback.java
 	im/tox/tox4j/callbacks/FriendRequestCallback.java
-	im/tox/tox4j/callbacks/MessageCallback.java
-	im/tox/tox4j/callbacks/NameChangeCallback.java
-	im/tox/tox4j/callbacks/StatusMessageCallback.java
-	im/tox/tox4j/callbacks/TypingChangeCallback.java
-	im/tox/tox4j/callbacks/UserStatusCallback.java
-	im/tox/tox4j/callbacks/GroupInviteCallback.java
-	im/tox/tox4j/callbacks/GroupMessageCallback.java
-	im/tox/tox4j/callbacks/GroupActionCallback.java
-	im/tox/tox4j/callbacks/GroupTitleChangeCallback.java
-	im/tox/tox4j/callbacks/GroupNameListChangeCallback.java
-	im/tox/tox4j/v2/callbacks/ConnectionStatusCallback.java
-	im/tox/tox4j/v2/callbacks/FileControlCallback.java
-	im/tox/tox4j/v2/callbacks/FileReceiveCallback.java
-	im/tox/tox4j/v2/callbacks/FileReceiveChunkCallback.java
-	im/tox/tox4j/v2/callbacks/FileSendChunkCallback.java
-	im/tox/tox4j/v2/callbacks/FriendActionCallback.java
-	im/tox/tox4j/v2/callbacks/FriendConnectedCallback.java
-	im/tox/tox4j/v2/callbacks/FriendMessageCallback.java
-	im/tox/tox4j/v2/callbacks/FriendNameCallback.java
-	im/tox/tox4j/v2/callbacks/FriendRequestCallback.java
-	im/tox/tox4j/v2/callbacks/FriendStatusCallback.java
-	im/tox/tox4j/v2/callbacks/FriendStatusMessageCallback.java
-	im/tox/tox4j/v2/callbacks/FriendTypingCallback.java
-	im/tox/tox4j/v2/callbacks/LosslessPacketCallback.java
-	im/tox/tox4j/v2/callbacks/LossyPacketCallback.java
-	im/tox/tox4j/v2/callbacks/ReadReceiptCallback.java
-	im/tox/tox4j/v2/callbacks/ToxEventAdapter.java
-	im/tox/tox4j/v2/callbacks/ToxEventListener.java
+	im/tox/tox4j/callbacks/FriendStatusCallback.java
+	im/tox/tox4j/callbacks/FriendStatusMessageCallback.java
+	im/tox/tox4j/callbacks/FriendTypingCallback.java
+	im/tox/tox4j/callbacks/LosslessPacketCallback.java
+	im/tox/tox4j/callbacks/LossyPacketCallback.java
+	im/tox/tox4j/callbacks/ReadReceiptCallback.java
+	im/tox/tox4j/callbacks/ToxEventAdapter.java
+	im/tox/tox4j/callbacks/ToxEventListener.java
 )
 
 set(TOX4J_SOURCE
@@ -111,8 +89,7 @@ set(JAVAH_ARGS
 	"${CLASSDIR}:${PROTOBUF_FULL}"
 	"-o"
 	"${JNI_HEADER_LOCATION}/${JNI_HEADER_NAME}"
-	"${PACKAGE_NAME}.v2.ToxCoreImpl"
-	"${PACKAGE_NAME}.Tox4j"
+	"${PACKAGE_NAME}.ToxCoreImpl"
 )
 
 add_custom_command(

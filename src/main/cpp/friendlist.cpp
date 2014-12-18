@@ -31,11 +31,11 @@ handle_tox_add_friend_result(TOX_ERR_ADD_FRIEND error)
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxAddFriend
  * Signature: (I[B[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriend
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxAddFriend
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray address, jbyteArray message)
 {
     ByteArray messageBytes(env, message);
@@ -45,11 +45,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriend
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxAddFriendNorequest
  * Signature: (I[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriendNorequest
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxAddFriendNorequest
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
 {
     return with_instance(env, instanceNumber, "AddFriend", handle_tox_add_friend_result, [](uint32_t friend_number) {
@@ -58,11 +58,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxAddFriendNorequest
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxDeleteFriend
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxDeleteFriend
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxDeleteFriend
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
     return with_instance(env, instanceNumber, "DeleteFriend", [](TOX_ERR_DELETE_FRIEND error) {
@@ -78,11 +78,11 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxDeleteFriend
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxGetFriendNumber
  * Signature: (I[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendNumber
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendNumber
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
 {
     return with_instance(env, instanceNumber, "GetFriendNumber", [](TOX_ERR_GET_FRIEND_NUMBER error) {
@@ -101,11 +101,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendNumber
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxGetFriendClientId
  * Signature: (II)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendClientId
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendClientId
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
     std::vector<uint8_t> buffer(TOX_CLIENT_ID_SIZE);
@@ -125,11 +125,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendClient
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxFriendExists
  * Signature: (II)Z
  */
-JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFriendExists
+JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendExists
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
@@ -139,11 +139,11 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxFriendExists
 }
 
 /*
- * Class:     im_tox_tox4j_v2_ToxCoreImpl
+ * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxGetFriendList
  * Signature: (I)[I
  */
-JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_v2_ToxCoreImpl_toxGetFriendList
+JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendList
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {

@@ -1,0 +1,70 @@
+language: cpp
+compiler: clang
+script:
+   - mkdir _build
+   - cd _build
+   - cmake .. -DPROTOBUF_FULL=/usr/share/java/protobuf-java.jar
+   - make -j4 junit
+
+install:
+   - pwd > $HOME/.pushd
+   # Package dependencies.
+   - sudo apt-get install libvpx-dev libprotobuf-dev libprotobuf-java protobuf-compiler
+   - wget http://central.maven.org/maven2/junit/junit/4.12/junit-4.12.jar -O lib/junit-4.12.jar
+   - wget http://central.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar -O lib/hamcrest-core-1.3.jar
+   # opus
+   - cd $HOME
+   - git clone --depth=1 git://git.opus-codec.org/opus.git
+   - cd opus
+   - ./autogen.sh
+   - mkdir _build
+   - cd _build
+   - ../configure
+   - make -j4
+   - sudo make install
+   # libsodium
+   - cd $HOME
+   - git clone --depth=1 https://github.com/jedisct1/libsodium
+   - cd libsodium
+   - ./autogen.sh
+   - mkdir _build
+   - cd _build
+   - ../configure
+   - make -j4
+   - sudo make install
+   # toxcore
+   - cd $HOME
+   - git clone --depth=1 https://github.com/irungentoo/toxcore
+   - cd toxcore
+   - ./autogen.sh
+   - mkdir _build
+   - cd _build
+   - ../configure
+   - make -j4
+   #- sudo make install
+   - sudo mkdir -p /usr/local/include/tox
+   - sudo mkdir -p /usr/local/lib/pkgconfig
+   - sudo cp *.pc /usr/local/lib/pkgconfig/
+   - sudo cp ../toxav/toxav.h /usr/local/include/tox/
+   - sudo cp ../toxcore/tox.h /usr/local/include/tox/
+   - sudo cp ../toxdns/toxdns.h /usr/local/include/tox/
+   - sudo cp ../toxencryptsave/toxencryptsave.h /usr/local/include/tox/
+   - sudo cp build/.libs/libtoxav.so /usr/local/lib/libtoxav.so.0.0.0
+   - sudo cp build/.libs/libtoxcore.so /usr/local/lib/libtoxcore.so.0.0.0
+   - sudo cp build/.libs/libtoxdns.so /usr/local/lib/libtoxdns.so.0.0.0
+   - sudo cp build/.libs/libtoxencryptsave.so /usr/local/lib/libtoxencryptsave.so.0.0.0
+   - sudo ln -s libtoxav.so.0.0.0 /usr/local/lib/libtoxav.so
+   - sudo ln -s libtoxav.so.0.0.0 /usr/local/lib/libtoxav.so.0
+   - sudo ln -s libtoxcore.so.0.0.0 /usr/local/lib/libtoxcore.so
+   - sudo ln -s libtoxcore.so.0.0.0 /usr/local/lib/libtoxcore.so.0
+   - sudo ln -s libtoxdns.so.0.0.0 /usr/local/lib/libtoxdns.so
+   - sudo ln -s libtoxdns.so.0.0.0 /usr/local/lib/libtoxdns.so.0
+   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/local/lib/libtoxencryptsave.so
+   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/local/lib/libtoxencryptsave.so.0
+   - cd `cat $HOME/.pushd`
+
+# whitelist
+branches:
+   only:
+      - master
+      - /.*\/staging/

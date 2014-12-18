@@ -34,17 +34,11 @@ throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string con
     throw_exception(env, instance_number, "java/lang/IllegalStateException", message.c_str());
 }
 
-void
-throw_unsupported_operation_exception(JNIEnv *env, jint instance_number, char const *message)
-{
-    throw_exception(env, instance_number, "java/lang/UnsupportedOperationException", message);
-}
-
 
 void
 throw_tox_exception(JNIEnv *env, char const *method, char const *code)
 {
-    std::string className = "im/tox/tox4j/v2/exceptions/Tox";
+    std::string className = "im/tox/tox4j/exceptions/Tox";
     className += method;
     className += "Exception";
     jclass exClass = env->FindClass(className.c_str());
