@@ -42,42 +42,42 @@ function(add_junit_test TARGET_NAME CLASSPATH TEST_CLASSES)
 endfunction(add_junit_test)
 
 set(TEST_FILES
-    im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
-    im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
-    im/tox/tox4j/callbacks/FileTransferTest.java
-    im/tox/tox4j/callbacks/FriendActionCallbackTest.java
-    im/tox/tox4j/callbacks/FriendConnectedCallbackTest.java
-    im/tox/tox4j/callbacks/FriendMessageCallbackTest.java
-    im/tox/tox4j/callbacks/FriendNameCallbackTest.java
-    im/tox/tox4j/callbacks/FriendRequestCallbackTest.java
-    im/tox/tox4j/callbacks/FriendStatusCallbackTest.java
-    im/tox/tox4j/callbacks/FriendStatusMessageCallbackTest.java
-    im/tox/tox4j/callbacks/FriendTypingCallbackTest.java
-    im/tox/tox4j/callbacks/LosslessPacketCallbackTest.java
-    im/tox/tox4j/callbacks/LossyPacketCallbackTest.java
-    im/tox/tox4j/callbacks/ReadReceiptCallbackTest.java
-    im/tox/tox4j/AliceBobTestBase.java
-    im/tox/tox4j/ToxCoreImplTest.java
-    im/tox/tox4j/ToxCoreTest.java
-    im/tox/tox4j/ToxCoreTestBase.java
+	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
+	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
+	im/tox/tox4j/callbacks/FileTransferTest.java
+	im/tox/tox4j/callbacks/FriendActionCallbackTest.java
+	im/tox/tox4j/callbacks/FriendConnectedCallbackTest.java
+	im/tox/tox4j/callbacks/FriendLosslessPacketCallbackTest.java
+	im/tox/tox4j/callbacks/FriendLossyPacketCallbackTest.java
+	im/tox/tox4j/callbacks/FriendMessageCallbackTest.java
+	im/tox/tox4j/callbacks/FriendNameCallbackTest.java
+	im/tox/tox4j/callbacks/FriendRequestCallbackTest.java
+	im/tox/tox4j/callbacks/FriendStatusCallbackTest.java
+	im/tox/tox4j/callbacks/FriendStatusMessageCallbackTest.java
+	im/tox/tox4j/callbacks/FriendTypingCallbackTest.java
+	im/tox/tox4j/callbacks/ReadReceiptCallbackTest.java
+	im/tox/tox4j/AliceBobTestBase.java
+	im/tox/tox4j/ToxCoreImplTest.java
+	im/tox/tox4j/ToxCoreTestBase.java
+	im/tox/tox4j/ToxCoreTest.java
 )
 
 set(TEST_CLASSES
-    im.tox.tox4j.ToxCoreImplTest
-    im.tox.tox4j.callbacks.ConnectionStatusCallbackTest
-    im.tox.tox4j.callbacks.FileReceiveCallbackTest
-    im.tox.tox4j.callbacks.FileTransferTest
-    im.tox.tox4j.callbacks.FriendActionCallbackTest
-    im.tox.tox4j.callbacks.FriendConnectedCallbackTest
-    im.tox.tox4j.callbacks.FriendMessageCallbackTest
-    im.tox.tox4j.callbacks.FriendNameCallbackTest
-    im.tox.tox4j.callbacks.FriendRequestCallbackTest
-    im.tox.tox4j.callbacks.FriendStatusCallbackTest
-    im.tox.tox4j.callbacks.FriendStatusMessageCallbackTest
-    im.tox.tox4j.callbacks.FriendTypingCallbackTest
-    im.tox.tox4j.callbacks.LosslessPacketCallbackTest
-    im.tox.tox4j.callbacks.LossyPacketCallbackTest
-    im.tox.tox4j.callbacks.ReadReceiptCallbackTest
+	im.tox.tox4j.callbacks.ConnectionStatusCallbackTest
+	im.tox.tox4j.callbacks.FileReceiveCallbackTest
+	im.tox.tox4j.callbacks.FileTransferTest
+	im.tox.tox4j.callbacks.FriendActionCallbackTest
+	im.tox.tox4j.callbacks.FriendConnectedCallbackTest
+	im.tox.tox4j.callbacks.FriendLosslessPacketCallbackTest
+	im.tox.tox4j.callbacks.FriendLossyPacketCallbackTest
+	im.tox.tox4j.callbacks.FriendMessageCallbackTest
+	im.tox.tox4j.callbacks.FriendNameCallbackTest
+	im.tox.tox4j.callbacks.FriendRequestCallbackTest
+	im.tox.tox4j.callbacks.FriendStatusCallbackTest
+	im.tox.tox4j.callbacks.FriendStatusMessageCallbackTest
+	im.tox.tox4j.callbacks.FriendTypingCallbackTest
+	im.tox.tox4j.callbacks.ReadReceiptCallbackTest
+	im.tox.tox4j.ToxCoreImplTest
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")

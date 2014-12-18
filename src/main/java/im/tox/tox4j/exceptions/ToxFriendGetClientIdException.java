@@ -1,18 +1,21 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxDeleteFriendException extends ToxException {
+public class ToxFriendGetClientIdException extends ToxException {
 
     public static enum Code {
+        NULL,
         FRIEND_NOT_FOUND,
     }
 
     public final Code code;
 
-    public ToxDeleteFriendException(Code code) {
+    public ToxFriendGetClientIdException(Code code) {
         this.code = code;
     }
 
+    @Override
     public Code getCode() {
         return code;
     }
+
 }
