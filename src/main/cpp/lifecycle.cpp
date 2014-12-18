@@ -345,7 +345,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_finalize
     std::lock_guard<std::mutex> lock(InstanceManager::self.mutex);
     if (!InstanceManager::self.isValid(instanceNumber)) {
         throw_illegal_state_exception(env, instanceNumber,
-            "Tox instance out of range (max: " + std::to_string(InstanceManager::self.size() - 1) + ")");
+            "Tox instance out of range (max: " + to_string(InstanceManager::self.size() - 1) + ")");
         return;
     }
 
