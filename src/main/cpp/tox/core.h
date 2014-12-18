@@ -756,7 +756,7 @@ typedef enum TOX_ERR_DELETE_FRIEND {
   /**
    * There was no friend with the given friend number. No friends were deleted.
    */
-  TOX_ERR_DELETE_FRIEND_NOT_FOUND
+  TOX_ERR_DELETE_FRIEND_FRIEND_NOT_FOUND
 } TOX_ERR_DELETE_FRIEND;
 
 /**
@@ -803,7 +803,7 @@ typedef enum TOX_ERR_GET_CLIENT_ID {
   /**
    * No friend with the given number exists on the friend list.
    */
-  TOX_ERR_GET_CLIENT_ID_NOT_FOUND
+  TOX_ERR_GET_CLIENT_ID_FRIEND_NOT_FOUND
 } TOX_ERR_GET_CLIENT_ID;
 
 /**
@@ -866,7 +866,7 @@ typedef enum TOX_ERR_FRIEND_QUERY {
   /**
    * The friend_number did not designate a valid friend.
    */
-  TOX_ERR_FRIEND_QUERY_NOT_FOUND
+  TOX_ERR_FRIEND_QUERY_FRIEND_NOT_FOUND
 } TOX_ERR_FRIEND_QUERY;
 
 

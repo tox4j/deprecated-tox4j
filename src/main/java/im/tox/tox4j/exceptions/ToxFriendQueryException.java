@@ -4,7 +4,7 @@ public class ToxFriendQueryException extends Exception {
 
     public static enum Code {
         NULL,
-        NOT_FOUND,
+        FRIEND_NOT_FOUND,
     }
 
     public final Code code;

@@ -781,13 +781,13 @@ new_tox_delete_friend (new_Tox *tox, uint32_t friend_number, TOX_ERR_DELETE_FRIE
       if (!contained)
         {
           // The friend didn't exist, so he wasn't removed.
-          if (error) *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+          if (error) *error = TOX_ERR_DELETE_FRIEND_FRIEND_NOT_FOUND;
           return false;
         }
       if (error) *error = TOX_ERR_DELETE_FRIEND_OK;
       return true;
     case -1:
-      if (error) *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+      if (error) *error = TOX_ERR_DELETE_FRIEND_FRIEND_NOT_FOUND;
       return false;
     }
   assert (false);
@@ -824,7 +824,7 @@ new_tox_get_friend_client_id (new_Tox const *tox, uint32_t friend_number, uint8_
   switch (tox_get_client_id (tox->tox, friend_number, client_id))
     {
     case -1:
-      if (error) *error = TOX_ERR_GET_CLIENT_ID_NOT_FOUND;
+      if (error) *error = TOX_ERR_GET_CLIENT_ID_FRIEND_NOT_FOUND;
       return false;
     case 0:
       if (error) *error = TOX_ERR_GET_CLIENT_ID_OK;
@@ -916,7 +916,7 @@ new_tox_get_friend_is_connected (new_Tox const *tox, uint32_t friend_number, TOX
 {
   if (!new_tox_friend_exists (tox, friend_number))
     {
-      if (error) *error = TOX_ERR_FRIEND_QUERY_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_QUERY_FRIEND_NOT_FOUND;
       return false;
     }
   int result = tox_get_friend_connection_status (tox->tox, friend_number);

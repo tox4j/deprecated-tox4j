@@ -58,7 +58,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxDeleteFriend
     return with_instance(env, instanceNumber, "DeleteFriend", [](TOX_ERR_DELETE_FRIEND error) {
         switch (error) {
             success_case(DELETE_FRIEND);
-            failure_case(DELETE_FRIEND, NOT_FOUND);
+            failure_case(DELETE_FRIEND, FRIEND_NOT_FOUND);
         }
         return unhandled();
     }, [](bool) {
@@ -98,7 +98,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendClientId
         switch (error) {
             success_case(GET_CLIENT_ID);
             failure_case(GET_CLIENT_ID, NULL);
-            failure_case(GET_CLIENT_ID, NOT_FOUND);
+            failure_case(GET_CLIENT_ID, FRIEND_NOT_FOUND);
         }
         return unhandled();
     }, [&](bool) {
