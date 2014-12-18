@@ -847,7 +847,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
                 tox.deleteFriend(2);
                 fail();
             } catch (ToxDeleteFriendException e) {
-                assertEquals(ToxDeleteFriendException.Code.NOT_FOUND, e.getCode());
+                assertEquals(ToxDeleteFriendException.Code.FRIEND_NOT_FOUND, e.getCode());
             }
         }
     }
@@ -861,7 +861,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
                 tox.deleteFriend(5);
                 fail();
             } catch (ToxDeleteFriendException e) {
-                assertEquals(ToxDeleteFriendException.Code.NOT_FOUND, e.getCode());
+                assertEquals(ToxDeleteFriendException.Code.FRIEND_NOT_FOUND, e.getCode());
             }
         }
     }

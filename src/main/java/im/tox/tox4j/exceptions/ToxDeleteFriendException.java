@@ -3,7 +3,7 @@ package im.tox.tox4j.exceptions;
 public class ToxDeleteFriendException extends ToxException {
 
     public static enum Code {
-        NOT_FOUND,
+        FRIEND_NOT_FOUND,
     }
 
     public final Code code;
