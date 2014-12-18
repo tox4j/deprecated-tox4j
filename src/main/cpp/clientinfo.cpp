@@ -79,6 +79,16 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetAddress
     });
 }
 
+
+static ErrorHandling handle_set_info_error(TOX_ERR_SET_INFO error) {
+    switch (error) {
+        success_case(SET_INFO);
+        failure_case(SET_INFO, NULL);
+        failure_case(SET_INFO, TOO_LONG);
+    }
+    return unhandled();
+}
+
 /*
  * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSetName
@@ -88,17 +98,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetName
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray name)
 {
     ByteArray name_array(env, name);
-    return with_instance(env, instanceNumber, "SetInfo", [](TOX_ERR_SET_INFO error) {
-        switch (error) {
-            case TOX_ERR_SET_INFO_OK:
-                return success();
-            case TOX_ERR_SET_INFO_NULL:
-                return failure("NULL");
-            case TOX_ERR_SET_INFO_TOO_LONG:
-                return failure("TOO_LONG");
-        }
-        return unhandled();
-    }, [](bool) {
+    return with_instance(env, instanceNumber, "SetInfo", handle_set_info_error, [](bool) {
     }, tox_set_self_name, name_array.data(), name_array.size());
 }
 
@@ -132,17 +132,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetStatusMessage
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray statusMessage)
 {
     ByteArray status_message_array(env, statusMessage);
-    return with_instance(env, instanceNumber, "SetInfo", [](TOX_ERR_SET_INFO error) {
-        switch (error) {
-            case TOX_ERR_SET_INFO_OK:
-                return success();
-            case TOX_ERR_SET_INFO_NULL:
-                return failure("NULL");
-            case TOX_ERR_SET_INFO_TOO_LONG:
-                return failure("TOO_LONG");
-        }
-        return unhandled();
-    }, [](bool) {
+    return with_instance(env, instanceNumber, "SetInfo", handle_set_info_error, [](bool) {
     }, tox_set_self_status_message, status_message_array.data(), status_message_array.size());
 }
 

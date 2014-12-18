@@ -236,20 +236,13 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
 
     return with_error_handling(env, "New", [](TOX_ERR_NEW error) {
         switch (error) {
-            case TOX_ERR_NEW_OK:
-                return success();
-            case TOX_ERR_NEW_NULL:
-                return failure("NULL");
-            case TOX_ERR_NEW_MALLOC:
-                return failure("MALLOC");
-            case TOX_ERR_NEW_PORT_ALLOC:
-                return failure("PORT_ALLOC");
-            case TOX_ERR_NEW_PROXY_BAD_HOST:
-                return failure("PROXY_BAD_HOST");
-            case TOX_ERR_NEW_PROXY_BAD_PORT:
-                return failure("PROXY_BAD_PORT");
-            case TOX_ERR_NEW_PROXY_NOT_FOUND:
-                return failure("PROXY_NOT_FOUND");
+            success_case(NEW);
+            failure_case(NEW, NULL);
+            failure_case(NEW, MALLOC);
+            failure_case(NEW, PORT_ALLOC);
+            failure_case(NEW, PROXY_BAD_HOST);
+            failure_case(NEW, PROXY_BAD_PORT);
+            failure_case(NEW, PROXY_NOT_FOUND);
         }
         return unhandled();
     }, [env](Tox *tox_pointer) {

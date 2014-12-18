@@ -15,14 +15,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
 
     return with_instance(env, instanceNumber, "Bootstrap", [](TOX_ERR_BOOTSTRAP error) {
         switch (error) {
-            case TOX_ERR_BOOTSTRAP_OK:
-                return success();
-            case TOX_ERR_BOOTSTRAP_NULL:
-                return failure("NULL");
-            case TOX_ERR_BOOTSTRAP_BAD_ADDRESS:
-                return failure("BAD_ADDRESS");
-            case TOX_ERR_BOOTSTRAP_BAD_PORT:
-                return failure("BAD_PORT");
+            success_case(BOOTSTRAP);
+            failure_case(BOOTSTRAP, NULL);
+            failure_case(BOOTSTRAP, BAD_ADDRESS);
+            failure_case(BOOTSTRAP, BAD_PORT);
         }
         return unhandled();
     }, [](bool) {
@@ -39,10 +35,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetPort
 {
     return with_instance(env, instanceNumber, "GetPort", [](TOX_ERR_GET_PORT error) {
         switch (error) {
-            case TOX_ERR_GET_PORT_OK:
-                return success();
-            case TOX_ERR_GET_PORT_NOT_BOUND:
-                return failure("NOT_BOUND");
+            success_case(GET_PORT);
+            failure_case(GET_PORT, NOT_BOUND);
         }
         return unhandled();
     }, [](uint16_t port) {

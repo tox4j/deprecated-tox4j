@@ -12,10 +12,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetTyping
 {
     return with_instance(env, instanceNumber, "SetTyping", [](TOX_ERR_SET_TYPING error) {
         switch (error) {
-            case TOX_ERR_SET_TYPING_OK:
-                return success();
-            case TOX_ERR_SET_TYPING_FRIEND_NOT_FOUND:
-                return failure("FRIEND_NOT_FOUND");
+            success_case(SET_TYPING);
+            failure_case(SET_TYPING, FRIEND_NOT_FOUND);
         }
         return unhandled();
     }, [](bool) {
@@ -27,20 +25,13 @@ static ErrorHandling
 handle_send_message_error(TOX_ERR_SEND_MESSAGE error)
 {
     switch (error) {
-        case TOX_ERR_SEND_MESSAGE_OK:
-            return success();
-        case TOX_ERR_SEND_MESSAGE_NULL:
-            return failure("NULL");
-        case TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND:
-            return failure("FRIEND_NOT_FOUND");
-        case TOX_ERR_SEND_MESSAGE_FRIEND_NOT_CONNECTED:
-            return failure("FRIEND_NOT_CONNECTED");
-        case TOX_ERR_SEND_MESSAGE_SENDQ:
-            return failure("SENDQ");
-        case TOX_ERR_SEND_MESSAGE_TOO_LONG:
-            return failure("TOO_LONG");
-        case TOX_ERR_SEND_MESSAGE_EMPTY:
-            return failure("EMPTY");
+        success_case(SEND_MESSAGE);
+        failure_case(SEND_MESSAGE, NULL);
+        failure_case(SEND_MESSAGE, FRIEND_NOT_FOUND);
+        failure_case(SEND_MESSAGE, FRIEND_NOT_CONNECTED);
+        failure_case(SEND_MESSAGE, SENDQ);
+        failure_case(SEND_MESSAGE, TOO_LONG);
+        failure_case(SEND_MESSAGE, EMPTY);
     }
     return unhandled();
 }
