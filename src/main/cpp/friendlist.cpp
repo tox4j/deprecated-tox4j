@@ -6,25 +6,15 @@ static ErrorHandling
 handle_tox_add_friend_result(TOX_ERR_ADD_FRIEND error)
 {
     switch (error) {
-        case TOX_ERR_ADD_FRIEND_OK:
-            return success();
-
-        case TOX_ERR_ADD_FRIEND_NULL:
-            return failure("NULL");
-        case TOX_ERR_ADD_FRIEND_TOO_LONG:
-            return failure("TOO_LONG");
-        case TOX_ERR_ADD_FRIEND_NO_MESSAGE:
-            return failure("NO_MESSAGE");
-        case TOX_ERR_ADD_FRIEND_OWN_KEY:
-            return failure("OWN_KEY");
-        case TOX_ERR_ADD_FRIEND_ALREADY_SENT:
-            return failure("ALREADY_SENT");
-        case TOX_ERR_ADD_FRIEND_BAD_CHECKSUM:
-            return failure("BAD_CHECKSUM");
-        case TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM:
-            return failure("SET_NEW_NOSPAM");
-        case TOX_ERR_ADD_FRIEND_MALLOC:
-            return failure("MALLOC");
+        success_case(ADD_FRIEND);
+        failure_case(ADD_FRIEND, NULL);
+        failure_case(ADD_FRIEND, TOO_LONG);
+        failure_case(ADD_FRIEND, NO_MESSAGE);
+        failure_case(ADD_FRIEND, OWN_KEY);
+        failure_case(ADD_FRIEND, ALREADY_SENT);
+        failure_case(ADD_FRIEND, BAD_CHECKSUM);
+        failure_case(ADD_FRIEND, SET_NEW_NOSPAM);
+        failure_case(ADD_FRIEND, MALLOC);
     }
 
     return unhandled();
@@ -67,10 +57,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxDeleteFriend
 {
     return with_instance(env, instanceNumber, "DeleteFriend", [](TOX_ERR_DELETE_FRIEND error) {
         switch (error) {
-            case TOX_ERR_DELETE_FRIEND_OK:
-                return success();
-            case TOX_ERR_DELETE_FRIEND_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(DELETE_FRIEND);
+            failure_case(DELETE_FRIEND, NOT_FOUND);
         }
         return unhandled();
     }, [](bool) {
@@ -87,12 +75,9 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendNumber
 {
     return with_instance(env, instanceNumber, "GetFriendNumber", [](TOX_ERR_GET_FRIEND_NUMBER error) {
         switch (error) {
-            case TOX_ERR_GET_FRIEND_NUMBER_OK:
-                return success();
-            case TOX_ERR_GET_FRIEND_NUMBER_NULL:
-                return failure("NULL");
-            case TOX_ERR_GET_FRIEND_NUMBER_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(GET_FRIEND_NUMBER);
+            failure_case(GET_FRIEND_NUMBER, NULL);
+            failure_case(GET_FRIEND_NUMBER, NOT_FOUND);
         }
         return unhandled();
     }, [](uint32_t friend_number) {
@@ -111,12 +96,9 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendClientId
     std::vector<uint8_t> buffer(TOX_CLIENT_ID_SIZE);
     return with_instance(env, instanceNumber, "GetClientId", [](TOX_ERR_GET_CLIENT_ID error) {
         switch (error) {
-            case TOX_ERR_GET_CLIENT_ID_OK:
-                return success();
-            case TOX_ERR_GET_CLIENT_ID_NULL:
-                return failure("NULL");
-            case TOX_ERR_GET_CLIENT_ID_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(GET_CLIENT_ID);
+            failure_case(GET_CLIENT_ID, NULL);
+            failure_case(GET_CLIENT_ID, NOT_FOUND);
         }
         return unhandled();
     }, [&](bool) {

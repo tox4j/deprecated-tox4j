@@ -82,6 +82,15 @@ unhandled()
 }
 
 
+#define success_case(METHOD)          \
+    case TOX_ERR_##METHOD##_OK:       \
+        return success()
+
+#define failure_case(METHOD, ERROR)   \
+    case TOX_ERR_##METHOD##_##ERROR:  \
+        return failure(#ERROR)
+
+
 template<typename FuncT>
 struct error_type_of;
 
