@@ -114,20 +114,20 @@ public interface ToxCore extends Closeable {
      *
      * @param noSpam the new nospam number.
      */
-    void setNoSpam(int noSpam);
+    void setNospam(int noSpam);
 
     /**
      * Get our current nospam number.
      *
      * @return the current nospam number.
      */
-    int getNoSpam();
+    int getNospam();
 
     /**
      * Get our current tox address to give to friends.
      * <p>
      * The format is the following: [Client ID (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
-     * {@link #setNoSpam(int)}, the old address can no longer be used to send friend requests to this instance.
+     * {@link #setNospam(int)}, the old address can no longer be used to send friend requests to this instance.
      *
      * @return our current tox address.
      */

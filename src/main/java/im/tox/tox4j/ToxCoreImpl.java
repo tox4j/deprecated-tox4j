@@ -288,15 +288,15 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxSelfSetNospam(int instanceNumber, int nospam);
 
     @Override
-    public void setNoSpam(int noSpam) {
-        toxSelfSetNospam(instanceNumber, noSpam);
+    public void setNospam(int nospam) {
+        toxSelfSetNospam(instanceNumber, nospam);
     }
 
 
     private static native int toxSelfGetNospam(int instanceNumber);
 
     @Override
-    public int getNoSpam() {
+    public int getNospam() {
         return toxSelfGetNospam(instanceNumber);
     }
 
