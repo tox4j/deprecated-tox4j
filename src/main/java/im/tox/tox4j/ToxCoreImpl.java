@@ -182,7 +182,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
         try {
             toxEvents = Events.ToxEvents.parseFrom(events);
         } catch (InvalidProtocolBufferException e) {
-            toxEvents = Events.ToxEvents.getDefaultInstance();
+            // This would be very bad, meaning something went wrong in our own C++ code.
+            throw new RuntimeException(e);
         }
 
         if (connectionStatusCallback != null) {
