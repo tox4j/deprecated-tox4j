@@ -73,16 +73,23 @@ public interface ToxCore extends Closeable {
     int getPort() throws ToxGetPortException;
 
     /**
+     * Get the temporary DHT public key for this instance.
+     *
+     * @return the temporary DHT public key.
+     */
+    byte[] getDhtId();
+
+    /**
      * Get the time in milliseconds until {@link #iteration()} should be called again.
      *
      * @return the time in milliseconds until {@link #iteration()} should be called again.
      */
-    int iterationTime();
+    int iterationInterval();
 
     /**
      * The main tox loop.
      * <p>
-     * This should be invoked every {@link #iterationTime()} milliseconds.
+     * This should be invoked every {@link #iterationInterval()} milliseconds.
      */
     void iteration();
 
@@ -98,7 +105,7 @@ public interface ToxCore extends Closeable {
      *
      * @return our own secret key.
      */
-    byte[] getSecretKey();
+    byte[] getPrivateKey();
 
     /**
      * Set the nospam number for our address.
@@ -180,9 +187,9 @@ public interface ToxCore extends Closeable {
      * @param address the address to add as a friend.
      * @param message the message to send with the friend request (must not be empty).
      * @return the new friend's friend number.
-     * @throws ToxAddFriendException if an error occurred.
+     * @throws im.tox.tox4j.exceptions.ToxFriendAddException if an error occurred.
      */
-    int addFriend(byte[] address, byte[] message) throws ToxAddFriendException;
+    int addFriend(byte[] address, byte[] message) throws ToxFriendAddException;
 
     /**
      * Add the specified Client ID without sending a friend request.
@@ -191,35 +198,35 @@ public interface ToxCore extends Closeable {
      *
      * @param clientId the Client ID to add as a friend.
      * @return the new friend's friend number.
-     * @throws ToxAddFriendException if an error occurred.
+     * @throws im.tox.tox4j.exceptions.ToxFriendAddException if an error occurred.
      */
-    int addFriendNoRequest(byte[] clientId) throws ToxAddFriendException;
+    int addFriendNoRequest(byte[] clientId) throws ToxFriendAddException;
 
     /**
      * Deletes the specified friend.
      *
      * @param friendNumber the friend number to delete.
-     * @throws ToxDeleteFriendException if an error occurrs.
+     * @throws im.tox.tox4j.exceptions.ToxFriendDeleteException if an error occurrs.
      */
-    void deleteFriend(int friendNumber) throws ToxDeleteFriendException;
+    void deleteFriend(int friendNumber) throws ToxFriendDeleteException;
 
     /**
      * Gets the friend number for the specified Client ID.
      *
      * @param clientId the Client ID.
      * @return the friend number that is associated with the Client ID.
-     * @throws ToxGetFriendNumberException if an error occurs.
+     * @throws im.tox.tox4j.exceptions.ToxFriendByClientIdException if an error occurs.
      */
-    int getFriendNumber(byte[] clientId) throws ToxGetFriendNumberException;
+    int getFriendByClientId(byte[] clientId) throws ToxFriendByClientIdException;
 
     /**
      * Gets the Client ID for the specified friend number.
      *
      * @param friendNumber the friend number.
      * @return the Client ID associated with the friend number.
-     * @throws ToxGetClientIdException if an error occurs.
+     * @throws im.tox.tox4j.exceptions.ToxFriendGetClientIdException if an error occurs.
      */
-    byte[] getClientId(int friendNumber) throws ToxGetClientIdException;
+    byte[] getClientId(int friendNumber) throws ToxFriendGetClientIdException;
 
     /**
      * Checks whether a friend with the specified friend number exists.
@@ -307,7 +314,7 @@ public interface ToxCore extends Closeable {
 
     void fileSendChunk(int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException;
 
-    void callbackFileSendChunk(FileSendChunkCallback callback);
+    void callbackFileRequestChunk(FileRequestChunkCallback callback);
 
     void callbackFileReceive(FileReceiveCallback callback);
 
@@ -315,11 +322,11 @@ public interface ToxCore extends Closeable {
 
     void sendLossyPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
-    void callbackLossyPacket(LossyPacketCallback callback);
+    void callbackFriendLossyPacket(FriendLossyPacketCallback callback);
 
     void sendLosslessPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
-    void callbackLosslessPacket(LosslessPacketCallback callback);
+    void callbackFriendLosslessPacket(FriendLosslessPacketCallback callback);
 
     /**
      * Convenience method to set all event handlers at once.

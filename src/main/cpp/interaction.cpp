@@ -4,10 +4,10 @@
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSetTyping
+ * Method:    toxSelfSetTyping
  * Signature: (IIZ)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetTyping
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetTyping
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean isTyping)
 {
     return with_instance(env, instanceNumber, "SetTyping", [](TOX_ERR_SET_TYPING error) {
@@ -17,7 +17,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetTyping
         }
         return unhandled();
     }, [](bool) {
-    }, tox_set_typing, friendNumber, isTyping);
+    }, tox_self_set_typing, friendNumber, isTyping);
 }
 
 

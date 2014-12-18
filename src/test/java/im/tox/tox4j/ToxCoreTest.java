@@ -1,7 +1,5 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.ToxConstants;
-import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.exceptions.ToxKilledException;
 import im.tox.tox4j.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.enums.ToxFileKind;
@@ -87,10 +85,10 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             }
         }
 
-        public int iterationTime() {
+        public int iterationInterval() {
             int result = 0;
             for (ToxCore tox : toxes) {
-                result = Math.max(result, tox.iterationTime());
+                result = Math.max(result, tox.iterationInterval());
             }
             return result;
         }
@@ -345,14 +343,14 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testBootstrapKeyTooShort() throws Exception {
         try (ToxCore tox = newTox()) {
             tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE - 1]);
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testBootstrapKeyTooLong() throws Exception {
         try (ToxCore tox = newTox()) {
             tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE + 1]);
@@ -370,7 +368,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             while (!status.isConnected()) {
                 tox.iteration();
                 try {
-                    Thread.sleep(tox.iterationTime());
+                    Thread.sleep(tox.iterationInterval());
                 } catch (InterruptedException e) {
                     // Probably the timeout was reached, so we ought to be killed soon.
                 }
@@ -394,7 +392,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             while (!toxes.isAllConnected()) {
                 toxes.iteration();
                 try {
-                    Thread.sleep(toxes.iterationTime());
+                    Thread.sleep(toxes.iterationInterval());
                 } catch (InterruptedException e) {
                     // Probably the timeout was reached, so we ought to be killed soon.
                 }
@@ -413,7 +411,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             while (!toxes.isAnyConnected()) {
                 toxes.iteration();
                 try {
-                    Thread.sleep(toxes.iterationTime());
+                    Thread.sleep(toxes.iterationInterval());
                 } catch (InterruptedException e) {
                     // Probably the timeout was reached, so we ought to be killed soon.
                 }
@@ -464,7 +462,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         ToxCore tox1 = newTox();
         ToxCore tox2 = newTox();
         tox1.close();
-        tox1.iterationTime();
+        tox1.iterationInterval();
     }
 
     @Test(expected=ToxKilledException.class)
@@ -472,7 +470,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         ToxCore tox1 = newTox();
         ToxCore tox2 = newTox();
         tox2.close();
-        tox2.iterationTime();
+        tox2.iterationInterval();
     }
 
     @Test
@@ -485,9 +483,10 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testDoInterval() throws Exception {
+    public void testIterationInterval() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertTrue(tox.iterationTime() > 0);
+            assertTrue(tox.iterationInterval() > 0);
+            assertTrue(tox.iterationInterval() <= 50);
         }
     }
 
@@ -519,20 +518,13 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testIterationTime() throws Exception {
-        ToxCore tox = newTox();
-        assertTrue(tox.iterationTime() > 0);
-        assertTrue(tox.iterationTime() <= 50);
-    }
-
-    @Test
     public void testIteration() throws Exception {
         ToxCore tox = newTox();
         tox.iteration();
     }
 
     @Test
-    public void testGetClientID() throws Exception {
+    public void testGetClientId() throws Exception {
         try (ToxCore tox = newTox()) {
             byte[] id = tox.getClientId();
             assertEquals(ToxConstants.CLIENT_ID_SIZE, id.length);
@@ -541,11 +533,11 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testGetSecretKey() throws Exception {
+    public void testGetPrivateKey() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] key = tox.getSecretKey();
+            byte[] key = tox.getPrivateKey();
             assertEquals(ToxConstants.CLIENT_ID_SIZE, key.length);
-            assertArrayEquals(key, tox.getSecretKey());
+            assertArrayEquals(key, tox.getPrivateKey());
         }
     }
 
@@ -563,7 +555,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     public void testPrivateKeyEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getSecretKey());
+                double e = entropy(tox.getPrivateKey());
                 assertTrue("Entropy of private key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }
@@ -765,7 +757,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     // return one of the friends (the last one)
-    private int addFriends(ToxCore tox, int count) throws ToxNewException, ToxAddFriendException {
+    private int addFriends(ToxCore tox, int count) throws ToxNewException, ToxFriendAddException {
         if (count < 1) {
             throw new IllegalArgumentException("Cannot add less than 1 friend: " + count);
         }
@@ -846,8 +838,8 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             try {
                 tox.deleteFriend(2);
                 fail();
-            } catch (ToxDeleteFriendException e) {
-                assertEquals(ToxDeleteFriendException.Code.FRIEND_NOT_FOUND, e.getCode());
+            } catch (ToxFriendDeleteException e) {
+                assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.getCode());
             }
         }
     }
@@ -860,8 +852,8 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             try {
                 tox.deleteFriend(5);
                 fail();
-            } catch (ToxDeleteFriendException e) {
-                assertEquals(ToxDeleteFriendException.Code.FRIEND_NOT_FOUND, e.getCode());
+            } catch (ToxFriendDeleteException e) {
+                assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.getCode());
             }
         }
     }
@@ -893,7 +885,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testGetFriendClientID() throws Exception {
+    public void testGetFriendClientId() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 1);
             assertEquals(tox.getClientId(0).length, ToxConstants.CLIENT_ID_SIZE);
@@ -904,11 +896,11 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testGetFriendNumber() throws Exception {
+    public void testGetFriendByClientId() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 10);
             for (int i = 0; i < 10; i++) {
-                assertEquals(tox.getFriendNumber(tox.getClientId(i)), i);
+                assertEquals(tox.getFriendByClientId(tox.getClientId(i)), i);
             }
         }
     }
@@ -946,6 +938,25 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             assertNotEquals(0, tox.getPort());
             assertTrue(tox.getPort() >  0);
             assertTrue(tox.getPort() <= 65535);
+        }
+    }
+
+    @Test
+    public void testGetDhtId() throws Exception {
+        try (ToxCore tox = newTox()) {
+            byte[] key = tox.getDhtId();
+            assertEquals(ToxConstants.CLIENT_ID_SIZE, key.length);
+            assertArrayEquals(key, tox.getDhtId());
+        }
+    }
+
+    @Test
+    public void testDhtIdEntropy() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            try (ToxCore tox = newTox()) {
+                double e = entropy(tox.getDhtId());
+                assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
+            }
         }
     }
 

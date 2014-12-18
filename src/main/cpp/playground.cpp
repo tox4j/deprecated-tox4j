@@ -20,7 +20,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_Tox4j_playground(JNIEnv *env, jclass, j
         for (uint32_t i = 0; i < 4294967295; i++) {
             *reinterpret_cast<uint32_t *>(address) = i;
             *reinterpret_cast<uint16_t *>(address + TOX_ADDRESS_SIZE - 2) = compute_checksum(address);
-            int32_t friend_id = tox_add_friend(tox, address, data, 1, NULL);
+            int32_t friend_id = tox_friend_add(tox, address, data, 1, NULL);
             if (i % 1000 == 0) {
                 printf("add friend: %d\n", friend_id);
             }

@@ -1,6 +1,5 @@
 package im.tox.tox4j.proto;
 
-option java_package = "im.tox.tox4j.proto";
 option optimize_for = LITE_RUNTIME;
 
 message ConnectionStatus {
@@ -39,7 +38,7 @@ message FileReceiveChunk {
     required bytes data = 4;
 }
 
-message FileSendChunk {
+message FileRequestChunk {
     required uint32 friendNumber = 1;
     required uint32 fileNumber = 2;
     required uint64 position = 3;
@@ -95,12 +94,12 @@ message FriendTyping {
     required bool isTyping = 2;
 }
 
-message LosslessPacket {
+message FriendLosslessPacket {
     required uint32 friendNumber = 1;
     required bytes data = 2;
 }
 
-message LossyPacket {
+message FriendLossyPacket {
     required uint32 friendNumber = 1;
     required bytes data = 2;
 }
@@ -111,20 +110,20 @@ message ReadReceipt {
 }
 
 message ToxEvents {
-    repeated ConnectionStatus    connectionStatus    = 1;
-    repeated FileControl         fileControl         = 2;
-    repeated FileReceive         fileReceive         = 3;
-    repeated FileReceiveChunk    fileReceiveChunk    = 4;
-    repeated FileSendChunk       fileSendChunk       = 5;
-    repeated FriendAction        friendAction        = 6;
-    repeated FriendConnected     friendConnected     = 7;
-    repeated FriendMessage       friendMessage       = 8;
-    repeated FriendName          friendName          = 9;
-    repeated FriendRequest       friendRequest       = 10;
-    repeated FriendStatus        friendStatus        = 11;
-    repeated FriendStatusMessage friendStatusMessage = 12;
-    repeated FriendTyping        friendTyping        = 13;
-    repeated LosslessPacket      losslessPacket      = 14;
-    repeated LossyPacket         lossyPacket         = 15;
-    repeated ReadReceipt         readReceipt         = 16;
+    repeated ConnectionStatus     connectionStatus     =  1;
+    repeated FileControl          fileControl          =  2;
+    repeated FileReceive          fileReceive          =  3;
+    repeated FileReceiveChunk     fileReceiveChunk     =  4;
+    repeated FileRequestChunk     fileRequestChunk     =  5;
+    repeated FriendAction         friendAction         =  6;
+    repeated FriendConnected      friendConnected      =  7;
+    repeated FriendMessage        friendMessage        =  8;
+    repeated FriendName           friendName           =  9;
+    repeated FriendRequest        friendRequest        = 10;
+    repeated FriendStatus         friendStatus         = 11;
+    repeated FriendStatusMessage  friendStatusMessage  = 12;
+    repeated FriendTyping         friendTyping         = 13;
+    repeated FriendLosslessPacket friendLosslessPacket = 14;
+    repeated FriendLossyPacket    friendLossyPacket    = 15;
+    repeated ReadReceipt          readReceipt          = 16;
 }

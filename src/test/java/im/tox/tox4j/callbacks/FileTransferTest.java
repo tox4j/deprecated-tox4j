@@ -77,7 +77,7 @@ public class FileTransferTest extends AliceBobTestBase {
         }
 
         @Override
-        public void fileSendChunk(final int friendNumber, final int fileNumber, final long position, final int length) {
+        public void fileRequestChunk(final int friendNumber, final int fileNumber, final long position, final int length) {
             debug("got request for " + length + "B from " + friendNumber + " for file " + fileNumber + " at " + position);
             assertTrue(isAlice());
             assertTrue(position >= 0);

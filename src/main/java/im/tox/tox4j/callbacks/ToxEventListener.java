@@ -5,7 +5,7 @@ public interface ToxEventListener extends
         FileControlCallback,
         FileReceiveCallback,
         FileReceiveChunkCallback,
-        FileSendChunkCallback,
+        FileRequestChunkCallback,
         FriendActionCallback,
         FriendConnectedCallback,
         FriendMessageCallback,
@@ -14,8 +14,8 @@ public interface ToxEventListener extends
         FriendStatusCallback,
         FriendStatusMessageCallback,
         FriendTypingCallback,
-        LosslessPacketCallback,
-        LossyPacketCallback,
+        FriendLosslessPacketCallback,
+        FriendLossyPacketCallback,
         ReadReceiptCallback
 {
 }
