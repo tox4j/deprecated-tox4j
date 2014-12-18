@@ -4,10 +4,10 @@
 #include "ToxInstances.h"
 
 #include <algorithm>
-#include <vector>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 
 static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message) {
@@ -28,3 +28,11 @@ static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message
 
 
 template<typename T> static inline void unused(T const &) { }
+
+
+template<typename T>
+std::string to_string(T const &v) {
+    std::ostringstream out;
+    out << v;
+    return out.str();
+}
