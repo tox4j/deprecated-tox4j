@@ -989,10 +989,10 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testSendMessageNotFound() throws Exception {
+    public void testSendMessageFriendNotFound() throws Exception {
         try (ToxCore tox = newTox()) {
             try {
-                tox.sendMessage(88, "hello".getBytes());
+                tox.sendMessage(1, "hello".getBytes());
                 fail();
             } catch (ToxSendMessageException e) {
                 assertEquals(ToxSendMessageException.Code.FRIEND_NOT_FOUND, e.getCode());
@@ -1001,7 +1001,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testSendMessageNotConnected() throws Exception {
+    public void testSendMessageFriendNotConnected() throws Exception {
         try (ToxCore tox = newTox()) {
             int friendNumber = addFriends(tox, 1);
             try {
@@ -1014,7 +1014,45 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testSendActionNotConnected() throws Exception {
+    public void testSendActionNull() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendAction(friendNumber, null);
+                fail();
+            } catch (ToxSendMessageException e) {
+                assertEquals(ToxSendMessageException.Code.NULL, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testSendActionEmpty() throws Exception {
+        try (ToxCore tox = newTox()) {
+            try {
+                tox.sendAction(1, "  ".getBytes());
+                fail();
+            } catch (ToxSendMessageException e) {
+                assertEquals(ToxSendMessageException.Code.EMPTY, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testSendActionFriendNotFound() throws Exception {
+        try (ToxCore tox = newTox()) {
+            int friendNumber = addFriends(tox, 1);
+            try {
+                tox.sendAction(friendNumber, "hello".getBytes());
+                fail();
+            } catch (ToxSendMessageException e) {
+                assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+            }
+        }
+    }
+
+    @Test
+    public void testSendActionFriendNotConnected() throws Exception {
         try (ToxCore tox = newTox()) {
             int friendNumber = addFriends(tox, 1);
             try {
