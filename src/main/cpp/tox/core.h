@@ -1452,7 +1452,13 @@ typedef enum TOX_ERR_FILE_SEND_CHUNK {
   /**
    * No file transfer with the given file number was found for the given friend.
    */
-  TOX_ERR_FILE_SEND_CHUNK_NOT_FOUND
+  TOX_ERR_FILE_SEND_CHUNK_NOT_FOUND,
+  /**
+   * Attempted to send more data than requested. The requested data size is
+   * adjusted according to maximum transmission unit and the expected end of
+   * the file. Trying to send more will result in no data being sent.
+   */
+  TOX_ERR_FILE_SEND_CHUNK_TOO_LARGE
 } TOX_ERR_FILE_SEND_CHUNK;
 
 /**
@@ -1460,7 +1466,11 @@ typedef enum TOX_ERR_FILE_SEND_CHUNK {
  *
  * This function is called in response to the `file_request_chunk` callback. The
  * length parameter should be equal to or less than the one received though the
- * callback. If it is less, the transfer is assumed complete.
+ * callback. If it is zero, the transfer is assumed complete. For files with
+ * known size, Core will know that the transfer is complete after the last byte
+ * has been received, so it is not necessary (though not harmful) to send a
+ * zero-length chunk to terminate. For streams, it is necessary for the last
+ * chunk sent to be zero-length.
  *
  * @return true on success.
  */
@@ -1483,8 +1493,11 @@ bool tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number,
  *
  * In response to receiving this callback, the client should call the function
  * `tox_file_send_chunk` with the requested chunk. If the number of bytes sent
- * through that function is less than the length parameter in this callback,
- * the file transfer is assumed complete.
+ * through that function is zero, the file transfer is assumed complete. A
+ * client may choose to send less than requested, if it is reading from a
+ * stream that doesn't have more data, yet, and it still wants to send some
+ * data to the other side. However, this will generally be less efficient than
+ * waiting for a full chunk size of data to be ready.
  *
  * @param friend_number The friend number of the receiving friend for this file.
  * @param file_number The file transfer identifier returned by tox_file_send.

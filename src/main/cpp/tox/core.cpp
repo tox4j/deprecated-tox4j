@@ -1191,6 +1191,11 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
       // Transfer finished
       assert (false);
     }
+  if (length > tox_file_data_size (tox->tox, friend_number))
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_CHUNK_TOO_LARGE;
+      return false;
+    }
   if (length != 0 && data == nullptr)
     {
       if (error) *error = TOX_ERR_FILE_SEND_CHUNK_NULL;
