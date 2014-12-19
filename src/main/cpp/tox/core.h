@@ -412,7 +412,7 @@ bool tox_load(Tox *tox, uint8_t const *data, size_t length, TOX_ERR_LOAD *error)
 
 /*******************************************************************************
  *
- * :: Connection lifecycle and event loop.
+ * :: Connection lifecycle and event loop
  *
  ******************************************************************************/
 
@@ -497,7 +497,7 @@ void tox_iteration(Tox *tox);
 
 /*******************************************************************************
  *
- * :: Internal client information (Tox address/id).
+ * :: Internal client information (Tox address/id)
  *
  ******************************************************************************/
 
@@ -545,7 +545,7 @@ void tox_self_get_private_key(Tox const *tox, uint8_t *private_key);
 
 /*******************************************************************************
  *
- * :: User-visible client information (nickname/status).
+ * :: User-visible client information (nickname/status)
  *
  ******************************************************************************/
 
