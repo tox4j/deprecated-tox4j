@@ -8,7 +8,7 @@ public class ToxBootstrapException extends ToxException {
         BAD_PORT,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxBootstrapException(Code code) {
         this.code = code;

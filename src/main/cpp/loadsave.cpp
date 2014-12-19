@@ -29,14 +29,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxLoad
     ByteArray bytes(env, data);
     return with_instance(env, instanceNumber, "Load", [](TOX_ERR_LOAD error) {
         switch (error) {
-            case TOX_ERR_LOAD_OK:
-                return success();
-            case TOX_ERR_LOAD_NULL:
-                return failure("NULL");
-            case TOX_ERR_LOAD_ENCRYPTED:
-                return failure("ENCRYPTED");
-            case TOX_ERR_LOAD_BAD_FORMAT:
-                return failure("BAD_FORMAT");
+            success_case(LOAD);
+            failure_case(LOAD, NULL);
+            failure_case(LOAD, ENCRYPTED);
+            failure_case(LOAD, BAD_FORMAT);
         }
         return unhandled();
     }, [](bool) {

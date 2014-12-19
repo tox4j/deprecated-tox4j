@@ -10,7 +10,7 @@ import im.tox.tox4j.exceptions.ToxNewException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class LossyPacketCallbackTest extends AliceBobTestBase {
+public class FriendLossyPacketCallbackTest extends AliceBobTestBase {
 
     @Override
     protected ToxCore newTox(ToxOptions options) throws ToxNewException {
@@ -39,7 +39,7 @@ public class LossyPacketCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void lossyPacket(int friendNumber, byte[] packet) {
+        public void friendLossyPacket(int friendNumber, byte[] packet) {
             String message = new String(packet, 1, packet.length - 1);
             debug("received a lossy packet[id=" + packet[0] + "]: " + message);
             assertEquals(friendNumber, 0);

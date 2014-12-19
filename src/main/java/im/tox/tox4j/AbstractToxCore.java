@@ -10,7 +10,7 @@ public abstract class AbstractToxCore implements ToxCore {
         callbackFileControl(handler);
         callbackFileReceive(handler);
         callbackFileReceiveChunk(handler);
-        callbackFileSendChunk(handler);
+        callbackFileRequestChunk(handler);
         callbackFriendAction(handler);
         callbackFriendConnected(handler);
         callbackFriendMessage(handler);
@@ -19,8 +19,8 @@ public abstract class AbstractToxCore implements ToxCore {
         callbackFriendStatus(handler);
         callbackFriendStatusMessage(handler);
         callbackFriendTyping(handler);
-        callbackLosslessPacket(handler);
-        callbackLossyPacket(handler);
+        callbackFriendLosslessPacket(handler);
+        callbackFriendLossyPacket(handler);
         callbackReadReceipt(handler);
     }
 

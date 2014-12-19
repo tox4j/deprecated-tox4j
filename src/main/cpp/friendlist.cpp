@@ -3,28 +3,18 @@
 
 
 static ErrorHandling
-handle_tox_add_friend_result(TOX_ERR_ADD_FRIEND error)
+handle_tox_friend_add_result(TOX_ERR_FRIEND_ADD error)
 {
     switch (error) {
-        case TOX_ERR_ADD_FRIEND_OK:
-            return success();
-
-        case TOX_ERR_ADD_FRIEND_NULL:
-            return failure("NULL");
-        case TOX_ERR_ADD_FRIEND_TOO_LONG:
-            return failure("TOO_LONG");
-        case TOX_ERR_ADD_FRIEND_NO_MESSAGE:
-            return failure("NO_MESSAGE");
-        case TOX_ERR_ADD_FRIEND_OWN_KEY:
-            return failure("OWN_KEY");
-        case TOX_ERR_ADD_FRIEND_ALREADY_SENT:
-            return failure("ALREADY_SENT");
-        case TOX_ERR_ADD_FRIEND_BAD_CHECKSUM:
-            return failure("BAD_CHECKSUM");
-        case TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM:
-            return failure("SET_NEW_NOSPAM");
-        case TOX_ERR_ADD_FRIEND_MALLOC:
-            return failure("MALLOC");
+        success_case(FRIEND_ADD);
+        failure_case(FRIEND_ADD, NULL);
+        failure_case(FRIEND_ADD, TOO_LONG);
+        failure_case(FRIEND_ADD, NO_MESSAGE);
+        failure_case(FRIEND_ADD, OWN_KEY);
+        failure_case(FRIEND_ADD, ALREADY_SENT);
+        failure_case(FRIEND_ADD, BAD_CHECKSUM);
+        failure_case(FRIEND_ADD, SET_NEW_NOSPAM);
+        failure_case(FRIEND_ADD, MALLOC);
     }
 
     return unhandled();
@@ -32,96 +22,93 @@ handle_tox_add_friend_result(TOX_ERR_ADD_FRIEND error)
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxAddFriend
+ * Method:    toxFriendAdd
  * Signature: (I[B[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxAddFriend
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAdd
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray address, jbyteArray message)
 {
-    ByteArray messageBytes(env, message);
-    return with_instance(env, instanceNumber, "AddFriend", handle_tox_add_friend_result, [](uint32_t friend_number) {
+    ByteArray messageData(env, message);
+    ByteArray addressData(env, address);
+    assert(!address || addressData.size() == TOX_ADDRESS_SIZE);
+    return with_instance(env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [](uint32_t friend_number) {
         return friend_number;
-    }, tox_add_friend, ByteArray(env, address).data(), messageBytes.data(), messageBytes.size());
+    }, tox_friend_add, addressData.data(), messageData.data(), messageData.size());
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxAddFriendNorequest
+ * Method:    toxFriendAddNorequest
  * Signature: (I[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxAddFriendNorequest
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
 {
-    return with_instance(env, instanceNumber, "AddFriend", handle_tox_add_friend_result, [](uint32_t friend_number) {
+    ByteArray client_id(env, clientId);
+    assert(!clientId || client_id.size() == TOX_CLIENT_ID_SIZE);
+    return with_instance(env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [](uint32_t friend_number) {
         return friend_number;
-    }, tox_add_friend_norequest, ByteArray(env, clientId).data());
+    }, tox_friend_add_norequest, client_id.data());
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxDeleteFriend
+ * Method:    toxFriendDelete
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxDeleteFriend
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendDelete
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
-    return with_instance(env, instanceNumber, "DeleteFriend", [](TOX_ERR_DELETE_FRIEND error) {
+    return with_instance(env, instanceNumber, "FriendDelete", [](TOX_ERR_FRIEND_DELETE error) {
         switch (error) {
-            case TOX_ERR_DELETE_FRIEND_OK:
-                return success();
-            case TOX_ERR_DELETE_FRIEND_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(FRIEND_DELETE);
+            failure_case(FRIEND_DELETE, FRIEND_NOT_FOUND);
         }
         return unhandled();
     }, [](bool) {
-    }, tox_delete_friend, friendNumber);
+    }, tox_friend_delete, friendNumber);
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetFriendNumber
+ * Method:    toxFriendByClientId
  * Signature: (I[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendNumber
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendByClientId
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
 {
-    return with_instance(env, instanceNumber, "GetFriendNumber", [](TOX_ERR_GET_FRIEND_NUMBER error) {
+    ByteArray client_id(env, clientId);
+    assert(!clientId || client_id.size() == TOX_CLIENT_ID_SIZE);
+    return with_instance(env, instanceNumber, "FriendByClientId", [](TOX_ERR_FRIEND_BY_CLIENT_ID error) {
         switch (error) {
-            case TOX_ERR_GET_FRIEND_NUMBER_OK:
-                return success();
-            case TOX_ERR_GET_FRIEND_NUMBER_NULL:
-                return failure("NULL");
-            case TOX_ERR_GET_FRIEND_NUMBER_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(FRIEND_BY_CLIENT_ID);
+            failure_case(FRIEND_BY_CLIENT_ID, NULL);
+            failure_case(FRIEND_BY_CLIENT_ID, NOT_FOUND);
         }
         return unhandled();
     }, [](uint32_t friend_number) {
         return friend_number;
-    }, tox_get_friend_number, ByteArray(env, clientId).data());
+    }, tox_friend_by_client_id, client_id.data());
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetFriendClientId
+ * Method:    toxFriendGetClientId
  * Signature: (II)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendClientId
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetClientId
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
     std::vector<uint8_t> buffer(TOX_CLIENT_ID_SIZE);
-    return with_instance(env, instanceNumber, "GetClientId", [](TOX_ERR_GET_CLIENT_ID error) {
+    return with_instance(env, instanceNumber, "FriendGetClientId", [](TOX_ERR_FRIEND_GET_CLIENT_ID error) {
         switch (error) {
-            case TOX_ERR_GET_CLIENT_ID_OK:
-                return success();
-            case TOX_ERR_GET_CLIENT_ID_NULL:
-                return failure("NULL");
-            case TOX_ERR_GET_CLIENT_ID_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(FRIEND_GET_CLIENT_ID);
+            failure_case(FRIEND_GET_CLIENT_ID, FRIEND_NOT_FOUND);
         }
         return unhandled();
     }, [&](bool) {
         return toJavaArray(env, buffer);
-    }, tox_get_friend_client_id, friendNumber, buffer.data());
+    }, tox_friend_get_client_id, friendNumber, buffer.data());
 }
 
 /*
@@ -140,16 +127,16 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendExists
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetFriendList
+ * Method:    toxFriendList
  * Signature: (I)[I
  */
-JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetFriendList
+JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendList
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         std::vector<uint32_t> list(tox_friend_list_size(tox));
-        tox_get_friend_list(tox, list.data());
+        tox_friend_list(tox, list.data());
         return toJavaArray(env, list);
     });
 }

@@ -8,25 +8,24 @@
  * Signature: (ILjava/lang/String;I[B)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
-  (JNIEnv *env, jclass, jint instanceNumber, jstring address, jint port, jbyteArray public_key)
+  (JNIEnv *env, jclass, jint instanceNumber, jstring address, jint port, jbyteArray publicKey)
 {
     assert(port >= 0);
     assert(port <= 65535);
 
+    ByteArray public_key(env, publicKey);
+    assert(!publicKey || public_key.size() == TOX_CLIENT_ID_SIZE);
+
     return with_instance(env, instanceNumber, "Bootstrap", [](TOX_ERR_BOOTSTRAP error) {
         switch (error) {
-            case TOX_ERR_BOOTSTRAP_OK:
-                return success();
-            case TOX_ERR_BOOTSTRAP_NULL:
-                return failure("NULL");
-            case TOX_ERR_BOOTSTRAP_BAD_ADDRESS:
-                return failure("BAD_ADDRESS");
-            case TOX_ERR_BOOTSTRAP_BAD_PORT:
-                return failure("BAD_PORT");
+            success_case(BOOTSTRAP);
+            failure_case(BOOTSTRAP, NULL);
+            failure_case(BOOTSTRAP, BAD_ADDRESS);
+            failure_case(BOOTSTRAP, BAD_PORT);
         }
         return unhandled();
     }, [](bool) {
-    }, tox_bootstrap, UTFChars(env, address).data(), port, ByteArray(env, public_key).data());
+    }, tox_bootstrap, UTFChars(env, address).data(), port, public_key.data());
 }
 
 /*
@@ -39,10 +38,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetPort
 {
     return with_instance(env, instanceNumber, "GetPort", [](TOX_ERR_GET_PORT error) {
         switch (error) {
-            case TOX_ERR_GET_PORT_OK:
-                return success();
-            case TOX_ERR_GET_PORT_NOT_BOUND:
-                return failure("NOT_BOUND");
+            success_case(GET_PORT);
+            failure_case(GET_PORT, NOT_BOUND);
         }
         return unhandled();
     }, [](uint16_t port) {
@@ -52,15 +49,31 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetPort
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxIterationTime
- * Signature: (I)I
+ * Method:    toxGetDhtId
+ * Signature: (I)[B
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIterationTime
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetDhtId
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
-        return tox_iteration_time(tox);
+        std::vector<uint8_t> dht_id(TOX_CLIENT_ID_SIZE);
+        tox_get_dht_id(tox, dht_id.data());
+        return toJavaArray(env, dht_id);
+    });
+}
+
+/*
+ * Class:     im_tox_tox4jToxCoreImpl
+ * Method:    toxIterationInterval
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIterationInterval
+  (JNIEnv *env, jclass, jint instanceNumber)
+{
+    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+        unused(events);
+        return tox_iteration_interval(tox);
     });
 }
 

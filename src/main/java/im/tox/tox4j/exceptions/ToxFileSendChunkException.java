@@ -9,7 +9,7 @@ public class ToxFileSendChunkException extends ToxException {
         NOT_FOUND,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxFileSendChunkException(Code code) {
         this.code = code;

@@ -11,7 +11,7 @@ public class ToxFileControlException extends ToxException {
         ALREADY_PAUSED,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxFileControlException(Code code) {
         this.code = code;

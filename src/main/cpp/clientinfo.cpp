@@ -4,120 +4,120 @@
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetSelfClientId
+ * Method:    toxSelfGetClientId
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetSelfClientId
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetClientId
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         std::vector<uint8_t> client_id(TOX_CLIENT_ID_SIZE);
-        tox_get_self_client_id(tox, client_id.data());
+        tox_self_get_client_id(tox, client_id.data());
         return toJavaArray(env, client_id);
     });
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetSecretKey
+ * Method:    toxSelfGetPrivateKey
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetSecretKey
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPrivateKey
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
-        std::vector<uint8_t> secret_key(TOX_CLIENT_ID_SIZE);
-        tox_get_secret_key(tox, secret_key.data());
-        return toJavaArray(env, secret_key);
+        std::vector<uint8_t> private_key(TOX_CLIENT_ID_SIZE);
+        tox_self_get_private_key(tox, private_key.data());
+        return toJavaArray(env, private_key);
     });
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSetNospam
+ * Method:    toxSelfSetNospam
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetNospam
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetNospam
   (JNIEnv *env, jclass, jint instanceNumber, jint nospam)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
-        tox_set_nospam(tox, nospam);
+        tox_self_set_nospam(tox, nospam);
     });
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetNospam
+ * Method:    toxSelfGetNospam
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetNospam
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetNospam
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
-        return tox_get_nospam(tox);
+        return tox_self_get_nospam(tox);
     });
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetAddress
+ * Method:    toxSelfGetAddress
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetAddress
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetAddress
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
         std::vector<uint8_t> address(TOX_ADDRESS_SIZE);
-        tox_get_address(tox, address.data());
+        tox_self_get_address(tox, address.data());
 
         return toJavaArray(env, address);
     });
 }
 
+
+static ErrorHandling handle_set_info_error(TOX_ERR_SET_INFO error) {
+    switch (error) {
+        success_case(SET_INFO);
+        failure_case(SET_INFO, NULL);
+        failure_case(SET_INFO, TOO_LONG);
+    }
+    return unhandled();
+}
+
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSetName
+ * Method:    toxSelfSetName
  * Signature: (I[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetName
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetName
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray name)
 {
     ByteArray name_array(env, name);
-    return with_instance(env, instanceNumber, "SetInfo", [](TOX_ERR_SET_INFO error) {
-        switch (error) {
-            case TOX_ERR_SET_INFO_OK:
-                return success();
-            case TOX_ERR_SET_INFO_NULL:
-                return failure("NULL");
-            case TOX_ERR_SET_INFO_TOO_LONG:
-                return failure("TOO_LONG");
-        }
-        return unhandled();
-    }, [](bool) {
-    }, tox_set_self_name, name_array.data(), name_array.size());
+    return with_instance(env, instanceNumber, "SetInfo", handle_set_info_error, [](bool) {
+    }, tox_self_set_name, name_array.data(), name_array.size());
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetName
+ * Method:    toxSelfGetName
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetName
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetName
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> jbyteArray {
         unused(events);
-        size_t size = tox_self_name_size(tox);
+        size_t size = tox_self_get_name_size(tox);
         if (size == 0) {
             return nullptr;
         }
         std::vector<uint8_t> name(size);
-        tox_get_self_name(tox, name.data());
+        tox_self_get_name(tox, name.data());
 
         return toJavaArray(env, name);
     });
@@ -125,43 +125,33 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetName
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSetStatusMessage
+ * Method:    toxSelfSetStatusMessage
  * Signature: (I[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetStatusMessage
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatusMessage
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray statusMessage)
 {
     ByteArray status_message_array(env, statusMessage);
-    return with_instance(env, instanceNumber, "SetInfo", [](TOX_ERR_SET_INFO error) {
-        switch (error) {
-            case TOX_ERR_SET_INFO_OK:
-                return success();
-            case TOX_ERR_SET_INFO_NULL:
-                return failure("NULL");
-            case TOX_ERR_SET_INFO_TOO_LONG:
-                return failure("TOO_LONG");
-        }
-        return unhandled();
-    }, [](bool) {
-    }, tox_set_self_status_message, status_message_array.data(), status_message_array.size());
+    return with_instance(env, instanceNumber, "SetInfo", handle_set_info_error, [](bool) {
+    }, tox_self_set_status_message, status_message_array.data(), status_message_array.size());
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetStatusMessage
+ * Method:    toxSelfGetStatusMessage
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetStatusMessage
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatusMessage
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> jbyteArray {
         unused(events);
-        size_t size = tox_self_status_message_size(tox);
+        size_t size = tox_self_get_status_message_size(tox);
         if (size == 0) {
             return nullptr;
         }
         std::vector<uint8_t> name(size);
-        tox_get_self_status_message(tox, name.data());
+        tox_self_get_status_message(tox, name.data());
 
         return toJavaArray(env, name);
     });
@@ -169,28 +159,28 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetStatusMessage
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSetStatus
+ * Method:    toxSelfSetStatus
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSetStatus
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatus
   (JNIEnv *env, jclass, jint instanceNumber, jint status)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
-        tox_set_self_status(tox, (TOX_STATUS) status); // TODO: better use a switch
+        tox_self_set_status(tox, (TOX_STATUS) status); // TODO: better use a switch
     });
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetStatus
+ * Method:    toxSelfGetStatus
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetStatus
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatus
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
         unused(events);
-        return tox_get_self_status(tox);
+        return tox_self_get_status(tox);
     });
 }
