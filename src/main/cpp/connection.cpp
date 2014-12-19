@@ -14,7 +14,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
     assert(port <= 65535);
 
     ByteArray public_key(env, publicKey);
-    assert(public_key.size() == TOX_CLIENT_ID_SIZE);
+    assert(!publicKey || public_key.size() == TOX_CLIENT_ID_SIZE);
 
     return with_instance(env, instanceNumber, "Bootstrap", [](TOX_ERR_BOOTSTRAP error) {
         switch (error) {
