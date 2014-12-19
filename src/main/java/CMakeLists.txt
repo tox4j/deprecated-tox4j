@@ -14,67 +14,54 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 
 # Source Files
 set(TOX4J_CORE
-	im/tox/tox4j/AbstractToxCore.java
-	im/tox/tox4j/ToxConstants.java
-	im/tox/tox4j/ToxCore.java
-	im/tox/tox4j/ToxCoreImpl.java
-	im/tox/tox4j/ToxOptions.java
-)
-
-set(TOX4J_ENUMS
-	im/tox/tox4j/enums/ToxFileControl.java
-	im/tox/tox4j/enums/ToxFileKind.java
-	im/tox/tox4j/enums/ToxProxyType.java
-	im/tox/tox4j/enums/ToxStatus.java
-)
-
-set(TOX4J_EXCEPTIONS
-	im/tox/tox4j/exceptions/ToxAddFriendException.java
-	im/tox/tox4j/exceptions/ToxBootstrapException.java
-	im/tox/tox4j/exceptions/ToxDeleteFriendException.java
-	im/tox/tox4j/exceptions/ToxException.java
-	im/tox/tox4j/exceptions/ToxFileControlException.java
-	im/tox/tox4j/exceptions/ToxFileSendException.java
-	im/tox/tox4j/exceptions/ToxFileSendChunkException.java
-	im/tox/tox4j/exceptions/ToxFriendQueryException.java
-	im/tox/tox4j/exceptions/ToxGetClientIdException.java
-	im/tox/tox4j/exceptions/ToxGetFriendNumberException.java
-	im/tox/tox4j/exceptions/ToxGetPortException.java
-	im/tox/tox4j/exceptions/ToxLoadException.java
-	im/tox/tox4j/exceptions/ToxKilledException.java
-	im/tox/tox4j/exceptions/ToxNewException.java
-	im/tox/tox4j/exceptions/ToxSendCustomPacketException.java
-	im/tox/tox4j/exceptions/ToxSendMessageException.java
-	im/tox/tox4j/exceptions/ToxSetInfoException.java
-	im/tox/tox4j/exceptions/ToxSetTypingException.java
-)
-
-set(TOX4J_CALLBACKS
 	im/tox/tox4j/callbacks/ConnectionStatusCallback.java
 	im/tox/tox4j/callbacks/FileControlCallback.java
 	im/tox/tox4j/callbacks/FileReceiveCallback.java
 	im/tox/tox4j/callbacks/FileReceiveChunkCallback.java
-	im/tox/tox4j/callbacks/FileSendChunkCallback.java
+	im/tox/tox4j/callbacks/FileRequestChunkCallback.java
 	im/tox/tox4j/callbacks/FriendActionCallback.java
 	im/tox/tox4j/callbacks/FriendConnectedCallback.java
+	im/tox/tox4j/callbacks/FriendLosslessPacketCallback.java
+	im/tox/tox4j/callbacks/FriendLossyPacketCallback.java
 	im/tox/tox4j/callbacks/FriendMessageCallback.java
 	im/tox/tox4j/callbacks/FriendNameCallback.java
 	im/tox/tox4j/callbacks/FriendRequestCallback.java
 	im/tox/tox4j/callbacks/FriendStatusCallback.java
 	im/tox/tox4j/callbacks/FriendStatusMessageCallback.java
 	im/tox/tox4j/callbacks/FriendTypingCallback.java
-	im/tox/tox4j/callbacks/LosslessPacketCallback.java
-	im/tox/tox4j/callbacks/LossyPacketCallback.java
 	im/tox/tox4j/callbacks/ReadReceiptCallback.java
 	im/tox/tox4j/callbacks/ToxEventAdapter.java
 	im/tox/tox4j/callbacks/ToxEventListener.java
+	im/tox/tox4j/enums/ToxFileControl.java
+	im/tox/tox4j/enums/ToxFileKind.java
+	im/tox/tox4j/enums/ToxProxyType.java
+	im/tox/tox4j/enums/ToxStatus.java
+	im/tox/tox4j/exceptions/ToxBootstrapException.java
+	im/tox/tox4j/exceptions/ToxException.java
+	im/tox/tox4j/exceptions/ToxFileControlException.java
+	im/tox/tox4j/exceptions/ToxFileSendChunkException.java
+	im/tox/tox4j/exceptions/ToxFileSendException.java
+	im/tox/tox4j/exceptions/ToxFriendAddException.java
+	im/tox/tox4j/exceptions/ToxFriendByClientIdException.java
+	im/tox/tox4j/exceptions/ToxFriendDeleteException.java
+	im/tox/tox4j/exceptions/ToxFriendGetClientIdException.java
+	im/tox/tox4j/exceptions/ToxGetPortException.java
+	im/tox/tox4j/exceptions/ToxKilledException.java
+	im/tox/tox4j/exceptions/ToxLoadException.java
+	im/tox/tox4j/exceptions/ToxNewException.java
+	im/tox/tox4j/exceptions/ToxSendCustomPacketException.java
+	im/tox/tox4j/exceptions/ToxSendMessageException.java
+	im/tox/tox4j/exceptions/ToxSetInfoException.java
+	im/tox/tox4j/exceptions/ToxSetTypingException.java
+	im/tox/tox4j/AbstractToxCore.java
+	im/tox/tox4j/ToxConstants.java
+	im/tox/tox4j/ToxCoreImpl.java
+	im/tox/tox4j/ToxCore.java
+	im/tox/tox4j/ToxOptions.java
 )
 
 set(TOX4J_SOURCE
 	${TOX4J_CORE}
-	${TOX4J_ENUMS}
-	${TOX4J_EXCEPTIONS}
-	${TOX4J_CALLBACKS}
 	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Events.java"
 )
 
@@ -112,9 +99,6 @@ file(MAKE_DIRECTORY ${JNI_HEADER_LOCATION})
 if (BUILD_JAVADOC)
 	set(JAVADOC_SOURCE
 		${TOX4J_CORE}
-		${TOX4J_ENUMS}
-		${TOX4J_EXCEPTIONS}
-		${TOX4J_CALLBACKS}
 	)
 	create_javadoc(${JAR_TARGET_NAME}
 		FILES ${JAVADOC_SOURCE}

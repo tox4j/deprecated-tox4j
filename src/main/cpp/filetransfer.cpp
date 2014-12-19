@@ -12,20 +12,13 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
 {
     return with_instance(env, instanceNumber, "FileControl", [](TOX_ERR_FILE_CONTROL error) {
         switch (error) {
-            case TOX_ERR_FILE_CONTROL_OK:
-                return success();
-            case TOX_ERR_FILE_CONTROL_FRIEND_NOT_FOUND:
-                return failure("FRIEND_NOT_FOUND");
-            case TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED:
-                return failure("FRIEND_NOT_CONNECTED");
-            case TOX_ERR_FILE_CONTROL_NOT_FOUND:
-                return failure("NOT_FOUND");
-            case TOX_ERR_FILE_CONTROL_NOT_PAUSED:
-                return failure("NOT_PAUSED");
-            case TOX_ERR_FILE_CONTROL_DENIED:
-                return failure("DENIED");
-            case TOX_ERR_FILE_CONTROL_ALREADY_PAUSED:
-                return failure("ALREADY_PAUSED");
+            success_case(FILE_CONTROL);
+            failure_case(FILE_CONTROL, FRIEND_NOT_FOUND);
+            failure_case(FILE_CONTROL, FRIEND_NOT_CONNECTED);
+            failure_case(FILE_CONTROL, NOT_FOUND);
+            failure_case(FILE_CONTROL, NOT_PAUSED);
+            failure_case(FILE_CONTROL, DENIED);
+            failure_case(FILE_CONTROL, ALREADY_PAUSED);
         }
         return unhandled();
     }, [](bool) {
@@ -43,20 +36,13 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSend
     ByteArray filenameData(env, filename);
     return with_instance(env, instanceNumber, "FileSend", [](TOX_ERR_FILE_SEND error) {
         switch (error) {
-            case TOX_ERR_FILE_SEND_OK:
-                return success();
-            case TOX_ERR_FILE_SEND_NULL:
-                return failure("NULL");
-            case TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND:
-                return failure("FRIEND_NOT_FOUND");
-            case TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED:
-                return failure("FRIEND_NOT_CONNECTED");
-            case TOX_ERR_FILE_SEND_NAME_EMPTY:
-                return failure("EMPTY");
-            case TOX_ERR_FILE_SEND_NAME_TOO_LONG:
-                return failure("TOO_LONG");
-            case TOX_ERR_FILE_SEND_TOO_MANY:
-                return failure("TOO_MANY");
+            success_case(FILE_SEND);
+            failure_case(FILE_SEND, NULL);
+            failure_case(FILE_SEND, FRIEND_NOT_FOUND);
+            failure_case(FILE_SEND, FRIEND_NOT_CONNECTED);
+            failure_case(FILE_SEND, NAME_EMPTY);
+            failure_case(FILE_SEND, NAME_TOO_LONG);
+            failure_case(FILE_SEND, TOO_MANY);
         }
         return unhandled();
     }, [](uint32_t file_number) {
@@ -75,16 +61,12 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
     ByteArray chunkData(env, chunk);
     return with_instance(env, instanceNumber, "FileSendChunk", [](TOX_ERR_FILE_SEND_CHUNK error) {
         switch (error) {
-            case TOX_ERR_FILE_SEND_CHUNK_OK:
-                return success();
-            case TOX_ERR_FILE_SEND_CHUNK_NULL:
-                return failure("NULL");
-            case TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_FOUND:
-                return failure("FRIEND_NOT_FOUND");
-            case TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_CONNECTED:
-                return failure("FRIEND_NOT_CONNECTED");
-            case TOX_ERR_FILE_SEND_CHUNK_NOT_FOUND:
-                return failure("NOT_FOUND");
+            success_case(FILE_SEND_CHUNK);
+            failure_case(FILE_SEND_CHUNK, NULL);
+            failure_case(FILE_SEND_CHUNK, FRIEND_NOT_FOUND);
+            failure_case(FILE_SEND_CHUNK, FRIEND_NOT_CONNECTED);
+            failure_case(FILE_SEND_CHUNK, NOT_FOUND);
+            failure_case(FILE_SEND_CHUNK, TOO_LARGE);
         }
         return unhandled();
     }, [](bool) {

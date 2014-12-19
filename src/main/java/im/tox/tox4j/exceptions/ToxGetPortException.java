@@ -6,7 +6,7 @@ public class ToxGetPortException extends ToxException {
         NOT_BOUND,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxGetPortException(Code code) {
         this.code = code;

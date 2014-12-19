@@ -117,11 +117,11 @@ struct new_Tox
     callback<tox_friend_message_cb> friend_message;
     callback<tox_friend_action_cb> friend_action;
     callback<tox_file_control_cb> file_control;
-    callback<tox_file_send_chunk_cb> file_send_chunk;
+    callback<tox_file_request_chunk_cb> file_request_chunk;
     callback<tox_file_receive_cb> file_receive;
     callback<tox_file_receive_chunk_cb> file_receive_chunk;
-    callback<tox_lossy_packet_cb> lossy_packet;
-    callback<tox_lossless_packet_cb> lossless_packet;
+    callback<tox_friend_lossy_packet_cb> friend_lossy_packet;
+    callback<tox_friend_lossless_packet_cb> friend_lossless_packet;
   } callbacks;
 
   struct CB
@@ -234,7 +234,7 @@ struct new_Tox
         case TOX_FILECONTROL_FINISHED:
           {
             // We're done, send a request for 0 bytes to let the client know.
-            auto cb = self->callbacks.file_send_chunk;
+            auto cb = self->callbacks.file_request_chunk;
             cb.func (self, friendnumber, file_number, transfer->position,
                      0, cb.user_data);
             // Then delete the transfer state.
@@ -292,7 +292,7 @@ struct new_Tox
     static int lossy_packet (Tox *tox, int32_t friendnumber, const uint8_t *data, uint32_t length, void *userdata)
     {
       auto self = static_cast<new_Tox *> (userdata);
-      auto cb = self->callbacks.lossy_packet;
+      auto cb = self->callbacks.friend_lossy_packet;
       cb.func (self, friendnumber, data, length, cb.user_data);
       return 0;
     }
@@ -300,7 +300,7 @@ struct new_Tox
     static int lossless_packet (Tox *tox, int32_t friendnumber, const uint8_t *data, uint32_t length, void *userdata)
     {
       auto self = static_cast<new_Tox *> (userdata);
-      auto cb = self->callbacks.lossless_packet;
+      auto cb = self->callbacks.friend_lossless_packet;
       cb.func (self, friendnumber, data, length, cb.user_data);
       return 0;
     }
@@ -568,8 +568,15 @@ new_tox_get_port (new_Tox const *tox, TOX_ERR_GET_PORT *error)
   return 0;
 }
 
+void
+new_tox_get_dht_id (new_Tox const *tox, uint8_t *dht_id)
+{
+  // XXX: wrong, but we can't know for now.
+  new_tox_self_get_client_id (tox, dht_id);
+}
+
 uint32_t
-new_tox_iteration_time (new_Tox const *tox)
+new_tox_iteration_interval (new_Tox const *tox)
 {
   return tox_do_interval (tox->tox);
 }
@@ -584,7 +591,7 @@ new_tox_iteration (new_Tox *tox)
       auto cb = tox->callbacks.connection_status;
       cb.func (tox, tox->connected, cb.user_data);
     }
-  // For all active file transfers that we didn't invoke a file_send_chunk
+  // For all active file transfers that we didn't invoke a file_request_chunk
   // event for, do so now.
   for (auto &pair : tox->transfers)
     {
@@ -601,7 +608,7 @@ new_tox_iteration (new_Tox *tox)
 
           transfer.size_requested = tox_file_data_size (tox->tox, friend_number);
 
-          auto cb = tox->callbacks.file_send_chunk;
+          auto cb = tox->callbacks.file_request_chunk;
           cb.func (tox, friend_number, file_number, transfer.position,
                    transfer.size_requested, cb.user_data);
           transfer.event_pending = true;
@@ -610,37 +617,37 @@ new_tox_iteration (new_Tox *tox)
 }
 
 void
-new_tox_get_address (new_Tox const *tox, uint8_t *address)
+new_tox_self_get_address (new_Tox const *tox, uint8_t *address)
 {
   tox_get_address (tox->tox, address);
 }
 
 void
-new_tox_set_nospam (new_Tox *tox, uint32_t nospam)
+new_tox_self_set_nospam (new_Tox *tox, uint32_t nospam)
 {
   tox_set_nospam (tox->tox, nospam);
 }
 
 uint32_t
-new_tox_get_nospam (new_Tox const *tox)
+new_tox_self_get_nospam (new_Tox const *tox)
 {
   return tox_get_nospam (tox->tox);
 }
 
 void
-new_tox_get_self_client_id (new_Tox const *tox, uint8_t *client_id)
+new_tox_self_get_client_id (new_Tox const *tox, uint8_t *client_id)
 {
   tox_get_keys (tox->tox, client_id, nullptr);
 }
 
 void
-new_tox_get_secret_key (new_Tox const *tox, uint8_t *secret_key)
+new_tox_self_get_private_key (new_Tox const *tox, uint8_t *private_key)
 {
-  tox_get_keys (tox->tox, nullptr, secret_key);
+  tox_get_keys (tox->tox, nullptr, private_key);
 }
 
 bool
-new_tox_set_self_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR_SET_INFO *error)
+new_tox_self_set_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR_SET_INFO *error)
 {
   if (length > TOX_MAX_NAME_LENGTH)
     {
@@ -662,19 +669,19 @@ new_tox_set_self_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR
 }
 
 size_t
-new_tox_self_name_size (new_Tox const *tox)
+new_tox_self_get_name_size (new_Tox const *tox)
 {
   return tox_get_self_name_size (tox->tox);
 }
 
 void
-new_tox_get_self_name (new_Tox const *tox, uint8_t *name)
+new_tox_self_get_name (new_Tox const *tox, uint8_t *name)
 {
   tox_get_self_name (tox->tox, name);
 }
 
 bool
-new_tox_set_self_status_message (new_Tox *tox, uint8_t const *status, size_t length, TOX_ERR_SET_INFO *error)
+new_tox_self_set_status_message (new_Tox *tox, uint8_t const *status, size_t length, TOX_ERR_SET_INFO *error)
 {
   if (length > TOX_MAX_STATUS_MESSAGE_LENGTH)
     {
@@ -696,73 +703,78 @@ new_tox_set_self_status_message (new_Tox *tox, uint8_t const *status, size_t len
 }
 
 size_t
-new_tox_self_status_message_size (new_Tox const *tox)
+new_tox_self_get_status_message_size (new_Tox const *tox)
 {
   return tox_get_self_status_message_size (tox->tox);
 }
 
 void
-new_tox_get_self_status_message (new_Tox const *tox, uint8_t *status)
+new_tox_self_get_status_message (new_Tox const *tox, uint8_t *status)
 {
   // XXX: current tox core doesn't do what it says, which is to truncate if it
   // goes over the length. instead, it simply writes as much as the length
   // indicates, so we need to ask for the length again here.
-  size_t length = new_tox_self_status_message_size (tox);
+  size_t length = new_tox_self_get_status_message_size (tox);
   tox_get_self_status_message (tox->tox, status, length);
 }
 
 void
-new_tox_set_self_status (new_Tox *tox, TOX_STATUS user_status)
+new_tox_self_set_status (new_Tox *tox, TOX_STATUS user_status)
 {
   tox_set_user_status (tox->tox, user_status);
 }
 
 TOX_STATUS
-new_tox_get_self_status (new_Tox const *tox)
+new_tox_self_get_status (new_Tox const *tox)
 {
   return (TOX_STATUS) tox_get_self_user_status (tox->tox);
 }
 
 uint32_t
-new_tox_add_friend (new_Tox *tox, uint8_t const *address, uint8_t const *message, size_t length, TOX_ERR_ADD_FRIEND *error)
+new_tox_friend_add (new_Tox *tox, uint8_t const *address, uint8_t const *message, size_t length, TOX_ERR_FRIEND_ADD *error)
 {
+  if (address == nullptr || message == nullptr)
+    {
+      if (error) *error = TOX_ERR_FRIEND_ADD_NULL;
+      return 0;
+    }
   int32_t friend_number = tox_add_friend (tox->tox, address, message, length);
   switch (friend_number)
     {
-    case TOX_FAERR_TOOLONG     : if (error) *error = TOX_ERR_ADD_FRIEND_TOO_LONG;       return 0;
-    case TOX_FAERR_NOMESSAGE   : if (error) *error = TOX_ERR_ADD_FRIEND_NO_MESSAGE;     return 0;
-    case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
-    case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
-    case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
-    case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
-    case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
+    case TOX_FAERR_TOOLONG     : if (error) *error = TOX_ERR_FRIEND_ADD_TOO_LONG;       return 0;
+    case TOX_FAERR_NOMESSAGE   : if (error) *error = TOX_ERR_FRIEND_ADD_NO_MESSAGE;     return 0;
+    case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_FRIEND_ADD_OWN_KEY;        return 0;
+    case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_FRIEND_ADD_ALREADY_SENT;   return 0;
+    case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_FRIEND_ADD_BAD_CHECKSUM;   return 0;
+    case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_FRIEND_ADD_SET_NEW_NOSPAM; return 0;
+    case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_FRIEND_ADD_MALLOC;         return 0;
     }
 
   tox->register_custom_packet_handlers (friend_number);
-  if (error) *error = TOX_ERR_ADD_FRIEND_OK;
+  if (error) *error = TOX_ERR_FRIEND_ADD_OK;
   return friend_number;
 }
 
 uint32_t
-new_tox_add_friend_norequest (new_Tox *tox, uint8_t const *client_id, TOX_ERR_ADD_FRIEND *error)
+new_tox_friend_add_norequest (new_Tox *tox, uint8_t const *client_id, TOX_ERR_FRIEND_ADD *error)
 {
   int32_t friend_number = tox_add_friend_norequest (tox->tox, client_id);
   switch (friend_number)
     {
-    case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_ADD_FRIEND_OWN_KEY;        return 0;
-    case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_ADD_FRIEND_ALREADY_SENT;   return 0;
-    case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_ADD_FRIEND_BAD_CHECKSUM;   return 0;
-    case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_ADD_FRIEND_SET_NEW_NOSPAM; return 0;
-    case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_ADD_FRIEND_MALLOC;         return 0;
+    case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_FRIEND_ADD_OWN_KEY;        return 0;
+    case TOX_FAERR_ALREADYSENT : if (error) *error = TOX_ERR_FRIEND_ADD_ALREADY_SENT;   return 0;
+    case TOX_FAERR_BADCHECKSUM : if (error) *error = TOX_ERR_FRIEND_ADD_BAD_CHECKSUM;   return 0;
+    case TOX_FAERR_SETNEWNOSPAM: if (error) *error = TOX_ERR_FRIEND_ADD_SET_NEW_NOSPAM; return 0;
+    case TOX_FAERR_NOMEM       : if (error) *error = TOX_ERR_FRIEND_ADD_MALLOC;         return 0;
     }
 
   tox->register_custom_packet_handlers (friend_number);
-  if (error) *error = TOX_ERR_ADD_FRIEND_OK;
+  if (error) *error = TOX_ERR_FRIEND_ADD_OK;
   return friend_number;
 }
 
 bool
-new_tox_delete_friend (new_Tox *tox, uint32_t friend_number, TOX_ERR_DELETE_FRIEND *error)
+new_tox_friend_delete (new_Tox *tox, uint32_t friend_number, TOX_ERR_FRIEND_DELETE *error)
 {
   // XXX: tox_del_friend is broken in that it doesn't detect if an already
   // deleted friend is being deleted again, if the highest friend number is
@@ -781,53 +793,53 @@ new_tox_delete_friend (new_Tox *tox, uint32_t friend_number, TOX_ERR_DELETE_FRIE
       if (!contained)
         {
           // The friend didn't exist, so he wasn't removed.
-          if (error) *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+          if (error) *error = TOX_ERR_FRIEND_DELETE_FRIEND_NOT_FOUND;
           return false;
         }
-      if (error) *error = TOX_ERR_DELETE_FRIEND_OK;
+      if (error) *error = TOX_ERR_FRIEND_DELETE_OK;
       return true;
     case -1:
-      if (error) *error = TOX_ERR_DELETE_FRIEND_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_DELETE_FRIEND_NOT_FOUND;
       return false;
     }
   assert (false);
 }
 
 uint32_t
-new_tox_get_friend_number (new_Tox const *tox, uint8_t const *client_id, TOX_ERR_GET_FRIEND_NUMBER *error)
+new_tox_friend_by_client_id (new_Tox const *tox, uint8_t const *client_id, TOX_ERR_FRIEND_BY_CLIENT_ID *error)
 {
   if (client_id == nullptr)
     {
-      if (error) *error = TOX_ERR_GET_FRIEND_NUMBER_NULL;
+      if (error) *error = TOX_ERR_FRIEND_BY_CLIENT_ID_NULL;
       return 0;
     }
   switch (int32_t friend_number = tox_get_friend_number (tox->tox, client_id))
     {
     case -1:
-      if (error) *error = TOX_ERR_GET_FRIEND_NUMBER_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_BY_CLIENT_ID_NOT_FOUND;
       return 0;
     default:
-      if (error) *error = TOX_ERR_GET_FRIEND_NUMBER_OK;
+      if (error) *error = TOX_ERR_FRIEND_BY_CLIENT_ID_OK;
       return friend_number;
     }
   assert (false);
 }
 
 bool
-new_tox_get_friend_client_id (new_Tox const *tox, uint32_t friend_number, uint8_t *client_id, TOX_ERR_GET_CLIENT_ID *error)
+new_tox_friend_get_client_id (new_Tox const *tox, uint32_t friend_number, uint8_t *client_id, TOX_ERR_FRIEND_GET_CLIENT_ID *error)
 {
   if (client_id == nullptr)
     {
-      if (error) *error = TOX_ERR_GET_CLIENT_ID_NULL;
-      return false;
+      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_OK;
+      return true;
     }
   switch (tox_get_client_id (tox->tox, friend_number, client_id))
     {
     case -1:
-      if (error) *error = TOX_ERR_GET_CLIENT_ID_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_FRIEND_NOT_FOUND;
       return false;
     case 0:
-      if (error) *error = TOX_ERR_GET_CLIENT_ID_OK;
+      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_OK;
       return true;
     }
   assert (false);
@@ -846,7 +858,7 @@ new_tox_friend_list_size (new_Tox const *tox)
 }
 
 void
-new_tox_get_friend_list (new_Tox const *tox, uint32_t *list)
+new_tox_friend_list (new_Tox const *tox, uint32_t *list)
 {
   // XXX: need to count again to tell the old API we want everything.
   size_t size = tox_count_friendlist (tox->tox);
@@ -854,7 +866,7 @@ new_tox_get_friend_list (new_Tox const *tox, uint32_t *list)
 }
 
 size_t
-new_tox_get_friend_name_size (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_name_size (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
@@ -862,7 +874,7 @@ new_tox_get_friend_name_size (new_Tox const *tox, uint32_t friend_number, TOX_ER
 }
 
 bool
-new_tox_get_friend_name (new_Tox const *tox, uint32_t friend_number, uint8_t *name, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_name (new_Tox const *tox, uint32_t friend_number, uint8_t *name, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
@@ -876,7 +888,7 @@ new_tox_callback_friend_name (new_Tox *tox, tox_friend_name_cb *function, void *
 }
 
 size_t
-new_tox_get_friend_status_message_size (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_status_message_size (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
@@ -884,7 +896,7 @@ new_tox_get_friend_status_message_size (new_Tox const *tox, uint32_t friend_numb
 }
 
 bool
-new_tox_get_friend_status_message (new_Tox const *tox, uint32_t friend_number, uint8_t *message, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_status_message (new_Tox const *tox, uint32_t friend_number, uint8_t *message, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
@@ -898,7 +910,7 @@ new_tox_callback_friend_status_message (new_Tox *tox, tox_friend_status_message_
 }
 
 TOX_STATUS
-new_tox_get_friend_status (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_status (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
@@ -912,11 +924,11 @@ new_tox_callback_friend_status (new_Tox *tox, tox_friend_status_cb *function, vo
 }
 
 bool
-new_tox_get_friend_is_connected (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_connected (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   if (!new_tox_friend_exists (tox, friend_number))
     {
-      if (error) *error = TOX_ERR_FRIEND_QUERY_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_QUERY_FRIEND_NOT_FOUND;
       return false;
     }
   int result = tox_get_friend_connection_status (tox->tox, friend_number);
@@ -932,7 +944,7 @@ new_tox_callback_friend_connected (new_Tox *tox, tox_friend_connected_cb *functi
 }
 
 bool
-new_tox_get_friend_is_typing (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
+new_tox_friend_get_typing (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   assert (false);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
@@ -946,7 +958,7 @@ new_tox_callback_friend_typing (new_Tox *tox, tox_friend_typing_cb *function, vo
 }
 
 bool
-new_tox_set_typing (new_Tox *tox, uint32_t friend_number, bool is_typing, TOX_ERR_SET_TYPING *error)
+new_tox_self_set_typing (new_Tox *tox, uint32_t friend_number, bool is_typing, TOX_ERR_SET_TYPING *error)
 {
   switch (tox_set_user_is_typing (tox->tox, friend_number, is_typing))
     {
@@ -979,7 +991,7 @@ new_tox_send_something (uint32_t tox_send (Tox *tox, int32_t friendnumber, const
       if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND;
       return 0;
     }
-  if (!new_tox_get_friend_is_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_CONNECTED;
       return 0;
@@ -1046,7 +1058,7 @@ new_tox_file_control (new_Tox *tox, uint32_t friend_number, uint32_t file_number
       if (error) *error = TOX_ERR_FILE_CONTROL_FRIEND_NOT_FOUND;
       return false;
     }
-  if (!new_tox_get_friend_is_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED;
       return false;
@@ -1146,7 +1158,7 @@ new_tox_file_send (new_Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uin
       if (error) *error = TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND;
       return 0;
     }
-  if (!new_tox_get_friend_is_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED;
       return 0;
@@ -1179,6 +1191,11 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
       // Transfer finished
       assert (false);
     }
+  if (length > tox_file_data_size (tox->tox, friend_number))
+    {
+      if (error) *error = TOX_ERR_FILE_SEND_CHUNK_TOO_LARGE;
+      return false;
+    }
   if (length != 0 && data == nullptr)
     {
       if (error) *error = TOX_ERR_FILE_SEND_CHUNK_NULL;
@@ -1189,7 +1206,7 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
       if (error) *error = TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_FOUND;
       return false;
     }
-  if (!new_tox_get_friend_is_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_CONNECTED;
       return false;
@@ -1223,9 +1240,9 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
 }
 
 void
-new_tox_callback_file_send_chunk (new_Tox *tox, tox_file_send_chunk_cb *function, void *user_data)
+new_tox_callback_file_request_chunk (new_Tox *tox, tox_file_request_chunk_cb *function, void *user_data)
 {
-  tox->callbacks.file_send_chunk = { function, user_data };
+  tox->callbacks.file_request_chunk = { function, user_data };
 }
 
 void
@@ -1249,7 +1266,7 @@ new_tox_send_custom_packet (int send (Tox const *tox, int32_t friendnumber, uint
       if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_FOUND;
       return false;
     }
-  if (!new_tox_get_friend_is_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_CONNECTED;
       return false;
@@ -1270,9 +1287,9 @@ new_tox_send_lossy_packet (new_Tox *tox, uint32_t friend_number, uint8_t const *
 }
 
 void
-new_tox_callback_lossy_packet (new_Tox *tox, tox_lossy_packet_cb *function, void *user_data)
+new_tox_callback_friend_lossy_packet (new_Tox *tox, tox_friend_lossy_packet_cb *function, void *user_data)
 {
-  tox->callbacks.lossy_packet = { function, user_data };
+  tox->callbacks.friend_lossy_packet = { function, user_data };
 }
 
 bool
@@ -1282,7 +1299,7 @@ new_tox_send_lossless_packet (new_Tox *tox, uint32_t friend_number, uint8_t cons
 }
 
 void
-new_tox_callback_lossless_packet (new_Tox *tox, tox_lossy_packet_cb *function, void *user_data)
+new_tox_callback_friend_lossless_packet (new_Tox *tox, tox_friend_lossless_packet_cb *function, void *user_data)
 {
-  tox->callbacks.lossless_packet = { function, user_data };
+  tox->callbacks.friend_lossless_packet = { function, user_data };
 }

@@ -1,7 +1,5 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.ToxConstants;
-import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.callbacks.ToxEventAdapter;
 import im.tox.tox4j.exceptions.ToxException;
 import org.junit.Test;
@@ -150,7 +148,7 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
                     aliceChat.performTasks(alice);
                     bobChat.performTasks(bob);
 
-                    Thread.sleep(Math.max(alice.iterationTime(), bob.iterationTime()));
+                    Thread.sleep(Math.max(alice.iterationInterval(), bob.iterationInterval()));
                 }
             }
         }

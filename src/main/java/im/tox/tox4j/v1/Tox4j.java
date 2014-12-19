@@ -232,37 +232,37 @@ public class Tox4j implements ToxSimpleChat {
         }
         if (this.messageCallback != null) {
             for (Events.Message message : toxEvents.getMsgList()) {
-                this.messageCallback.execute(message.getFriendNumber(), message.getData().toByteArray());
+                this.messageCallback.execute(message.getFriendByClientId(), message.getData().toByteArray());
             }
         }
         if (this.actionCallback != null) {
             for (Events.Action action : toxEvents.getActionList()) {
-                this.actionCallback.execute(action.getFriendNumber(), action.getAction().toByteArray());
+                this.actionCallback.execute(action.getFriendByClientId(), action.getAction().toByteArray());
             }
         }
         if (this.nameChangeCallback != null) {
             for (Events.NameChange nameChange : toxEvents.getNameChangeList()) {
-                this.nameChangeCallback.execute(nameChange.getFriendNumber(), nameChange.getNewName().toByteArray());
+                this.nameChangeCallback.execute(nameChange.getFriendByClientId(), nameChange.getNewName().toByteArray());
             }
         }
         if (this.statusMessageCallback != null) {
             for (Events.StatusMessage statusMessage : toxEvents.getSMsgList()) {
-                this.statusMessageCallback.execute(statusMessage.getFriendNumber(), statusMessage.getStatus().toByteArray());
+                this.statusMessageCallback.execute(statusMessage.getFriendByClientId(), statusMessage.getStatus().toByteArray());
             }
         }
         if (this.userStatusCallback != null) {
             for (Events.UserStatus userStatus : toxEvents.getUStatusList()) {
-                this.userStatusCallback.execute(userStatus.getFriendNumber(), userStatus.getStatus());
+                this.userStatusCallback.execute(userStatus.getFriendByClientId(), userStatus.getStatus());
             }
         }
         if (this.typingChangeCallback != null) {
             for (Events.TypingStatus typingStatus : toxEvents.getTStatusList()) {
-                this.typingChangeCallback.execute(typingStatus.getFriendNumber(), typingStatus.getTyping());
+                this.typingChangeCallback.execute(typingStatus.getFriendByClientId(), typingStatus.getTyping());
             }
         }
         if (this.connectionStatusCallback != null) {
             for (Events.ConnectionStatus connectionStatus : toxEvents.getCStatusList()) {
-                this.connectionStatusCallback.execute(connectionStatus.getFriendNumber(), connectionStatus.getStatus());
+                this.connectionStatusCallback.execute(connectionStatus.getFriendByClientId(), connectionStatus.getStatus());
             }
         }
         */

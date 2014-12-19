@@ -1,6 +1,6 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxAddFriendException extends ToxException {
+public class ToxFriendAddException extends ToxException {
 
     public static enum Code {
         NULL,
@@ -13,9 +13,9 @@ public class ToxAddFriendException extends ToxException {
         MALLOC,
     }
 
-    public final Code code;
+    private final Code code;
 
-    public ToxAddFriendException(Code code) {
+    public ToxFriendAddException(Code code) {
         this.code = code;
     }
 

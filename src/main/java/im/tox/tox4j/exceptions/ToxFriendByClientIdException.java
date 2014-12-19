@@ -1,15 +1,15 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxGetFriendNumberException extends ToxException {
+public class ToxFriendByClientIdException extends ToxException {
 
     public static enum Code {
         NULL,
         NOT_FOUND,
     }
 
-    public final Code code;
+    private final Code code;
 
-    public ToxGetFriendNumberException(Code code) {
+    public ToxFriendByClientIdException(Code code) {
         this.code = code;
     }
 
