@@ -1,5 +1,8 @@
 package im.tox.tox4j.v1;
 
+import im.tox.tox4j.ToxCore;
+import im.tox.tox4j.ToxCoreImpl;
+
 /**
  * Implementation of a simple 1:1 Wrapper for the Tox API
  * <p>
@@ -51,6 +54,9 @@ public class Tox4j implements ToxSimpleChat {
 
     @Override
     public final void finalize() throws Throwable {
+        ToxCore core = new ToxCoreImpl(null);
+        core.bootstrap("localhost", 33445, null);
+
         try {
             finalize(instanceNumber);
         } catch (Throwable e) {

@@ -1,6 +1,8 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxFriendByClientIdException extends ToxException {
+import im.tox.tox4j.annotations.NotNull;
+
+public final class ToxFriendByClientIdException extends ToxException {
 
     public static enum Code {
         NULL,
@@ -13,6 +15,7 @@ public class ToxFriendByClientIdException extends ToxException {
         this.code = code;
     }
 
+    @NotNull
     @Override
     public Code getCode() {
         return code;

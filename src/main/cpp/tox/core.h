@@ -453,19 +453,41 @@ typedef enum TOX_ERR_BOOTSTRAP {
 bool tox_bootstrap(Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error);
 
 
+typedef enum TOX_CONNECTION {
+  /**
+   * There is no connection. This instance, or the friend the state change is
+   * about, is now offline.
+   */
+  TOX_CONNECTION_NONE,
+  /**
+   * A TCP connection has been established. For the own instance, this means it
+   * is connected through a TCP relay, only. For a friend, this means that the
+   * connection to that particular friend goes through a TCP relay.
+   */
+  TOX_CONNECTION_TCP,
+  /**
+   * A UDP connection has been established. For the own instance, this means it
+   * is able to send UDP packets to DHT nodes, but may still be connected to
+   * a TCP relay. For a friend, this means that the connection to that
+   * particular friend was built using direct UDP packets.
+   */
+  TOX_CONNECTION_UDP
+} TOX_CONNECTION;
+
+
 /**
  * Return whether we are connected to the DHT. The return value is equal to the
  * last value received through the `connection_status` callback.
  */
-bool tox_get_connection_status(Tox const *tox);
+TOX_CONNECTION tox_get_connection_status(Tox const *tox);
 
 /**
  * The function type for the `connection_status` callback.
  *
- * @param is_connected A boolean value equal to the return value of
+ * @param connection_status Equal to the return value of
  *   tox_get_connection_status.
  */
-typedef void tox_connection_status_cb(Tox *tox, bool is_connected, void *user_data);
+typedef void tox_connection_status_cb(Tox *tox, TOX_CONNECTION connection_status, void *user_data);
 
 /**
  * Set the callback for the `connection_status` event. Pass NULL to unset.
@@ -964,29 +986,29 @@ void tox_callback_friend_status(Tox *tox, tox_friend_status_cb *function, void *
  * Check whether a friend is currently connected to this client.
  *
  * The result of this function is equal to the last value received by the
- * `friend_connected` callback.
+ * `friend_connection_status` callback.
  *
  * @param friend_number The friend number for which to query the connection
  *   status.
  *
- * @return true if the friend is connected.
- * @return false if the friend is not connected, or the friend number was
- *   invalid. Inspect the error code to determine which case it is.
+ * @return the friend's connection status as it was received through the
+ *   `friend_connection_status` event.
  */
-bool tox_friend_get_connected(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
+TOX_CONNECTION tox_friend_get_connection_status(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
 
 /**
- * The function type for the `friend_connected` callback.
+ * The function type for the `friend_connection_status` callback.
  *
  * @param friend_number The friend number of the friend whose connection status
  *   changed.
- * @param is_connected The result of calling tox_friend_get_connected on
- *   the passed friend_number.
+ * @param connection_status The result of calling
+ *   tox_friend_get_connection_status on the passed friend_number.
  */
-typedef void tox_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_connected, void *user_data);
+typedef void tox_friend_connection_status_cb(Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status, void *user_data);
 
 /**
- * Set the callback for the `friend_connected` event. Pass NULL to unset.
+ * Set the callback for the `friend_connection_status` event. Pass NULL to
+ * unset.
  *
  * This event is triggered when a friend goes offline after having been online,
  * or when a friend goes online.
@@ -994,7 +1016,7 @@ typedef void tox_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_c
  * This callback is not called when adding friends. It is assumed that when
  * adding friends, their connection status is offline.
  */
-void tox_callback_friend_connected(Tox *tox, tox_friend_connected_cb *function, void *user_data);
+void tox_callback_friend_connection_status(Tox *tox, tox_friend_connection_status_cb *function, void *user_data);
 
 
 /**
@@ -1009,7 +1031,7 @@ void tox_callback_friend_connected(Tox *tox, tox_friend_connected_cb *function, 
 bool tox_friend_get_typing(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
 
 /**
- * The function type for the `friend_connected` callback.
+ * The function type for the `friend_typing` callback.
  *
  * @param friend_number The friend number of the friend who started or stopped
  *   typing.

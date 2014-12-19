@@ -1,6 +1,8 @@
 package im.tox.tox4j;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.proto.Events;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.enums.ToxFileControl;
@@ -19,7 +21,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private FriendNameCallback friendNameCallback;
     private FriendStatusMessageCallback friendStatusMessageCallback;
     private FriendStatusCallback friendStatusCallback;
-    private FriendConnectedCallback friendConnectedCallback;
+    private FriendConnectionStatusCallback friendConnectionStatusCallback;
     private FriendTypingCallback friendTypingCallback;
     private ReadReceiptCallback readReceiptCallback;
     private FriendRequestCallback friendRequestCallback;
@@ -41,7 +43,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void finalize(int instanceNumber);
 
     @Override
-    public final void finalize() throws Throwable {
+    public void finalize() throws Throwable {
         try {
             finalize(instanceNumber);
         } catch (Throwable e) {
@@ -80,6 +82,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native byte[] toxSave(int instanceNumber);
 
+    @NotNull
     @Override
     public byte[] save() {
         return toxSave(instanceNumber);
@@ -89,7 +92,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxLoad(int instanceNumber, byte[] data) throws ToxLoadException;
 
     @Override
-    public void load(byte[] data) throws ToxLoadException {
+    public void load(@NotNull byte[] data) throws ToxLoadException {
         toxLoad(instanceNumber, data);
     }
 
@@ -97,7 +100,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxBootstrap(int instanceNumber, String address, int port, byte[] public_key) throws ToxBootstrapException;
 
     @Override
-    public void bootstrap(String address, int port, byte[] public_key) throws ToxBootstrapException {
+    public void bootstrap(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException {
         if (port < 0) {
             throw new IllegalArgumentException("Ports cannot be negative");
         }
@@ -141,6 +144,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native byte[] toxGetDhtId(int instanceNumber);
 
+    @NotNull
     @Override
     public byte[] getDhtId() {
         return toxGetDhtId(instanceNumber);
@@ -154,6 +158,24 @@ public final class ToxCoreImpl extends AbstractToxCore {
         return toxIterationInterval(instanceNumber);
     }
 
+
+    private static ToxConnection convert(Events.ConnectionStatus.Kind status) {
+        switch (status) {
+            case NONE: return ToxConnection.NONE;
+            case TCP: return ToxConnection.TCP;
+            case UDP: return ToxConnection.UDP;
+        }
+        throw new IllegalStateException("Bad enumerator: " + status);
+    }
+
+    private static ToxConnection convert(Events.FriendConnectionStatus.Kind status) {
+        switch (status) {
+            case NONE: return ToxConnection.NONE;
+            case TCP: return ToxConnection.TCP;
+            case UDP: return ToxConnection.UDP;
+        }
+        throw new IllegalStateException("Bad enumerator: " + status);
+    }
 
     private static ToxStatus convert(Events.FriendStatus.Kind status) {
         switch (status) {
@@ -196,7 +218,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
         if (connectionStatusCallback != null) {
 			for (Events.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
-				connectionStatusCallback.connectionStatus(connectionStatus.getIsConnected());
+				connectionStatusCallback.connectionStatus(convert(connectionStatus.getConnectionStatus()));
 			}
 		}
         if (friendNameCallback != null) {
@@ -214,9 +236,9 @@ public final class ToxCoreImpl extends AbstractToxCore {
 				friendStatusCallback.friendStatus(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
 			}
 		}
-        if (friendConnectedCallback != null) {
-			for (Events.FriendConnected friendConnected : toxEvents.getFriendConnectedList()) {
-				friendConnectedCallback.friendConnected(friendConnected.getFriendNumber(), friendConnected.getIsConnected());
+        if (friendConnectionStatusCallback != null) {
+			for (Events.FriendConnectionStatus friendConnectionStatus : toxEvents.getFriendConnectionStatusList()) {
+				friendConnectionStatusCallback.friendConnectionStatus(friendConnectionStatus.getFriendNumber(), convert(friendConnectionStatus.getConnectionStatus()));
 			}
 		}
         if (friendTypingCallback != null) {
@@ -279,6 +301,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native byte[] toxSelfGetClientId(int instanceNumber);
 
+    @NotNull
     @Override
     public byte[] getClientId() {
         return toxSelfGetClientId(instanceNumber);
@@ -287,6 +310,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native byte[] toxSelfGetPrivateKey(int instanceNumber);
 
+    @NotNull
     @Override
     public byte[] getPrivateKey() {
         return toxSelfGetPrivateKey(instanceNumber);
@@ -311,6 +335,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native byte[] toxSelfGetAddress(int instanceNumber);
 
+    @NotNull
     @Override
     public byte[] getAddress() {
         return toxSelfGetAddress(instanceNumber);
@@ -352,13 +377,14 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxSelfSetStatus(int instanceNumber, int status);
 
     @Override
-    public void setStatus(ToxStatus status) {
+    public void setStatus(@NotNull ToxStatus status) {
         toxSelfSetStatus(instanceNumber, status.ordinal());
     }
 
 
     private static native int toxSelfGetStatus(int instanceNumber);
 
+    @NotNull
     @Override
     public ToxStatus getStatus() {
         return ToxStatus.values()[toxSelfGetStatus(instanceNumber)];
@@ -368,7 +394,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxFriendAdd(int instanceNumber, byte[] address, byte[] message) throws ToxFriendAddException;
 
     @Override
-    public int addFriend(byte[] address, byte[] message) throws ToxFriendAddException {
+    public int addFriend(@NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException {
         if (address != null) {
             if (address.length < ToxConstants.ADDRESS_SIZE) {
                 throw new IllegalArgumentException("Address too short, must be " + ToxConstants.ADDRESS_SIZE + " bytes");
@@ -384,7 +410,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxFriendAddNorequest(int instanceNumber, byte[] clientId) throws ToxFriendAddException;
 
     @Override
-    public int addFriendNoRequest(byte[] clientId) throws ToxFriendAddException {
+    public int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException {
         return toxFriendAddNorequest(instanceNumber, clientId);
     }
 
@@ -400,13 +426,14 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxFriendByClientId(int instanceNumber, byte[] clientId) throws ToxFriendByClientIdException;
 
     @Override
-    public int getFriendByClientId(byte[] clientId) throws ToxFriendByClientIdException {
+    public int getFriendByClientId(@NotNull byte[] clientId) throws ToxFriendByClientIdException {
         return toxFriendByClientId(instanceNumber, clientId);
     }
 
 
     private static native byte[] toxFriendGetClientId(int instanceNumber, int friendNumber) throws ToxFriendGetClientIdException;
 
+    @NotNull
     @Override
     public byte[] getClientId(int friendNumber) throws ToxFriendGetClientIdException {
         return toxFriendGetClientId(instanceNumber, friendNumber);
@@ -423,6 +450,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native int[] toxFriendList(int instanceNumber);
 
+    @NotNull
     @Override
     public int[] getFriendList() {
         return toxFriendList(instanceNumber);
@@ -445,8 +473,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
     @Override
-    public void callbackFriendConnected(FriendConnectedCallback callback) {
-        this.friendConnectedCallback = callback;
+    public void callbackFriendConnected(FriendConnectionStatusCallback callback) {
+        this.friendConnectionStatusCallback = callback;
     }
 
     @Override
@@ -466,7 +494,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxSendMessage(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
 
     @Override
-    public int sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException {
+    public int sendMessage(int friendNumber, @NotNull byte[] message) throws ToxSendMessageException {
         return toxSendMessage(instanceNumber, friendNumber, message);
     }
 
@@ -474,7 +502,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxSendAction(int instanceNumber, int friendNumber, byte[] message) throws ToxSendMessageException;
 
     @Override
-    public int sendAction(int friendNumber, byte[] action) throws ToxSendMessageException {
+    public int sendAction(int friendNumber, @NotNull byte[] action) throws ToxSendMessageException {
         return toxSendAction(instanceNumber, friendNumber, action);
     }
 
@@ -502,7 +530,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxFileControl(int instanceNumber, int friendNumber, int fileNumber, int control) throws ToxFileControlException;
 
     @Override
-    public void fileControl(int friendNumber, int fileNumber, ToxFileControl control) throws ToxFileControlException {
+    public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) throws ToxFileControlException {
         toxFileControl(instanceNumber, friendNumber, fileNumber, control.ordinal());
     }
 
@@ -515,7 +543,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, byte[] filename) throws ToxFileSendException;
 
     @Override
-    public int fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException {
+    public int fileSend(int friendNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException {
         return toxFileSend(instanceNumber, friendNumber, kind.ordinal(), fileSize, filename);
     }
 
@@ -523,7 +551,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException;
 
     @Override
-    public void fileSendChunk(int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException {
+    public void fileSendChunk(int friendNumber, int fileNumber, @NotNull byte[] data) throws ToxFileSendChunkException {
         toxFileSendChunk(instanceNumber, friendNumber, fileNumber, data);
     }
 
@@ -547,7 +575,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxSendLossyPacket(int instanceNumber, int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
     @Override
-    public void sendLossyPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException {
+    public void sendLossyPacket(int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException {
         toxSendLossyPacket(instanceNumber, friendNumber, data);
     }
 
@@ -560,7 +588,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, byte[] data) throws ToxSendCustomPacketException;
 
     @Override
-    public void sendLosslessPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException {
+    public void sendLosslessPacket(int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException {
         toxSendLosslessPacket(instanceNumber, friendNumber, data);
     }
 

@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
@@ -24,17 +25,18 @@ public class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
 
     private static class Client extends ChatClient {
 
-        @Override
-        public void friendConnected(final int friendNumber, boolean isConnected) {
-            debug("is now connected to friend " + friendNumber);
-            addTask(new Task() {
-                @Override
-                public void perform(ToxCore tox) throws ToxException {
-                    byte[] packet = ("_My name is " + getName()).getBytes();
-                    packet[0] = (byte) 160;
-                    tox.sendLosslessPacket(friendNumber, packet);
-                }
-            });
+        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+            if (connection != ToxConnection.NONE) {
+                debug("is now connected to friend " + friendNumber);
+                addTask(new Task() {
+                    @Override
+                    public void perform(ToxCore tox) throws ToxException {
+                        byte[] packet = ("_My name is " + getName()).getBytes();
+                        packet[0] = (byte) 160;
+                        tox.sendLosslessPacket(friendNumber, packet);
+                    }
+                });
+            }
         }
 
         @Override

@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
@@ -38,18 +39,19 @@ public class FileTransferTest extends AliceBobTestBase {
         private long position = 0;
         private Integer sentFileNumber = null;
 
-        @Override
-        public void friendConnected(final int friendNumber, boolean isConnected) {
-            debug("is now connected to friend " + friendNumber);
-            assertEquals(0, friendNumber);
-            if (isBob()) return;
-            addTask(new Task() {
-                @Override
-                public void perform(ToxCore tox) throws ToxException {
-                    sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
-                            ("file for " + getFriendName() + ".png").getBytes());
-                }
-            });
+        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+            if (connection != ToxConnection.NONE) {
+                debug("is now connected to friend " + friendNumber);
+                assertEquals(0, friendNumber);
+                if (isBob()) return;
+                addTask(new Task() {
+                    @Override
+                    public void perform(ToxCore tox) throws ToxException {
+                        sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
+                                ("file for " + getFriendName() + ".png").getBytes());
+                    }
+                });
+            }
         }
 
         @Override

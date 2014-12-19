@@ -1,11 +1,11 @@
 package im.tox.client
 
 import im.tox.tox4j.enums.ToxStatus
-import im.tox.tox4j.{ToxOptions, ToxCoreImpl}
+import im.tox.tox4j.{ToxCore, ToxOptions, ToxCoreImpl}
 
 class ToxClient {
 
-  private val tox = new ToxCoreImpl(new ToxOptions)
+  private val tox: ToxCore = new ToxCoreImpl(new ToxOptions)
 
   def getName: String = new String(tox.getName)
   def setName(name: String) = tox.setName(name.getBytes)

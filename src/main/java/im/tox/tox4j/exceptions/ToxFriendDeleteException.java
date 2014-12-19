@@ -1,6 +1,8 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxFriendDeleteException extends ToxException {
+import im.tox.tox4j.annotations.NotNull;
+
+public final class ToxFriendDeleteException extends ToxException {
 
     public static enum Code {
         FRIEND_NOT_FOUND,
@@ -12,6 +14,7 @@ public class ToxFriendDeleteException extends ToxException {
         this.code = code;
     }
 
+    @NotNull
     public Code getCode() {
         return code;
     }

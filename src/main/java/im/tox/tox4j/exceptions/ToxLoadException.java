@@ -1,6 +1,8 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxLoadException extends ToxException {
+import im.tox.tox4j.annotations.NotNull;
+
+public final class ToxLoadException extends ToxException {
 
     public static enum Code {
         NULL,
@@ -14,6 +16,7 @@ public class ToxLoadException extends ToxException {
         this.code = code;
     }
 
+    @NotNull
     @Override
     public Code getCode() {
         return code;

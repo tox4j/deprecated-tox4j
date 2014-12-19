@@ -5,7 +5,7 @@ package im.tox.tox4j.exceptions;
  *
  * @author Simon Levermann (sonOfRa)
  */
-public class ToxKilledException extends RuntimeException {
+public final class ToxKilledException extends RuntimeException {
     public ToxKilledException(String message) {
         super(message);
     }

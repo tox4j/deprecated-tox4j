@@ -20,7 +20,7 @@ set(TOX4J_CORE
 	im/tox/tox4j/callbacks/FileReceiveChunkCallback.java
 	im/tox/tox4j/callbacks/FileRequestChunkCallback.java
 	im/tox/tox4j/callbacks/FriendActionCallback.java
-	im/tox/tox4j/callbacks/FriendConnectedCallback.java
+	im/tox/tox4j/callbacks/FriendConnectionStatusCallback.java
 	im/tox/tox4j/callbacks/FriendLosslessPacketCallback.java
 	im/tox/tox4j/callbacks/FriendLossyPacketCallback.java
 	im/tox/tox4j/callbacks/FriendMessageCallback.java
