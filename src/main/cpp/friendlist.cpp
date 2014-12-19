@@ -43,7 +43,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
 {
     ByteArray client_id(env, clientId);
-    assert(client_id.size() == TOX_CLIENT_ID_SIZE);
+    assert(!clientId || client_id.size() == TOX_CLIENT_ID_SIZE);
     return with_instance(env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [](uint32_t friend_number) {
         return friend_number;
     }, tox_friend_add_norequest, client_id.data());
@@ -76,7 +76,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendByClientId
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
 {
     ByteArray client_id(env, clientId);
-    assert(client_id.size() == TOX_CLIENT_ID_SIZE);
+    assert(!clientId || client_id.size() == TOX_CLIENT_ID_SIZE);
     return with_instance(env, instanceNumber, "FriendByClientId", [](TOX_ERR_FRIEND_BY_CLIENT_ID error) {
         switch (error) {
             success_case(FRIEND_BY_CLIENT_ID);
