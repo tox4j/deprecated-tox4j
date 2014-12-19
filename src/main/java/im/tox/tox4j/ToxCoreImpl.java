@@ -361,6 +361,14 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public int addFriend(byte[] address, byte[] message) throws ToxFriendAddException {
+        if (address != null) {
+            if (address.length < ToxConstants.ADDRESS_SIZE) {
+                throw new IllegalArgumentException("Address too short, must be " + ToxConstants.ADDRESS_SIZE + " bytes");
+            }
+            if (address.length > ToxConstants.ADDRESS_SIZE) {
+                throw new IllegalArgumentException("Address too long, must be " + ToxConstants.ADDRESS_SIZE + " bytes");
+            }
+        }
         return toxFriendAdd(instanceNumber, address, message);
     }
 

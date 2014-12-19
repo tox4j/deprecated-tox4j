@@ -7,7 +7,7 @@ public class ToxSetInfoException extends ToxException {
         TOO_LONG,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxSetInfoException(Code code) {
         this.code = code;

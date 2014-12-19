@@ -733,6 +733,11 @@ new_tox_self_get_status (new_Tox const *tox)
 uint32_t
 new_tox_friend_add (new_Tox *tox, uint8_t const *address, uint8_t const *message, size_t length, TOX_ERR_FRIEND_ADD *error)
 {
+  if (address == nullptr || message == nullptr)
+    {
+      if (error) *error = TOX_ERR_FRIEND_ADD_NULL;
+      return 0;
+    }
   int32_t friend_number = tox_add_friend (tox->tox, address, message, length);
   switch (friend_number)
     {
@@ -825,8 +830,8 @@ new_tox_friend_get_client_id (new_Tox const *tox, uint32_t friend_number, uint8_
 {
   if (client_id == nullptr)
     {
-      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_NULL;
-      return false;
+      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_OK;
+      return true;
     }
   switch (tox_get_client_id (tox->tox, friend_number, client_id))
     {
@@ -974,6 +979,11 @@ new_tox_send_something (uint32_t tox_send (Tox *tox, int32_t friendnumber, const
   if (message == nullptr)
     {
       if (error) *error = TOX_ERR_SEND_MESSAGE_NULL;
+      return 0;
+    }
+  if (length == 0)
+    {
+      if (error) *error = TOX_ERR_SEND_MESSAGE_EMPTY;
       return 0;
     }
   if (!new_tox_friend_exists (tox, friend_number))

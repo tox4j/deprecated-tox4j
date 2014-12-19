@@ -785,7 +785,6 @@ uint32_t tox_friend_by_client_id(Tox const *tox, uint8_t const *client_id, TOX_E
 
 typedef enum TOX_ERR_GET_CLIENT_ID {
   TOX_ERR_FRIEND_GET_CLIENT_ID_OK,
-  TOX_ERR_FRIEND_GET_CLIENT_ID_NULL,
   /**
    * No friend with the given number exists on the friend list.
    */
@@ -796,7 +795,8 @@ typedef enum TOX_ERR_GET_CLIENT_ID {
  * Copies the Client ID associated with a given friend number to a byte array.
  *
  * @param friend_number The friend number you want the Client ID of.
- * @param client_id A memory region of at least TOX_CLIENT_ID_SIZE bytes.
+ * @param client_id A memory region of at least TOX_CLIENT_ID_SIZE bytes. If
+ *   this parameter is NULL, this function has no effect.
  *
  * @return true on success.
  */

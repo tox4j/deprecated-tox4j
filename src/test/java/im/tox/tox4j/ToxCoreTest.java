@@ -10,10 +10,7 @@ import org.junit.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -22,111 +19,61 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     private static final boolean SLOW_TESTS = true;
     private static final int TOX_COUNT = 10;
 
+    private static final String bootstrapValidIP = "144.76.60.215";
+    private static final int bootstrapValidPort = 33445;
+    private static final byte[] bootstrapValidDhtId =
+            parseClientId("04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F");
 
-    private static class ConnectedListener implements ConnectionStatusCallback {
-        private boolean value;
-
-        @Override
-        public void connectionStatus(boolean isConnected) {
-            value = isConnected;
+    private static byte[] parseClientId(String id) {
+        byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
+        for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
+            clientId[i] = (byte) (
+                (fromHexDigit(id.charAt(i * 2)) << 4) +
+                (fromHexDigit(id.charAt(i * 2 + 1)))
+            );
         }
+        return clientId;
+    }
 
-        public boolean isConnected() {
-            return value;
+    private static byte fromHexDigit(char c) {
+        if (c >= '0' && c <= '9') {
+            return (byte)(c - '0');
+        } else if (c >= 'A' && c <= 'F') {
+            return (byte)(c - 'A' + 10);
+        } else {
+            throw new IllegalArgumentException("Non-hex digit character: " + c);
         }
     }
 
-    private class ToxList implements Closeable {
-        private final ToxCore[] toxes;
-        private final boolean[] connected;
-
-        public ToxList(int count) throws ToxNewException {
-            this.toxes = new ToxCore[count];
-            this.connected = new boolean[toxes.length];
-            for (int i = 0; i < count; i++) {
-                final int id = i;
-                toxes[i] = newTox();
-                toxes[i].callbackConnectionStatus(new ConnectionStatusCallback() {
-                    @Override
-                    public void connectionStatus(boolean isConnected) {
-                        connected[id] = isConnected;
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void close() throws IOException {
-            for (ToxCore tox : toxes) {
-                tox.close();
-            }
-        }
-
-        public boolean isAllConnected() {
-            boolean result = true;
-            for (boolean tox : connected) {
-                result = result && tox;
-            }
-            return result;
-        }
-
-        public boolean isAnyConnected() {
-            for (boolean tox : connected) {
-                if (tox) {
-                    return true;
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap() throws Exception {
+        if (!SLOW_TESTS) return;
+        try (ToxCore tox = newTox()) {
+            long start = System.currentTimeMillis();
+            tox.bootstrap(bootstrapValidIP, bootstrapValidPort, bootstrapValidDhtId);
+            ConnectedListener status = new ConnectedListener();
+            tox.callbackConnectionStatus(status);
+            while (!status.isConnected()) {
+                tox.iteration();
+                try {
+                    Thread.sleep(tox.iterationInterval());
+                } catch (InterruptedException e) {
+                    // Probably the timeout was reached, so we ought to be killed soon.
                 }
             }
-            return false;
-        }
-
-        public void iteration() {
-            for (ToxCore tox : toxes) {
-                tox.iteration();
-            }
-        }
-
-        public int iterationInterval() {
-            int result = 0;
-            for (ToxCore tox : toxes) {
-                result = Math.max(result, tox.iterationInterval());
-            }
-            return result;
-        }
-
-        public ToxCore get(int index) {
-            return toxes[index];
-        }
-
-        public int size() {
-            return toxes.length;
+            long end = System.currentTimeMillis();
+            if (LOGGING) System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
         }
     }
 
-
-    private static double entropy(byte[] data) {
-        int[] frequencies = new int[256];
-        for (byte b : data) {
-            frequencies[127 - b]++;
-        }
-
-        double entropy = 0;
-        for (int frequency : frequencies) {
-            if (frequency != 0) {
-                double probability = (double)frequency / data.length;
-                entropy -= probability * (Math.log(probability) / Math.log(256));
-            }
-        }
-
-        return entropy;
+    @Test
+    public void testToxNew() throws Exception {
+        ToxOptions options = new ToxOptions();
+        options.disableProxy();
+        options.setIpv6Enabled(true);
+        options.setUdpEnabled(true);
+        newTox(options).close();
     }
-
-
-    private static byte[] randomBytes(int length) {
-        byte[] array = new byte[length];
-        new Random().nextBytes(array);
-        return array;
-    }
-
 
     @Test
     public void testToxNew00() throws Exception {
@@ -146,72 +93,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testToxNew11() throws Exception {
         newTox(true, true).close();
-    }
-
-    @Test
-    public void testToxNewProxyNull() throws Exception {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, null, 0).close();
-            fail();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.NULL, e.getCode());
-        }
-    }
-
-    @Test
-    public void testToxNewProxyEmpty() throws Exception {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, "", 1).close();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
-        }
-    }
-
-    @Test
-    public void testToxNewProxyBadPort0() throws Exception {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
-        }
-    }
-
-    @Test
-    public void testToxNewProxyBadPortNegative() {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
-            fail();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
-        }
-    }
-
-    @Test
-    public void testToxNewProxyBadPortTooLarge() throws Exception {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
-            fail();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
-        }
-    }
-
-    @Test
-    public void testToxNewProxyBadAddress1() throws Exception {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, "\u2639", 1).close();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
-        }
-    }
-
-    @Test
-    public void testToxNewProxyBadAddress2() throws Exception {
-        try {
-            newTox(true, true, ToxProxyType.SOCKS5, ".", 1).close();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
-        }
     }
 
     @Test
@@ -258,123 +139,16 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testTooManyToxCreations() throws Exception {
-        try {
-            ArrayList<ToxCore> toxes = new ArrayList<>();
-            for (int i = 0; i < 102; i++) {
-                // One of these will fail.
-                toxes.add(newTox());
-            }
-            // If nothing fails, clean up and fail.
-            for (ToxCore tox : toxes) {
-                tox.close();
-            }
-            fail();
-        } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.PORT_ALLOC, e.getCode());
-        }
-    }
-
-    @Test
-    public void testBootstrapBadPort1() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 0, new byte[ToxConstants.CLIENT_ID_SIZE]);
-            fail();
-        } catch (ToxBootstrapException e) {
-            assertEquals(ToxBootstrapException.Code.BAD_PORT, e.getCode());
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBootstrapBadPort2() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", -10, new byte[ToxConstants.CLIENT_ID_SIZE]);
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBootstrapBadPort3() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 65536, new byte[ToxConstants.CLIENT_ID_SIZE]);
-        }
-    }
-
-    @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(bootstrapValidIP, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBorderlinePort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
-        }
-    }
-
-    @Test
-    public void testBootstrapBadHost() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap(".", 33445, new byte[ToxConstants.CLIENT_ID_SIZE]);
-            fail();
-        } catch (ToxBootstrapException e) {
-            assertEquals(ToxBootstrapException.Code.BAD_ADDRESS, e.getCode());
-        }
-    }
-
-    @Test
-    public void testBootstrapNullHost() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap(null, 33445, new byte[ToxConstants.CLIENT_ID_SIZE]);
-            fail();
-        } catch (ToxBootstrapException e) {
-            assertEquals(ToxBootstrapException.Code.NULL, e.getCode());
-        }
-    }
-
-    @Test
-    public void testBootstrapNullKey() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap("localhost", 33445, null);
-            fail();
-        } catch (ToxBootstrapException e) {
-            assertEquals(ToxBootstrapException.Code.NULL, e.getCode());
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBootstrapKeyTooShort() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE - 1]);
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBootstrapKeyTooLong() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE + 1]);
-        }
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testBootstrap() throws Exception {
-        if (!SLOW_TESTS) return;
-        try (ToxCore tox = newTox()) {
-            long start = System.currentTimeMillis();
-            tox.bootstrap("192.254.75.98", 33445, new byte[]{ (byte)0x95, 0x1C, (byte)0x88, (byte)0xB7, (byte)0xE7, 0x5C, (byte)0x86, 0x74, 0x18, (byte)0xAC, (byte)0xDB, 0x5D, 0x27, 0x38, 0x21, 0x37, 0x2B, (byte)0xB5, (byte)0xBD, 0x65, 0x27, 0x40, (byte)0xBC, (byte)0xDF, 0x62, 0x3A, 0x4F, (byte)0xA2, (byte)0x93, (byte)0xE7, 0x5D, 0x2F });
-            ConnectedListener status = new ConnectedListener();
-            tox.callbackConnectionStatus(status);
-            while (!status.isConnected()) {
-                tox.iteration();
-                try {
-                    Thread.sleep(tox.iterationInterval());
-                } catch (InterruptedException e) {
-                    // Probably the timeout was reached, so we ought to be killed soon.
-                }
-            }
-            long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
+            tox.bootstrap(bootstrapValidIP, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
@@ -420,57 +194,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             if (LOGGING) System.out.println("Connecting one of " + toxes.size() + " toxes with LAN discovery " +
                     "took " + (end - start) + "ms");
         }
-    }
-
-    @Test(expected=ToxKilledException.class)
-    public void testClose_DoubleCloseThrows() throws Exception {
-        ToxCore tox = newTox();
-        try {
-            tox.close();
-        } catch (ToxKilledException e) {
-            fail("The first close should not have thrown");
-        }
-        tox.close();
-    }
-
-    @Test(expected=ToxKilledException.class)
-    public void testDoubleCloseError() throws Exception {
-        ToxCore tox1 = newTox();
-        tox1.close();
-        newTox();
-        tox1.close(); // Should throw.
-    }
-
-    @Test(expected=ToxKilledException.class)
-    public void testDoubleCloseInOrder() throws Exception {
-        ToxCore tox1 = newTox();
-        ToxCore tox2 = newTox();
-        tox1.close();
-        tox1.close();
-    }
-
-    @Test(expected=ToxKilledException.class)
-    public void testDoubleCloseReverseOrder() throws Exception {
-        ToxCore tox1 = newTox();
-        ToxCore tox2 = newTox();
-        tox2.close();
-        tox2.close();
-    }
-
-    @Test(expected=ToxKilledException.class)
-    public void testUseAfterCloseInOrder() throws Exception {
-        ToxCore tox1 = newTox();
-        ToxCore tox2 = newTox();
-        tox1.close();
-        tox1.iterationInterval();
-    }
-
-    @Test(expected=ToxKilledException.class)
-    public void testUseAfterCloseReverseOrder() throws Exception {
-        ToxCore tox1 = newTox();
-        ToxCore tox2 = newTox();
-        tox2.close();
-        tox2.iterationInterval();
     }
 
     @Test
@@ -629,17 +352,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testSetNameTooLong() throws Exception {
-        try (ToxCore tox = newTox()) {
-            byte[] array = randomBytes(ToxConstants.MAX_NAME_LENGTH + 1);
-            tox.setName(array);
-            fail();
-        } catch (ToxSetInfoException e) {
-            assertEquals(ToxSetInfoException.Code.TOO_LONG, e.getCode());
-        }
-    }
-
-    @Test
     public void testSetNameExhaustive() throws Exception {
         try (ToxCore tox = newTox()) {
             for (int i = 1; i <= ToxConstants.MAX_NAME_LENGTH; i++) {
@@ -700,17 +412,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testSetStatusMessageTooLong() throws Exception {
-        try (ToxCore tox = newTox()) {
-            byte[] array = randomBytes(ToxConstants.MAX_STATUS_MESSAGE_LENGTH + 1);
-            tox.setStatusMessage(array);
-            fail();
-        } catch (ToxSetInfoException e) {
-            assertEquals(ToxSetInfoException.Code.TOO_LONG, e.getCode());
-        }
-    }
-
-    @Test
     public void testSetStatusMessageExhaustive() throws Exception {
         try (ToxCore tox = newTox()) {
             for (int i = 1; i <= ToxConstants.MAX_STATUS_MESSAGE_LENGTH; i++) {
@@ -754,21 +455,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
                 }
             }
         }
-    }
-
-    // return one of the friends (the last one)
-    private int addFriends(ToxCore tox, int count) throws ToxNewException, ToxFriendAddException {
-        if (count < 1) {
-            throw new IllegalArgumentException("Cannot add less than 1 friend: " + count);
-        }
-        int friendNumber = -1;
-        byte[] message = "heyo".getBytes();
-        for (int i = 0; i < count; i++) {
-            try (ToxCore friend = newTox()) {
-                friendNumber = tox.addFriend(friend.getAddress(), message);
-            }
-        }
-        return friendNumber;
     }
 
     @Test
@@ -818,43 +504,13 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             addFriends(tox, 5);
             assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
             tox.deleteFriend(2);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 3, 4 });
+            assertArrayEquals(tox.getFriendList(), new int[]{0, 1, 3, 4});
             tox.deleteFriend(3);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 4 });
+            assertArrayEquals(tox.getFriendList(), new int[]{0, 1, 4});
             addFriends(tox, 1);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 4 });
+            assertArrayEquals(tox.getFriendList(), new int[]{0, 1, 2, 4});
             addFriends(tox, 1);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
-        }
-    }
-
-    @Test
-    public void testDeleteFriendTwice() throws Exception {
-        try (ToxCore tox = newTox()) {
-            addFriends(tox, 5);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
-            tox.deleteFriend(2);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 3, 4 });
-            try {
-                tox.deleteFriend(2);
-                fail();
-            } catch (ToxFriendDeleteException e) {
-                assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.getCode());
-            }
-        }
-    }
-
-    @Test
-    public void testDeleteNonExistentFriend() throws Exception {
-        try (ToxCore tox = newTox()) {
-            addFriends(tox, 5);
-            assertArrayEquals(tox.getFriendList(), new int[]{ 0, 1, 2, 3, 4 });
-            try {
-                tox.deleteFriend(5);
-                fail();
-            } catch (ToxFriendDeleteException e) {
-                assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.getCode());
-            }
+            assertArrayEquals(tox.getFriendList(), new int[]{0, 1, 2, 3, 4});
         }
     }
 
@@ -919,20 +575,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testSetTypingToNonExistent() throws Exception {
-        try (ToxCore tox = newTox()) {
-            addFriends(tox, 1);
-            try {
-                tox.setTyping(1, true);
-                fail();
-            } catch (ToxSetTypingException e) {
-                assertEquals(ToxSetTypingException.Code.FRIEND_NOT_FOUND, e.getCode());
-            }
-        }
-    }
-
-
-    @Test
     public void testGetPort() throws Exception {
         try (ToxCore tox = newTox()) {
             assertNotEquals(0, tox.getPort());
@@ -956,71 +598,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             try (ToxCore tox = newTox()) {
                 double e = entropy(tox.getDhtId());
                 assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
-            }
-        }
-    }
-
-    @Test
-    public void testFileSendNotConnected() throws Exception {
-        try (ToxCore tox = newTox()) {
-            int friendNumber = addFriends(tox, 1);
-            try {
-                tox.fileSend(friendNumber, ToxFileKind.DATA, 123, "filename".getBytes());
-                fail();
-            } catch (ToxFileSendException e) {
-                assertEquals(ToxFileSendException.Code.FRIEND_NOT_CONNECTED, e.getCode());
-            }
-        }
-    }
-
-    @Test
-    public void testSendMessageNotConnected() throws Exception {
-        try (ToxCore tox = newTox()) {
-            int friendNumber = addFriends(tox, 1);
-            try {
-                tox.sendMessage(friendNumber, "hello".getBytes());
-                fail();
-            } catch (ToxSendMessageException e) {
-                assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
-            }
-        }
-    }
-
-    @Test
-    public void testSendActionNotConnected() throws Exception {
-        try (ToxCore tox = newTox()) {
-            int friendNumber = addFriends(tox, 1);
-            try {
-                tox.sendAction(friendNumber, "hello".getBytes());
-                fail();
-            } catch (ToxSendMessageException e) {
-                assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
-            }
-        }
-    }
-
-    @Test
-    public void testSendLossyPacketNotConnected() throws Exception {
-        try (ToxCore tox = newTox()) {
-            int friendNumber = addFriends(tox, 1);
-            try {
-                tox.sendLossyPacket(friendNumber, new byte[]{(byte) 200, 0, 1, 2, 3});
-                fail();
-            } catch (ToxSendCustomPacketException e) {
-                assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.getCode());
-            }
-        }
-    }
-
-    @Test
-    public void testSendLosslessPacketNotConnected() throws Exception {
-        try (ToxCore tox = newTox()) {
-            int friendNumber = addFriends(tox, 1);
-            try {
-                tox.sendLosslessPacket(friendNumber, new byte[]{(byte) 160, 0, 1, 2, 3});
-                fail();
-            } catch (ToxSendCustomPacketException e) {
-                assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.getCode());
             }
         }
     }

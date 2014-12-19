@@ -6,7 +6,7 @@ public class ToxSetTypingException extends ToxException {
         FRIEND_NOT_FOUND,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxSetTypingException(Code code) {
         this.code = code;

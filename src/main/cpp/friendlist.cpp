@@ -28,10 +28,12 @@ handle_tox_friend_add_result(TOX_ERR_FRIEND_ADD error)
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAdd
   (JNIEnv *env, jclass, jint instanceNumber, jbyteArray address, jbyteArray message)
 {
-    ByteArray messageBytes(env, message);
+    ByteArray messageData(env, message);
+    ByteArray addressData(env, address);
+    assert(!address || addressData.size() == TOX_ADDRESS_SIZE);
     return with_instance(env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [](uint32_t friend_number) {
         return friend_number;
-    }, tox_friend_add, ByteArray(env, address).data(), messageBytes.data(), messageBytes.size());
+    }, tox_friend_add, addressData.data(), messageData.data(), messageData.size());
 }
 
 /*
@@ -101,7 +103,6 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetClientId
     return with_instance(env, instanceNumber, "FriendGetClientId", [](TOX_ERR_FRIEND_GET_CLIENT_ID error) {
         switch (error) {
             success_case(FRIEND_GET_CLIENT_ID);
-            failure_case(FRIEND_GET_CLIENT_ID, NULL);
             failure_case(FRIEND_GET_CLIENT_ID, FRIEND_NOT_FOUND);
         }
         return unhandled();

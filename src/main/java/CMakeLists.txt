@@ -45,7 +45,6 @@ set(TOX4J_CORE
 	im/tox/tox4j/exceptions/ToxFriendByClientIdException.java
 	im/tox/tox4j/exceptions/ToxFriendDeleteException.java
 	im/tox/tox4j/exceptions/ToxFriendGetClientIdException.java
-	im/tox/tox4j/exceptions/ToxFriendQueryException.java
 	im/tox/tox4j/exceptions/ToxGetPortException.java
 	im/tox/tox4j/exceptions/ToxKilledException.java
 	im/tox/tox4j/exceptions/ToxLoadException.java
