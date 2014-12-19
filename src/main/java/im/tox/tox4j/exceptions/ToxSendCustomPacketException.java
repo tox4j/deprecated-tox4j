@@ -12,7 +12,7 @@ public class ToxSendCustomPacketException extends ToxException {
         SENDQ,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxSendCustomPacketException(Code code) {
         this.code = code;

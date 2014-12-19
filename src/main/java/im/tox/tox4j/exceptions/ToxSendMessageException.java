@@ -11,7 +11,7 @@ public class ToxSendMessageException extends ToxException {
         EMPTY,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxSendMessageException(Code code) {
         this.code = code;

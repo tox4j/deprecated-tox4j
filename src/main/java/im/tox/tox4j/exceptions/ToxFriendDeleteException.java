@@ -6,7 +6,7 @@ public class ToxFriendDeleteException extends ToxException {
         FRIEND_NOT_FOUND,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxFriendDeleteException(Code code) {
         this.code = code;

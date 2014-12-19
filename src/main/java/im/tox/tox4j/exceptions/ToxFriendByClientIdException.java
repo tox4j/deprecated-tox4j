@@ -7,7 +7,7 @@ public class ToxFriendByClientIdException extends ToxException {
         NOT_FOUND,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxFriendByClientIdException(Code code) {
         this.code = code;

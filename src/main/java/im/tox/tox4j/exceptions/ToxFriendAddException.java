@@ -13,7 +13,7 @@ public class ToxFriendAddException extends ToxException {
         MALLOC,
     }
 
-    public final Code code;
+    private final Code code;
 
     public ToxFriendAddException(Code code) {
         this.code = code;
