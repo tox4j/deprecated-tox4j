@@ -66,6 +66,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
             failure_case(FILE_SEND_CHUNK, FRIEND_NOT_FOUND);
             failure_case(FILE_SEND_CHUNK, FRIEND_NOT_CONNECTED);
             failure_case(FILE_SEND_CHUNK, NOT_FOUND);
+            failure_case(FILE_SEND_CHUNK, TOO_LARGE);
         }
         return unhandled();
     }, [](bool) {
