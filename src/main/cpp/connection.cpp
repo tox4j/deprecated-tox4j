@@ -30,10 +30,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxGetPort
+ * Method:    toxGetUdpPort
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetPort
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetUdpPort
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, "GetPort", [](TOX_ERR_GET_PORT error) {
@@ -44,7 +44,26 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetPort
         return unhandled();
     }, [](uint16_t port) {
         return port;
-    }, tox_get_port);
+    }, tox_get_udp_port);
+}
+
+/*
+ * Class:     im_tox_tox4jToxCoreImpl
+ * Method:    toxGetTcpPort
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetTcpPort
+  (JNIEnv *env, jclass, jint instanceNumber)
+{
+    return with_instance(env, instanceNumber, "GetPort", [](TOX_ERR_GET_PORT error) {
+        switch (error) {
+            success_case(GET_PORT);
+            failure_case(GET_PORT, NOT_BOUND);
+        }
+        return unhandled();
+    }, [](uint16_t port) {
+        return port;
+    }, tox_get_tcp_port);
 }
 
 /*

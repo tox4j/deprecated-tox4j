@@ -1705,7 +1705,7 @@ void tox_callback_friend_lossless_packet(Tox *tox, tox_friend_lossless_packet_cb
  * Writes the temporary DHT public key of this instance to a byte array.
  *
  * This can be used in combination with an externally accessible IP address and
- * the bound port (from tox_get_port) to run a temporary bootstrap node.
+ * the bound port (from tox_get_udp_port) to run a temporary bootstrap node.
  *
  * Be aware that every time a new instance is created, the DHT public key
  * changes, meaning this cannot be used to run a permanent bootstrap node.
@@ -1725,10 +1725,15 @@ typedef enum TOX_ERR_GET_PORT {
 } TOX_ERR_GET_PORT;
 
 /**
- * Return the port this Tox instance is bound to.
- * Return 0 on failure.
+ * Return the UDP port this Tox instance is bound to.
  */
-uint16_t tox_get_port(Tox const *tox, TOX_ERR_GET_PORT *error);
+uint16_t tox_get_udp_port(Tox const *tox, TOX_ERR_GET_PORT *error);
+
+/**
+ * Return the TCP port this Tox instance is bound to. This is only relevant if
+ * the instance is acting as a TCP relay.
+ */
+uint16_t tox_get_tcp_port(Tox const *tox, TOX_ERR_GET_PORT *error);
 
 
 #ifdef __cplusplus

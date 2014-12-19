@@ -562,7 +562,14 @@ new_tox_callback_connection_status (new_Tox *tox, tox_connection_status_cb *func
 }
 
 uint16_t
-new_tox_get_port (new_Tox const *tox, TOX_ERR_GET_PORT *error)
+new_tox_get_tcp_port (new_Tox const *tox, TOX_ERR_GET_PORT *error)
+{
+  if (error) *error = TOX_ERR_GET_PORT_NOT_BOUND;
+  return 0;
+}
+
+uint16_t
+new_tox_get_udp_port (new_Tox const *tox, TOX_ERR_GET_PORT *error)
 {
   if (error) *error = TOX_ERR_GET_PORT_NOT_BOUND;
   return 0;

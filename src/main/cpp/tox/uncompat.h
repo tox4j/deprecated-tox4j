@@ -66,4 +66,5 @@
 #undef tox_send_lossless_packet
 #undef tox_callback_friend_lossless_packet
 #undef tox_get_dht_id
-#undef tox_get_port
+#undef tox_get_udp_port
+#undef tox_get_tcp_port
