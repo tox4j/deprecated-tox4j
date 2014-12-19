@@ -1,11 +1,13 @@
 package im.tox.tox4j.exceptions;
 
+import im.tox.tox4j.annotations.NotNull;
+
 public abstract class ToxException extends Exception {
 
-    public abstract Enum<?> getCode();
+    public abstract @NotNull Enum<?> getCode();
 
     @Override
-    public String getMessage() {
+    public final @NotNull String getMessage() {
         return "Error code: " + getCode();
     }
 

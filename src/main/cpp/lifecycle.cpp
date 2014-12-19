@@ -1,12 +1,24 @@
 #include "tox4j/Tox4j.h"
 #include "jniutil.h"
 
-static void tox4j_connection_status_cb(Tox *tox, bool is_connected, void *user_data)
+static void tox4j_connection_status_cb(Tox *tox, TOX_CONNECTION connection_status, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
     auto msg = events.add_connectionstatus();
-    msg->set_isconnected(is_connected);
+
+    using im::tox::tox4j::proto::ConnectionStatus;
+    switch (connection_status) {
+        case TOX_CONNECTION_NONE:
+            msg->set_connectionstatus(ConnectionStatus::NONE);
+            break;
+        case TOX_CONNECTION_UDP:
+            msg->set_connectionstatus(ConnectionStatus::UDP);
+            break;
+        case TOX_CONNECTION_TCP:
+            msg->set_connectionstatus(ConnectionStatus::TCP);
+            break;
+    }
 }
 
 static void tox4j_friend_name_cb(Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, void *user_data)
@@ -48,13 +60,25 @@ static void tox4j_friend_status_cb(Tox *tox, uint32_t friend_number, TOX_STATUS 
     }
 }
 
-static void tox4j_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_connected, void *user_data)
+static void tox4j_friend_connection_status_cb(Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
-    auto msg = events.add_friendconnected();
+    auto msg = events.add_friendconnectionstatus();
     msg->set_friendnumber(friend_number);
-    msg->set_isconnected(is_connected);
+
+    using im::tox::tox4j::proto::FriendConnectionStatus;
+    switch (connection_status) {
+        case TOX_CONNECTION_NONE:
+            msg->set_connectionstatus(FriendConnectionStatus::NONE);
+            break;
+        case TOX_CONNECTION_UDP:
+            msg->set_connectionstatus(FriendConnectionStatus::UDP);
+            break;
+        case TOX_CONNECTION_TCP:
+            msg->set_connectionstatus(FriendConnectionStatus::TCP);
+            break;
+    }
 }
 
 static void tox4j_friend_typing_cb(Tox *tox, uint32_t friend_number, bool is_typing, void *user_data)
@@ -253,22 +277,22 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
         std::unique_ptr<ToxEvents> events(new ToxEvents);
 
         // Set up our callbacks.
-        tox_callback_connection_status     (tox.get(), tox4j_connection_status_cb,      events.get());
-        tox_callback_friend_name           (tox.get(), tox4j_friend_name_cb,            events.get());
-        tox_callback_friend_status_message (tox.get(), tox4j_friend_status_message_cb,  events.get());
-        tox_callback_friend_status         (tox.get(), tox4j_friend_status_cb,          events.get());
-        tox_callback_friend_connected      (tox.get(), tox4j_friend_connected_cb,       events.get());
-        tox_callback_friend_typing         (tox.get(), tox4j_friend_typing_cb,          events.get());
-        tox_callback_read_receipt          (tox.get(), tox4j_read_receipt_cb,           events.get());
-        tox_callback_friend_request        (tox.get(), tox4j_friend_request_cb,         events.get());
-        tox_callback_friend_message        (tox.get(), tox4j_friend_message_cb,         events.get());
-        tox_callback_friend_action         (tox.get(), tox4j_friend_action_cb,          events.get());
-        tox_callback_file_control          (tox.get(), tox4j_file_control_cb,           events.get());
-        tox_callback_file_request_chunk    (tox.get(), tox4j_file_request_chunk_cb,     events.get());
-        tox_callback_file_receive          (tox.get(), tox4j_file_receive_cb,           events.get());
-        tox_callback_file_receive_chunk    (tox.get(), tox4j_file_receive_chunk_cb,     events.get());
-        tox_callback_friend_lossy_packet   (tox.get(), tox4j_friend_lossy_packet_cb,    events.get());
-        tox_callback_friend_lossless_packet(tox.get(), tox4j_friend_lossless_packet_cb, events.get());
+        tox_callback_connection_status       (tox.get(), tox4j_connection_status_cb,        events.get());
+        tox_callback_friend_name             (tox.get(), tox4j_friend_name_cb,              events.get());
+        tox_callback_friend_status_message   (tox.get(), tox4j_friend_status_message_cb,    events.get());
+        tox_callback_friend_status           (tox.get(), tox4j_friend_status_cb,            events.get());
+        tox_callback_friend_connection_status(tox.get(), tox4j_friend_connection_status_cb, events.get());
+        tox_callback_friend_typing           (tox.get(), tox4j_friend_typing_cb,            events.get());
+        tox_callback_read_receipt            (tox.get(), tox4j_read_receipt_cb,             events.get());
+        tox_callback_friend_request          (tox.get(), tox4j_friend_request_cb,           events.get());
+        tox_callback_friend_message          (tox.get(), tox4j_friend_message_cb,           events.get());
+        tox_callback_friend_action           (tox.get(), tox4j_friend_action_cb,            events.get());
+        tox_callback_file_control            (tox.get(), tox4j_file_control_cb,             events.get());
+        tox_callback_file_request_chunk      (tox.get(), tox4j_file_request_chunk_cb,       events.get());
+        tox_callback_file_receive            (tox.get(), tox4j_file_receive_cb,             events.get());
+        tox_callback_file_receive_chunk      (tox.get(), tox4j_file_receive_chunk_cb,       events.get());
+        tox_callback_friend_lossy_packet     (tox.get(), tox4j_friend_lossy_packet_cb,      events.get());
+        tox_callback_friend_lossless_packet  (tox.get(), tox4j_friend_lossless_packet_cb,   events.get());
 
         // We can create the new instance outside InstanceManager' critical section.
         ToxInstance instance {

@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.callbacks.ToxEventAdapter;
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.Test;
@@ -80,12 +81,12 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
         }
 
         @Override
-        public void connectionStatus(boolean isConnected) {
-            if (isConnected)
+        public void connectionStatus(ToxConnection connectionStatus) {
+            connected = connectionStatus != ToxConnection.NONE;
+            if (connected)
                 debug("is now connected to the network");
             else
                 debug("is now disconnected from the network");
-            connected = isConnected;
         }
 
         protected void addTask(Task task) {

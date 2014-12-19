@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
@@ -31,22 +32,23 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
         private final Map<Integer, Integer> receipts = new HashMap<>();
         private int pendingCount = ITERATIONS;
 
-        @Override
-        public void friendConnected(final int friendNumber, boolean isConnected) {
-            debug("is now connected to friend " + friendNumber);
-            addTask(new Task() {
-                @Override
-                public void perform(ToxCore tox) throws ToxException {
-                    debug("Sending " + ITERATIONS + " messages");
-                    for (int i = 0; i < ITERATIONS; i++) {
-                        pendingIds[i] = -1;
-                        int receipt = tox.sendMessage(friendNumber, String.valueOf(i).getBytes());
+        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+            if (connection != ToxConnection.NONE) {
+                debug("is now connected to friend " + friendNumber);
+                addTask(new Task() {
+                    @Override
+                    public void perform(ToxCore tox) throws ToxException {
+                        debug("Sending " + ITERATIONS + " messages");
+                        for (int i = 0; i < ITERATIONS; i++) {
+                            pendingIds[i] = -1;
+                            int receipt = tox.sendMessage(friendNumber, String.valueOf(i).getBytes());
 //                        debug("next receipt: " + receipt);
-                        assertNull(receipts.get(receipt));
-                        receipts.put(receipt, i);
+                            assertNull(receipts.get(receipt));
+                            receipts.put(receipt, i);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         @Override

@@ -1,11 +1,10 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxFileControl;
 import im.tox.tox4j.enums.ToxFileKind;
 import im.tox.tox4j.enums.ToxStatus;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class ToxEventAdapterTest {
 
@@ -13,7 +12,7 @@ public class ToxEventAdapterTest {
 
     @Test
     public void testConnectionStatus() throws Exception {
-        listener.connectionStatus(false);
+        listener.connectionStatus(ToxConnection.NONE);
     }
 
     @Test
@@ -43,7 +42,7 @@ public class ToxEventAdapterTest {
 
     @Test
     public void testFriendConnected() throws Exception {
-        listener.friendConnected(0, false);
+        listener.friendConnectionStatus(0, ToxConnection.NONE);
     }
 
     @Test

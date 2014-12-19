@@ -1,11 +1,12 @@
 package im.tox.tox4j;
 
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.callbacks.ToxEventListener;
 
 public abstract class AbstractToxCore implements ToxCore {
 
     @Override
-    public void callback(ToxEventListener handler) {
+    public void callback(@Nullable ToxEventListener handler) {
         callbackConnectionStatus(handler);
         callbackFileControl(handler);
         callbackFileReceive(handler);

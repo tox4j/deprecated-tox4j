@@ -1,8 +1,7 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.ToxCore;
-import im.tox.tox4j.ToxOptions;
 import im.tox.tox4j.callbacks.ConnectionStatusCallback;
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxBootstrapException;
 import im.tox.tox4j.exceptions.ToxFriendAddException;
@@ -46,32 +45,32 @@ public abstract class ToxCoreTestBase {
     }
 
     protected static class ConnectedListener implements ConnectionStatusCallback {
-        private boolean value;
+        private ToxConnection value = ToxConnection.NONE;
 
         @Override
-        public void connectionStatus(boolean isConnected) {
-            value = isConnected;
+        public void connectionStatus(ToxConnection connectionStatus) {
+            value = connectionStatus;
         }
 
         public boolean isConnected() {
-            return value;
+            return value != ToxConnection.NONE;
         }
     }
 
     protected class ToxList implements Closeable {
         private final ToxCore[] toxes;
-        private final boolean[] connected;
+        private final ToxConnection[] connected;
 
         public ToxList(int count) throws ToxNewException {
             this.toxes = new ToxCore[count];
-            this.connected = new boolean[toxes.length];
+            this.connected = new ToxConnection[toxes.length];
             for (int i = 0; i < count; i++) {
                 final int id = i;
                 toxes[i] = newTox();
                 toxes[i].callbackConnectionStatus(new ConnectionStatusCallback() {
                     @Override
-                    public void connectionStatus(boolean isConnected) {
-                        connected[id] = isConnected;
+                    public void connectionStatus(ToxConnection connectionStatus) {
+                        connected[id] = connectionStatus;
                     }
                 });
             }
@@ -86,15 +85,15 @@ public abstract class ToxCoreTestBase {
 
         public boolean isAllConnected() {
             boolean result = true;
-            for (boolean tox : connected) {
-                result = result && tox;
+            for (ToxConnection tox : connected) {
+                result = result && tox != ToxConnection.NONE;
             }
             return result;
         }
 
         public boolean isAnyConnected() {
-            for (boolean tox : connected) {
-                if (tox) {
+            for (ToxConnection tox : connected) {
+                if (tox != ToxConnection.NONE) {
                     return true;
                 }
             }

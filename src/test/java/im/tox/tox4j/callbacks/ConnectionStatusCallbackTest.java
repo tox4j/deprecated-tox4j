@@ -4,9 +4,11 @@ import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.ToxOptions;
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxNewException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ConnectionStatusCallbackTest extends AliceBobTestBase {
@@ -24,12 +26,11 @@ public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
     private static class Client extends ChatClient {
 
-        private boolean connected = false;
+        private ToxConnection connection = ToxConnection.NONE;
 
         @Override
-        public void connectionStatus(boolean isConnected) {
-            assertEquals(!connected, isConnected);
-            connected = isConnected;
+        public void connectionStatus(ToxConnection connection) {
+            assertNotEquals(this.connection, connection);
             finish();
         }
 

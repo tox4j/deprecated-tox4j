@@ -110,7 +110,7 @@ struct new_Tox
     callback<tox_friend_name_cb> friend_name;
     callback<tox_friend_status_message_cb> friend_status_message;
     callback<tox_friend_status_cb> friend_status;
-    callback<tox_friend_connected_cb> friend_connected;
+    callback<tox_friend_connection_status_cb> friend_connection_status;
     callback<tox_friend_typing_cb> friend_typing;
     callback<tox_read_receipt_cb> read_receipt;
     callback<tox_friend_request_cb> friend_request;
@@ -185,8 +185,8 @@ struct new_Tox
     static void connection_status(Tox *tox, int32_t friendnumber, uint8_t status, void *userdata)
     {
       auto self = static_cast<new_Tox *> (userdata);
-      auto cb = self->callbacks.friend_connected;
-      cb.func (self, friendnumber, status, cb.user_data);
+      auto cb = self->callbacks.friend_connection_status;
+      cb.func (self, friendnumber, status ? TOX_CONNECTION_TCP : TOX_CONNECTION_NONE, cb.user_data);
     }
 
     static void file_send_request(Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)
@@ -549,7 +549,7 @@ new_tox_bootstrap (new_Tox *tox, char const *address, uint16_t port, uint8_t con
 }
 
 bool
-new_tox_is_connected (new_Tox const *tox)
+new_tox_connection_status (new_Tox const *tox)
 {
   assert (false);
   return true;
@@ -596,7 +596,7 @@ new_tox_iteration (new_Tox *tox)
     {
       tox->connected = !tox->connected;
       auto cb = tox->callbacks.connection_status;
-      cb.func (tox, tox->connected, cb.user_data);
+      cb.func (tox, tox->connected ? TOX_CONNECTION_TCP : TOX_CONNECTION_NONE, cb.user_data);
     }
   // For all active file transfers that we didn't invoke a file_request_chunk
   // event for, do so now.
@@ -930,24 +930,24 @@ new_tox_callback_friend_status (new_Tox *tox, tox_friend_status_cb *function, vo
   tox->callbacks.friend_status = { function, user_data };
 }
 
-bool
-new_tox_friend_get_connected (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
+TOX_CONNECTION
+new_tox_friend_get_connection_status (new_Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error)
 {
   if (!new_tox_friend_exists (tox, friend_number))
     {
       if (error) *error = TOX_ERR_FRIEND_QUERY_FRIEND_NOT_FOUND;
-      return false;
+      return TOX_CONNECTION_NONE;
     }
-  int result = tox_get_friend_connection_status (tox->tox, friend_number);
-  assert (result != -1);
+  int status = tox_get_friend_connection_status (tox->tox, friend_number);
+  assert (status != -1);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
-  return result;
+  return status ? TOX_CONNECTION_TCP : TOX_CONNECTION_NONE;
 }
 
 void
-new_tox_callback_friend_connected (new_Tox *tox, tox_friend_connected_cb *function, void *user_data)
+new_tox_callback_friend_connection_status (new_Tox *tox, tox_friend_connection_status_cb *function, void *user_data)
 {
-  tox->callbacks.friend_connected = { function, user_data };
+  tox->callbacks.friend_connection_status = { function, user_data };
 }
 
 bool
@@ -998,7 +998,7 @@ new_tox_send_something (uint32_t tox_send (Tox *tox, int32_t friendnumber, const
       if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND;
       return 0;
     }
-  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connection_status (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_CONNECTED;
       return 0;
@@ -1065,7 +1065,7 @@ new_tox_file_control (new_Tox *tox, uint32_t friend_number, uint32_t file_number
       if (error) *error = TOX_ERR_FILE_CONTROL_FRIEND_NOT_FOUND;
       return false;
     }
-  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connection_status (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED;
       return false;
@@ -1165,7 +1165,7 @@ new_tox_file_send (new_Tox *tox, uint32_t friend_number, TOX_FILE_KIND kind, uin
       if (error) *error = TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND;
       return 0;
     }
-  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connection_status (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED;
       return 0;
@@ -1213,7 +1213,7 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
       if (error) *error = TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_FOUND;
       return false;
     }
-  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connection_status (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_FILE_SEND_CHUNK_FRIEND_NOT_CONNECTED;
       return false;
@@ -1273,7 +1273,7 @@ new_tox_send_custom_packet (int send (Tox const *tox, int32_t friendnumber, uint
       if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_FOUND;
       return false;
     }
-  if (!new_tox_friend_get_connected (tox, friend_number, nullptr))
+  if (!new_tox_friend_get_connection_status (tox, friend_number, nullptr))
     {
       if (error) *error = TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_CONNECTED;
       return false;

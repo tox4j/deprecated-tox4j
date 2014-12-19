@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
@@ -29,8 +30,10 @@ public class FriendStatusCallbackTest extends AliceBobTestBase {
         private ToxStatus selfStatus = null;
 
         @Override
-        public void friendConnected(final int friendNumber, boolean isConnected) {
-            debug("is now connected to friend " + friendNumber);
+        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+            if (connection != ToxConnection.NONE) {
+                debug("is now connected to friend " + friendNumber);
+            }
         }
 
         private void go(final ToxStatus status) {

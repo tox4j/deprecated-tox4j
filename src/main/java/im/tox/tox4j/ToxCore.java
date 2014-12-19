@@ -1,5 +1,7 @@
 package im.tox.tox4j;
 
+import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.enums.ToxFileControl;
 import im.tox.tox4j.enums.ToxFileKind;
@@ -33,6 +35,7 @@ public interface ToxCore extends Closeable {
      *
      * @return a byte array containing the tox instance
      */
+    @NotNull
     byte[] save();
 
     /**
@@ -42,8 +45,7 @@ public interface ToxCore extends Closeable {
      * @throws im.tox.tox4j.exceptions.ToxLoadException if an error occurred. The tox save format is currently unstable.
      *                                                     this means, that even if this exception is thrown, some data might have been loaded.
      */
-
-    void load(byte[] data) throws ToxLoadException;
+    void load(@NotNull byte[] data) throws ToxLoadException;
 
     /**
      * Bootstrap into the tox network.
@@ -55,14 +57,14 @@ public interface ToxCore extends Closeable {
      * @param public_key the public key of the node.
      * @throws ToxBootstrapException if an error occurred.
      */
-    void bootstrap(String address, int port, byte[] public_key) throws ToxBootstrapException;
+    void bootstrap(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
 
     /**
      * Sets the callback for connection status changes.
      *
      * @param callback the callback.
      */
-    void callbackConnectionStatus(ConnectionStatusCallback callback);
+    void callbackConnectionStatus(@Nullable ConnectionStatusCallback callback);
 
     /**
      * Get the UDP port this instance is bound to.
@@ -85,6 +87,7 @@ public interface ToxCore extends Closeable {
      *
      * @return the temporary DHT public key.
      */
+    @NotNull
     byte[] getDhtId();
 
     /**
@@ -106,6 +109,7 @@ public interface ToxCore extends Closeable {
      *
      * @return our own Client ID.
      */
+    @NotNull
     byte[] getClientId();
 
     /**
@@ -113,6 +117,7 @@ public interface ToxCore extends Closeable {
      *
      * @return our own secret key.
      */
+    @NotNull
     byte[] getPrivateKey();
 
     /**
@@ -139,6 +144,7 @@ public interface ToxCore extends Closeable {
      *
      * @return our current tox address.
      */
+    @NotNull
     byte[] getAddress();
 
     /**
@@ -149,13 +155,14 @@ public interface ToxCore extends Closeable {
      * @param name our name.
      * @throws ToxSetInfoException if an error occurs.
      */
-    void setName(byte[] name) throws ToxSetInfoException;
+    void setName(@Nullable byte[] name) throws ToxSetInfoException;
 
     /**
-     * Get our own nickname. May be empty.
+     * Get our own nickname. May be null if the nickname was empty.
      *
      * @return our nickname.
      */
+    @Nullable
     byte[] getName();
 
     /**
@@ -166,13 +173,14 @@ public interface ToxCore extends Closeable {
      * @param message the status message to set.
      * @throws ToxSetInfoException if an error occurs.
      */
-    void setStatusMessage(byte[] message) throws ToxSetInfoException;
+    void setStatusMessage(@Nullable byte[] message) throws ToxSetInfoException;
 
     /**
-     * Gets our own status message. May be empty.
+     * Gets our own status message. May be null if the status message was empty.
      *
      * @return our status message.
      */
+    @Nullable
     byte[] getStatusMessage();
 
     /**
@@ -180,13 +188,14 @@ public interface ToxCore extends Closeable {
      *
      * @param status status to set.
      */
-    void setStatus(ToxStatus status);
+    void setStatus(@NotNull ToxStatus status);
 
     /**
      * Get our status.
      *
      * @return our status.
      */
+    @NotNull
     ToxStatus getStatus();
 
     /**
@@ -197,7 +206,7 @@ public interface ToxCore extends Closeable {
      * @return the new friend's friend number.
      * @throws im.tox.tox4j.exceptions.ToxFriendAddException if an error occurred.
      */
-    int addFriend(byte[] address, byte[] message) throws ToxFriendAddException;
+    int addFriend(@NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException;
 
     /**
      * Add the specified Client ID without sending a friend request.
@@ -208,7 +217,7 @@ public interface ToxCore extends Closeable {
      * @return the new friend's friend number.
      * @throws im.tox.tox4j.exceptions.ToxFriendAddException if an error occurred.
      */
-    int addFriendNoRequest(byte[] clientId) throws ToxFriendAddException;
+    int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException;
 
     /**
      * Deletes the specified friend.
@@ -225,7 +234,7 @@ public interface ToxCore extends Closeable {
      * @return the friend number that is associated with the Client ID.
      * @throws im.tox.tox4j.exceptions.ToxFriendByClientIdException if an error occurs.
      */
-    int getFriendByClientId(byte[] clientId) throws ToxFriendByClientIdException;
+    int getFriendByClientId(@NotNull byte[] clientId) throws ToxFriendByClientIdException;
 
     /**
      * Gets the Client ID for the specified friend number.
@@ -234,6 +243,7 @@ public interface ToxCore extends Closeable {
      * @return the Client ID associated with the friend number.
      * @throws im.tox.tox4j.exceptions.ToxFriendGetClientIdException if an error occurs.
      */
+    @NotNull
     byte[] getClientId(int friendNumber) throws ToxFriendGetClientIdException;
 
     /**
@@ -254,8 +264,9 @@ public interface ToxCore extends Closeable {
      * This list is valid until either of the following is invoked: {@link #deleteFriend(int)}, {@link #addFriend(byte[], byte[])},
      * {@link #addFriendNoRequest(byte[])}.
      *
-     * @return an array containing the currently valid friend numbers.
+     * @return an array containing the currently valid friend numbers. Returns the empty int array if there are no friends.
      */
+    @NotNull
     int[] getFriendList();
 
     /**
@@ -263,35 +274,35 @@ public interface ToxCore extends Closeable {
      *
      * @param callback the callback.
      */
-    void callbackFriendName(FriendNameCallback callback);
+    void callbackFriendName(@Nullable FriendNameCallback callback);
 
     /**
      * Set the callback for friend status message changes.
      *
      * @param callback the callback.
      */
-    void callbackFriendStatusMessage(FriendStatusMessageCallback callback);
+    void callbackFriendStatusMessage(@Nullable FriendStatusMessageCallback callback);
 
     /**
      * Set the callback for friend message changes.
      *
      * @param callback the callback.
      */
-    void callbackFriendStatus(FriendStatusCallback callback);
+    void callbackFriendStatus(@Nullable FriendStatusCallback callback);
 
     /**
      * Set the callback for friend connection changes.
      *
      * @param callback the callback.
      */
-    void callbackFriendConnected(FriendConnectedCallback callback);
+    void callbackFriendConnected(@Nullable FriendConnectionStatusCallback callback);
 
     /**
      * Set the callback for friend typing changes.
      *
      * @param callback the callback.
      */
-    void callbackFriendTyping(FriendTypingCallback callback);
+    void callbackFriendTyping(@Nullable FriendTypingCallback callback);
 
     /**
      * Tell friend number whether or not we are currently typing.
@@ -302,45 +313,45 @@ public interface ToxCore extends Closeable {
      */
     void setTyping(int friendNumber, boolean typing) throws ToxSetTypingException;
 
-    int sendMessage(int friendNumber, byte[] message) throws ToxSendMessageException;
+    int sendMessage(int friendNumber, @NotNull byte[] message) throws ToxSendMessageException;
 
-    int sendAction(int friendNumber, byte[] action) throws ToxSendMessageException;
+    int sendAction(int friendNumber, @NotNull byte[] action) throws ToxSendMessageException;
 
-    void callbackReadReceipt(ReadReceiptCallback callback);
+    void callbackReadReceipt(@Nullable ReadReceiptCallback callback);
 
-    void callbackFriendRequest(FriendRequestCallback callback);
+    void callbackFriendRequest(@Nullable FriendRequestCallback callback);
 
-    void callbackFriendMessage(FriendMessageCallback callback);
+    void callbackFriendMessage(@Nullable FriendMessageCallback callback);
 
-    void callbackFriendAction(FriendActionCallback callback);
+    void callbackFriendAction(@Nullable FriendActionCallback callback);
 
-    void fileControl(int friendNumber, int fileNumber, ToxFileControl control) throws ToxFileControlException;
+    void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) throws ToxFileControlException;
 
-    void callbackFileControl(FileControlCallback callback);
+    void callbackFileControl(@Nullable FileControlCallback callback);
 
-    int fileSend(int friendNumber, ToxFileKind kind, long fileSize, byte[] filename) throws ToxFileSendException;
+    int fileSend(int friendNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException;
 
-    void fileSendChunk(int friendNumber, int fileNumber, byte[] data) throws ToxFileSendChunkException;
+    void fileSendChunk(int friendNumber, int fileNumber, @NotNull byte[] data) throws ToxFileSendChunkException;
 
-    void callbackFileRequestChunk(FileRequestChunkCallback callback);
+    void callbackFileRequestChunk(@Nullable FileRequestChunkCallback callback);
 
-    void callbackFileReceive(FileReceiveCallback callback);
+    void callbackFileReceive(@Nullable FileReceiveCallback callback);
 
-    void callbackFileReceiveChunk(FileReceiveChunkCallback callback);
+    void callbackFileReceiveChunk(@Nullable FileReceiveChunkCallback callback);
 
-    void sendLossyPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException;
+    void sendLossyPacket(int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException;
 
-    void callbackFriendLossyPacket(FriendLossyPacketCallback callback);
+    void callbackFriendLossyPacket(@Nullable FriendLossyPacketCallback callback);
 
-    void sendLosslessPacket(int friendNumber, byte[] data) throws ToxSendCustomPacketException;
+    void sendLosslessPacket(int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException;
 
-    void callbackFriendLosslessPacket(FriendLosslessPacketCallback callback);
+    void callbackFriendLosslessPacket(@Nullable FriendLosslessPacketCallback callback);
 
     /**
      * Convenience method to set all event handlers at once.
      *
      * @param handler An event handler capable of handling all Tox events.
      */
-    void callback(ToxEventListener handler);
+    void callback(@Nullable ToxEventListener handler);
 
 }

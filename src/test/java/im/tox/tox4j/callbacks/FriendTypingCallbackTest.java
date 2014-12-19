@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
@@ -35,12 +36,13 @@ public class FriendTypingCallbackTest extends AliceBobTestBase {
             });
         }
 
-        @Override
-        public void friendConnected(int friendNumber, boolean isConnected) {
-            debug("is now connected to friend " + friendNumber);
-            // Alice starts typing.
-            if (isAlice()) {
-                setTyping(friendNumber, true);
+        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+            if (connection != ToxConnection.NONE) {
+                debug("is now connected to friend " + friendNumber);
+                // Alice starts typing.
+                if (isAlice()) {
+                    setTyping(friendNumber, true);
+                }
             }
         }
 

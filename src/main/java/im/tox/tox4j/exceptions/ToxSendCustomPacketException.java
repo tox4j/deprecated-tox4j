@@ -1,6 +1,8 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxSendCustomPacketException extends ToxException {
+import im.tox.tox4j.annotations.NotNull;
+
+public final class ToxSendCustomPacketException extends ToxException {
 
     public static enum Code {
         NULL,
@@ -18,6 +20,7 @@ public class ToxSendCustomPacketException extends ToxException {
         this.code = code;
     }
 
+    @NotNull
     @Override
     public Code getCode() {
         return code;

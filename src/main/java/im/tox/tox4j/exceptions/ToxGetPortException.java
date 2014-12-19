@@ -1,6 +1,8 @@
 package im.tox.tox4j.exceptions;
 
-public class ToxGetPortException extends ToxException {
+import im.tox.tox4j.annotations.NotNull;
+
+public final class ToxGetPortException extends ToxException {
 
     public static enum Code {
         NOT_BOUND,
@@ -12,6 +14,7 @@ public class ToxGetPortException extends ToxException {
         this.code = code;
     }
 
+    @NotNull
     @Override
     public Code getCode() {
         return code;
