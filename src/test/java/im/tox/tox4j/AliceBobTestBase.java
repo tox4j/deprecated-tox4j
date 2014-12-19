@@ -2,6 +2,7 @@ package im.tox.tox4j;
 
 import im.tox.tox4j.callbacks.ToxEventAdapter;
 import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,6 +12,12 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 
 public abstract class AliceBobTestBase extends ToxCoreTestBase {
+
+    private void start(String subTest) {
+        if (LOGGING) {
+            System.out.println("--- " + getClass().getSimpleName() + " (" + subTest + ")");
+        }
+    }
 
     protected static class ChatClient extends ToxEventAdapter {
 
@@ -116,19 +123,19 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
     protected abstract ChatClient newClient();
 
-    @Test(timeout = TIMEOUT)
-    public void runAliceBobTest() throws Exception {
-        if (LOGGING) {
-            System.out.println("--- " + getClass().getSimpleName() + " ---");
-        }
+    private interface ToxFactory {
+        ToxCore make() throws ToxException;
+    }
+
+    private void runAliceBobTest(ToxFactory factory) throws Exception {
         ChatClient aliceChat = newClient();
         ChatClient bobChat = newClient();
 
         aliceChat.name = bobChat.friendName = "Alice";
         bobChat.name = aliceChat.friendName = "Bob";
 
-        try (ToxCore alice = newTox()) {
-            try (ToxCore bob = newTox()) {
+        try (ToxCore alice = factory.make()) {
+            try (ToxCore bob = factory.make()) {
                 alice.addFriendNoRequest(bob.getClientId());
                 bob.addFriendNoRequest(alice.getClientId());
 
@@ -152,6 +159,50 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
                 }
             }
         }
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_UDP4() throws Exception {
+        start("UDP4");
+        runAliceBobTest(new ToxFactory() {
+            @Override
+            public ToxCore make() throws ToxNewException {
+                return newTox(false, true);
+            }
+        });
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_UDP6() throws Exception {
+        start("UDP6");
+        runAliceBobTest(new ToxFactory() {
+            @Override
+            public ToxCore make() throws ToxNewException {
+                return newTox(true, true);
+            }
+        });
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_TCP4() throws Exception {
+        start("TCP4");
+        runAliceBobTest(new ToxFactory() {
+            @Override
+            public ToxCore make() throws ToxException {
+                return bootstrap(newTox(false, false));
+            }
+        });
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_TCP6() throws Exception {
+        start("TCP6");
+        runAliceBobTest(new ToxFactory() {
+            @Override
+            public ToxCore make() throws ToxException {
+                return bootstrap(newTox(true, false));
+            }
+        });
     }
 
 }
