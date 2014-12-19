@@ -1,15 +1,9 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.exceptions.ToxKilledException;
-import im.tox.tox4j.callbacks.ConnectionStatusCallback;
-import im.tox.tox4j.enums.ToxFileKind;
 import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.enums.ToxStatus;
-import im.tox.tox4j.exceptions.*;
 import org.junit.Test;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -18,32 +12,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
 
     private static final boolean SLOW_TESTS = true;
     private static final int TOX_COUNT = 10;
-
-    private static final String bootstrapValidIP = "144.76.60.215";
-    private static final int bootstrapValidPort = 33445;
-    private static final byte[] bootstrapValidDhtId =
-            parseClientId("04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F");
-
-    private static byte[] parseClientId(String id) {
-        byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
-        for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
-            clientId[i] = (byte) (
-                (fromHexDigit(id.charAt(i * 2)) << 4) +
-                (fromHexDigit(id.charAt(i * 2 + 1)))
-            );
-        }
-        return clientId;
-    }
-
-    private static byte fromHexDigit(char c) {
-        if (c >= '0' && c <= '9') {
-            return (byte)(c - '0');
-        } else if (c >= 'A' && c <= 'F') {
-            return (byte)(c - 'A' + 10);
-        } else {
-            throw new IllegalArgumentException("Non-hex digit character: " + c);
-        }
-    }
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap() throws Exception {
@@ -575,11 +543,20 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testGetPort() throws Exception {
+    public void testGetUdpPort() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNotEquals(0, tox.getPort());
-            assertTrue(tox.getPort() >  0);
-            assertTrue(tox.getPort() <= 65535);
+            assertNotEquals(0, tox.getUdpPort());
+            assertTrue(tox.getUdpPort() > 0);
+            assertTrue(tox.getUdpPort() <= 65535);
+        }
+    }
+
+    @Test
+    public void testGetTcpPort() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertNotEquals(0, tox.getTcpPort());
+            assertTrue(tox.getTcpPort() >  0);
+            assertTrue(tox.getTcpPort() <= 65535);
         }
     }
 

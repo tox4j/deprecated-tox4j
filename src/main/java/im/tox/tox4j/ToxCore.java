@@ -65,12 +65,20 @@ public interface ToxCore extends Closeable {
     void callbackConnectionStatus(ConnectionStatusCallback callback);
 
     /**
-     * Get the port this instance is bound to.
+     * Get the UDP port this instance is bound to.
      *
-     * @return the port this instance is bound to.
+     * @return the UDP port this instance is bound to.
      * @throws ToxGetPortException if an error occurred
      */
-    int getPort() throws ToxGetPortException;
+    int getUdpPort() throws ToxGetPortException;
+
+    /**
+     * Get the port this instance is serving as a TCP relay on.
+     *
+     * @return the TCP port this instance is bound to.
+     * @throws ToxGetPortException if an error occurred
+     */
+    int getTcpPort() throws ToxGetPortException;
 
     /**
      * Get the temporary DHT public key for this instance.

@@ -4,6 +4,7 @@ import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.ToxOptions;
 import im.tox.tox4j.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.enums.ToxProxyType;
+import im.tox.tox4j.exceptions.ToxBootstrapException;
 import im.tox.tox4j.exceptions.ToxFriendAddException;
 import im.tox.tox4j.exceptions.ToxNewException;
 
@@ -14,8 +15,13 @@ import java.util.Random;
 public abstract class ToxCoreTestBase {
 
     protected static final boolean LOGGING = true;
-    protected static final int TIMEOUT = 10000;
+    protected static final int TIMEOUT = 20000;
     protected static final int ITERATIONS = 500;
+
+    protected static final String bootstrapValidIP = "144.76.60.215";
+    protected static final int bootstrapValidPort = 33445;
+    protected static final byte[] bootstrapValidDhtId =
+            parseClientId("04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F");
 
 
     protected abstract ToxCore newTox(ToxOptions options) throws ToxNewException;
@@ -157,6 +163,32 @@ public abstract class ToxCoreTestBase {
             }
         }
         return friendNumber;
+    }
+
+    private static byte[] parseClientId(String id) {
+        byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
+        for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
+            clientId[i] = (byte) (
+                    (fromHexDigit(id.charAt(i * 2)) << 4) +
+                            (fromHexDigit(id.charAt(i * 2 + 1)))
+            );
+        }
+        return clientId;
+    }
+
+    private static byte fromHexDigit(char c) {
+        if (c >= '0' && c <= '9') {
+            return (byte)(c - '0');
+        } else if (c >= 'A' && c <= 'F') {
+            return (byte)(c - 'A' + 10);
+        } else {
+            throw new IllegalArgumentException("Non-hex digit character: " + c);
+        }
+    }
+
+    protected ToxCore bootstrap(ToxCore tox) throws ToxBootstrapException {
+        tox.bootstrap(bootstrapValidIP, bootstrapValidPort, bootstrapValidDhtId);
+        return tox;
     }
 
 }

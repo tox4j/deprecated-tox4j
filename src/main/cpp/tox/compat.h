@@ -66,4 +66,5 @@
 #define tox_send_lossless_packet new_tox_send_lossless_packet
 #define tox_callback_friend_lossless_packet new_tox_callback_friend_lossless_packet
 #define tox_get_dht_id new_tox_get_dht_id
-#define tox_get_port new_tox_get_port
+#define tox_get_udp_port new_tox_get_udp_port
+#define tox_get_tcp_port new_tox_get_tcp_port

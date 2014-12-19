@@ -123,11 +123,19 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native int toxGetPort(int instanceNumber) throws ToxGetPortException;
+    private static native int toxGetUdpPort(int instanceNumber) throws ToxGetPortException;
 
     @Override
-    public int getPort() throws ToxGetPortException {
-        return toxGetPort(instanceNumber);
+    public int getUdpPort() throws ToxGetPortException {
+        return toxGetUdpPort(instanceNumber);
+    }
+
+
+    private static native int toxGetTcpPort(int instanceNumber) throws ToxGetPortException;
+
+    @Override
+    public int getTcpPort() throws ToxGetPortException {
+        return toxGetTcpPort(instanceNumber);
     }
 
 
