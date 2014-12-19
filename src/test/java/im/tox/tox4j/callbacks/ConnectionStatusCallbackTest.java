@@ -24,9 +24,12 @@ public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
     private static class Client extends ChatClient {
 
+        private boolean connected = false;
+
         @Override
         public void connectionStatus(boolean isConnected) {
-            assertTrue(isConnected);
+            assertEquals(!connected, isConnected);
+            connected = isConnected;
             finish();
         }
 
