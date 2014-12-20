@@ -2,23 +2,26 @@ package im.tox.tox4j;
 
 import im.tox.tox4j.callbacks.ToxEventAdapter;
 import im.tox.tox4j.enums.ToxConnection;
+import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.exceptions.ToxNewException;
+import org.junit.Assume;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeNotNull;
+import static org.junit.Assume.assumeTrue;
 
 public abstract class AliceBobTestBase extends ToxCoreTestBase {
-
-    private void start(String subTest) {
-        if (LOGGING) {
-            System.out.println("--- " + getClass().getSimpleName() + " (" + subTest + ")");
-        }
-    }
 
     protected static class ChatClient extends ToxEventAdapter {
 
@@ -129,6 +132,11 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
     }
 
     private void runAliceBobTest(ToxFactory factory) throws Exception {
+        if (LOGGING) {
+            String method = getToplevelMethod(Thread.currentThread().getStackTrace());
+            System.out.println("--- " + getClass().getSimpleName() + "." + method);
+        }
+
         ChatClient aliceChat = newClient();
         ChatClient bobChat = newClient();
 
@@ -156,15 +164,26 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
                     aliceChat.performTasks(alice);
                     bobChat.performTasks(bob);
 
-                    Thread.sleep(Math.max(alice.iterationInterval(), bob.iterationInterval()));
+                    long interval = Math.max(alice.iterationInterval(), bob.iterationInterval());
+                    Thread.sleep(interval);
                 }
             }
         }
     }
 
+    private String getToplevelMethod(StackTraceElement[] stackTrace) {
+        StackTraceElement last = stackTrace[0];
+        for (StackTraceElement element : Arrays.asList(stackTrace).subList(1, stackTrace.length - 1)) {
+            if (!element.getClassName().equals(AliceBobTestBase.class.getName())) {
+                break;
+            }
+            last = element;
+        }
+        return last.getMethodName();
+    }
+
     @Test(timeout = TIMEOUT)
     public void runAliceBobTest_UDP4() throws Exception {
-        start("UDP4");
         runAliceBobTest(new ToxFactory() {
             @Override
             public ToxCore make() throws ToxNewException {
@@ -175,7 +194,6 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
     @Test(timeout = TIMEOUT)
     public void runAliceBobTest_UDP6() throws Exception {
-        start("UDP6");
         runAliceBobTest(new ToxFactory() {
             @Override
             public ToxCore make() throws ToxNewException {
@@ -186,24 +204,67 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
     @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP4() throws Exception {
-        start("TCP4");
         runAliceBobTest(new ToxFactory() {
             @Override
             public ToxCore make() throws ToxException {
-                return bootstrap(newTox(false, false));
+                return bootstrap(false, newTox(false, false));
             }
         });
     }
 
     @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP6() throws Exception {
-        start("TCP6");
+        assumeIPv6();
         runAliceBobTest(new ToxFactory() {
             @Override
             public ToxCore make() throws ToxException {
-                return bootstrap(newTox(true, false));
+                return bootstrap(true, newTox(true, false));
             }
         });
+    }
+
+    private void runAliceBobTest_SOCKS(final boolean ipv6Enabled, final boolean udpEnabled) throws Exception {
+        if (ipv6Enabled) {
+            assumeIPv6();
+        }
+        final SocksServer proxy = new SocksServer();
+        Thread proxyThread = new Thread(proxy);
+        proxyThread.start();
+        try {
+            runAliceBobTest(new ToxFactory() {
+                @Override
+                public ToxCore make() throws ToxException {
+                    return bootstrap(ipv6Enabled, newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort()));
+                }
+            });
+        } finally {
+//            System.err.println("Closing proxy");
+            proxy.close();
+//            System.err.println("Waiting for proxy to die");
+            proxyThread.join();
+//            System.err.println("Proxy died");
+        }
+        assertEquals(2, proxy.getAccepted());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_SOCKS_UDP4() throws Exception {
+        runAliceBobTest_SOCKS(false, true);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_SOCKS_UDP6() throws Exception {
+        runAliceBobTest_SOCKS(true, true);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_SOCKS_TCP4() throws Exception {
+        runAliceBobTest_SOCKS(false, false);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void runAliceBobTest_SOCKS_TCP6() throws Exception {
+        runAliceBobTest_SOCKS(true, false);
     }
 
 }

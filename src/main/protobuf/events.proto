@@ -2,14 +2,16 @@ package im.tox.tox4j.proto;
 
 option optimize_for = LITE_RUNTIME;
 
-message ConnectionStatus {
-    enum Kind {
-        NONE    = 1;
-        TCP     = 2;
-        UDP     = 3;
-    }
+enum Socket {
+    NONE    = 1;
+    TCP4    = 2;
+    TCP6    = 3;
+    UDP4    = 4;
+    UDP6    = 5;
+}
 
-    required Kind   connectionStatus = 1;
+message ConnectionStatus {
+    required Socket connectionStatus = 1;
 }
 
 message FileControl {
@@ -58,14 +60,8 @@ message FriendAction {
 }
 
 message FriendConnectionStatus {
-    enum Kind {
-        NONE    = 1;
-        TCP     = 2;
-        UDP     = 3;
-    }
-
     required uint32 friendNumber    = 1;
-    required Kind   connectionStatus = 2;
+    required Socket connectionStatus = 2;
 }
 
 message FriendMessage {
