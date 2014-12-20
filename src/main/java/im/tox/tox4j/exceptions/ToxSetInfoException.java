@@ -9,9 +9,9 @@ public final class ToxSetInfoException extends ToxException {
         TOO_LONG,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxSetInfoException(Code code) {
+    public ToxSetInfoException(@NotNull Code code) {
         this.code = code;
     }
 

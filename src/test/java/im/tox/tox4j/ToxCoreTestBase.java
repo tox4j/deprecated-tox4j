@@ -1,5 +1,6 @@
 package im.tox.tox4j;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.callbacks.ConnectionStatusCallback;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxProxyType;
@@ -80,7 +81,7 @@ public abstract class ToxCoreTestBase {
         private ToxConnection value = ToxConnection.NONE;
 
         @Override
-        public void connectionStatus(ToxConnection connectionStatus) {
+        public void connectionStatus(@NotNull ToxConnection connectionStatus) {
             value = connectionStatus;
         }
 
@@ -101,7 +102,7 @@ public abstract class ToxCoreTestBase {
                 toxes[i] = newTox();
                 toxes[i].callbackConnectionStatus(new ConnectionStatusCallback() {
                     @Override
-                    public void connectionStatus(ToxConnection connectionStatus) {
+                    public void connectionStatus(@NotNull ToxConnection connectionStatus) {
                         connected[id] = connectionStatus;
                     }
                 });

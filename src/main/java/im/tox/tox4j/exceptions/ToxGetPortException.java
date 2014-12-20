@@ -8,9 +8,9 @@ public final class ToxGetPortException extends ToxException {
         NOT_BOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxGetPortException(Code code) {
+    public ToxGetPortException(@NotNull Code code) {
         this.code = code;
     }
 

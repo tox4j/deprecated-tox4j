@@ -8,9 +8,9 @@ public final class ToxSetTypingException extends ToxException {
         FRIEND_NOT_FOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxSetTypingException(Code code) {
+    public ToxSetTypingException(@NotNull Code code) {
         this.code = code;
     }
 

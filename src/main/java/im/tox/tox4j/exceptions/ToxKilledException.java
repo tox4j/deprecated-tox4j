@@ -1,12 +1,16 @@
 package im.tox.tox4j.exceptions;
 
+import im.tox.tox4j.annotations.NotNull;
+
 /**
  * Exception to be thrown when a method is invoked on a tox instance that has been closed.
  *
  * @author Simon Levermann (sonOfRa)
  */
 public final class ToxKilledException extends RuntimeException {
-    public ToxKilledException(String message) {
+
+    public ToxKilledException(@NotNull String message) {
         super(message);
     }
+
 }

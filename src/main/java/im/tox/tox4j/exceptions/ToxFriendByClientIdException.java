@@ -9,9 +9,9 @@ public final class ToxFriendByClientIdException extends ToxException {
         NOT_FOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxFriendByClientIdException(Code code) {
+    public ToxFriendByClientIdException(@NotNull Code code) {
         this.code = code;
     }
 

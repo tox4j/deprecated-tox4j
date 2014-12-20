@@ -13,9 +13,9 @@ public final class ToxFileSendException extends ToxException {
         TOO_MANY,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxFileSendException(Code code) {
+    public ToxFileSendException(@NotNull Code code) {
         this.code = code;
     }
 

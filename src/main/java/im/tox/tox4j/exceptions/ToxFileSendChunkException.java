@@ -11,9 +11,9 @@ public final class ToxFileSendChunkException extends ToxException {
         NOT_FOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxFileSendChunkException(Code code) {
+    public ToxFileSendChunkException(@NotNull Code code) {
         this.code = code;
     }
 

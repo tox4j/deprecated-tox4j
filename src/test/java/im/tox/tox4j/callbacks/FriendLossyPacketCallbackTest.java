@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
@@ -26,7 +27,7 @@ public class FriendLossyPacketCallbackTest extends AliceBobTestBase {
 
     private static class Client extends ChatClient {
 
-        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
@@ -41,7 +42,7 @@ public class FriendLossyPacketCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendLossyPacket(int friendNumber, byte[] packet) {
+        public void friendLossyPacket(int friendNumber, @NotNull byte[] packet) {
             String message = new String(packet, 1, packet.length - 1);
             debug("received a lossy packet[id=" + packet[0] + "]: " + message);
             assertEquals(friendNumber, 0);

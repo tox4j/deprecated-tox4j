@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
@@ -39,7 +40,7 @@ public class FriendRequestCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
                 finish();
@@ -47,7 +48,7 @@ public class FriendRequestCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendRequest(final byte[] clientId, int timeDelta, byte[] message) {
+        public void friendRequest(@NotNull final byte[] clientId, int timeDelta, @NotNull byte[] message) {
             debug("got friend request: " + new String(message));
             assertTrue("Alice shouldn't get a friend request", isBob());
             assertArrayEquals(getFriendClientID(), clientId);

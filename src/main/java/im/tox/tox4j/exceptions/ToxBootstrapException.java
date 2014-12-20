@@ -10,9 +10,9 @@ public final class ToxBootstrapException extends ToxException {
         BAD_PORT,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxBootstrapException(Code code) {
+    public ToxBootstrapException(@NotNull Code code) {
         this.code = code;
     }
 
