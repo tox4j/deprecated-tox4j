@@ -21,7 +21,7 @@ import static org.junit.Assume.assumeTrue;
 public abstract class ToxCoreTestBase {
 
     protected static final boolean LOGGING = true;
-    protected static final int TIMEOUT = 20000;
+    protected static final int TIMEOUT = 30000;
     protected static final int ITERATIONS = 500;
 
     protected static class DhtNode {
