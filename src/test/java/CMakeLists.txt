@@ -45,6 +45,7 @@ set(TEST_FILES
 	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
 	im/tox/tox4j/callbacks/FileTransferTest.java
+	im/tox/tox4j/callbacks/FileTransferHalfRequestedTest.java
 	im/tox/tox4j/callbacks/FriendActionCallbackTest.java
 	im/tox/tox4j/callbacks/FriendConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FriendLosslessPacketCallbackTest.java
@@ -105,6 +106,7 @@ set(TEST_CLASSES
 	im.tox.tox4j.callbacks.FriendConnectionStatusCallbackTest
 	im.tox.tox4j.callbacks.FriendActionCallbackTest
 	im.tox.tox4j.callbacks.FileTransferTest
+	im.tox.tox4j.callbacks.FileTransferHalfRequestedTest
 	im.tox.tox4j.callbacks.FileReceiveCallbackTest
 	im.tox.tox4j.callbacks.ConnectionStatusCallbackTest
 )
