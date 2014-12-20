@@ -6,10 +6,17 @@ import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxBootstrapException;
 import im.tox.tox4j.exceptions.ToxFriendAddException;
 import im.tox.tox4j.exceptions.ToxNewException;
+import org.junit.Assume;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
+
+import static org.junit.Assume.assumeNotNull;
+import static org.junit.Assume.assumeTrue;
 
 public abstract class ToxCoreTestBase {
 
@@ -17,11 +24,36 @@ public abstract class ToxCoreTestBase {
     protected static final int TIMEOUT = 20000;
     protected static final int ITERATIONS = 500;
 
-    protected static final String bootstrapValidIP = "144.76.60.215";
-    protected static final int bootstrapValidPort = 33445;
-    protected static final byte[] bootstrapValidDhtId =
-            parseClientId("04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F");
+    protected static class DhtNode {
+        protected final String ipv4;
+        protected final String ipv6;
+        protected final int port;
+        protected final byte[] dhtId;
 
+        public DhtNode(String ipv4, String ipv6, int port, String dhtId) {
+            this.ipv4 = ipv4;
+            this.ipv6 = ipv6;
+            this.port = port;
+            this.dhtId = parseClientId(dhtId);
+        }
+    }
+
+    protected static final DhtNode[] nodes = {
+            // sonOfRa
+            new DhtNode(
+                    "144.76.60.215",
+                    "2a01:4f8:191:64d6::1",
+                    33445,
+                    "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"
+            ),
+            // stqism
+            new DhtNode(
+                    "192.254.75.98",
+                    "2607:5600:284::2",
+                    33445,
+                    "FE3914F4616E227F29B2103450D6B55A836AD4BD23F97144E2C4ABE8D504FE1B"
+            ),
+    };
 
     protected abstract ToxCore newTox(ToxOptions options) throws ToxNewException;
 
@@ -185,8 +217,21 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected ToxCore bootstrap(ToxCore tox) throws ToxBootstrapException {
-        tox.bootstrap(bootstrapValidIP, bootstrapValidPort, bootstrapValidDhtId);
+    protected static void assumeIPv6() {
+        try {
+            Socket socket = new Socket(InetAddress.getByName(nodes[0].ipv6), nodes[0].port);
+            assumeNotNull(socket.getInputStream());
+        } catch (IOException e) {
+            assumeTrue("An IPv6 network connection can be established", false);
+        }
+    }
+
+    protected ToxCore bootstrap(boolean useIPv6, ToxCore tox) throws ToxBootstrapException {
+        if (useIPv6) {
+            tox.bootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
+        } else {
+            tox.bootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
+        }
         return tox;
     }
 

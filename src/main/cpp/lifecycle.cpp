@@ -1,24 +1,32 @@
 #include "tox4j/Tox4j.h"
 #include "jniutil.h"
 
+template<typename Message>
+void add_connectionstatus(Message &msg, TOX_CONNECTION connection_status)
+{
+#define connection_case(STATUS)                         \
+        case TOX_CONNECTION_##STATUS:                   \
+            msg->set_connectionstatus(Socket::STATUS);  \
+            break
+
+    using im::tox::tox4j::proto::Socket;
+    switch (connection_status) {
+        connection_case(NONE);
+        connection_case(UDP4);
+        connection_case(UDP6);
+        connection_case(TCP4);
+        connection_case(TCP6);
+    }
+
+#undef connection_case
+}
+
 static void tox4j_connection_status_cb(Tox *tox, TOX_CONNECTION connection_status, void *user_data)
 {
     unused(tox);
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
     auto msg = events.add_connectionstatus();
-
-    using im::tox::tox4j::proto::ConnectionStatus;
-    switch (connection_status) {
-        case TOX_CONNECTION_NONE:
-            msg->set_connectionstatus(ConnectionStatus::NONE);
-            break;
-        case TOX_CONNECTION_UDP:
-            msg->set_connectionstatus(ConnectionStatus::UDP);
-            break;
-        case TOX_CONNECTION_TCP:
-            msg->set_connectionstatus(ConnectionStatus::TCP);
-            break;
-    }
+    add_connectionstatus(msg, connection_status);
 }
 
 static void tox4j_friend_name_cb(Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, void *user_data)
@@ -66,19 +74,7 @@ static void tox4j_friend_connection_status_cb(Tox *tox, uint32_t friend_number, 
     ToxEvents &events = *static_cast<ToxEvents *>(user_data);
     auto msg = events.add_friendconnectionstatus();
     msg->set_friendnumber(friend_number);
-
-    using im::tox::tox4j::proto::FriendConnectionStatus;
-    switch (connection_status) {
-        case TOX_CONNECTION_NONE:
-            msg->set_connectionstatus(FriendConnectionStatus::NONE);
-            break;
-        case TOX_CONNECTION_UDP:
-            msg->set_connectionstatus(FriendConnectionStatus::UDP);
-            break;
-        case TOX_CONNECTION_TCP:
-            msg->set_connectionstatus(FriendConnectionStatus::TCP);
-            break;
-    }
+    add_connectionstatus(msg, connection_status);
 }
 
 static void tox4j_friend_typing_cb(Tox *tox, uint32_t friend_number, bool is_typing, void *user_data)

@@ -18,7 +18,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         if (!SLOW_TESTS) return;
         try (ToxCore tox = newTox()) {
             long start = System.currentTimeMillis();
-            tox.bootstrap(bootstrapValidIP, bootstrapValidPort, bootstrapValidDhtId);
+            tox.bootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
             ConnectedListener status = new ConnectedListener();
             tox.callbackConnectionStatus(status);
             while (!status.isConnected()) {
@@ -109,14 +109,14 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(bootstrapValidIP, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(nodes[0].ipv4, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBorderlinePort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(bootstrapValidIP, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(nodes[0].ipv4, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
@@ -555,7 +555,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     public void testGetTcpPort() throws Exception {
         try (ToxCore tox = newTox()) {
             assertNotEquals(0, tox.getTcpPort());
-            assertTrue(tox.getTcpPort() >  0);
+            assertTrue(tox.getTcpPort() > 0);
             assertTrue(tox.getTcpPort() <= 65535);
         }
     }

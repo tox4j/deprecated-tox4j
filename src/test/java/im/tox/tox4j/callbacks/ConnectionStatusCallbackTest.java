@@ -30,7 +30,9 @@ public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
         @Override
         public void connectionStatus(ToxConnection connection) {
+            super.connectionStatus(connection);
             assertNotEquals(this.connection, connection);
+            this.connection = connection;
             finish();
         }
 
