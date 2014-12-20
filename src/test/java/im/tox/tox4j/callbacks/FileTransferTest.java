@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
@@ -39,7 +40,7 @@ public class FileTransferTest extends AliceBobTestBase {
         private long position = 0;
         private Integer sentFileNumber = null;
 
-        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
                 assertEquals(0, friendNumber);
@@ -55,7 +56,7 @@ public class FileTransferTest extends AliceBobTestBase {
         }
 
         @Override
-        public void fileReceive(final int friendNumber, final int fileNumber, ToxFileKind kind, long fileSize, byte[] filename) {
+        public void fileReceive(final int friendNumber, final int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
             assertTrue(isBob());
             assertEquals(0, friendNumber);
@@ -73,7 +74,7 @@ public class FileTransferTest extends AliceBobTestBase {
         }
 
         @Override
-        public void fileControl(int friendNumber, int fileNumber, ToxFileControl control) {
+        public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
             debug("file control from " + friendNumber + " for file " + fileNumber + ": " + control);
             assertTrue(isAlice());
         }
@@ -102,7 +103,7 @@ public class FileTransferTest extends AliceBobTestBase {
         }
 
         @Override
-        public void fileReceiveChunk(int friendNumber, int fileNumber, long position, byte[] data) {
+        public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
             debug("got " + data.length + "B from " + friendNumber + " at " + position);
             assertTrue(isBob());
             assertEquals(0, friendNumber);

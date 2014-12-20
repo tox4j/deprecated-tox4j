@@ -8,9 +8,9 @@ public final class ToxFriendDeleteException extends ToxException {
         FRIEND_NOT_FOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxFriendDeleteException(Code code) {
+    public ToxFriendDeleteException(@NotNull Code code) {
         this.code = code;
     }
 

@@ -1,10 +1,6 @@
 package im.tox.tox4j.v1;
 
-import im.tox.tox4j.v1.exceptions.EncryptedSaveDataException;
-import im.tox.tox4j.v1.exceptions.FriendAddException;
-import im.tox.tox4j.v1.exceptions.NoSuchFriendException;
-import im.tox.tox4j.v1.exceptions.GroupAddException;
-import im.tox.tox4j.v1.exceptions.ToxException;
+import im.tox.tox4j.v1.exceptions.*;
 
 import java.io.Closeable;
 

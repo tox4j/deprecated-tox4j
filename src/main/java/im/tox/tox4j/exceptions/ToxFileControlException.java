@@ -13,9 +13,9 @@ public final class ToxFileControlException extends ToxException {
         ALREADY_PAUSED,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxFileControlException(Code code) {
+    public ToxFileControlException(@NotNull Code code) {
         this.code = code;
     }
 

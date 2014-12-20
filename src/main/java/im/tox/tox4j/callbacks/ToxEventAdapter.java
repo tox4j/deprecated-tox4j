@@ -1,7 +1,6 @@
 package im.tox.tox4j.callbacks;
 
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxFileControl;
 import im.tox.tox4j.enums.ToxFileKind;

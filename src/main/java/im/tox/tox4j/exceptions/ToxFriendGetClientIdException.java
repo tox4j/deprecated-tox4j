@@ -8,9 +8,9 @@ public final class ToxFriendGetClientIdException extends ToxException {
         FRIEND_NOT_FOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxFriendGetClientIdException(Code code) {
+    public ToxFriendGetClientIdException(@NotNull Code code) {
         this.code = code;
     }
 

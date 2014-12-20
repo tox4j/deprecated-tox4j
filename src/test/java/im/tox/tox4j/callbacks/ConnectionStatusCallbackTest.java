@@ -4,6 +4,7 @@ import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.ToxOptions;
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxNewException;
 
@@ -29,7 +30,7 @@ public class ConnectionStatusCallbackTest extends AliceBobTestBase {
         private ToxConnection connection = ToxConnection.NONE;
 
         @Override
-        public void connectionStatus(ToxConnection connection) {
+        public void connectionStatus(@NotNull ToxConnection connection) {
             super.connectionStatus(connection);
             assertNotEquals(this.connection, connection);
             this.connection = connection;

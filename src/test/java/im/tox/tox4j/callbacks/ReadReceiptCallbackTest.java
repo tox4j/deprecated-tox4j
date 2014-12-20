@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
@@ -32,7 +33,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
         private final Map<Integer, Integer> receipts = new HashMap<>();
         private int pendingCount = ITERATIONS;
 
-        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
@@ -69,7 +70,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendMessage(int friendNumber, int timeDelta, byte[] message) {
+        public void friendMessage(int friendNumber, int timeDelta, @NotNull byte[] message) {
 //            debug("got message: " + new String(message));
         }
     }

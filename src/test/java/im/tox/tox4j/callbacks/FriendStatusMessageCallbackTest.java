@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
@@ -26,7 +27,7 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
     private static class Client extends ChatClient {
 
         @Override
-        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
@@ -39,7 +40,7 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendStatusMessage(int friendNumber, byte[] message) {
+        public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             debug("friend changed status message to: " + new String(message));
             assertEquals(friendNumber, 0);
             assertEquals("I like " + getName(), new String(message));

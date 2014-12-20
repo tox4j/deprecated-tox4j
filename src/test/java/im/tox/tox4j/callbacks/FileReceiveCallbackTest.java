@@ -1,5 +1,6 @@
 package im.tox.tox4j.callbacks;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.AliceBobTestBase;
@@ -39,7 +40,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
             }
         }
 
-        public void friendConnectionStatus(final int friendNumber, ToxConnection connection) {
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
                 assertEquals(0, friendNumber);
@@ -54,7 +55,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void fileReceive(int friendNumber, int fileNumber, ToxFileKind kind, long fileSize, byte[] filename) {
+        public void fileReceive(int friendNumber, int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
             assertEquals(0, friendNumber);
             assertEquals(0 | 0x100, fileNumber);

@@ -13,9 +13,9 @@ public final class ToxNewException extends ToxException {
         PROXY_NOT_FOUND,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxNewException(Code code) {
+    public ToxNewException(@NotNull Code code) {
         this.code = code;
     }
 

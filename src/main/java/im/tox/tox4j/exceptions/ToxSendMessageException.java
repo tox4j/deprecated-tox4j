@@ -13,9 +13,9 @@ public final class ToxSendMessageException extends ToxException {
         EMPTY,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxSendMessageException(Code code) {
+    public ToxSendMessageException(@NotNull Code code) {
         this.code = code;
     }
 

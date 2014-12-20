@@ -10,9 +10,9 @@ public final class ToxLoadException extends ToxException {
         BAD_FORMAT,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxLoadException(Code code) {
+    public ToxLoadException(@NotNull Code code) {
         this.code = code;
     }
 

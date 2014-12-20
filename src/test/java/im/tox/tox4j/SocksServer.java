@@ -1,5 +1,7 @@
 package im.tox.tox4j;
 
+import im.tox.tox4j.annotations.NotNull;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -44,7 +46,7 @@ public class SocksServer implements Closeable, Runnable {
         return server.getLocalPort();
     }
 
-    public String getAddress() {
+    public @NotNull String getAddress() {
         return server.getInetAddress().getHostAddress();
     }
 
@@ -116,7 +118,7 @@ public class SocksServer implements Closeable, Runnable {
         throw new IOException("Client did not support any of our authentication methods");
     }
 
-    private void connection(InputStream input, OutputStream output) throws IOException {
+    private void connection(@NotNull InputStream input, @NotNull OutputStream output) throws IOException {
         assertEquals(0x05, input.read());
         int command = input.read();
         assertEquals(0x00, input.read());

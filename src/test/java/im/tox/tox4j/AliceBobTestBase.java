@@ -1,5 +1,6 @@
 package im.tox.tox4j;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.callbacks.ToxEventAdapter;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxProxyType;
@@ -84,7 +85,7 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
         }
 
         @Override
-        public void connectionStatus(ToxConnection connectionStatus) {
+        public void connectionStatus(@NotNull ToxConnection connectionStatus) {
             connected = connectionStatus != ToxConnection.NONE;
             if (connected)
                 debug("is now connected to the network");

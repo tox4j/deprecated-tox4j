@@ -14,9 +14,9 @@ public final class ToxSendCustomPacketException extends ToxException {
         SENDQ,
     }
 
-    private final Code code;
+    private final @NotNull Code code;
 
-    public ToxSendCustomPacketException(Code code) {
+    public ToxSendCustomPacketException(@NotNull Code code) {
         this.code = code;
     }
 
