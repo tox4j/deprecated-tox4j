@@ -613,7 +613,8 @@ new_tox_iteration (new_Tox *tox)
           uint32_t friend_number = pair.first.first;
           uint32_t file_number = pair.first.second;
 
-          transfer.size_requested = tox_file_data_size (tox->tox, friend_number);
+          transfer.size_requested = std::min ((uint64_t) tox_file_data_size (tox->tox, friend_number),
+                                              transfer.file_size - transfer.position);
 
           auto cb = tox->callbacks.file_request_chunk;
           cb.func (tox, friend_number, file_number, transfer.position,
