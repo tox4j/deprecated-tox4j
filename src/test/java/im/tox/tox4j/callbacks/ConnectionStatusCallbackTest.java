@@ -8,9 +8,7 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxNewException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
