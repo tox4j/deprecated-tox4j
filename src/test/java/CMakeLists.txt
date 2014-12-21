@@ -1,13 +1,14 @@
 include(UseJava)
 add_custom_target(junit)
 if (WIN32 AND NOT CYGWIN)
-    set(SEPARATOR ";")
+	set(SEPARATOR ";")
 else ()
-    set(SEPARATOR ":")
+	set(SEPARATOR ":")
 endif ()
 
 set (JUNIT_VERSION "4.12")
 set (HAMCREST_VERSION "1.3")
+
 if (NOT DEFINED JUNIT_FULL)
 	IF (DEFINED JUNIT_DIRECTORY)
 		get_filename_component(JUNIT_FULL "${JUNIT_DIRECTORY}/junit-${JUNIT_VERSION}.jar" ABSOLUTE)
@@ -35,17 +36,18 @@ endif ()
 set(TOX4J_JAR_PATH "${CMAKE_BINARY_DIR}/src/main/java/tox4j.jar")
 function(add_junit_test TARGET_NAME CLASSPATH TEST_CLASSES)
 	set(CLASSPATH "${CLASSPATH}${SEPARATOR}${TOX4J_JAR_PATH}${SEPARATOR}${PROTOBUF_FULL}${SEPARATOR}${JUNIT_FULL}${SEPARATOR}${HAMCREST_FULL}")
-    add_custom_target(${TARGET_NAME}
-        COMMAND java -Djava.library.path=$<TARGET_FILE_DIR:${LIB_TARGET_NAME}> -classpath ${CLASSPATH} org.junit.runner.JUnitCore ${TEST_CLASSES}
-    )
+	add_custom_target(${TARGET_NAME}
+		COMMAND java -Djava.library.path=$<TARGET_FILE_DIR:${LIB_TARGET_NAME}> -classpath ${CLASSPATH} org.junit.runner.JUnitCore ${TEST_CLASSES}
+	)
 
 endfunction(add_junit_test)
 
 set(TEST_FILES
+	im/tox/tox4j/AliceBobTestBase.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
-	im/tox/tox4j/callbacks/FileTransferTest.java
 	im/tox/tox4j/callbacks/FileTransferHalfRequestedTest.java
+	im/tox/tox4j/callbacks/FileTransferTest.java
 	im/tox/tox4j/callbacks/FriendActionCallbackTest.java
 	im/tox/tox4j/callbacks/FriendConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FriendLosslessPacketCallbackTest.java
@@ -71,49 +73,68 @@ set(TEST_FILES
 	im/tox/tox4j/exceptions/ToxSendMessageExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetInfoExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetTypingExceptionTest.java
-	im/tox/tox4j/AliceBobTestBase.java
+	im/tox/tox4j/LoadSaveEmptyTest.java
 	im/tox/tox4j/ToxCoreImplTestBase.java
 	im/tox/tox4j/ToxCoreImplTest.java
 	im/tox/tox4j/ToxCoreTestBase.java
 	im/tox/tox4j/ToxCoreTest.java
 )
 
-set(TEST_CLASSES
-	im.tox.tox4j.ToxCoreImplTest
-	im.tox.tox4j.exceptions.ToxSetTypingExceptionTest
-	im.tox.tox4j.exceptions.ToxSetInfoExceptionTest
-	im.tox.tox4j.exceptions.ToxSendMessageExceptionTest
-	im.tox.tox4j.exceptions.ToxSendCustomPacketExceptionTest
-	im.tox.tox4j.exceptions.ToxNewExceptionTest
-	im.tox.tox4j.exceptions.ToxLoadExceptionTest
-	im.tox.tox4j.exceptions.ToxKilledExceptionTest
-	im.tox.tox4j.exceptions.ToxFriendGetClientIdExceptionTest
-	im.tox.tox4j.exceptions.ToxFriendDeleteExceptionTest
-	im.tox.tox4j.exceptions.ToxFriendByClientIdExceptionTest
-	im.tox.tox4j.exceptions.ToxFriendAddExceptionTest
-	im.tox.tox4j.exceptions.ToxFileSendExceptionTest
-	im.tox.tox4j.exceptions.ToxBootstrapExceptionTest
-	im.tox.tox4j.callbacks.ToxEventAdapterTest
-	im.tox.tox4j.callbacks.ReadReceiptCallbackTest
-	im.tox.tox4j.callbacks.FriendTypingCallbackTest
-	im.tox.tox4j.callbacks.FriendStatusMessageCallbackTest
-	im.tox.tox4j.callbacks.FriendStatusCallbackTest
-	im.tox.tox4j.callbacks.FriendRequestCallbackTest
-	im.tox.tox4j.callbacks.FriendNameCallbackTest
-	im.tox.tox4j.callbacks.FriendMessageCallbackTest
-	im.tox.tox4j.callbacks.FriendLossyPacketCallbackTest
-	im.tox.tox4j.callbacks.FriendLosslessPacketCallbackTest
-	im.tox.tox4j.callbacks.FriendConnectionStatusCallbackTest
-	im.tox.tox4j.callbacks.FriendActionCallbackTest
-	im.tox.tox4j.callbacks.FileTransferTest
-	im.tox.tox4j.callbacks.FileTransferHalfRequestedTest
-	im.tox.tox4j.callbacks.FileReceiveCallbackTest
-	im.tox.tox4j.callbacks.ConnectionStatusCallbackTest
-)
-
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")
 add_jar(unit-tests ${TEST_FILES})
 add_dependencies(unit-tests ${LIB_TARGET_NAME})
-add_junit_test(test-tox4j "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${TEST_CLASSES}")
-add_dependencies(test-tox4j unit-tests)
-add_dependencies(junit test-tox4j)
+
+# Cheap short unit tests that don't require a full Alice and Bob setup.
+set(core_TESTS
+	im.tox.tox4j.exceptions.ToxBootstrapExceptionTest
+	im.tox.tox4j.exceptions.ToxFileSendExceptionTest
+	im.tox.tox4j.exceptions.ToxFriendAddExceptionTest
+	im.tox.tox4j.exceptions.ToxFriendByClientIdExceptionTest
+	im.tox.tox4j.exceptions.ToxFriendDeleteExceptionTest
+	im.tox.tox4j.exceptions.ToxFriendGetClientIdExceptionTest
+	im.tox.tox4j.exceptions.ToxKilledExceptionTest
+	im.tox.tox4j.exceptions.ToxLoadExceptionTest
+	im.tox.tox4j.exceptions.ToxNewExceptionTest
+	im.tox.tox4j.exceptions.ToxSendCustomPacketExceptionTest
+	im.tox.tox4j.exceptions.ToxSendMessageExceptionTest
+	im.tox.tox4j.exceptions.ToxSetInfoExceptionTest
+	im.tox.tox4j.exceptions.ToxSetTypingExceptionTest
+	im.tox.tox4j.LoadSaveEmptyTest
+	im.tox.tox4j.ToxCoreImplTest
+)
+
+add_junit_test(test-core "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${core_TESTS}")
+add_dependencies(test-core unit-tests)
+
+# More realistic automatic tests with two parties interacting.
+set(alice_bob_TESTS
+	im.tox.tox4j.callbacks.ConnectionStatusCallbackTest
+	im.tox.tox4j.callbacks.FileReceiveCallbackTest
+	im.tox.tox4j.callbacks.FileTransferHalfRequestedTest
+	im.tox.tox4j.callbacks.FileTransferTest
+	im.tox.tox4j.callbacks.FriendActionCallbackTest
+	im.tox.tox4j.callbacks.FriendConnectionStatusCallbackTest
+	im.tox.tox4j.callbacks.FriendLosslessPacketCallbackTest
+	im.tox.tox4j.callbacks.FriendLossyPacketCallbackTest
+	im.tox.tox4j.callbacks.FriendMessageCallbackTest
+	im.tox.tox4j.callbacks.FriendNameCallbackTest
+	im.tox.tox4j.callbacks.FriendRequestCallbackTest
+	im.tox.tox4j.callbacks.FriendStatusCallbackTest
+	im.tox.tox4j.callbacks.FriendStatusMessageCallbackTest
+	im.tox.tox4j.callbacks.FriendTypingCallbackTest
+	im.tox.tox4j.callbacks.ReadReceiptCallbackTest
+	im.tox.tox4j.callbacks.ToxEventAdapterTest
+)
+
+add_junit_test(test-alice-bob "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${alice_bob_TESTS}")
+add_dependencies(test-alice-bob unit-tests)
+
+set(junit_TESTS
+	${core_TESTS}
+	${alice_bob_TESTS}
+)
+
+# All tests together.
+add_junit_test(test-junit "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${junit_TESTS}")
+add_dependencies(test-junit unit-tests)
+add_dependencies(junit test-junit)

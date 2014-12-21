@@ -216,6 +216,15 @@ public abstract class ToxCoreTestBase {
         }
     }
 
+    protected static void assumeIPv4() {
+        try {
+            Socket socket = new Socket(InetAddress.getByName(nodes[0].ipv4), nodes[0].port);
+            assumeNotNull(socket.getInputStream());
+        } catch (IOException e) {
+            assumeTrue("An IPv4 network connection can be established", false);
+        }
+    }
+
     protected static void assumeIPv6() {
         try {
             Socket socket = new Socket(InetAddress.getByName(nodes[0].ipv6), nodes[0].port);
