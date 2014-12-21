@@ -4,7 +4,9 @@ import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.enums.ToxStatus;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 

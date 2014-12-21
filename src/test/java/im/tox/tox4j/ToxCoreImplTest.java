@@ -1,8 +1,5 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.ToxCore;
-import im.tox.tox4j.ToxCoreImpl;
-import im.tox.tox4j.ToxOptions;
 import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.After;
 

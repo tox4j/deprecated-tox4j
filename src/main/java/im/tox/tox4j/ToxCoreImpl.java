@@ -40,6 +40,11 @@ public final class ToxCoreImpl extends AbstractToxCore {
      */
     static native void destroyAll();
 
+    private static native void playground(int instanceNumber);
+    void playground() {
+        playground(instanceNumber);
+    }
+
     private static native void finalize(int instanceNumber);
 
     @Override
@@ -61,7 +66,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
             int proxyPort
     ) throws ToxNewException;
 
-    public ToxCoreImpl(ToxOptions options) throws ToxNewException {
+    public ToxCoreImpl(@NotNull ToxOptions options) throws ToxNewException {
         instanceNumber = toxNew(
                 options.isIpv6Enabled(),
                 options.isUdpEnabled(),
@@ -589,4 +594,5 @@ public final class ToxCoreImpl extends AbstractToxCore {
     public void callbackFriendLosslessPacket(FriendLosslessPacketCallback callback) {
         this.friendLosslessPacketCallback = callback;
     }
+
 }
