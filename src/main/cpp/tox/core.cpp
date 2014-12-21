@@ -419,44 +419,54 @@ unregister_custom_packet_handlers (new_Tox *tox)
 new_Tox *
 new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
 {
-  if (options->proxy_type != TOX_PROXY_TYPE_NONE)
+  Tox *tox;
+
+  if (options != nullptr)
     {
-      if (options->proxy_address == nullptr)
+      if (options->proxy_type != TOX_PROXY_TYPE_NONE)
         {
-          if (error) *error = TOX_ERR_NEW_NULL;
-          return nullptr;
+          if (options->proxy_address == nullptr)
+            {
+              if (error) *error = TOX_ERR_NEW_NULL;
+              return nullptr;
+            }
+          for (char const *p = options->proxy_address; *p; p++)
+            if (!std::isprint(*p))
+              {
+                if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
+                return nullptr;
+              }
+          switch (options->proxy_address[0])
+            {
+            case '\0':
+            case '.':
+              if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
+              return nullptr;
+            }
+          if (options->proxy_port == 0)
+            {
+              if (error) *error = TOX_ERR_NEW_PROXY_BAD_PORT;
+              return nullptr;
+            }
         }
-      for (char const *p = options->proxy_address; *p; p++)
-        if (!std::isprint(*p))
-          {
-            if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
-            return nullptr;
-          }
-      switch (options->proxy_address[0])
+
+      auto opts = Tox_Options ();
+      opts.ipv6enabled = options->ipv6_enabled;
+      opts.udp_disabled = !options->udp_enabled;
+      opts.proxy_enabled = options->proxy_type != TOX_PROXY_TYPE_NONE;
+      if (opts.proxy_enabled)
         {
-        case '\0':
-        case '.':
-          if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
-          return nullptr;
+          std::strncpy (opts.proxy_address, options->proxy_address, sizeof opts.proxy_address - 1);
+          opts.proxy_port = options->proxy_port;
         }
-      if (options->proxy_port == 0)
-        {
-          if (error) *error = TOX_ERR_NEW_PROXY_BAD_PORT;
-          return nullptr;
-        }
+
+      tox = tox_new (&opts);
+    }
+  else
+    {
+      tox = tox_new (NULL);
     }
 
-  auto opts = Tox_Options ();
-  opts.ipv6enabled = options->ipv6_enabled;
-  opts.udp_disabled = !options->udp_enabled;
-  opts.proxy_enabled = options->proxy_type != TOX_PROXY_TYPE_NONE;
-  if (opts.proxy_enabled)
-    {
-      std::strncpy (opts.proxy_address, options->proxy_address, sizeof opts.proxy_address - 1);
-      opts.proxy_port = options->proxy_port;
-    }
-
-  Tox *tox = tox_new (&opts);
   if (!tox)
     {
       if (error)
