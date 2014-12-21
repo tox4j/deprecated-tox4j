@@ -1630,6 +1630,7 @@ typedef enum TOX_ERR_SEND_CUSTOM_PACKET {
   TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_CONNECTED,
   /**
    * The first byte of data was not in the specified range for the packet type.
+   * This range is 200-254 for lossy, and 160-191 for lossless packets.
    */
   TOX_ERR_SEND_CUSTOM_PACKET_INVALID,
   /**
