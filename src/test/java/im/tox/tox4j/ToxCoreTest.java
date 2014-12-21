@@ -17,6 +17,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap() throws Exception {
+        assumeIPv4();
         if (!SLOW_TESTS) return;
         try (ToxCore tox = newTox()) {
             long start = System.currentTimeMillis();

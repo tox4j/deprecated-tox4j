@@ -197,6 +197,7 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
     @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP4() throws Exception {
+        assumeIPv4();
         runAliceBobTest(new ToxFactory() {
             @Override
             public ToxCore make() throws ToxException {
@@ -219,6 +220,8 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
     private void runAliceBobTest_SOCKS(final boolean ipv6Enabled, final boolean udpEnabled) throws Exception {
         if (ipv6Enabled) {
             assumeIPv6();
+        } else {
+            assumeIPv4();
         }
         final SocksServer proxy = new SocksServer();
         Thread proxyThread = new Thread(proxy);
