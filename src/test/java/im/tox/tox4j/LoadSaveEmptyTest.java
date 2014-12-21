@@ -4,6 +4,7 @@ import im.tox.tox4j.enums.ToxStatus;
 import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class LoadSaveEmptyTest extends ToxCoreTestBase {
@@ -28,6 +29,7 @@ public class LoadSaveEmptyTest extends ToxCoreTestBase {
             tox.setName("hello".getBytes());
             tox.load(emptySave);
             assertEquals(null, tox.getName());
+            assertArrayEquals(emptySave, tox.save());
         }
     }
 
@@ -37,6 +39,7 @@ public class LoadSaveEmptyTest extends ToxCoreTestBase {
             tox.setStatus(ToxStatus.AWAY);
             tox.load(emptySave);
             assertEquals(ToxStatus.NONE, tox.getStatus());
+            assertArrayEquals(emptySave, tox.save());
         }
     }
 
@@ -46,6 +49,7 @@ public class LoadSaveEmptyTest extends ToxCoreTestBase {
             tox.setStatusMessage("hello".getBytes());
             tox.load(emptySave);
             assertEquals(null, tox.getStatusMessage());
+            assertArrayEquals(emptySave, tox.save());
         }
     }
 
