@@ -4,7 +4,7 @@ import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.ToxCoreImplTestBase;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
 

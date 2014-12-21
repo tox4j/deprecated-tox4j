@@ -7,13 +7,11 @@ import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxBootstrapException;
 import im.tox.tox4j.exceptions.ToxFriendAddException;
 import im.tox.tox4j.exceptions.ToxNewException;
-import org.junit.Assume;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Random;
 
 import static org.junit.Assume.assumeNotNull;

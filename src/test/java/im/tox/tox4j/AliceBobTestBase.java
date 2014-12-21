@@ -6,21 +6,13 @@ import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.exceptions.ToxNewException;
-import org.junit.Assume;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeNotNull;
-import static org.junit.Assume.assumeTrue;
 
 public abstract class AliceBobTestBase extends ToxCoreTestBase {
 

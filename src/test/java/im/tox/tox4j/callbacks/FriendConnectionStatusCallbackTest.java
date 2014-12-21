@@ -7,7 +7,6 @@ import im.tox.tox4j.ToxOptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxNewException;
-import org.junit.Test;
 
 public class FriendConnectionStatusCallbackTest extends AliceBobTestBase {
 

@@ -1,9 +1,10 @@
 package im.tox.tox4j.exceptions;
 
-import im.tox.tox4j.*;
+import im.tox.tox4j.ToxCore;
+import im.tox.tox4j.ToxCoreImplTestBase;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ToxFriendGetClientIdExceptionTest extends ToxCoreImplTestBase {
 
