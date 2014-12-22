@@ -11,11 +11,6 @@ import im.tox.tox4j.exceptions.ToxNewException;
 public class FriendConnectionStatusCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
-        return new ToxCoreImpl(options, data);
-    }
-
-    @Override
     protected ChatClient newClient() {
         return new Client();
     }

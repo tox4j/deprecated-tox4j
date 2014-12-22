@@ -14,11 +14,6 @@ import static org.junit.Assert.assertEquals;
 public class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
-        return new ToxCoreImpl(options, data);
-    }
-
-    @Override
     protected ChatClient newClient() {
         return new Client();
     }
@@ -44,7 +39,7 @@ public class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
         public void friendLosslessPacket(int friendNumber, @NotNull byte[] packet) {
             String message = new String(packet, 1, packet.length - 1);
             debug("received a lossless packet[id=" + packet[0] + "]: " + message);
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             assertEquals((byte) 160, packet[0]);
             assertEquals("My name is " + getFriendName(), message);
             finish();

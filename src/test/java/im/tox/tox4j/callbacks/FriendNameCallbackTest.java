@@ -14,11 +14,6 @@ import static org.junit.Assert.assertEquals;
 public class FriendNameCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
-        return new ToxCoreImpl(options, data);
-    }
-
-    @Override
     protected ChatClient newClient() {
         return new Client();
     }
@@ -41,7 +36,7 @@ public class FriendNameCallbackTest extends AliceBobTestBase {
         @Override
         public void friendName(int friendNumber, @NotNull byte[] name) {
             debug("friend changed name to: " + new String(name));
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             assertEquals(getFriendName(), new String(name));
             finish();
         }
