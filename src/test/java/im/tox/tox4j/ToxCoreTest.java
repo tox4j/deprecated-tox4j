@@ -15,13 +15,12 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     private static final boolean SLOW_TESTS = true;
     private static final int TOX_COUNT = 10;
 
-    @Test(timeout = TIMEOUT)
-    public void testBootstrap() throws Exception {
+    private void testBootstrap(String ipv4, int port, byte[] dhtId) throws Exception {
         assumeIPv4();
         if (!SLOW_TESTS) return;
         try (ToxCore tox = newTox()) {
             long start = System.currentTimeMillis();
-            tox.bootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
+            tox.bootstrap(ipv4, port, dhtId);
             ConnectedListener status = new ConnectedListener();
             tox.callbackConnectionStatus(status);
             while (!status.isConnected()) {
@@ -35,6 +34,16 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
             long end = System.currentTimeMillis();
             if (LOGGING) System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
         }
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap4() throws Exception {
+        testBootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap6() throws Exception {
+        testBootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
     }
 
     @Test
