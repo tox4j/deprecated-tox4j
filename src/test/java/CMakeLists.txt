@@ -43,7 +43,6 @@ function(add_junit_test TARGET_NAME CLASSPATH TEST_CLASSES)
 endfunction(add_junit_test)
 
 set(TEST_FILES
-	im/tox/tox4j/AliceBobTestBase.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
 	im/tox/tox4j/callbacks/FileTransferHalfRequestedTest.java
@@ -72,10 +71,13 @@ set(TEST_FILES
 	im/tox/tox4j/exceptions/ToxSendMessageExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetInfoExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetTypingExceptionTest.java
-	im/tox/tox4j/ToxCoreImplTestBase.java
+	im/tox/tox4j/AliceBobTestBase.java
+	im/tox/tox4j/LoadSaveTest.java
+	im/tox/tox4j/SocksServer.java
 	im/tox/tox4j/ToxCoreImplTest.java
+	im/tox/tox4j/ToxCoreImplTestBase.java
+	im/tox/tox4j/ToxCorePlayground.java
 	im/tox/tox4j/ToxCoreTestBase.java
-	im/tox/tox4j/ToxCoreTest.java
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")
@@ -96,6 +98,7 @@ set(core_TESTS
 	im.tox.tox4j.exceptions.ToxSendMessageExceptionTest
 	im.tox.tox4j.exceptions.ToxSetInfoExceptionTest
 	im.tox.tox4j.exceptions.ToxSetTypingExceptionTest
+	im.tox.tox4j.LoadSaveTest
 	im.tox.tox4j.ToxCoreImplTest
 )
 
