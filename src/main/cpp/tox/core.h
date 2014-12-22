@@ -103,9 +103,83 @@ typedef struct Tox Tox;
 
 /*******************************************************************************
  *
+ * :: API version
+ *
+ ******************************************************************************/
+
+
+/**
+ * The major version number. Incremented when the API or ABI changes in an
+ * incompatible way.
+ */
+#define TOX_VERSION_MAJOR		0u
+/**
+ * The minor version number. Incremented when functionality is added without
+ * breaking the API or ABI. Set to 0 when the major version number is
+ * incremented.
+ */
+#define TOX_VERSION_MINOR		0u
+/**
+ * The patch or revision number. Incremented when bugfixes are applied without
+ * changing any functionality or API or ABI.
+ */
+#define TOX_VERSION_PATCH		0u
+
+/**
+ * A macro to check at preprocessing time whether the client code is compatible
+ * with the installed version of Tox.
+ */
+#define TOX_VERSION_IS_API_COMPATIBLE(MAJOR, MINOR, PATCH)	\
+  (TOX_VERSION_MAJOR == MAJOR &&				\
+   (TOX_VERSION_MINOR > MINOR ||				\
+    (TOX_VERSION_MINOR == MINOR &&				\
+     TOX_VERSION_PATCH >= PATCH)))
+
+/**
+ * A macro to make compilation fail if the client code is not compatible with
+ * the installed version of Tox.
+ */
+#define TOX_VERSION_REQUIRE(MAJOR, MINOR, PATCH)		\
+  typedef char tox_required_version[TOX_IS_COMPATIBLE(MAJOR, MINOR, PATCH) ? 1 : -1]
+
+
+/**
+ * Return the major version number of the library. Can be used to display the
+ * Tox library version or to check whether the client is compatible with the
+ * dynamically linked version of Tox.
+ */
+uint32_t tox_version_major(void);
+
+/**
+ * Return the minor version number of the library.
+ */
+uint32_t tox_version_minor(void);
+
+/**
+ * Return the patch number of the library.
+ */
+uint32_t tox_version_patch(void);
+
+/**
+ * Return whether the compiled library version is compatible with the passed
+ * version numbers.
+ */
+bool tox_version_is_compatible(uint32_t major, uint32_t minor, uint32_t patch);
+
+/**
+ * A convenience macro to call tox_version_is_compatible with the currently
+ * compiling API version.
+ */
+#define TOX_VERSION_IS_ABI_COMPATIBLE()				\
+  tox_version_is_compatible(TOX_VERSION_MAJOR, TOX_VERSION_MINOR, TOX_VERSION_PATCH)
+
+
+/*******************************************************************************
+ *
  * :: Numeric constants
  *
  ******************************************************************************/
+
 
 /**
  * The size of a Tox Client ID in bytes.
