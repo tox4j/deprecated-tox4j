@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include <tox/av_compat.h>
@@ -104,132 +105,6 @@ void toxav_iteration(ToxAV *av);
  ******************************************************************************/
 
 
-/**
- * Encoding settings.
- */
-struct ToxAV_Options {
-  /**
-   * Enable audio call. If this is set to false, all audio settings are ignored.
-   */
-  bool audio_enabled;
-  /**
-   * Enable video call. If this is set to false, all video settings are ignored.
-   */
-  bool video_enabled;
-
-  /**
-   * Bit rate of video transmission in Kb/sec. TODO: range?
-   */
-  uint32_t video_bit_rate;
-  /**
-   * Maximum width (x) of a video image in pixels. TODO: range?
-   */
-  uint16_t max_video_width;
-  /**
-   * Maximum height (y) of a video image in pixels. TODO: range?
-   */
-  uint16_t max_video_height;
-
-  /**
-   * Bit rate of audio transmission in b/sec. This value can range from 500 to
-   * 512000. TODO: anything between these, or are there intervals?
-   */
-  uint32_t audio_bit_rate;
-  /**
-   * Number of samples of audio per second [Hz]. Valid sampling rates are 8000,
-   * 12000, 16000, 24000, and 48000.
-   */
-  uint32_t audio_sampling_rate;
-  /**
-   * Number of milliseconds per audio frame. A higher number here means better
-   * compression, but higher latency. Valid durations are 10, 20, 40, and 60ms. TODO: correct?
-   */
-  uint16_t audio_frame_duration;
-  /**
-   * Number of channels in audio transmission. Currently, only mono (1) and
-   * stereo (2) are supported.
-   */
-  uint16_t audio_channels;
-};
-
-
-/**
- * Initialises a ToxAV_Options object with the default options.
- *
- * The result of this function is independent of the original options. All
- * values will be overwritten, no values will be read (so it is permissible
- * to pass an uninitialised object).
- *
- * If options is NULL, this function has no effect.
- *
- * @param options An options object to be filled with default options.
- */
-void toxav_options_default(struct ToxAV_Options *options);
-
-
-typedef enum TOXAV_ERR_OPTIONS_NEW {
-  TOXAV_ERR_OPTIONS_NEW_OK,
-  /**
-   * The function failed to allocate enough memory for the options struct.
-   */
-  TOXAV_ERR_OPTIONS_NEW_MALLOC
-} TOXAV_ERR_OPTIONS_NEW;
-
-/**
- * Allocates a new Tox_Options object and initialises it with the default
- * options. This function can be used to preserve long term ABI compatibility by
- * giving the responsibility of allocation and deallocation to the Tox library.
- *
- * Objects returned from this function must be freed using the tox_options_free
- * function.
- *
- * @return A new Tox_Options object with default options or NULL on failure.
- */
-struct ToxAV_Options *toxav_options_new(TOXAV_ERR_OPTIONS_NEW *error);
-
-
-/**
- * Releases all resources associated with an options objects.
- *
- * Passing a pointer that was not returned by toxav_options_new results in
- * undefined behaviour.
- */
-void toxav_options_free(struct ToxAV_Options *options);
-
-
-typedef enum TOXAV_ERR_OPTIONS {
-  /**
-   * All the options seem to be correct. This is not a guarantee that a call
-   * will succeed, but it's a strong indication that the client was set up
-   * correctly.
-   */
-  TOXAV_ERR_OPTIONS_OK,
-  /**
-   * The video resolution is invalid. TODO: range?
-   */
-  TOXAV_ERR_OPTIONS_RESOLUTION,
-  /**
-   * The audio bitrate is invalid. TODO: range?
-   */
-  TOXAV_ERR_OPTIONS_AUDIO_BITRATE,
-  /**
-   * The video bitrate is invalid. TODO: range?
-   */
-  TOXAV_ERR_OPTIONS_VIDEO_BITRATE,
-  /**
-   * Audio was enabled, but audio_channels was invalid. An audio call requires
-   * at least one channel and can have at most 2 channels.
-   */
-  TOXAV_ERR_OPTIONS_AUDIO_CHANNELS
-} TOXAV_ERR_OPTIONS;
-
-/**
- * Find out whether the options are valid and if not, what is wrong with them.
- */
-TOXAV_ERR_OPTIONS toxav_analyse_options(ToxAV *av, struct ToxAV_Options const *options);
-
-
-
 typedef enum TOXAV_ERR_CALL {
   TOXAV_ERR_CALL_OK,
   /**
@@ -246,14 +121,14 @@ typedef enum TOXAV_ERR_CALL {
    */
   TOXAV_ERR_CALL_FRIEND_NOT_CONNECTED,
   /**
-   * Some options were invalid. Call toxav_analyse_options to find out why.
-   */
-  TOXAV_ERR_CALL_INVALID_OPTIONS,
-  /**
    * Attempted to call a friend while already in an audio or video call with
    * them.
    */
-  TOXAV_ERR_CALL_ALREADY_IN_CALL
+  TOXAV_ERR_CALL_ALREADY_IN_CALL,
+  /**
+   * Audio or video bit rate is invalid.
+   */
+  TOXAV_ERR_CALL_INVALID_BIT_RATE
 } TOXAV_ERR_CALL;
 
 /**
@@ -264,15 +139,18 @@ typedef enum TOXAV_ERR_CALL {
  * library will not stop until the friend is disconnected.
  *
  * @param friend_number The friend number of the friend that should be called.
- * @param options An options object that defines call parameters.
+ * @param audio_bit_rate Audio bit rate in Kb/sec. Set this to 0 to disable
+ *   audio sending.
+ * @param video_bit_rate Video bit rate in Kb/sec. Set this to 0 to disable
+ *   video sending.
  */
-bool toxav_call(ToxAV *av, uint32_t friend_number, struct ToxAV_Options const *options, TOXAV_ERR_CALL *error);
+bool toxav_call(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, uint32_t video_bit_rate, TOXAV_ERR_CALL *error);
 
 
 /**
  * The function type for the `call` callback.
  */
-typedef void toxav_call_cb(ToxAV *av, uint32_t friend_number, struct ToxAV_Options const *options, void *user_data);
+typedef void toxav_call_cb(ToxAV *av, uint32_t friend_number, void *user_data);
 
 /**
  * Set the callback for the `call` event. Pass NULL to unset.
@@ -299,9 +177,9 @@ typedef enum TOXAV_ERR_ANSWER {
    */
   TOXAV_ERR_ANSWER_FRIEND_NOT_CALLING,
   /**
-   * Some options were invalid. Call toxav_analyse_options to find out why.
+   * Audio or video bit rate is invalid.
    */
-  TOXAV_ERR_ANSWER_INVALID_OPTIONS
+  TOXAV_ERR_ANSWER_INVALID_BIT_RATE
 } TOXAV_ERR_ANSWER;
 
 /**
@@ -311,9 +189,12 @@ typedef enum TOXAV_ERR_ANSWER {
  * receive TOXAV_CALL_CONTROL_ERROR and the call will end.
  *
  * @param friend_number The friend number of the friend that should be called.
- * @param options The A/V settings that the client will use.
+ * @param audio_bit_rate Audio bit rate in Kb/sec. Set this to 0 to disable
+ *   audio sending.
+ * @param video_bit_rate Video bit rate in Kb/sec. Set this to 0 to disable
+ *   video sending.
  */
-bool toxav_answer(ToxAV *av, uint32_t friend_number, struct ToxAV_Options const *options, TOXAV_ERR_ANSWER *error);
+bool toxav_answer(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, uint32_t video_bit_rate, TOXAV_ERR_ANSWER *error);
 
 
 /*******************************************************************************
@@ -404,79 +285,44 @@ typedef void toxav_call_control_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL
 void toxav_callback_call_control(ToxAV *av, toxav_call_control_cb *function, void *user_data);
 
 
-typedef enum TOXAV_ERR_CHANGE_OPTIONS {
-  TOXAV_ERR_CHANGE_OPTIONS_OK,
+/*******************************************************************************
+ *
+ * :: Controlling bit rates
+ *
+ ******************************************************************************/
+
+
+typedef enum TOXAV_ERR_SET_BIT_RATE {
+  TOXAV_ERR_SET_BIT_RATE_OK,
   /**
-   * The friend_number passed did not designate a valid friend.
+   * The bit rate passed was not one of the supported values.
    */
-  TOXAV_ERR_CHANGE_OPTIONS_FRIEND_NOT_FOUND,
-  /**
-   * This client is currently not in a call with the friend. Before the call is
-   * answered, only CANCEL is a valid control.
-   */
-  TOXAV_ERR_CHANGE_OPTIONS_FRIEND_NOT_IN_CALL,
-  /**
-   * Some options were invalid. Call toxav_analyse_options to find out why.
-   */
-  TOXAV_ERR_CHANGE_OPTIONS_INVALID_OPTIONS
-} TOXAV_ERR_CHANGE_OPTIONS;
+  TOXAV_ERR_SET_BIT_RATE_INVALID
+} TOXAV_ERR_SET_BIT_RATE;
 
 /**
- * Change A/V call options. Can be used to start/stop audio and video, or change
- * the encoding settings.
+ * Set the audio bit rate to be used in subsequent audio frames.
  *
- * @param friend_number The friend number of the friend the options should
- *   change for.
- * @param options The new A/V call options.
+ * @param friend_number The friend number of the friend for which to set the
+ *   audio bit rate.
+ * @param audio_bit_rate The new audio bit rate. Set to 0 to disable audio
+ *   sending.
+ *
+ * @see toxav_call for the valid bit rates.
  */
-bool toxav_change_options(ToxAV *av, uint32_t friend_number, struct ToxAV_Options const *options, TOXAV_ERR_CHANGE_OPTIONS *error);
-
+bool toxav_set_audio_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, TOXAV_ERR_SET_BIT_RATE *error);
 
 /**
- * The function type for the `change_options` callback.
+ * Set the video bit rate to be used in subsequent video frames.
  *
- * This change does not necessarily mean that the receiving client also needs to
- * change their settings. E.g. a friend may decide to stop sending video, but
- * can still receive it.
+ * @param friend_number The friend number of the friend for which to set the
+ *   video bit rate.
+ * @param video_bit_rate The new video bit rate. Set to 0 to disable video
+ *   sending.
  *
- * @param friend_number The friend number of the friend who changed their call
- *   options.
- * @param control The call control command received.
+ * @see toxav_call for the valid bit rates.
  */
-typedef void toxav_change_options_cb(ToxAV *av, uint32_t friend_number, struct ToxAV_Options const *options, void *user_data);
-
-/**
- * Set the callback for the `change_options` event. Pass NULL to unset.
- *
- * This event is triggered when a friend changed their own options.
- */
-void toxav_callback_change_options(ToxAV *av, toxav_change_options_cb *function, void *user_data);
-
-
-typedef enum TOXAV_ERR_FRIEND_GET_OPTIONS {
-  TOXAV_ERR_FRIEND_GET_OPTIONS_OK,
-  /**
-   * The options pointer was NULL.
-   */
-  TOXAV_ERR_FRIEND_GET_OPTIONS_NULL,
-  /**
-   * The friend_number did not designate a valid friend.
-   */
-  TOXAV_ERR_FRIEND_GET_OPTIONS_FRIEND_NOT_FOUND
-} TOXAV_ERR_FRIEND_GET_OPTIONS;
-
-/**
- * Get A/V call options from the friend.
- *
- * These are the latest available options from the friend, received through
- * either the 'call' or the 'change_options' event.
- *
- * @param friend_number The friend number of the friend for which to get the
- *   current call options.
- * @param options A pointer to an options object. Does not need to be
- *   initialised with any values.
- */
-bool toxav_friend_get_options(ToxAV *av, uint32_t friend_number, struct ToxAV_Options *options, TOXAV_ERR_FRIEND_GET_OPTIONS *error);
+bool toxav_set_video_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t video_bit_rate, TOXAV_ERR_SET_BIT_RATE *error);
 
 
 /*******************************************************************************
@@ -508,7 +354,12 @@ typedef enum TOXAV_ERR_SEND_FRAME {
    * No video frame had been requested through the `request_video_frame` event,
    * but the client tried to send one, anyway.
    */
-  TOXAV_ERR_SEND_FRAME_NOT_REQUESTED
+  TOXAV_ERR_SEND_FRAME_NOT_REQUESTED,
+  /**
+   * One of the frame parameters was invalid. E.g. the resolution may be too
+   * small or too large, or the audio sampling rate may be unsupported.
+   */
+  TOXAV_ERR_SEND_FRAME_INVALID
 } TOXAV_ERR_SEND_FRAME;
 
 
@@ -531,17 +382,22 @@ void toxav_callback_request_video_frame(ToxAV *av, toxav_request_video_frame_cb 
  *
  * This is called in response to receiving the `request_video_frame` event.
  *
- * Each plane should contain (width * height) pixels as set in the options. The
- * Alpha plane can be NULL, in which case every pixel is assumed fully opaque.
+ * Each plane should contain (width * height) pixels. The Alpha plane can be
+ * NULL, in which case every pixel is assumed fully opaque.
  *
  * @param friend_number The friend number of the friend to which to send a video
  *   frame.
+ * @param width Width of the frame in pixels.
+ * @param height Height of the frame in pixels.
  * @param y Y (Luminance) plane data.
  * @param u U (Chroma) plane data.
  * @param v V (Chroma) plane data.
  * @param a A (Alpha) plane data.
  */
-bool toxav_send_video_frame(ToxAV *av, uint32_t friend_number, uint8_t const *y, uint8_t const *u, uint8_t const *v, uint8_t const *a, TOXAV_ERR_SEND_FRAME *error);
+bool toxav_send_video_frame(ToxAV *av, uint32_t friend_number,
+                            uint16_t width, uint16_t height,
+                            uint8_t const *y, uint8_t const *u, uint8_t const *v, uint8_t const *a,
+                            TOXAV_ERR_SEND_FRAME *error);
 
 
 /**
@@ -549,9 +405,8 @@ bool toxav_send_video_frame(ToxAV *av, uint32_t friend_number, uint8_t const *y,
  *
  * @param friend_number The friend number of the friend for which the next audio
  *   frame should be sent.
- * @param size The number of audio samples to send in the next packet.
  */
-typedef void toxav_request_audio_frame_cb(ToxAV *av, uint32_t friend_number, uint16_t size, void *user_data);
+typedef void toxav_request_audio_frame_cb(ToxAV *av, uint32_t friend_number, void *user_data);
 
 /**
  * Set the callback for the `request_audio_frame` event. Pass NULL to unset.
@@ -564,12 +419,29 @@ void toxav_callback_request_audio_frame(ToxAV *av, toxav_request_audio_frame_cb 
  *
  * This is called in response to receiving the `request_audio_frame` event.
  *
+ * The expected format of the PCM data is: [s1c1][s1c2][...][s2c1][s2c2][...]...
+ * Meaning: sample 1 for channel 1, sample 1 for channel 2, ...
+ * For mono audio, this has no meaning, every sample is subsequent. For stereo,
+ * this means the expected format is LRLRLR... with samples for left and right
+ * alternating.
+ *
  * @param friend_number The friend number of the friend to which to send an
  *   audio frame.
- * @param samples An array of audio samples. The number of samples sent must be
- *   equal to the size parameter of the last request_video_frame callback.
+ * @param pcm An array of audio samples. The size of this array must be
+ *   sample_count * channels.
+ * @param sample_count Number of samples in this frame. Valid numbers here are
+ *   ((sample rate) * (audio length) / 1000), where audio length can be
+ *   2.5, 5, 10, 20, 40 or 60 millseconds.
+ * @param channels Number of audio channels. Can be 1 for mono or 2 for stereo.
+ * @param sampling_rate Audio sampling rate used in this frame. Valid sampling
+ *   rates are 8000, 12000, 16000, 24000, or 48000.
  */
-bool toxav_send_audio_frame(ToxAV *av, uint32_t friend_number, uint16_t const *samples, TOXAV_ERR_SEND_FRAME *error);
+bool toxav_send_audio_frame(ToxAV *av, uint32_t friend_number,
+                            uint16_t const *pcm,
+                            size_t sample_count,
+                            uint8_t channels,
+                            uint32_t sampling_rate,
+                            TOXAV_ERR_SEND_FRAME *error);
 
 
 
@@ -583,17 +455,21 @@ bool toxav_send_audio_frame(ToxAV *av, uint32_t friend_number, uint16_t const *s
 /**
  * The function type for the `receive_video_frame` callback.
  *
- * Each plane contains (width * height) pixels as received through the `call` or
- * `change_options` event. The Alpha plane can be NULL, in which case every
- * pixel should be assumed fully opaque.
+ * Each plane contains (width * height) pixels. The Alpha plane can be NULL, in
+ * which case every pixel should be assumed fully opaque.
  *
  * @param friend_number The friend number of the friend who sent a video frame.
+ * @param width Width of the frame in pixels.
+ * @param height Height of the frame in pixels.
  * @param y Y (Luminance) plane data.
  * @param u U (Chroma) plane data.
  * @param v V (Chroma) plane data.
  * @param a A (Alpha) plane data.
  */
-typedef void toxav_receive_video_frame_cb(ToxAV *av, uint32_t friend_number, uint8_t const *y, uint8_t const *u, uint8_t const *v, uint8_t const *a, void *user_data);
+typedef void toxav_receive_video_frame_cb(ToxAV *av, uint32_t friend_number,
+                                          uint16_t width, uint16_t height,
+                                          uint8_t const *y, uint8_t const *u, uint8_t const *v, uint8_t const *a,
+                                          void *user_data);
 
 /**
  * Set the callback for the `receive_video_frame` event. Pass NULL to unset.
@@ -605,10 +481,19 @@ void toxav_callback_receive_video_frame(ToxAV *av, toxav_receive_video_frame_cb 
  * The function type for the `receive_audio_frame` callback.
  *
  * @param friend_number The friend number of the friend who sent an audio frame.
- * @param samples An array of audio samples.
- * @param size The number of audio samples received.
+ * @param pcm An array of audio samples (sample_count * channels elements).
+ * @param sample_count The number of audio samples per channel in the PCM array.
+ * @param channels Number of audio channels.
+ * @param sampling_rate Sampling rate used in this frame.
+ *
+ * @see toxav_send_audio_frame for the audio format.
  */
-typedef void toxav_receive_audio_frame_cb(ToxAV *av, uint32_t friend_number, uint16_t const *samples, uint16_t size, void *user_data);
+typedef void toxav_receive_audio_frame_cb(ToxAV *av, uint32_t friend_number,
+                                          uint16_t const *pcm,
+                                          size_t sample_count,
+                                          uint8_t channels,
+                                          uint32_t sampling_rate,
+                                          void *user_data);
 
 /**
  * Set the callback for the `receive_audio_frame` event. Pass NULL to unset.
