@@ -54,9 +54,6 @@ public class Tox4j implements ToxSimpleChat {
 
     @Override
     public final void finalize() throws Throwable {
-        ToxCore core = new ToxCoreImpl(null);
-        core.bootstrap("localhost", 33445, null);
-
         try {
             finalize(instanceNumber);
         } catch (Throwable e) {

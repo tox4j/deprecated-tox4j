@@ -60,6 +60,7 @@ add_library(
 	ToxCore/interaction.cpp
 	ToxCore/lifecycle.cpp
 	ToxCore/playground.cpp
+	tox/av.cpp
 	tox/core.cpp
 	tox4j/ErrorHandling.cpp
 	tox4j/Tox4j.cpp
