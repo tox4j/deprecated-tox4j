@@ -67,13 +67,11 @@ set(TEST_FILES
 	im/tox/tox4j/exceptions/ToxFriendDeleteExceptionTest.java
 	im/tox/tox4j/exceptions/ToxFriendGetClientIdExceptionTest.java
 	im/tox/tox4j/exceptions/ToxKilledExceptionTest.java
-	im/tox/tox4j/exceptions/ToxLoadExceptionTest.java
 	im/tox/tox4j/exceptions/ToxNewExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSendCustomPacketExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSendMessageExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetInfoExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetTypingExceptionTest.java
-	im/tox/tox4j/LoadSaveEmptyTest.java
 	im/tox/tox4j/ToxCoreImplTestBase.java
 	im/tox/tox4j/ToxCoreImplTest.java
 	im/tox/tox4j/ToxCoreTestBase.java
@@ -93,13 +91,11 @@ set(core_TESTS
 	im.tox.tox4j.exceptions.ToxFriendDeleteExceptionTest
 	im.tox.tox4j.exceptions.ToxFriendGetClientIdExceptionTest
 	im.tox.tox4j.exceptions.ToxKilledExceptionTest
-	im.tox.tox4j.exceptions.ToxLoadExceptionTest
 	im.tox.tox4j.exceptions.ToxNewExceptionTest
 	im.tox.tox4j.exceptions.ToxSendCustomPacketExceptionTest
 	im.tox.tox4j.exceptions.ToxSendMessageExceptionTest
 	im.tox.tox4j.exceptions.ToxSetInfoExceptionTest
 	im.tox.tox4j.exceptions.ToxSetTypingExceptionTest
-	im.tox.tox4j.LoadSaveEmptyTest
 	im.tox.tox4j.ToxCoreImplTest
 )
 

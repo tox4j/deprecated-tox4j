@@ -19,11 +19,6 @@ import static org.junit.Assert.*;
 public class FileTransferTest extends AliceBobTestBase {
 
     @Override
-    protected ToxCore newTox(ToxOptions options) throws ToxNewException {
-        return new ToxCoreImpl(options);
-    }
-
-    @Override
     protected ChatClient newClient() {
         return new Client();
     }

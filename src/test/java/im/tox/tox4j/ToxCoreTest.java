@@ -16,7 +16,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     private static final int TOX_COUNT = 10;
 
     private void testBootstrap(String ipv4, int port, byte[] dhtId) throws Exception {
-        assumeIPv4();
         if (!SLOW_TESTS) return;
         try (ToxCore tox = newTox()) {
             long start = System.currentTimeMillis();
@@ -38,11 +37,13 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap4() throws Exception {
+        assumeIPv4();
         testBootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
     }
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap6() throws Exception {
+        assumeIPv6();
         testBootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
     }
 
@@ -196,28 +197,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testClose() throws Exception {
         newTox().close();
-    }
-
-    @Test
-    public void testSaveNotEmpty() throws Exception {
-        ToxCore tox = newTox();
-        byte[] data = tox.save();
-        assertNotNull(data);
-        assertNotEquals(0, data.length);
-    }
-
-    @Test
-    public void testSaveRepeatable() throws Exception {
-        ToxCore tox = newTox();
-        assertArrayEquals(tox.save(), tox.save());
-    }
-
-    @Test
-    public void testLoadSave() throws Exception {
-        ToxCore tox = newTox();
-        byte[] data = tox.save();
-        tox.load(data);
-        assertArrayEquals(data, tox.save());
     }
 
     @Test

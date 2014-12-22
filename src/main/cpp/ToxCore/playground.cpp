@@ -18,8 +18,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_playground
         uint8_t *data = new uint8_t[save_size];
         tox_save(tox, data);
 
-        Tox *tox2 = tox_new(NULL, NULL);
-        tox_load(tox2, data, save_size, NULL);
+        Tox *tox2 = tox_new(NULL, data, save_size, NULL);
 
         size_t length = tox_self_get_name_size(tox2);
         printf("new length: %zd\n", length);

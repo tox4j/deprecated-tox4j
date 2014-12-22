@@ -405,8 +405,21 @@ typedef enum TOX_ERR_NEW {
   /**
    * The proxy address passed could not be resolved.
    */
-  TOX_ERR_NEW_PROXY_NOT_FOUND
+  TOX_ERR_NEW_PROXY_NOT_FOUND,
+  /**
+   * The byte array to be loaded contained an encrypted save.
+   */
+  TOX_ERR_NEW_LOAD_ENCRYPTED,
+  /**
+   * The data format was invalid. This can happen when loading data that was
+   * saved by an older version of Tox, or when the data has been corrupted.
+   * When loading from badly formatted data, some data may have been loaded,
+   * and the rest is discarded. Passing an invalid length parameter also
+   * causes this error.
+   */
+  TOX_ERR_NEW_LOAD_BAD_FORMAT
 } TOX_ERR_NEW;
+
 
 /**
  * @brief Creates and initialises a new Tox instance with the options passed.
@@ -414,12 +427,21 @@ typedef enum TOX_ERR_NEW {
  * This function will bring the instance into a valid state. Running the event
  * loop with a new instance will operate correctly.
  *
+ * If the data parameter is not NULL, this function will load the Tox instance
+ * from a byte array previously filled by tox_save.
+ *
+ * If loading failed or succeeded only partially, the new or partially loaded
+ * instance is returned and an error code is set.
+ *
  * @param options An options object as described above. If this parameter is
  *   NULL, the default options are used.
+ * @param data A byte array containing data previously stored by tox_save.
+ * @param length The length of the byte array data. If this parameter is 0, the
+ *   data parameter is ignored.
  *
  * @see tox_iteration for the event loop.
  */
-Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error);
+Tox *tox_new(struct Tox_Options const *options, uint8_t const *data, size_t length, TOX_ERR_NEW *error);
 
 
 /**
@@ -430,13 +452,6 @@ Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error);
  * functions can be called, and the pointer value can no longer be read.
  */
 void tox_kill(Tox *tox);
-
-
-/*******************************************************************************
- *
- * :: Loading and saving
- *
- ******************************************************************************/
 
 
 /**
@@ -455,33 +470,6 @@ size_t tox_save_size(Tox const *tox);
  *   is NULL, this function has no effect.
  */
 void tox_save(Tox const *tox, uint8_t *data);
-
-
-typedef enum TOX_ERR_LOAD {
-  TOX_ERR_LOAD_OK,
-  TOX_ERR_LOAD_NULL,
-  /**
-   * The byte array contained an encrypted save.
-   */
-  TOX_ERR_LOAD_ENCRYPTED,
-  /**
-   * The data format was invalid. This can happen when loading data that was
-   * saved by an older version of Tox, or when the data has been corrupted.
-   * When loading from badly formatted data, some data may have been loaded,
-   * and the rest is discarded. Passing an invalid length parameter also
-   * causes this error.
-   */
-  TOX_ERR_LOAD_BAD_FORMAT
-} TOX_ERR_LOAD;
-
-/**
- * Load the Tox instance data from a byte array.
- *
- * @param data A byte array containing data previously stored by tox_save.
- * @param length The length of the byte array data.
- * @return true iff the whole data was read successfully.
- */
-bool tox_load(Tox *tox, uint8_t const *data, size_t length, TOX_ERR_LOAD *error);
 
 
 /*******************************************************************************

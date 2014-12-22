@@ -13,8 +13,8 @@ public class ToxCoreImplTestBase extends ToxCoreTestBase {
     }
 
     @Override
-    protected final ToxCore newTox(ToxOptions options) throws ToxNewException {
-        return new ToxCoreImpl(options);
+    protected final ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
+        return new ToxCoreImpl(options, data);
     }
 
 }

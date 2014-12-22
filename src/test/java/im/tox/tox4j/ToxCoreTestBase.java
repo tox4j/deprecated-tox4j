@@ -54,25 +54,33 @@ public abstract class ToxCoreTestBase {
             ),
     };
 
-    protected abstract ToxCore newTox(ToxOptions options) throws ToxNewException;
+    protected abstract ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
 
-    protected ToxCore newTox() throws ToxNewException {
-        return newTox(new ToxOptions());
+    protected final ToxCore newTox() throws ToxNewException {
+        return newTox(new ToxOptions(), null);
     }
 
-    protected ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
+    protected final ToxCore newTox(byte[] data) throws ToxNewException {
+        return newTox(new ToxOptions(), data);
+    }
+
+    protected final ToxCore newTox(ToxOptions options) throws ToxNewException {
+        return newTox(options, null);
+    }
+
+    protected final ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
         ToxOptions options = new ToxOptions();
         options.setIpv6Enabled(ipv6Enabled);
         options.setUdpEnabled(udpEnabled);
-        return newTox(options);
+        return newTox(options, null);
     }
 
-    protected ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) throws ToxNewException {
+    protected final ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) throws ToxNewException {
         ToxOptions options = new ToxOptions();
         options.setIpv6Enabled(ipv6Enabled);
         options.setUdpEnabled(udpEnabled);
         options.enableProxy(proxyType, proxyAddress, proxyPort);
-        return newTox(options);
+        return newTox(options, null);
     }
 
     protected static class ConnectedListener implements ConnectionStatusCallback {

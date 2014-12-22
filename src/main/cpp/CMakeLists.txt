@@ -59,7 +59,6 @@ add_library(
 	ToxCore/friendlist.cpp
 	ToxCore/interaction.cpp
 	ToxCore/lifecycle.cpp
-	ToxCore/loadsave.cpp
 	ToxCore/playground.cpp
 	tox/core.cpp
 	tox4j/ErrorHandling.cpp
