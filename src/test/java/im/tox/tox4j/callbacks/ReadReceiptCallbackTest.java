@@ -49,7 +49,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
 
         @Override
         public void readReceipt(int friendNumber, int messageId) {
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             Integer messageIndex = receipts.get(messageId);
 //            debug("got receipt for " + messageId);
             assertNotNull(messageIndex);
