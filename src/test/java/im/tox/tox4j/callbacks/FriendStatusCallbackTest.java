@@ -15,16 +15,11 @@ import static org.junit.Assert.assertEquals;
 public class FriendStatusCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
-        return new ToxCoreImpl(options, data);
-    }
-
-    @Override
     protected ChatClient newClient() {
         return new Client();
     }
 
-    private class Client extends ChatClient {
+    private static class Client extends ChatClient {
 
         // Both start out with NONE.
         private ToxStatus selfStatus = null;
@@ -48,7 +43,7 @@ public class FriendStatusCallbackTest extends AliceBobTestBase {
         @Override
         public void friendStatus(int friendNumber, @NotNull ToxStatus status) {
             debug("friend changed status to: " + status);
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             if (selfStatus == null) {
                 if (isAlice()) {
                     // Both start out with NONE, and on connecting, this status is sent.

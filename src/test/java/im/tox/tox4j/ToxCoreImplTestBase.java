@@ -3,7 +3,7 @@ package im.tox.tox4j;
 import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.After;
 
-public class ToxCoreImplTestBase extends ToxCoreTestBase {
+public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
 
     @After
     public void tearDown() {

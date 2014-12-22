@@ -37,7 +37,7 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
         @Override
         public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             debug("friend changed status message to: " + new String(message));
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             assertEquals("I like " + getName(), new String(message));
             finish();
         }

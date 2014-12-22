@@ -39,7 +39,7 @@ public class FriendLossyPacketCallbackTest extends AliceBobTestBase {
         public void friendLossyPacket(int friendNumber, @NotNull byte[] packet) {
             String message = new String(packet, 1, packet.length - 1);
             debug("received a lossy packet[id=" + packet[0] + "]: " + message);
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             assertEquals((byte) 200, packet[0]);
             assertEquals("My name is " + getFriendName(), message);
             finish();

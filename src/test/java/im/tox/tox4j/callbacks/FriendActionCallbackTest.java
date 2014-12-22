@@ -37,7 +37,7 @@ public class FriendActionCallbackTest extends AliceBobTestBase {
         @Override
         public void friendAction(int friendNumber, int timeDelta, @NotNull byte[] message) {
             debug("received an action: " + new String(message));
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             assertTrue(timeDelta >= 0);
             assertEquals("'s name is " + getFriendName(), new String(message));
             finish();

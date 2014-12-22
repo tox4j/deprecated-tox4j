@@ -37,7 +37,7 @@ public class FriendMessageCallbackTest extends AliceBobTestBase {
         @Override
         public void friendMessage(int friendNumber, int timeDelta, @NotNull byte[] message) {
             debug("received a message: " + new String(message));
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             assertTrue(timeDelta >= 0);
             assertEquals("My name is " + getFriendName(), new String(message));
             finish();

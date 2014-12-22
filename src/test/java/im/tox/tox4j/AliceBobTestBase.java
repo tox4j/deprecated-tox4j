@@ -14,16 +14,11 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class AliceBobTestBase extends ToxCoreTestBase {
-
-    @Override
-    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
-        return new ToxCoreImpl(options, data);
-    }
+public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
     protected static class ChatClient extends ToxEventAdapter {
 
-        public abstract class Task {
+        public abstract static class Task {
             private StackTraceElement[] creationTrace = null;
 
             public abstract void perform(ToxCore tox) throws ToxException;
@@ -132,7 +127,7 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
     private void runAliceBobTest(ToxFactory factory) throws Exception {
         if (LOGGING) {
             String method = getToplevelMethod(Thread.currentThread().getStackTrace());
-            System.out.println("--- " + getClass().getSimpleName() + "." + method);
+            System.out.println("--- " + getClass().getSimpleName() + '.' + method);
         }
 
         ChatClient aliceChat = newClient();
@@ -169,7 +164,7 @@ public abstract class AliceBobTestBase extends ToxCoreTestBase {
         }
     }
 
-    private String getToplevelMethod(StackTraceElement[] stackTrace) {
+    private static String getToplevelMethod(StackTraceElement[] stackTrace) {
         StackTraceElement last = stackTrace[0];
         for (StackTraceElement element : Arrays.asList(stackTrace).subList(1, stackTrace.length - 1)) {
             if (!element.getClassName().equals(AliceBobTestBase.class.getName())) {

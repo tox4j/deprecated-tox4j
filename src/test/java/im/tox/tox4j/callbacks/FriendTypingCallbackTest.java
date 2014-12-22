@@ -19,7 +19,7 @@ public class FriendTypingCallbackTest extends AliceBobTestBase {
         return new Client();
     }
 
-    private class Client extends ChatClient {
+    private static class Client extends ChatClient {
 
         private boolean initial = true;
 
@@ -55,7 +55,7 @@ public class FriendTypingCallbackTest extends AliceBobTestBase {
             } else {
                 debug("friend stopped typing");
             }
-            assertEquals(friendNumber, 0);
+            assertEquals(0, friendNumber);
             if (isBob() && isTyping) {
                 // Alice started typing to Bob. Now Bob starts typing.
                 setTyping(friendNumber, true);
