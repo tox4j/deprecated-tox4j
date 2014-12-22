@@ -69,6 +69,7 @@ struct new_Tox
 {
   Tox *tox;
   bool connected = false;
+  bool has_av = false;
   std::map<std::pair<uint32_t, uint32_t>, file_transfer> transfers;
 
   struct
