@@ -2,7 +2,6 @@ package im.tox.tox4j;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxFileControl;
@@ -17,7 +16,15 @@ public final class ToxCoreImpl extends AbstractToxCore {
         System.loadLibrary("tox4j");
     }
 
-    private final int instanceNumber;
+    /**
+     * This field has package visibility for {@link ToxAvImpl}.
+     */
+    final int instanceNumber;
+    /**
+     * This field is set by {@link ToxAvImpl} on construction and reset back to null on close.
+     */
+    ToxAvImpl av = null;
+
     private ConnectionStatusCallback connectionStatusCallback;
     private FriendNameCallback friendNameCallback;
     private FriendStatusMessageCallback friendStatusMessageCallback;
@@ -97,6 +104,9 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public void close() {
+        if (av != null) {
+            av.close();
+        }
         toxKill(instanceNumber);
     }
 

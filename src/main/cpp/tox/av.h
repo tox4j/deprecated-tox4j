@@ -124,7 +124,7 @@ typedef enum TOXAV_ERR_CALL {
    * Attempted to call a friend while already in an audio or video call with
    * them.
    */
-  TOXAV_ERR_CALL_ALREADY_IN_CALL,
+  TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL,
   /**
    * Audio or video bit rate is invalid.
    */
@@ -292,13 +292,13 @@ void toxav_callback_call_control(ToxAV *av, toxav_call_control_cb *function, voi
  ******************************************************************************/
 
 
-typedef enum TOXAV_ERR_SET_BIT_RATE {
-  TOXAV_ERR_SET_BIT_RATE_OK,
+typedef enum TOXAV_ERR_BIT_RATE {
+  TOXAV_ERR_BIT_RATE_OK,
   /**
    * The bit rate passed was not one of the supported values.
    */
-  TOXAV_ERR_SET_BIT_RATE_INVALID
-} TOXAV_ERR_SET_BIT_RATE;
+  TOXAV_ERR_BIT_RATE_INVALID
+} TOXAV_ERR_BIT_RATE;
 
 /**
  * Set the audio bit rate to be used in subsequent audio frames.
@@ -310,7 +310,7 @@ typedef enum TOXAV_ERR_SET_BIT_RATE {
  *
  * @see toxav_call for the valid bit rates.
  */
-bool toxav_set_audio_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, TOXAV_ERR_SET_BIT_RATE *error);
+bool toxav_set_audio_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, TOXAV_ERR_BIT_RATE *error);
 
 /**
  * Set the video bit rate to be used in subsequent video frames.
@@ -322,7 +322,7 @@ bool toxav_set_audio_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t audio_
  *
  * @see toxav_call for the valid bit rates.
  */
-bool toxav_set_video_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t video_bit_rate, TOXAV_ERR_SET_BIT_RATE *error);
+bool toxav_set_video_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t video_bit_rate, TOXAV_ERR_BIT_RATE *error);
 
 
 /*******************************************************************************
@@ -432,7 +432,9 @@ void toxav_callback_request_audio_frame(ToxAV *av, toxav_request_audio_frame_cb 
  * @param sample_count Number of samples in this frame. Valid numbers here are
  *   ((sample rate) * (audio length) / 1000), where audio length can be
  *   2.5, 5, 10, 20, 40 or 60 millseconds.
- * @param channels Number of audio channels. Can be 1 for mono or 2 for stereo.
+ * @param channels Number of audio channels. Must be at least 1 for mono.
+ *   For voice over IP, more than 2 channels (stereo) typically doesn't make
+ *   sense, but up to 255 channels are supported.
  * @param sampling_rate Audio sampling rate used in this frame. Valid sampling
  *   rates are 8000, 12000, 16000, 24000, or 48000.
  */
