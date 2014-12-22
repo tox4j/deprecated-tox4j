@@ -37,6 +37,15 @@ public class LoadSaveEmptyTest extends ToxCoreTestBase {
         try (ToxCore tox = newTox()) {
             tox.setName("hello".getBytes());
             tox.load(emptySave);
+            assertEquals(emptySave.length, tox.save().length);
+        }
+    }
+
+    @Test
+    public void testName3() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.setName("hello".getBytes());
+            tox.load(emptySave);
             assertArrayEquals(emptySave, tox.save());
         }
     }
@@ -55,6 +64,15 @@ public class LoadSaveEmptyTest extends ToxCoreTestBase {
         try (ToxCore tox = newTox()) {
             tox.setStatus(ToxStatus.AWAY);
             tox.load(emptySave);
+            assertEquals(emptySave.length, tox.save().length);
+        }
+    }
+
+    @Test
+    public void testStatus3() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.setStatus(ToxStatus.AWAY);
+            tox.load(emptySave);
             assertArrayEquals(emptySave, tox.save());
         }
     }
@@ -70,6 +88,15 @@ public class LoadSaveEmptyTest extends ToxCoreTestBase {
 
     @Test
     public void testStatusMessage2() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.setStatusMessage("hello".getBytes());
+            tox.load(emptySave);
+            assertEquals(emptySave.length, tox.save().length);
+        }
+    }
+
+    @Test
+    public void testStatusMessage3() throws Exception {
         try (ToxCore tox = newTox()) {
             tox.setStatusMessage("hello".getBytes());
             tox.load(emptySave);
