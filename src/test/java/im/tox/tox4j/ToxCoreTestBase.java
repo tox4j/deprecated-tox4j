@@ -97,6 +97,7 @@ public abstract class ToxCoreTestBase {
             this.connected = new ToxConnection[toxes.length];
             for (int i = 0; i < count; i++) {
                 final int id = i;
+                connected[i] = ToxConnection.NONE;
                 toxes[i] = newTox();
                 toxes[i].callbackConnectionStatus(new ConnectionStatusCallback() {
                     @Override
@@ -116,15 +117,15 @@ public abstract class ToxCoreTestBase {
 
         public boolean isAllConnected() {
             boolean result = true;
-            for (ToxConnection tox : connected) {
-                result = result && tox != ToxConnection.NONE;
+            for (ToxConnection connectionStatus : connected) {
+                result = result && connectionStatus != ToxConnection.NONE;
             }
             return result;
         }
 
         public boolean isAnyConnected() {
-            for (ToxConnection tox : connected) {
-                if (tox != ToxConnection.NONE) {
+            for (ToxConnection connectionStatus : connected) {
+                if (connectionStatus != ToxConnection.NONE) {
                     return true;
                 }
             }
