@@ -107,6 +107,45 @@ public class LoadSaveTest extends ToxCoreImplTestBase {
     }
 
     @Test
+    public void testNoSpam() throws Exception {
+        testLoadSave(new Check() {
+            private int expected = -1;
+
+            @Override
+            public boolean change(ToxCore tox) throws ToxException {
+                tox.setNospam(++expected);
+                return expected < 100;
+            }
+
+            @Override
+            public void check(ToxCore tox) {
+                assertEquals(expected, tox.getNospam());
+            }
+        });
+    }
+
+    @Test
+    public void testFriend() throws Exception {
+        testLoadSave(new Check() {
+            private int expected;
+
+            @Override
+            public boolean change(ToxCore tox) throws ToxException {
+                try (ToxCore toxFriend = newTox()) {
+                    expected = tox.addFriend(toxFriend.getAddress(), "hello".getBytes());
+                }
+                return false;
+            }
+
+            @Override
+            public void check(ToxCore tox) {
+                assertEquals(1, tox.getFriendList().length);
+                assertEquals(expected, tox.getFriendList()[0]);
+            }
+        });
+    }
+
+    @Test
     public void testSaveNotEmpty() throws Exception {
         try (ToxCore tox = newTox()) {
             byte[] data = tox.save();
