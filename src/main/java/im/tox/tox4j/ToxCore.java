@@ -39,15 +39,6 @@ public interface ToxCore extends Closeable {
     byte[] save();
 
     /**
-     * Load data to the current tox instance.
-     *
-     * @param data the data to load.
-     * @throws im.tox.tox4j.exceptions.ToxLoadException if an error occurred. The tox save format is currently unstable.
-     *                                                     this means, that even if this exception is thrown, some data might have been loaded.
-     */
-    void load(@NotNull byte[] data) throws ToxLoadException;
-
-    /**
      * Bootstrap into the tox network.
      * <p>
      * May connect via UDP and/or TCP, depending of the settings of the Tox instance.

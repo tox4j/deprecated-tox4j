@@ -100,4 +100,22 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
         }
     }
 
+    @Test
+    public void testLOAD_ENCRYPTED() throws Exception {
+        try (ToxCore tox = newTox("toxEsave blah blah blah".getBytes())) {
+            fail();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.LOAD_ENCRYPTED, e.getCode());
+        }
+    }
+
+    @Test
+    public void testLOAD_BAD_FORMAT() throws Exception {
+        try (ToxCore tox = newTox("blah blah blah".getBytes())) {
+            fail();
+        } catch (ToxNewException e) {
+            assertEquals(ToxNewException.Code.LOAD_BAD_FORMAT, e.getCode());
+        }
+    }
+
 }

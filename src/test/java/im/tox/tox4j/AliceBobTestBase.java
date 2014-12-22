@@ -16,6 +16,11 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class AliceBobTestBase extends ToxCoreTestBase {
 
+    @Override
+    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
+        return new ToxCoreImpl(options, data);
+    }
+
     protected static class ChatClient extends ToxEventAdapter {
 
         public abstract class Task {

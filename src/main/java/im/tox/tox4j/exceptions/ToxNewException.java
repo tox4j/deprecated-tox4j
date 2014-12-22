@@ -11,6 +11,8 @@ public final class ToxNewException extends ToxException {
         PROXY_BAD_HOST,
         PROXY_BAD_PORT,
         PROXY_NOT_FOUND,
+        LOAD_ENCRYPTED,
+        LOAD_BAD_FORMAT,
     }
 
     private final @NotNull Code code;

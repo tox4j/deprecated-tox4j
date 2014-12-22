@@ -331,14 +331,6 @@ struct new_Tox
       tox_lossless_packet_registerhandler (tox, friend_number, byte, CB::lossless_packet, this);
   }
 
-  void unregister_custom_packet_handlers (uint32_t friend_number)
-  {
-    for (uint8_t byte = 200; byte <= 254; byte++)
-      tox_lossy_packet_registerhandler (tox, friend_number, byte, nullptr, nullptr);
-    for (uint8_t byte = 160; byte <= 191; byte++)
-      tox_lossless_packet_registerhandler (tox, friend_number, byte, nullptr, nullptr);
-  }
-
   void add_transfer (uint32_t friend_number, uint32_t file_number, uint64_t file_size)
   {
     assert (!get_transfer (friend_number, file_number));
@@ -406,18 +398,8 @@ register_custom_packet_handlers (new_Tox *tox)
     tox->register_custom_packet_handlers (friend_number);
 }
 
-static void
-unregister_custom_packet_handlers (new_Tox *tox)
-{
-  std::vector<int32_t> friends (tox_count_friendlist (tox->tox));
-  tox_get_friendlist (tox->tox, friends.data (), friends.size ());
-
-  for (int32_t friend_number : friends)
-    tox->unregister_custom_packet_handlers (friend_number);
-}
-
 new_Tox *
-new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
+new_tox_new (struct new_Tox_Options const *options, uint8_t const *data, size_t length, TOX_ERR_NEW *error)
 {
   Tox *tox;
 
@@ -488,7 +470,31 @@ new_tox_new (struct new_Tox_Options const *options, TOX_ERR_NEW *error)
   new_Tox *new_tox = new new_Tox (tox);
   register_custom_packet_handlers (new_tox);
 
+  // Set error to OK here.
   if (error) *error = TOX_ERR_NEW_OK;
+
+  // In here, the error can be set to some non-OK value, but we still return
+  // the new instance.
+  if (length != 0)
+    {
+      if (data == nullptr)
+        {
+          if (error) *error = TOX_ERR_NEW_NULL;
+        }
+      else
+        {
+          switch (tox_load (tox, data, length))
+            {
+            case -1:
+              if (error) *error = TOX_ERR_NEW_LOAD_BAD_FORMAT;
+              break;
+            case +1:
+              if (error) *error = TOX_ERR_NEW_LOAD_ENCRYPTED;
+              break;
+            }
+        }
+    }
+
   return new_tox;
 }
 
@@ -509,31 +515,6 @@ void
 new_tox_save (new_Tox const *tox, uint8_t *data)
 {
   tox_save (tox->tox, data);
-}
-
-bool
-new_tox_load (new_Tox *tox, uint8_t const *data, size_t length, TOX_ERR_LOAD *error)
-{
-  if (data == nullptr)
-    {
-      if (error) *error = TOX_ERR_LOAD_NULL;
-      return false;
-    }
-  unregister_custom_packet_handlers (tox);
-  switch (tox_load (tox->tox, data, length))
-    {
-    case 0:
-      register_custom_packet_handlers (tox);
-      if (error) *error = TOX_ERR_LOAD_OK;
-      return true;
-    case -1:
-      if (error) *error = TOX_ERR_LOAD_BAD_FORMAT;
-      return false;
-    case +1:
-      if (error) *error = TOX_ERR_LOAD_ENCRYPTED;
-      return false;
-    }
-  assert (false);
 }
 
 bool

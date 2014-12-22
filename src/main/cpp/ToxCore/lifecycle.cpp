@@ -228,7 +228,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_destroyAll
  * Signature: (ZZILjava/lang/String;I)I
  */
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
-  (JNIEnv *env, jclass, jboolean ipv6Enabled, jboolean udpEnabled, jint proxyType, jstring proxyAddress, jint proxyPort)
+  (JNIEnv *env, jclass, jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled, jint proxyType, jstring proxyAddress, jint proxyPort)
 {
     assert(proxyType >= 0);
     assert(proxyPort >= 0);
@@ -254,6 +254,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
     opts->proxy_address = proxy_address.data();
     opts->proxy_port = proxyPort;
 
+    ByteArray save_data(env, saveData);
+
     return with_error_handling(env, "New", [](TOX_ERR_NEW error) {
         switch (error) {
             success_case(NEW);
@@ -263,6 +265,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
             failure_case(NEW, PROXY_BAD_HOST);
             failure_case(NEW, PROXY_BAD_PORT);
             failure_case(NEW, PROXY_NOT_FOUND);
+            failure_case(NEW, LOAD_ENCRYPTED);
+            failure_case(NEW, LOAD_BAD_FORMAT);
         }
         return unhandled();
     }, [env](Tox *tox_pointer) {
@@ -300,7 +304,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
         // This lock guards the instance manager.
         std::lock_guard<std::mutex> lock(InstanceManager::self.mutex);
         return InstanceManager::self.add(std::move(instance));
-    }, tox_new, opts.get());
+    }, tox_new, opts.get(), save_data.data(), save_data.size());
 }
 
 /*
@@ -377,4 +381,21 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_finalize
 
     assert(InstanceManager::self[instanceNumber].isDead());
     InstanceManager::self.setFree(instanceNumber);
+}
+
+/*
+ * Class:     im_tox_tox4jToxCoreImpl
+ * Method:    toxSave
+ * Signature: (I)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSave
+  (JNIEnv *env, jclass, jint instanceNumber)
+{
+    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+        unused(events);
+        std::vector<uint8_t> buffer(tox_save_size(tox));
+        tox_save(tox, buffer.data());
+
+        return toJavaArray(env, buffer);
+    });
 }

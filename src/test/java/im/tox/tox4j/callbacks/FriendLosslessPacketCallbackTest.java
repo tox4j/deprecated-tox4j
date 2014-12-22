@@ -14,8 +14,8 @@ import static org.junit.Assert.assertEquals;
 public class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ToxCore newTox(ToxOptions options) throws ToxNewException {
-        return new ToxCoreImpl(options);
+    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
+        return new ToxCoreImpl(options, data);
     }
 
     @Override

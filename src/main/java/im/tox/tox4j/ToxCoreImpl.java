@@ -2,6 +2,7 @@ package im.tox.tox4j;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.callbacks.*;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.enums.ToxFileControl;
@@ -59,6 +60,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
 
     private static native int toxNew(
+            byte[] data,
             boolean ipv6Enabled,
             boolean udpEnabled,
             int proxyType,
@@ -66,8 +68,22 @@ public final class ToxCoreImpl extends AbstractToxCore {
             int proxyPort
     ) throws ToxNewException;
 
+    public ToxCoreImpl() throws ToxNewException {
+        this(new ToxOptions());
+    }
+
+    public ToxCoreImpl(@NotNull byte[] data) throws ToxNewException {
+        this(new ToxOptions(), data);
+    }
+
+    @SuppressWarnings("ConstantConditions")
     public ToxCoreImpl(@NotNull ToxOptions options) throws ToxNewException {
+        this(options, null);
+    }
+
+    public ToxCoreImpl(@NotNull ToxOptions options, @NotNull byte[] data) throws ToxNewException {
         instanceNumber = toxNew(
+                data,
                 options.isIpv6Enabled(),
                 options.isUdpEnabled(),
                 options.getProxyType().ordinal(),
@@ -91,14 +107,6 @@ public final class ToxCoreImpl extends AbstractToxCore {
     @Override
     public byte[] save() {
         return toxSave(instanceNumber);
-    }
-
-
-    private static native void toxLoad(int instanceNumber, byte[] data) throws ToxLoadException;
-
-    @Override
-    public void load(@NotNull byte[] data) throws ToxLoadException {
-        toxLoad(instanceNumber, data);
     }
 
 
