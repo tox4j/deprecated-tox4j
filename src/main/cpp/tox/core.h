@@ -1449,11 +1449,11 @@ typedef enum TOX_ERR_FILE_SEND {
    */
   TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED,
   /**
-   * Filename length was 0. Not relevant for TOX_FILE_KIND_AVATAR.
+   * Filename length was 0.
    */
   TOX_ERR_FILE_SEND_NAME_EMPTY,
   /**
-   * Filename length exceeded 255 bytes. Not relevant for TOX_FILE_KIND_AVATAR.
+   * Filename length exceeded 255 bytes.
    */
   TOX_ERR_FILE_SEND_NAME_TOO_LONG,
   /**
@@ -1512,8 +1512,8 @@ typedef enum TOX_ERR_FILE_SEND {
  * @param file_size Size in bytes of the file the client wants to send, 0 if
  *   unknown or streaming.
  * @param filename Name of the file. Does not need to be the actual name. This
- *   name will be sent along with the file send request. Ignored for avatars.
- * @param filename_length Size in bytes of the filename. Ignored for avatars.
+ *   name will be sent along with the file send request.
+ * @param filename_length Size in bytes of the filename.
  *
  * @return A file number used as an identifier in subsequent callbacks. This
  *   number is per friend. File numbers are reused after a transfer terminates.
