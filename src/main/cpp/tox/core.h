@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <tox/compat.h>
+#include <tox/core_compat.h>
 
 #ifdef __cplusplus
 extern "C" {
