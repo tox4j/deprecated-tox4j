@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -37,7 +37,7 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
         @Override
         public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             debug("friend changed status message to: " + new String(message));
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             assertEquals("I like " + getName(), new String(message));
             finish();
         }

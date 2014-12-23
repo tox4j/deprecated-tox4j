@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -39,7 +39,7 @@ public class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
         public void friendLosslessPacket(int friendNumber, @NotNull byte[] packet) {
             String message = new String(packet, 1, packet.length - 1);
             debug("received a lossless packet[id=" + packet[0] + "]: " + message);
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             assertEquals((byte) 160, packet[0]);
             assertEquals("My name is " + getFriendName(), message);
             finish();

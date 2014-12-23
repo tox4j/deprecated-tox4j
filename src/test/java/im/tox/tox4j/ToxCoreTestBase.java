@@ -21,8 +21,10 @@ import static org.junit.Assume.assumeTrue;
 
 public abstract class ToxCoreTestBase {
 
+    protected static final int GRACE_PERIOD = 1000;
+    protected static final int TIMEOUT = 40000 + GRACE_PERIOD;
     @Rule
-    public final Timeout globalTimeout = new Timeout(40000);
+    public final Timeout globalTimeout = new Timeout(TIMEOUT);
 
     protected static final boolean LOGGING = true;
     protected static final int ITERATIONS = 500;

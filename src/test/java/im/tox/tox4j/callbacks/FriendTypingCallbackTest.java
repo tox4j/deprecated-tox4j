@@ -15,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 public class FriendTypingCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -55,7 +55,7 @@ public class FriendTypingCallbackTest extends AliceBobTestBase {
             } else {
                 debug("friend stopped typing");
             }
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             if (isBob() && isTyping) {
                 // Alice started typing to Bob. Now Bob starts typing.
                 setTyping(friendNumber, true);

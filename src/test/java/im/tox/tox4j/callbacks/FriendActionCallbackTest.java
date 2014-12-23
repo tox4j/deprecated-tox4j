@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 public class FriendActionCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -37,7 +37,7 @@ public class FriendActionCallbackTest extends AliceBobTestBase {
         @Override
         public void friendAction(int friendNumber, int timeDelta, @NotNull byte[] message) {
             debug("received an action: " + new String(message));
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             assertTrue(timeDelta >= 0);
             assertEquals("'s name is " + getFriendName(), new String(message));
             finish();

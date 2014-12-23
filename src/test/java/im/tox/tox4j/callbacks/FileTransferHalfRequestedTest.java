@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class FileTransferHalfRequestedTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -38,7 +38,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
-                assertEquals(0, friendNumber);
+                assertEquals(FRIEND_NUMBER, friendNumber);
                 if (isBob()) return;
                 addTask(new Task() {
                     @Override
@@ -54,7 +54,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
         public void fileReceive(final int friendNumber, final int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
             assertTrue(isBob());
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             assertEquals(0 | 0x100, fileNumber);
             assertEquals(ToxFileKind.DATA, kind);
             assertEquals(fileData.length, fileSize);
@@ -102,7 +102,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
         public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
             debug("got " + data.length + "B from " + friendNumber + " at " + position);
             assertTrue(isBob());
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             assertEquals(0 | 0x100, fileNumber);
             assertEquals(this.position, position);
             assertNotNull(data);

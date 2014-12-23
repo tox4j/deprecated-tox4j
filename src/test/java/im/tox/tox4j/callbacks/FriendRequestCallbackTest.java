@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class FriendRequestCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -24,7 +24,7 @@ public class FriendRequestCallbackTest extends AliceBobTestBase {
         @Override
         public void setup(ToxCore tox) throws ToxException {
             // Both friends delete each other.
-            tox.deleteFriend(0);
+            tox.deleteFriend(FRIEND_NUMBER);
             if (isAlice()) {
                 // Alice sends friend request to Bob.
                 tox.addFriend(getFriendAddress(), ("Hey this is " + getName()).getBytes());
