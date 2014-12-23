@@ -104,7 +104,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvAnswer
  * Signature: (III)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCallControl
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint control)
 {
     return with_instance(env, instanceNumber, [=](ToxAV *av, Events &events) {
         unused(av);
@@ -119,7 +119,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCallControl
  * Signature: (III)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetAudioBitRate
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint audioBitRate)
 {
     return with_instance(env, instanceNumber, [=](ToxAV *av, Events &events) {
         unused(av);
@@ -134,7 +134,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetAudioBitRate
  * Signature: (III)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetVideoBitRate
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint videoBitRate)
 {
     return with_instance(env, instanceNumber, [=](ToxAV *av, Events &events) {
         unused(av);
@@ -149,7 +149,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetVideoBitRate
  * Signature: (IIII[B[B[B[B)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint, jint, jbyteArray, jbyteArray, jbyteArray, jbyteArray)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jbyteArray a)
 {
     return with_instance(env, instanceNumber, [=](ToxAV *av, Events &events) {
         unused(av);
@@ -161,10 +161,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
 /*
  * Class:     im_tox_tox4j_ToxAvImpl
  * Method:    toxAvSendAudioFrame
- * Signature: (II[BIII)V
+ * Signature: (II[SIII)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendAudioFrame
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray, jint, jint, jint)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jshortArray pcm, jint sampleCount, jint channels, jint samplingRate)
 {
     return with_instance(env, instanceNumber, [=](ToxAV *av, Events &events) {
         unused(av);

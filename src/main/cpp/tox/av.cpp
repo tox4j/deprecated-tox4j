@@ -251,21 +251,21 @@ new_toxav_iteration (new_ToxAV *av)
       switch (call.state)
         {
         case TOXAV_CALL_STATE_SENDING_V:
-          if (false)
-        case TOXAV_CALL_STATE_SENDING_A:
-          if (!call.audio_event_pending)
-            {
-              auto cb = av->callbacks.request_audio_frame;
-              cb.func (av, friend_number, cb.user_data);
-              call.audio_event_pending = true;
-              break;
-            }
         case TOXAV_CALL_STATE_SENDING_AV:
           if (!call.video_event_pending)
             {
               auto cb = av->callbacks.request_video_frame;
               cb.func (av, friend_number, cb.user_data);
               call.video_event_pending = true;
+              if (call.state == TOXAV_CALL_STATE_SENDING_V)
+                break;
+            }
+        case TOXAV_CALL_STATE_SENDING_A:
+          if (!call.audio_event_pending)
+            {
+              auto cb = av->callbacks.request_audio_frame;
+              cb.func (av, friend_number, cb.user_data);
+              call.audio_event_pending = true;
               break;
             }
         default:
