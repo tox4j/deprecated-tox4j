@@ -4,13 +4,13 @@ import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.Test;
 
-public final class InterruptionTest extends ToxCoreTestBase {
+public final class InterruptionTest extends ToxCoreImplTestBase {
 
     public static void main(String[] args) throws Exception {
         new InterruptionTest().causeSegfault();
     }
 
-    @Test
+//    @Test
     public void causeSegfault() throws Exception {
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
             final int cycle = i;
@@ -35,11 +35,6 @@ public final class InterruptionTest extends ToxCoreTestBase {
             thread.stop();
             thread.join();
         }
-    }
-
-    @Override
-    protected ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
-        throw new UnsupportedOperationException("newTox");
     }
 
 }

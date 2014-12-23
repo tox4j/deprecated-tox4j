@@ -6,6 +6,7 @@ import im.tox.tox4j.enums.ToxFileKind;
 import im.tox.tox4j.enums.ToxStatus;
 import org.junit.Test;
 
+@SuppressWarnings("ConstantConditions")
 public class ToxEventAdapterTest {
 
     private final ToxEventListener listener = new ToxEventAdapter();

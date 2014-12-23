@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class ReadReceiptCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -49,7 +49,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
 
         @Override
         public void readReceipt(int friendNumber, int messageId) {
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             Integer messageIndex = receipts.get(messageId);
 //            debug("got receipt for " + messageId);
             assertNotNull(messageIndex);

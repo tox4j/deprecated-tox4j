@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class FriendStatusCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -43,7 +43,7 @@ public class FriendStatusCallbackTest extends AliceBobTestBase {
         @Override
         public void friendStatus(int friendNumber, @NotNull ToxStatus status) {
             debug("friend changed status to: " + status);
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             if (selfStatus == null) {
                 if (isAlice()) {
                     // Both start out with NONE, and on connecting, this status is sent.

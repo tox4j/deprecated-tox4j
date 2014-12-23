@@ -18,11 +18,26 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
     public abstract static class TaskBase<T> {
         protected StackTraceElement[] creationTrace = null;
+        private long wakeUp = 0;
+
+        protected void sleep(int iterations) {
+            wakeUp = iterations;
+        }
+
+        public boolean sleeping() {
+            return wakeUp > 0;
+        }
+
+        public void slept() {
+            wakeUp--;
+        }
 
         public abstract void perform(T tox) throws ToxException;
     }
 
     protected static class ChatClient extends ToxEventAdapter {
+
+        protected static final int FRIEND_NUMBER = 10;
 
         private boolean done;
 
@@ -116,7 +131,12 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             tasks.clear();
             for (Task task : iterationTasks) {
                 try {
-                    task.perform(tox);
+                    if (task.sleeping()) {
+                        task.slept();
+                        tasks.add(task);
+                    } else {
+                        task.perform(tox);
+                    }
                 } catch (ToxException e) {
                     // Assemble stack trace.
                     List<StackTraceElement> trace = new ArrayList<>();
@@ -139,28 +159,35 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         }
     }
 
-    protected abstract ChatClient newClient();
+    protected abstract ChatClient newAlice();
+
+    protected ChatClient newBob() {
+        return newAlice();
+    }
 
     private interface ToxFactory {
         ToxCore make() throws ToxException;
     }
 
     private void runAliceBobTest(ToxFactory factory) throws Exception {
+        final long startTime = System.currentTimeMillis();
+        long currentTime = startTime;
+
         if (LOGGING) {
             String method = getToplevelMethod(Thread.currentThread().getStackTrace());
             System.out.println("--- " + getClass().getSimpleName() + '.' + method);
         }
 
-        ChatClient aliceChat = newClient();
-        ChatClient bobChat = newClient();
+        ChatClient aliceChat = newAlice();
+        ChatClient bobChat = newBob();
 
         aliceChat.name = bobChat.friendName = "Alice";
         bobChat.name = aliceChat.friendName = "Bob";
 
         try (ToxCore alice = factory.make()) {
             try (ToxCore bob = factory.make()) {
-                addFriends(alice, 10);
-                addFriends(bob, 10);
+                addFriends(alice, ChatClient.FRIEND_NUMBER);
+                addFriends(bob, ChatClient.FRIEND_NUMBER);
 
                 alice.addFriendNoRequest(bob.getClientId());
                 bob.addFriendNoRequest(alice.getClientId());
@@ -174,6 +201,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                 aliceChat.setup(alice);
                 bobChat.setup(bob);
 
+                // Wait for both clients to say they are done, or we're out of time (leaving some grace time for cleanup).
                 while (aliceChat.isChatting() || bobChat.isChatting()) {
                     alice.iteration();
                     bob.iteration();
@@ -183,12 +211,32 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
                     long interval = Math.max(alice.iterationInterval(), bob.iterationInterval());
                     Thread.sleep(interval);
+
+                    currentTime = System.currentTimeMillis();
+                    if (currentTime - startTime >= TIMEOUT - GRACE_PERIOD) {
+                        break;
+                    }
                 }
 
                 aliceChat.done();
                 bobChat.done();
             }
         }
+
+        if (currentTime - startTime >= TIMEOUT - GRACE_PERIOD) {
+            // We timed out, now wait for junit to interrupt us.
+            // The reason we handle it this way is that junit somehow murders the test thread ungracefully, which
+            // causes a fault in our native code. This way, we can prevent that, since we do in fact control the loop
+            // well enough.
+            failedAfterTimeout();
+        }
+    }
+
+    private static void failedAfterTimeout() throws InterruptedException {
+        if (LOGGING) {
+            System.out.println("Test timed out; waiting for junit to kill it");
+        }
+        Thread.sleep(GRACE_PERIOD * 10);
     }
 
     private static String getToplevelMethod(StackTraceElement[] stackTrace) {

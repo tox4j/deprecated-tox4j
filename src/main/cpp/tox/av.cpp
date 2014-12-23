@@ -6,12 +6,27 @@
 #include "core_private.h"
 
 
+struct av_call
+{
+  int32_t index;
+  ToxAvCSettings settings = ToxAvCSettings ();
+  TOXAV_CALL_STATE state = TOXAV_CALL_STATE_END;
+  bool audio_event_pending = false;
+  bool video_event_pending = false;
+
+  explicit av_call (int32_t call_index)
+    : index (call_index)
+  {
+  }
+};
+
+
 struct new_ToxAV
 {
   ToxAv *av;
   new_Tox *tox;
   std::map<int32_t, uint32_t> call_to_friend;
-  std::map<uint32_t, int32_t> friend_to_call;
+  std::map<uint32_t, av_call> friend_to_call;
 
   struct
   {
@@ -25,6 +40,22 @@ struct new_ToxAV
 
   struct CB
   {
+    static uint32_t get_friend_number (new_ToxAV *self, int32_t call_idx)
+    {
+      auto found = self->call_to_friend.find (call_idx);
+      assert (found != self->call_to_friend.end ());
+
+      return found->second;
+    }
+
+    static av_call &get_call (new_ToxAV *self, uint32_t friend_number)
+    {
+      auto found = self->friend_to_call.find (friend_number);
+      assert (found != self->friend_to_call.end ());
+
+      return found->second;
+    }
+
     static void callstate_OnInvite (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
@@ -34,7 +65,7 @@ struct new_ToxAV
 
       int peer_id = toxav_get_peer_id (self->av, call_idx, 0);
       self->call_to_friend[call_idx] = peer_id;
-      self->friend_to_call[peer_id] = call_idx;
+      self->friend_to_call.insert (std::make_pair (peer_id, av_call (call_idx)));
 
       auto cb = self->callbacks.call;
       cb.func (self, peer_id, cb.user_data);
@@ -43,15 +74,42 @@ struct new_ToxAV
     static void callstate_OnRinging (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      uint32_t friend_number = get_friend_number (self, call_idx);
 
-      auto found = self->call_to_friend.find (call_idx);
-      assert (found != self->call_to_friend.end ());
+      av_call &call = get_call (self, friend_number);
+      call.state = TOXAV_CALL_STATE_RINGING;
+
+      auto cb = self->callbacks.call_state;
+      cb.func (self, friend_number, call.state, cb.user_data);
     }
 
     static void callstate_OnStart (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
-      assert (false);
+      uint32_t friend_number = get_friend_number (self, call_idx);
+
+      av_call &call = get_call (self, friend_number);
+
+      TOXAV_CALL_STATE state;
+      switch (int (call.settings.call_type))
+        {
+        case 0:
+          state = TOXAV_CALL_STATE_NOT_SENDING;
+          break;
+        case av_TypeAudio:
+          state = TOXAV_CALL_STATE_SENDING_A;
+          break;
+        case av_TypeVideo:
+          state = TOXAV_CALL_STATE_SENDING_AV;
+          break;
+        default:
+          assert (false);
+        }
+      assert (call.state != state);
+      call.state = state;
+
+      auto cb = self->callbacks.call_state;
+      cb.func (self, friend_number, call.state, cb.user_data);
     }
 
     static void callstate_OnCancel (void *agent, int32_t call_idx, void *userdata)
@@ -182,12 +240,46 @@ void
 new_toxav_iteration (new_ToxAV *av)
 {
   toxav_do (av->av);
+
+  // For all active calls transfers that we didn't invoke a request_*_frame
+  // event for, do so now.
+  for (auto &pair : av->friend_to_call)
+    {
+      uint32_t friend_number = pair.first;
+      av_call &call = pair.second;
+
+      switch (call.state)
+        {
+        case TOXAV_CALL_STATE_SENDING_V:
+          if (false)
+        case TOXAV_CALL_STATE_SENDING_A:
+          if (!call.audio_event_pending)
+            {
+              auto cb = av->callbacks.request_audio_frame;
+              cb.func (av, friend_number, cb.user_data);
+              call.audio_event_pending = true;
+              break;
+            }
+        case TOXAV_CALL_STATE_SENDING_AV:
+          if (!call.video_event_pending)
+            {
+              auto cb = av->callbacks.request_video_frame;
+              cb.func (av, friend_number, cb.user_data);
+              call.video_event_pending = true;
+              break;
+            }
+        default:
+          // Do nothing in the other states.
+          break;
+        }
+    }
 }
 
-bool
-new_toxav_call (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, uint32_t video_bit_rate, TOXAV_ERR_CALL *error)
+static ToxAvCSettings
+make_settings (uint32_t audio_bit_rate, uint32_t video_bit_rate)
 {
   auto settings = ToxAvCSettings ();
+
   if (audio_bit_rate != 0)
     {
       settings.call_type = av_TypeAudio;
@@ -204,12 +296,23 @@ new_toxav_call (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, 
       settings.max_video_height = 480;
     }
 
+  return settings;
+}
+
+bool
+new_toxav_call (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, uint32_t video_bit_rate, TOXAV_ERR_CALL *error)
+{
+  auto settings = make_settings (audio_bit_rate, video_bit_rate);
+
   int call_index;
   if (toxav_call (av->av, &call_index, friend_number, &settings, 0x7fffffff) == -1)
     assert (false);
 
+  av_call call (call_index);
+  call.settings = settings;
+
   av->call_to_friend[call_index] = friend_number;
-  av->friend_to_call[friend_number] = call_index;
+  av->friend_to_call.insert (std::make_pair (friend_number, call));
 
   if (error) *error = TOXAV_ERR_CALL_OK;
   return true;
@@ -231,26 +334,12 @@ new_toxav_answer (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate
       return false;
     }
 
-  int32_t call_index = found->second;
+  av_call &call = found->second;
 
-  auto settings = ToxAvCSettings ();
-  if (audio_bit_rate != 0)
-    {
-      settings.call_type = av_TypeAudio;
-      settings.audio_bitrate = audio_bit_rate;
-      settings.audio_frame_duration = 20;
-      settings.audio_sample_rate = 48000;
-      settings.audio_channels = 1;
-    }
-  if (video_bit_rate != 0)
-    {
-      settings.call_type = av_TypeVideo;
-      settings.video_bitrate = video_bit_rate;
-      settings.max_video_width = 640;
-      settings.max_video_height = 480;
-    }
+  auto settings = make_settings (audio_bit_rate, video_bit_rate);
+  call.settings = settings;
 
-  if (toxav_answer (av->av, call_index, &settings) == -1)
+  if (toxav_answer (av->av, call.index, &settings) == -1)
     assert (false);
 
   if (error) *error = TOXAV_ERR_ANSWER_OK;

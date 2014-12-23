@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class FileReceiveCallbackTest extends AliceBobTestBase {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
@@ -37,7 +37,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
-                assertEquals(0, friendNumber);
+                assertEquals(FRIEND_NUMBER, friendNumber);
                 addTask(new Task() {
                     @Override
                     public void perform(ToxCore tox) throws ToxException {
@@ -51,7 +51,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
         @Override
         public void fileReceive(int friendNumber, int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
-            assertEquals(0, friendNumber);
+            assertEquals(FRIEND_NUMBER, friendNumber);
             assertEquals(0 | 0x100, fileNumber);
             assertEquals(ToxFileKind.DATA, kind);
             if (isAlice()) {

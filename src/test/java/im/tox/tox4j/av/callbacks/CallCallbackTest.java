@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class CallCallbackTest extends AliceBobAvTest {
 
     @Override
-    protected ChatClient newClient() {
+    protected ChatClient newAlice() {
         return new Client();
     }
 
