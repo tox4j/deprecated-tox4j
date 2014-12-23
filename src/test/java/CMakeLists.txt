@@ -74,6 +74,7 @@ set(TEST_FILES
 	im/tox/tox4j/exceptions/ToxSetTypingExceptionTest.java
 	im/tox/tox4j/AliceBobTestBase.java
 	im/tox/tox4j/LoadSaveTest.java
+	im/tox/tox4j/NetworkTest.java
 	im/tox/tox4j/SocksServer.java
 	im/tox/tox4j/ToxCoreImplTestBase.java
 	im/tox/tox4j/ToxCorePlayground.java
@@ -116,6 +117,7 @@ add_dependencies(test-core unit-tests)
 
 # More realistic automatic tests with two parties interacting.
 set(alice_bob_TESTS
+	im.tox.tox4j.NetworkTest
 	im.tox.tox4j.callbacks.ConnectionStatusCallbackTest
 	im.tox.tox4j.callbacks.FileReceiveCallbackTest
 	im.tox.tox4j.callbacks.FileTransferHalfRequestedTest
