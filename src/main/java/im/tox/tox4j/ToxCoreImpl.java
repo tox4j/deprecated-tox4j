@@ -73,8 +73,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
         this(new ToxOptions(), data);
     }
 
-    @SuppressWarnings("ConstantConditions")
     public ToxCoreImpl(@NotNull ToxOptions options) throws ToxNewException {
+        //noinspection ConstantConditions
         this(options, null);
     }
 
@@ -134,6 +134,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
             throw new IllegalArgumentException("Ports cannot be larger than 65535");
         }
         // Failing when it's null is toxBootstrap's job.
+        //noinspection ConstantConditions
         if (public_key != null) {
             if (public_key.length < ToxConstants.CLIENT_ID_SIZE) {
                 throw new IllegalArgumentException("Key too short, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
@@ -414,6 +415,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public int addFriend(@NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException {
+        //noinspection ConstantConditions
         if (address != null) {
             if (address.length < ToxConstants.ADDRESS_SIZE) {
                 throw new IllegalArgumentException("Address too short, must be " + ToxConstants.ADDRESS_SIZE + " bytes");
