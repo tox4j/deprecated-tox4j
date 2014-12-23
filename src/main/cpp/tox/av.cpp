@@ -305,7 +305,7 @@ new_toxav_call (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, 
   auto settings = make_settings (audio_bit_rate, video_bit_rate);
 
   int call_index;
-  if (toxav_call (av->av, &call_index, friend_number, &settings, 0x7fffffff) == -1)
+  if (toxav_call (av->av, &call_index, friend_number, &settings, 0x7fffffff) != 0)
     assert (false);
 
   av_call call (call_index);
@@ -339,7 +339,7 @@ new_toxav_answer (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate
   auto settings = make_settings (audio_bit_rate, video_bit_rate);
   call.settings = settings;
 
-  if (toxav_answer (av->av, call.index, &settings) == -1)
+  if (toxav_answer (av->av, call.index, &settings) != 0)
     assert (false);
 
   if (error) *error = TOXAV_ERR_ANSWER_OK;
