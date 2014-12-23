@@ -14,6 +14,20 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 
 # Source Files
 set(TOX4J_CORE
+	im/tox/tox4j/av/callbacks/CallCallback.java
+	im/tox/tox4j/av/callbacks/CallControlCallback.java
+	im/tox/tox4j/av/callbacks/ReceiveAudioFrameCallback.java
+	im/tox/tox4j/av/callbacks/ReceiveVideoFrameCallback.java
+	im/tox/tox4j/av/callbacks/RequestAudioFrameCallback.java
+	im/tox/tox4j/av/callbacks/RequestVideoFrameCallback.java
+	im/tox/tox4j/av/enums/ToxCallControl.java
+	im/tox/tox4j/av/exceptions/ToxAnswerException.java
+	im/tox/tox4j/av/exceptions/ToxAvNewException.java
+	im/tox/tox4j/av/exceptions/ToxBitRateException.java
+	im/tox/tox4j/av/exceptions/ToxCallControlException.java
+	im/tox/tox4j/av/exceptions/ToxCallException.java
+	im/tox/tox4j/av/exceptions/ToxSendFrameException.java
+	im/tox/tox4j/av/ToxAv.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallback.java
 	im/tox/tox4j/callbacks/FileControlCallback.java
 	im/tox/tox4j/callbacks/FileReceiveCallback.java
@@ -54,6 +68,7 @@ set(TOX4J_CORE
 	im/tox/tox4j/exceptions/ToxSetInfoException.java
 	im/tox/tox4j/exceptions/ToxSetTypingException.java
 	im/tox/tox4j/AbstractToxCore.java
+	im/tox/tox4j/ToxAvImpl.java
 	im/tox/tox4j/ToxConstants.java
 	im/tox/tox4j/ToxCoreImpl.java
 	im/tox/tox4j/ToxCore.java

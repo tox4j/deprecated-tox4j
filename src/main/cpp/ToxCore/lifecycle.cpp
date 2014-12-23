@@ -222,7 +222,7 @@ static void tox4j_friend_lossless_packet_cb(Tox *tox, uint32_t friend_number, ui
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_destroyAll
   (JNIEnv *, jclass)
 {
-    std::unique_lock<std::mutex> lock(CoreInstanceManager::self.mutex);
+    std::lock_guard<std::mutex> lock(CoreInstanceManager::self.mutex);
     CoreInstanceManager::self.destroyAll();
 }
 

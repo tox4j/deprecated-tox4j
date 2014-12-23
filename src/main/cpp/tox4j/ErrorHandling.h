@@ -44,13 +44,15 @@ unhandled()
     return ErrorHandling { ErrorHandling::UNHANDLED, nullptr };
 }
 
+#define CAT(A, B)  CAT_(A, B)
+#define CAT_(A, B) A##B
 
-#define success_case(METHOD)          \
-    case TOX_ERR_##METHOD##_OK:       \
+#define success_case(METHOD)                        \
+    case CAT(SUBSYSTEM, _ERR_##METHOD##_OK):        \
         return success()
 
-#define failure_case(METHOD, ERROR)   \
-    case TOX_ERR_##METHOD##_##ERROR:  \
+#define failure_case(METHOD, ERROR)                 \
+    case CAT(SUBSYSTEM, _ERR_##METHOD##_##ERROR):   \
         return failure(#ERROR)
 
 

@@ -123,7 +123,7 @@ new_tox_new (struct new_Tox_Options const *options, uint8_t const *data, size_t 
               return nullptr;
             }
           for (char const *p = options->proxy_address; *p; p++)
-            if (!std::isprint(*p))
+            if (!std::isprint (*p))
               {
                 if (error) *error = TOX_ERR_NEW_PROXY_BAD_HOST;
                 return nullptr;
