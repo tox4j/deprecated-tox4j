@@ -174,7 +174,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
     @Test
     public void testNoSpam() throws Exception {
-        int tests[] = {
+        int[] tests = {
                 0x12345678,
                 0xffffffff,
                 0x00000000,
@@ -188,7 +188,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
                 tox.setNospam(test);
                 assertEquals(test, tox.getNospam());
                 assertEquals(tox.getNospam(), tox.getNospam());
-                byte[] check = new byte[]{
+                byte[] check = {
                         (byte)(test >> 8 * 0),
                         (byte)(test >> 8 * 1),
                         (byte)(test >> 8 * 2),
@@ -358,7 +358,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
                     assertEquals(i, friendNumber);
                 }
             }
-            assertEquals(tox.getFriendList().length, ITERATIONS);
+            assertEquals(ITERATIONS, tox.getFriendList().length);
         }
     }
 
@@ -366,7 +366,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testFriendListSize() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, ITERATIONS);
-            assertEquals(tox.getFriendList().length, ITERATIONS);
+            assertEquals(ITERATIONS, tox.getFriendList().length);
         }
     }
 
@@ -424,7 +424,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testGetFriendClientId() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 1);
-            assertEquals(tox.getClientId(0).length, ToxConstants.CLIENT_ID_SIZE);
+            assertEquals(ToxConstants.CLIENT_ID_SIZE, tox.getClientId(0).length);
             assertArrayEquals(tox.getClientId(0), tox.getClientId(0));
             double e = entropy(tox.getClientId(0));
             assertTrue("Entropy of friend's client ID should be >= 0.5, but was " + e, e >= 0.5);
@@ -436,7 +436,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 10);
             for (int i = 0; i < 10; i++) {
-                assertEquals(tox.getFriendByClientId(tox.getClientId(i)), i);
+                assertEquals(i, tox.getFriendByClientId(tox.getClientId(i)));
             }
         }
     }

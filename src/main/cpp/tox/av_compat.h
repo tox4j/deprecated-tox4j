@@ -9,7 +9,7 @@
 #define toxav_callback_call new_toxav_callback_call
 #define toxav_answer new_toxav_answer
 #define toxav_call_control new_toxav_call_control
-#define toxav_callback_call_control new_toxav_callback_call_control
+#define toxav_callback_call_state new_toxav_callback_call_state
 #define toxav_set_audio_bit_rate new_toxav_set_audio_bit_rate
 #define toxav_set_video_bit_rate new_toxav_set_video_bit_rate
 #define toxav_callback_request_video_frame new_toxav_callback_request_video_frame

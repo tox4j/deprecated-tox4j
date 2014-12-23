@@ -15,12 +15,13 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEANFILES}")
 # Source Files
 set(TOX4J_CORE
 	im/tox/tox4j/av/callbacks/CallCallback.java
-	im/tox/tox4j/av/callbacks/CallControlCallback.java
+	im/tox/tox4j/av/callbacks/CallStateCallback.java
 	im/tox/tox4j/av/callbacks/ReceiveAudioFrameCallback.java
 	im/tox/tox4j/av/callbacks/ReceiveVideoFrameCallback.java
 	im/tox/tox4j/av/callbacks/RequestAudioFrameCallback.java
 	im/tox/tox4j/av/callbacks/RequestVideoFrameCallback.java
 	im/tox/tox4j/av/enums/ToxCallControl.java
+	im/tox/tox4j/av/enums/ToxCallState.java
 	im/tox/tox4j/av/exceptions/ToxAnswerException.java
 	im/tox/tox4j/av/exceptions/ToxAvNewException.java
 	im/tox/tox4j/av/exceptions/ToxBitRateException.java

@@ -33,24 +33,24 @@ public class NetworkTest extends ToxCoreImplTestBase {
         }
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testBootstrap4() throws Exception {
         assumeIPv4();
         testBootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testBootstrap6() throws Exception {
         assumeIPv6();
         testBootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testBootstrapSelf() throws Exception {
         // TODO: don't know how to test this on localhost
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testLANDiscoveryAll() throws Exception {
         try (ToxList toxes = new ToxList(TOX_COUNT)) {
             long start = System.currentTimeMillis();
@@ -69,7 +69,7 @@ public class NetworkTest extends ToxCoreImplTestBase {
         }
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testLANDiscoveryAny() throws Exception {
         try (ToxList toxes = new ToxList(TOX_COUNT)) {
             long start = System.currentTimeMillis();

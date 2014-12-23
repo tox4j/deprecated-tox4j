@@ -5,10 +5,9 @@ import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.av.callbacks.*;
 import im.tox.tox4j.av.enums.ToxCallControl;
+import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.av.exceptions.*;
-import im.tox.tox4j.enums.ToxFileKind;
 import im.tox.tox4j.proto.Av;
-import im.tox.tox4j.proto.Core;
 
 public final class ToxAvImpl implements ToxAv {
 
@@ -19,7 +18,7 @@ public final class ToxAvImpl implements ToxAv {
     private final ToxCoreImpl tox;
     private final int instanceNumber;
     private CallCallback callCallback;
-    private CallControlCallback callControlCallback;
+    private CallStateCallback callStateCallback;
     private RequestVideoFrameCallback requestVideoFrameCallback;
     private RequestAudioFrameCallback requestAudioFrameCallback;
     private ReceiveVideoFrameCallback receiveVideoFrameCallback;
@@ -78,12 +77,16 @@ public final class ToxAvImpl implements ToxAv {
     }
 
 
-    private static ToxCallControl convert(Av.CallControl.Kind kind) {
+    private static ToxCallState convert(Av.CallState.Kind kind) {
         switch (kind) {
-            case PAUSE: return ToxCallControl.PAUSE;
-            case RESUME: return ToxCallControl.RESUME;
-            case CANCEL: return ToxCallControl.CANCEL;
-            case ERROR: return ToxCallControl.ERROR;
+            case RINGING: return ToxCallState.RINGING;
+            case NOT_SENDING: return ToxCallState.NOT_SENDING;
+            case SENDING_A: return ToxCallState.SENDING_A;
+            case SENDING_V: return ToxCallState.SENDING_V;
+            case SENDING_AV: return ToxCallState.SENDING_AV;
+            case PAUSED: return ToxCallState.PAUSED;
+            case END: return ToxCallState.END;
+            case ERROR: return ToxCallState.ERROR;
         }
         throw new IllegalStateException("Bad enumerator: " + kind);
     }
@@ -106,9 +109,9 @@ public final class ToxAvImpl implements ToxAv {
                 callCallback.call(call.getFriendNumber());
             }
         }
-        if (callControlCallback != null) {
-            for (Av.CallControl callControl : toxEvents.getCallControlList()) {
-                callControlCallback.callControl(callControl.getFriendNumber(), convert(callControl.getControl()));
+        if (callStateCallback != null) {
+            for (Av.CallState callState : toxEvents.getCallStateList()) {
+                callStateCallback.callState(callState.getFriendNumber(), convert(callState.getState()));
             }
         }
         if (requestAudioFrameCallback != null) {
@@ -176,8 +179,8 @@ public final class ToxAvImpl implements ToxAv {
     }
 
     @Override
-    public void callbackCallControl(CallControlCallback callback) {
-        this.callControlCallback = callback;
+    public void callbackCallControl(CallStateCallback callback) {
+        this.callStateCallback = callback;
     }
 
 

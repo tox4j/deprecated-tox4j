@@ -4,5 +4,4 @@ public enum ToxCallControl {
     RESUME,
     PAUSE,
     CANCEL,
-    ERROR,
 }
