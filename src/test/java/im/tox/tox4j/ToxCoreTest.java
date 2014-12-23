@@ -10,7 +10,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 
-public class ToxCoreImplTest extends ToxCoreImplTestBase {
+public class ToxCoreTest extends ToxCoreImplTestBase {
 
     private static final boolean SLOW_TESTS = true;
     private static final int TOX_COUNT = 10;

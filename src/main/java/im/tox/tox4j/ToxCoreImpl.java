@@ -8,7 +8,7 @@ import im.tox.tox4j.enums.ToxFileControl;
 import im.tox.tox4j.enums.ToxFileKind;
 import im.tox.tox4j.enums.ToxStatus;
 import im.tox.tox4j.exceptions.*;
-import im.tox.tox4j.proto.Events;
+import im.tox.tox4j.proto.Core;
 
 public final class ToxCoreImpl extends AbstractToxCore {
 
@@ -44,25 +44,15 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     /**
      * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
-     * used during testing or debugging.
+     * used during testing or debugging. If there are still any AV instances unclosed, these will not be notified
+     * of this destruction. It is recommended that {@link im.tox.tox4j.ToxAvImpl#destroyAll} is called immediately
+     * after calling this function, if there are any live AV instances.
      */
     static native void destroyAll();
 
     private static native void playground(int instanceNumber);
     void playground() {
         playground(instanceNumber);
-    }
-
-    private static native void finalize(int instanceNumber);
-
-    @Override
-    public void finalize() throws Throwable {
-        try {
-            finalize(instanceNumber);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        super.finalize();
     }
 
 
@@ -108,6 +98,19 @@ public final class ToxCoreImpl extends AbstractToxCore {
             av.close();
         }
         toxKill(instanceNumber);
+    }
+
+
+    private static native void finalize(int instanceNumber);
+
+    @Override
+    public void finalize() throws Throwable {
+        try {
+            finalize(instanceNumber);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        super.finalize();
     }
 
 
@@ -182,7 +185,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static ToxConnection convert(Events.Socket status) {
+    private static ToxConnection convert(Core.Socket status) {
         switch (status) {
             case NONE: return ToxConnection.NONE;
             case TCP4: return ToxConnection.TCP4;
@@ -193,7 +196,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
         throw new IllegalStateException("Bad enumerator: " + status);
     }
 
-    private static ToxStatus convert(Events.FriendStatus.Kind status) {
+    private static ToxStatus convert(Core.FriendStatus.Kind status) {
         switch (status) {
             case NONE: return ToxStatus.NONE;
             case AWAY: return ToxStatus.AWAY;
@@ -202,7 +205,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
         throw new IllegalStateException("Bad enumerator: " + status);
     }
 
-    private static ToxFileControl convert(Events.FileControl.Kind control) {
+    private static ToxFileControl convert(Core.FileControl.Kind control) {
         switch (control) {
             case RESUME: return ToxFileControl.RESUME;
             case PAUSE: return ToxFileControl.PAUSE;
@@ -211,7 +214,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
         throw new IllegalStateException("Bad enumerator: " + control);
     }
 
-    private static ToxFileKind convert(Events.FileReceive.Kind kind) {
+    private static ToxFileKind convert(Core.FileReceive.Kind kind) {
         switch (kind) {
             case AVATAR: return ToxFileKind.AVATAR;
             case DATA: return ToxFileKind.DATA;
@@ -224,91 +227,91 @@ public final class ToxCoreImpl extends AbstractToxCore {
     @Override
     public void iteration() {
         byte[] events = toxIteration(instanceNumber);
-        Events.ToxEvents toxEvents;
+        Core.CoreEvents toxEvents;
         try {
-            toxEvents = Events.ToxEvents.parseFrom(events);
+            toxEvents = Core.CoreEvents.parseFrom(events);
         } catch (InvalidProtocolBufferException e) {
             // This would be very bad, meaning something went wrong in our own C++ code.
             throw new RuntimeException(e);
         }
 
         if (connectionStatusCallback != null) {
-			for (Events.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
+			for (Core.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
 				connectionStatusCallback.connectionStatus(convert(connectionStatus.getConnectionStatus()));
 			}
 		}
         if (friendNameCallback != null) {
-			for (Events.FriendName friendName : toxEvents.getFriendNameList()) {
+			for (Core.FriendName friendName : toxEvents.getFriendNameList()) {
 				friendNameCallback.friendName(friendName.getFriendNumber(), friendName.getName().toByteArray());
 			}
 		}
         if (friendStatusMessageCallback != null) {
-			for (Events.FriendStatusMessage friendStatusMessage : toxEvents.getFriendStatusMessageList()) {
+			for (Core.FriendStatusMessage friendStatusMessage : toxEvents.getFriendStatusMessageList()) {
 				friendStatusMessageCallback.friendStatusMessage(friendStatusMessage.getFriendNumber(), friendStatusMessage.getMessage().toByteArray());
 			}
 		}
         if (friendStatusCallback != null) {
-			for (Events.FriendStatus friendStatus : toxEvents.getFriendStatusList()) {
+			for (Core.FriendStatus friendStatus : toxEvents.getFriendStatusList()) {
 				friendStatusCallback.friendStatus(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
 			}
 		}
         if (friendConnectionStatusCallback != null) {
-			for (Events.FriendConnectionStatus friendConnectionStatus : toxEvents.getFriendConnectionStatusList()) {
+			for (Core.FriendConnectionStatus friendConnectionStatus : toxEvents.getFriendConnectionStatusList()) {
 				friendConnectionStatusCallback.friendConnectionStatus(friendConnectionStatus.getFriendNumber(), convert(friendConnectionStatus.getConnectionStatus()));
 			}
 		}
         if (friendTypingCallback != null) {
-			for (Events.FriendTyping friendTyping : toxEvents.getFriendTypingList()) {
+			for (Core.FriendTyping friendTyping : toxEvents.getFriendTypingList()) {
 				friendTypingCallback.friendTyping(friendTyping.getFriendNumber(), friendTyping.getIsTyping());
 			}
 		}
         if (readReceiptCallback != null) {
-			for (Events.ReadReceipt readReceipt : toxEvents.getReadReceiptList()) {
+			for (Core.ReadReceipt readReceipt : toxEvents.getReadReceiptList()) {
 				readReceiptCallback.readReceipt(readReceipt.getFriendNumber(), readReceipt.getMessageId());
 			}
 		}
         if (friendRequestCallback != null) {
-			for (Events.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
+			for (Core.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
 				friendRequestCallback.friendRequest(friendRequest.getClientId().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
 			}
 		}
         if (friendMessageCallback != null) {
-			for (Events.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
+			for (Core.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
                 friendMessageCallback.friendMessage(friendMessage.getFriendNumber(), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
 			}
 		}
         if (friendActionCallback != null) {
-			for (Events.FriendAction friendAction : toxEvents.getFriendActionList()) {
+			for (Core.FriendAction friendAction : toxEvents.getFriendActionList()) {
 				friendActionCallback.friendAction(friendAction.getFriendNumber(), friendAction.getTimeDelta(), friendAction.getAction().toByteArray());
 			}
 		}
         if (fileControlCallback != null) {
-			for (Events.FileControl fileControl : toxEvents.getFileControlList()) {
+			for (Core.FileControl fileControl : toxEvents.getFileControlList()) {
 				fileControlCallback.fileControl(fileControl.getFriendNumber(), fileControl.getFileNumber(), convert(fileControl.getControl()));
 			}
 		}
         if (fileRequestChunkCallback != null) {
-			for (Events.FileRequestChunk fileRequestChunk : toxEvents.getFileRequestChunkList()) {
+			for (Core.FileRequestChunk fileRequestChunk : toxEvents.getFileRequestChunkList()) {
 				fileRequestChunkCallback.fileRequestChunk(fileRequestChunk.getFriendNumber(), fileRequestChunk.getFileNumber(), fileRequestChunk.getPosition(), fileRequestChunk.getLength());
 			}
 		}
         if (fileReceiveCallback != null) {
-			for (Events.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
+			for (Core.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
 				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
 			}
 		}
         if (fileReceiveChunkCallback != null) {
-			for (Events.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
+			for (Core.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
 				fileReceiveChunkCallback.fileReceiveChunk(fileReceiveChunk.getFriendNumber(), fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
 			}
 		}
         if (friendLossyPacketCallback != null) {
-			for (Events.FriendLossyPacket friendLossyPacket : toxEvents.getFriendLossyPacketList()) {
+			for (Core.FriendLossyPacket friendLossyPacket : toxEvents.getFriendLossyPacketList()) {
 				friendLossyPacketCallback.friendLossyPacket(friendLossyPacket.getFriendNumber(), friendLossyPacket.getData().toByteArray());
 			}
 		}
         if (friendLosslessPacketCallback != null) {
-			for (Events.FriendLosslessPacket friendLosslessPacket : toxEvents.getFriendLosslessPacketList()) {
+			for (Core.FriendLosslessPacket friendLosslessPacket : toxEvents.getFriendLosslessPacketList()) {
 				friendLosslessPacketCallback.friendLosslessPacket(friendLosslessPacket.getFriendNumber(), friendLosslessPacket.getData().toByteArray());
 			}
 		}

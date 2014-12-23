@@ -2,6 +2,7 @@ package im.tox.tox4j.proto;
 
 option optimize_for = LITE_RUNTIME;
 
+
 enum Socket {
     NONE    = 1;
     TCP4    = 2;
@@ -117,7 +118,8 @@ message ReadReceipt {
     required uint32 messageId       = 2;
 }
 
-message ToxEvents {
+
+message CoreEvents {
     repeated ConnectionStatus       connectionStatus       =  1;
     repeated FileControl            fileControl            =  2;
     repeated FileReceive            fileReceive            =  3;

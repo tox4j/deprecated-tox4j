@@ -1,5 +1,4 @@
-#include "tox4j/Tox4j.h"
-#include "jniutil.h"
+#include "ToxCore.h"
 
 
 /*
@@ -10,7 +9,7 @@
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetClientId
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         std::vector<uint8_t> client_id(TOX_CLIENT_ID_SIZE);
         tox_self_get_client_id(tox, client_id.data());
@@ -26,7 +25,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetClientId
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPrivateKey
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         std::vector<uint8_t> private_key(TOX_CLIENT_ID_SIZE);
         tox_self_get_private_key(tox, private_key.data());
@@ -42,7 +41,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPrivateKey
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetNospam
   (JNIEnv *env, jclass, jint instanceNumber, jint nospam)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         tox_self_set_nospam(tox, nospam);
     });
@@ -56,7 +55,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetNospam
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetNospam
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         return tox_self_get_nospam(tox);
     });
@@ -70,7 +69,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetNospam
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetAddress
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         std::vector<uint8_t> address(TOX_ADDRESS_SIZE);
         tox_self_get_address(tox, address.data());
@@ -110,7 +109,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetName
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetName
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> jbyteArray {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) -> jbyteArray {
         unused(events);
         size_t size = tox_self_get_name_size(tox);
         if (size == 0) {
@@ -144,7 +143,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatusMessage
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatusMessage
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) -> jbyteArray {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) -> jbyteArray {
         unused(events);
         size_t size = tox_self_get_status_message_size(tox);
         if (size == 0) {
@@ -165,7 +164,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatusMessa
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatus
   (JNIEnv *env, jclass, jint instanceNumber, jint status)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         tox_self_set_status(tox, (TOX_STATUS) status); // TODO: better use a switch
     });
@@ -179,7 +178,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatus
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatus
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         return tox_self_get_status(tox);
     });
