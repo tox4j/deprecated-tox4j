@@ -4,7 +4,6 @@ import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.*;
 import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.exceptions.*;
-import im.tox.tox4j.callbacks.ToxEventListener;
 
 import java.io.Closeable;
 
@@ -25,7 +24,7 @@ public interface ToxAv extends Closeable {
 
     void callControl(int friendNumber, ToxCallControl control) throws ToxCallControlException;
 
-    void callbackCallControl(CallControlCallback callback);
+    void callbackCallControl(CallStateCallback callback);
 
     void setAudioBitRate(int friendNumber, int bitRate) throws ToxBitRateException;
 

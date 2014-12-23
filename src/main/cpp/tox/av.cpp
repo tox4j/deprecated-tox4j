@@ -16,7 +16,7 @@ struct new_ToxAV
   struct
   {
     callback<toxav_call_cb> call;
-    callback<toxav_call_control_cb> call_control;
+    callback<toxav_call_state_cb> call_state;
     callback<toxav_request_audio_frame_cb> request_audio_frame;
     callback<toxav_request_video_frame_cb> request_video_frame;
     callback<toxav_receive_audio_frame_cb> receive_audio_frame;
@@ -264,9 +264,9 @@ new_toxav_call_control (new_ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTRO
 }
 
 void
-new_toxav_callback_call_control (new_ToxAV *av, toxav_call_control_cb *function, void *user_data)
+new_toxav_callback_call_state (new_ToxAV *av, toxav_call_state_cb *function, void *user_data)
 {
-  av->callbacks.call_control = { function, user_data };
+  av->callbacks.call_state = { function, user_data };
 }
 
 bool

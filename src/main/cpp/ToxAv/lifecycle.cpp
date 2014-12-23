@@ -12,27 +12,28 @@ static void tox4j_call_cb(ToxAV *av, uint32_t friend_number, void *user_data)
     msg->set_friendnumber(friend_number);
 }
 
-static void tox4j_call_control_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTROL control, void *user_data)
+static void tox4j_call_state_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_STATE state, void *user_data)
 {
     unused(av);
     Events &events = *static_cast<Events *>(user_data);
-    auto msg = events.add_callcontrol();
+    auto msg = events.add_callstate();
     msg->set_friendnumber(friend_number);
 
-    using im::tox::tox4j::proto::CallControl;
-    switch (control) {
-        case TOXAV_CALL_CONTROL_PAUSE:
-            msg->set_control(CallControl::PAUSE);
-            break;
-        case TOXAV_CALL_CONTROL_RESUME:
-            msg->set_control(CallControl::RESUME);
-            break;
-        case TOXAV_CALL_CONTROL_CANCEL:
-            msg->set_control(CallControl::CANCEL);
-            break;
-        case TOXAV_CALL_CONTROL_ERROR:
-            msg->set_control(CallControl::ERROR);
-            break;
+    using im::tox::tox4j::proto::CallState;
+    switch (state) {
+#define call_state_case(STATE)                  \
+        case TOXAV_CALL_STATE_##STATE:          \
+            msg->set_state(CallState::STATE);   \
+            break
+        call_state_case(RINGING);
+        call_state_case(NOT_SENDING);
+        call_state_case(SENDING_A);
+        call_state_case(SENDING_V);
+        call_state_case(SENDING_AV);
+        call_state_case(PAUSED);
+        call_state_case(END);
+        call_state_case(ERROR);
+#undef call_state_case
     }
 }
 
@@ -120,7 +121,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvNew
 
         // Set up our callbacks.
         toxav_callback_call               (av.get(), tox4j_call_cb,                events.get());
-        toxav_callback_call_control       (av.get(), tox4j_call_control_cb,        events.get());
+        toxav_callback_call_state         (av.get(), tox4j_call_state_cb,          events.get());
         toxav_callback_request_audio_frame(av.get(), tox4j_request_audio_frame_cb, events.get());
         toxav_callback_request_video_frame(av.get(), tox4j_request_video_frame_cb, events.get());
         toxav_callback_receive_audio_frame(av.get(), tox4j_receive_audio_frame_cb, events.get());

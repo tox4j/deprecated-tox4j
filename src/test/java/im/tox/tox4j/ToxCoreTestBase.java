@@ -7,6 +7,8 @@ import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxBootstrapException;
 import im.tox.tox4j.exceptions.ToxFriendAddException;
 import im.tox.tox4j.exceptions.ToxNewException;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -19,8 +21,10 @@ import static org.junit.Assume.assumeTrue;
 
 public abstract class ToxCoreTestBase {
 
+    @Rule
+    public final Timeout globalTimeout = new Timeout(40000);
+
     protected static final boolean LOGGING = true;
-    protected static final int TIMEOUT = 40000;
     protected static final int ITERATIONS = 500;
 
     protected static class DhtNode {

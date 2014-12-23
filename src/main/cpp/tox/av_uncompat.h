@@ -9,7 +9,7 @@
 #undef toxav_callback_call
 #undef toxav_answer
 #undef toxav_call_control
-#undef toxav_callback_call_control
+#undef toxav_callback_call_state
 #undef toxav_set_audio_bit_rate
 #undef toxav_set_video_bit_rate
 #undef toxav_callback_request_video_frame

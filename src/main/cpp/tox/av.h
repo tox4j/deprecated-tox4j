@@ -186,7 +186,7 @@ typedef enum TOXAV_ERR_ANSWER {
  * Accept an incoming call.
  *
  * If an allocation error occurs while answering a call, both participants will
- * receive TOXAV_CALL_CONTROL_ERROR and the call will end.
+ * receive TOXAV_CALL_STATE_ERROR and the call will end.
  *
  * @param friend_number The friend number of the friend that should be called.
  * @param audio_bit_rate Audio bit rate in Kb/sec. Set this to 0 to disable
@@ -195,6 +195,76 @@ typedef enum TOXAV_ERR_ANSWER {
  *   video sending.
  */
 bool toxav_answer(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, uint32_t video_bit_rate, TOXAV_ERR_ANSWER *error);
+
+
+/*******************************************************************************
+ *
+ * :: Call state graph
+ *
+ ******************************************************************************/
+
+
+typedef enum TOXAV_CALL_STATE {
+  /**
+   * The friend's client is aware of the call. This happens after calling
+   * toxav_call and the initial call request has been received.
+   */
+  TOXAV_CALL_STATE_RINGING,
+  /**
+   * Not sending anything. Either the friend requested that this client stops
+   * sending anything, or the client turned off both audio and video by setting
+   * the respective bit rates to 0.
+   *
+   * If both sides are in this state, the call is effectively on hold, but not
+   * in the PAUSED state.
+   */
+  TOXAV_CALL_STATE_NOT_SENDING,
+  /**
+   * Sending audio only. Either the friend requested that this client stops
+   * sending video, or the client turned off video by setting the video bit rate
+   * to 0.
+   */
+  TOXAV_CALL_STATE_SENDING_A,
+  /**
+   * Sending video only. Either the friend requested that this client stops
+   * sending audio (muted), or the client turned off audio by setting the audio
+   * bit rate to 0.
+   */
+  TOXAV_CALL_STATE_SENDING_V,
+  /**
+   * Sending both audio and video.
+   */
+  TOXAV_CALL_STATE_SENDING_AV,
+  /**
+   * The call is on hold. Both sides stop sending and receiving.
+   */
+  TOXAV_CALL_STATE_PAUSED,
+  /**
+   * The call has finished. This is the final state after which no more state
+   * transitions can occur for the call.
+   */
+  TOXAV_CALL_STATE_END,
+  /**
+   * Sent by the AV core if an error occurred on the remote end.
+   */
+  TOXAV_CALL_STATE_ERROR
+} TOXAV_CALL_STATE;
+
+
+/**
+ * The function type for the `call_state` callback.
+ *
+ * @param friend_number The friend number for which the call state changed.
+ * @param state The new call state.
+ */
+typedef void toxav_call_state_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_STATE state, void *user_data);
+
+/**
+ * Set the callback for the `call_state` event. Pass NULL to unset.
+ *
+ * This event is triggered when a call state transition occurs.
+ */
+void toxav_callback_call_state(ToxAV *av, toxav_call_state_cb *function, void *user_data);
 
 
 /*******************************************************************************
@@ -220,11 +290,17 @@ typedef enum TOXAV_CALL_CONTROL {
    */
   TOXAV_CALL_CONTROL_CANCEL,
   /**
-   * [System] Sent by the AV core if an error occurred. This is never sent
-   * explicitly by clients. If a client tries to send this code itself, it
-   * receives the error code DENIED.
+   * Request that the friend stops sending audio. Regardless of the friend's
+   * compliance, this will cause the `receive_audio_frame` event to stop being
+   * triggered on receiving an audio frame from the friend.
    */
-  TOXAV_CALL_CONTROL_ERROR,
+  TOXAV_CALL_CONTROL_MUTE_AUDIO,
+  /**
+   * Request that the friend stops sending video. Regardless of the friend's
+   * compliance, this will cause the `receive_video_frame` event to stop being
+   * triggered on receiving an video frame from the friend.
+   */
+  TOXAV_CALL_CONTROL_MUTE_VIDEO
 } TOXAV_CALL_CONTROL;
 
 
@@ -266,23 +342,6 @@ typedef enum TOXAV_ERR_CALL_CONTROL {
  * @return true on success.
  */
 bool toxav_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTROL control, TOXAV_ERR_CALL_CONTROL *error);
-
-
-/**
- * The function type for the `call_control` callback.
- *
- * @param friend_number The friend number of the friend who sent the control.
- * @param control The call control command received.
- */
-typedef void toxav_call_control_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTROL control, void *user_data);
-
-/**
- * Set the callback for the `call_control` event. Pass NULL to unset.
- *
- * This event is triggered when a call control command is received from a
- * friend.
- */
-void toxav_callback_call_control(ToxAV *av, toxav_call_control_cb *function, void *user_data);
 
 
 /*******************************************************************************
