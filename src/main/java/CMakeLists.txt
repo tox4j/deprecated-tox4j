@@ -62,7 +62,8 @@ set(TOX4J_CORE
 
 set(TOX4J_SOURCE
 	${TOX4J_CORE}
-	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Events.java"
+	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Av.java"
+	"${CMAKE_CURRENT_BINARY_DIR}/im/tox/tox4j/proto/Core.java"
 )
 
 set(CMAKE_JAVA_TARGET_VERSION ${TOX4J_VERSION})
@@ -76,6 +77,7 @@ set(JAVAH_ARGS
 	"${CLASSDIR}:${PROTOBUF_FULL}"
 	"-o"
 	"${JNI_HEADER_LOCATION}/${JNI_HEADER_NAME}"
+	"${PACKAGE_NAME}.ToxAvImpl"
 	"${PACKAGE_NAME}.ToxCoreImpl"
 )
 
@@ -86,12 +88,21 @@ add_custom_command(
 )
 
 add_custom_command(
-	OUTPUT im/tox/tox4j/proto/Events.java
+	OUTPUT im/tox/tox4j/proto/Av.java
 	COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
 	ARGS --java_out ${CMAKE_CURRENT_BINARY_DIR} --proto_path
 	${CMAKE_SOURCE_DIR}/src/main/protobuf/
-	${CMAKE_SOURCE_DIR}/src/main/protobuf/events.proto
-	COMMENT "Running Java protocol buffer compiler on events.proto"
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/Av.proto
+	COMMENT "Running Java protocol buffer compiler on Av.proto"
+)
+
+add_custom_command(
+	OUTPUT im/tox/tox4j/proto/Core.java
+	COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
+	ARGS --java_out ${CMAKE_CURRENT_BINARY_DIR} --proto_path
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/Core.proto
+	COMMENT "Running Java protocol buffer compiler on Core.proto"
 )
 
 file(MAKE_DIRECTORY ${JNI_HEADER_LOCATION})

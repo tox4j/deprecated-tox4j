@@ -1,0 +1,38 @@
+package im.tox.tox4j.proto;
+
+option optimize_for = LITE_RUNTIME;
+
+
+message Call {
+    required int32  friendNumber     = 1;
+}
+
+message CallControl {
+    required int32  friendNumber     = 1;
+}
+
+message ReceiveAudioFrame {
+    required int32  friendNumber     = 1;
+}
+
+message ReceiveVideoFrame {
+    required int32  friendNumber     = 1;
+}
+
+message RequestAudioFrame {
+    required int32  friendNumber     = 1;
+}
+
+message RequestVideoFrame {
+    required int32  friendNumber     = 1;
+}
+
+
+message AvEvents {
+    repeated Call                   call                = 1;
+    repeated CallControl            callControl         = 2;
+    repeated ReceiveAudioFrame      receiveAudioFrame   = 3;
+    repeated ReceiveVideoFrame      receiveVideoFrame   = 4;
+    repeated RequestAudioFrame      requestAudioFrame   = 5;
+    repeated RequestVideoFrame      requestVideoFrame   = 6;
+}

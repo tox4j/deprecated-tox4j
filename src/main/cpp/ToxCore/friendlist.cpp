@@ -1,5 +1,4 @@
-#include "tox4j/Tox4j.h"
-#include "jniutil.h"
+#include "ToxCore.h"
 
 
 static ErrorHandling
@@ -119,7 +118,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetClientId
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendExists
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         return tox_friend_exists(tox, friendNumber);
     });
@@ -133,7 +132,7 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendExists
 JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendList
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         std::vector<uint32_t> list(tox_friend_list_size(tox));
         tox_friend_list(tox, list.data());

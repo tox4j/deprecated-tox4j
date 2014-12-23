@@ -1,5 +1,4 @@
-#include "tox4j/Tox4j.h"
-#include "jniutil.h"
+#include "ToxCore.h"
 
 
 /*
@@ -74,7 +73,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetTcpPort
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetDhtId
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         std::vector<uint8_t> dht_id(TOX_CLIENT_ID_SIZE);
         tox_get_dht_id(tox, dht_id.data());
@@ -90,7 +89,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetDhtId
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIterationInterval
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
         return tox_iteration_interval(tox);
     });
@@ -104,7 +103,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIterationInterval
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIteration
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
+    return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         tox_iteration(tox);
 
         std::vector<char> buffer(events.ByteSize());

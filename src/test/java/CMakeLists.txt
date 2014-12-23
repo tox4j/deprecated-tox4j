@@ -43,6 +43,7 @@ function(add_junit_test TARGET_NAME CLASSPATH TEST_CLASSES)
 endfunction(add_junit_test)
 
 set(TEST_FILES
+	im/tox/tox4j/av/ToxAvTest.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
 	im/tox/tox4j/callbacks/FileTransferHalfRequestedTest.java
@@ -74,15 +75,23 @@ set(TEST_FILES
 	im/tox/tox4j/AliceBobTestBase.java
 	im/tox/tox4j/LoadSaveTest.java
 	im/tox/tox4j/SocksServer.java
-	im/tox/tox4j/ToxCoreImplTest.java
 	im/tox/tox4j/ToxCoreImplTestBase.java
 	im/tox/tox4j/ToxCorePlayground.java
+	im/tox/tox4j/ToxCoreTest.java
 	im/tox/tox4j/ToxCoreTestBase.java
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH "${TOX4J_JAR_PATH}" "${JUNIT_FULL}" "${HAMCREST_FULL}" "${PROTOBUF_FULL}")
 add_jar(unit-tests ${TEST_FILES})
 add_dependencies(unit-tests ${LIB_TARGET_NAME})
+
+# A/V tests
+set(av_TESTS
+	im.tox.tox4j.av.ToxAvTest
+)
+
+add_junit_test(test-av "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${av_TESTS}")
+add_dependencies(test-av unit-tests)
 
 # Cheap short unit tests that don't require a full Alice and Bob setup.
 set(core_TESTS
@@ -99,7 +108,7 @@ set(core_TESTS
 	im.tox.tox4j.exceptions.ToxSetInfoExceptionTest
 	im.tox.tox4j.exceptions.ToxSetTypingExceptionTest
 	im.tox.tox4j.LoadSaveTest
-	im.tox.tox4j.ToxCoreImplTest
+	im.tox.tox4j.ToxCoreTest
 )
 
 add_junit_test(test-core "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${core_TESTS}")

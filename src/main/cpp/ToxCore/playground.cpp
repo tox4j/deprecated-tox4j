@@ -1,5 +1,4 @@
-#include "tox4j/Tox4j.h"
-#include "jniutil.h"
+#include "ToxCore.h"
 
 static void testcase1(JNIEnv *env)
 {
@@ -64,7 +63,7 @@ static void testcase2(JNIEnv *env)
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_playground
   (JNIEnv *env, jclass, jint instance_number)
 {
-    return with_instance(env, instance_number, [=](Tox *, ToxEvents &) {
+    return with_instance(env, instance_number, [=](Tox *, Events &) {
         testcase1(env);
         testcase2(env);
     });

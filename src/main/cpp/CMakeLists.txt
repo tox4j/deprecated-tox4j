@@ -45,13 +45,17 @@ else()
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
-	${CMAKE_SOURCE_DIR}/src/main/protobuf/events.proto
+PROTOBUF_GENERATE_CPP(AV_PROTO_SRCS AV_PROTO_HDRS
+        ${CMAKE_SOURCE_DIR}/src/main/protobuf/Av.proto
+)
+PROTOBUF_GENERATE_CPP(CORE_PROTO_SRCS CORE_PROTO_HDRS
+	${CMAKE_SOURCE_DIR}/src/main/protobuf/Core.proto
 )
 link_directories(${LIBTOX_LIBRARY_DIRS} ${LIBTOXAV_LIBRARY_DIRS})
 add_library(
 	${LIB_TARGET_NAME}
 	SHARED
+	ToxAv/lifecycle.cpp
 	ToxCore/clientinfo.cpp
 	ToxCore/connection.cpp
 	ToxCore/custom.cpp
@@ -64,8 +68,8 @@ add_library(
 	tox/core.cpp
 	tox4j/ErrorHandling.cpp
 	tox4j/Tox4j.cpp
-	${PROTO_SRCS}
-	${PROTO_HDRS}
+        ${AV_PROTO_SRCS}
+        ${CORE_PROTO_SRCS}
 )
 if(CMAKE_SYSTEM_NAME STREQUAL Windows)
 	set(WS2_32 ws2_32)

@@ -1,8 +1,4 @@
-#include <tox/tox.h>
-#include "Tox4j.h"
-
-
-InstanceManager InstanceManager::self;
+#include <jni.h>
 
 
 /*
