@@ -1,8 +1,10 @@
 package im.tox.tox4j.av;
 
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.*;
 import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.exceptions.*;
+import im.tox.tox4j.callbacks.ToxEventListener;
 
 import java.io.Closeable;
 
@@ -35,10 +37,17 @@ public interface ToxAv extends Closeable {
 
     void callbackRequestAudioFrame(RequestAudioFrameCallback callback);
 
-    void sendAudioFrame(int friendNumber, byte[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
+    void sendAudioFrame(int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
 
     void callbackReceiveVideoFrame(ReceiveVideoFrameCallback callback);
 
     void callbackReceiveAudioFrame(ReceiveAudioFrameCallback callback);
+
+    /**
+     * Convenience method to set all event handlers at once.
+     *
+     * @param handler An event handler capable of handling all Tox AV events.
+     */
+    void callback(@Nullable ToxAvEventListener handler);
 
 }

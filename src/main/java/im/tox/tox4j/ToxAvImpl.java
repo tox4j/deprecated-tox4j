@@ -1,11 +1,20 @@
 package im.tox.tox4j;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.av.callbacks.*;
 import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.exceptions.*;
+import im.tox.tox4j.enums.ToxFileKind;
+import im.tox.tox4j.proto.Av;
+import im.tox.tox4j.proto.Core;
 
 public final class ToxAvImpl implements ToxAv {
+
+    static {
+        System.loadLibrary("tox4j");
+    }
 
     private final ToxCoreImpl tox;
     private final int instanceNumber;
@@ -69,11 +78,72 @@ public final class ToxAvImpl implements ToxAv {
     }
 
 
-    private static native void toxAvIteration(int instanceNumber);
+    private static ToxCallControl convert(Av.CallControl.Kind kind) {
+        switch (kind) {
+            case PAUSE: return ToxCallControl.PAUSE;
+            case RESUME: return ToxCallControl.RESUME;
+            case CANCEL: return ToxCallControl.CANCEL;
+            case ERROR: return ToxCallControl.ERROR;
+        }
+        throw new IllegalStateException("Bad enumerator: " + kind);
+    }
+
+    private static native byte[] toxAvIteration(int instanceNumber);
 
     @Override
     public void iteration() {
-        toxAvIteration(instanceNumber);
+        byte[] events = toxAvIteration(instanceNumber);
+        Av.AvEvents toxEvents;
+        try {
+            toxEvents = Av.AvEvents.parseFrom(events);
+        } catch (InvalidProtocolBufferException e) {
+            // This would be very bad, meaning something went wrong in our own C++ code.
+            throw new RuntimeException(e);
+        }
+
+        if (callCallback != null) {
+            for (Av.Call call : toxEvents.getCallList()) {
+                callCallback.call(call.getFriendNumber());
+            }
+        }
+        if (callControlCallback != null) {
+            for (Av.CallControl callControl : toxEvents.getCallControlList()) {
+                callControlCallback.callControl(callControl.getFriendNumber(), convert(callControl.getControl()));
+            }
+        }
+        if (requestAudioFrameCallback != null) {
+            for (Av.RequestAudioFrame requestAudioFrame : toxEvents.getRequestAudioFrameList()) {
+                requestAudioFrameCallback.requestAudioFrame(requestAudioFrame.getFriendNumber());
+            }
+        }
+        if (requestVideoFrameCallback != null) {
+            for (Av.RequestVideoFrame requestVideoFrame : toxEvents.getRequestVideoFrameList()) {
+                requestVideoFrameCallback.requestVideoFrame(requestVideoFrame.getFriendNumber());
+            }
+        }
+        if (receiveAudioFrameCallback != null) {
+            for (Av.ReceiveAudioFrame receiveAudioFrame : toxEvents.getReceiveAudioFrameList()) {
+                short[] pcm = new short[receiveAudioFrame.getPcmCount()];
+                for (int i = 0; i < pcm.length; i++) {
+                    pcm[i] = (short) receiveAudioFrame.getPcm(i);
+                }
+                receiveAudioFrameCallback.receiveAudioFrame(receiveAudioFrame.getFriendNumber(),
+                        pcm, receiveAudioFrame.getChannels(), receiveAudioFrame.getSamplingRate());
+            }
+        }
+        if (receiveVideoFrameCallback != null) {
+            for (Av.ReceiveVideoFrame receiveVideoFrame : toxEvents.getReceiveVideoFrameList()) {
+                receiveVideoFrameCallback.receiveVideoFrame(
+                        receiveVideoFrame.getFriendNumber(),
+                        receiveVideoFrame.getWidth(),
+                        receiveVideoFrame.getHeight(),
+                        receiveVideoFrame.getY().toByteArray(),
+                        receiveVideoFrame.getU().toByteArray(),
+                        receiveVideoFrame.getV().toByteArray(),
+                        receiveVideoFrame.hasA() ? receiveVideoFrame.getA().toByteArray() : null
+                );
+            }
+        }
     }
 
 
@@ -145,10 +215,10 @@ public final class ToxAvImpl implements ToxAv {
     }
 
 
-    private static native void toxAvSendAudioFrame(int instanceNumber, int friendNumber, byte[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
+    private static native void toxAvSendAudioFrame(int instanceNumber, int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
 
     @Override
-    public void sendAudioFrame(int friendNumber, byte[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException {
+    public void sendAudioFrame(int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException {
         toxAvSendAudioFrame(instanceNumber, friendNumber, pcm, sampleCount, channels, samplingRate);
     }
 
@@ -160,5 +230,15 @@ public final class ToxAvImpl implements ToxAv {
     @Override
     public void callbackReceiveAudioFrame(ReceiveAudioFrameCallback callback) {
         this.receiveAudioFrameCallback = callback;
+    }
+
+    @Override
+    public void callback(@Nullable ToxAvEventListener handler) {
+        callbackCall(handler);
+        callbackCallControl(handler);
+        callbackRequestAudioFrame(handler);
+        callbackRequestVideoFrame(handler);
+        callbackReceiveAudioFrame(handler);
+        callbackReceiveVideoFrame(handler);
     }
 }

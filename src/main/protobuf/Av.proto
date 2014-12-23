@@ -8,31 +8,48 @@ message Call {
 }
 
 message CallControl {
-    required int32  friendNumber     = 1;
-}
+    enum Kind {
+        RESUME = 1;
+        PAUSE  = 2;
+        CANCEL = 3;
+        ERROR  = 4;
+    }
 
-message ReceiveAudioFrame {
-    required int32  friendNumber     = 1;
-}
-
-message ReceiveVideoFrame {
-    required int32  friendNumber     = 1;
+    required uint32  friendNumber     = 1;
+    required Kind   control          = 2;
 }
 
 message RequestAudioFrame {
-    required int32  friendNumber     = 1;
+    required uint32  friendNumber     = 1;
 }
 
 message RequestVideoFrame {
-    required int32  friendNumber     = 1;
+    required uint32  friendNumber     = 1;
+}
+
+message ReceiveAudioFrame {
+    required uint32  friendNumber     = 1;
+    repeated uint32  pcm              = 2 [packed = true];
+    required uint32  channels         = 3;
+    required uint32  samplingRate     = 4;
+}
+
+message ReceiveVideoFrame {
+    required uint32  friendNumber     = 1;
+    required uint32  width            = 2;
+    required uint32  height           = 3;
+    required bytes   y                = 4;
+    required bytes   u                = 5;
+    required bytes   v                = 6;
+    optional bytes   a                = 7;
 }
 
 
 message AvEvents {
     repeated Call                   call                = 1;
     repeated CallControl            callControl         = 2;
-    repeated ReceiveAudioFrame      receiveAudioFrame   = 3;
-    repeated ReceiveVideoFrame      receiveVideoFrame   = 4;
     repeated RequestAudioFrame      requestAudioFrame   = 5;
     repeated RequestVideoFrame      requestVideoFrame   = 6;
+    repeated ReceiveAudioFrame      receiveAudioFrame   = 3;
+    repeated ReceiveVideoFrame      receiveVideoFrame   = 4;
 }

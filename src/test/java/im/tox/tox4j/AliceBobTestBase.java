@@ -16,12 +16,25 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
+    public abstract static class TaskBase<T> {
+        protected StackTraceElement[] creationTrace = null;
+
+        public abstract void perform(T tox) throws ToxException;
+    }
+
     protected static class ChatClient extends ToxEventAdapter {
 
-        public abstract static class Task {
-            private StackTraceElement[] creationTrace = null;
+        private boolean done;
 
-            public abstract void perform(ToxCore tox) throws ToxException;
+        public boolean isDone() {
+            return done;
+        }
+
+        public void done() throws InterruptedException {
+            this.done = true;
+        }
+
+        public abstract static class Task extends TaskBase<ToxCore> {
         }
 
         private final List<Task> tasks = new ArrayList<>();
@@ -85,15 +98,23 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                 debug("is now disconnected from the network");
         }
 
-        protected void addTask(Task task) {
+        protected static <Task extends TaskBase<?>> void addTask(List<Task> tasks, Task task) {
             task.creationTrace = new Throwable().getStackTrace();
             tasks.add(task);
         }
 
+        protected void addTask(Task task) {
+            addTask(tasks, task);
+        }
+
         public final void performTasks(ToxCore tox) throws ToxException {
-            List<Task> tasks = new ArrayList<>(this.tasks);
-            this.tasks.clear();
-            for (Task task : tasks) {
+            performTasks(this.tasks, tox);
+        }
+
+        protected final <T, Task extends TaskBase<T>> void performTasks(List<Task> tasks, T tox) throws ToxException {
+            List<Task> iterationTasks = new ArrayList<>(tasks);
+            tasks.clear();
+            for (Task task : iterationTasks) {
                 try {
                     task.perform(tox);
                 } catch (ToxException e) {
@@ -138,6 +159,9 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
         try (ToxCore alice = factory.make()) {
             try (ToxCore bob = factory.make()) {
+                addFriends(alice, 10);
+                addFriends(bob, 10);
+
                 alice.addFriendNoRequest(bob.getClientId());
                 bob.addFriendNoRequest(alice.getClientId());
 
@@ -160,6 +184,9 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                     long interval = Math.max(alice.iterationInterval(), bob.iterationInterval());
                     Thread.sleep(interval);
                 }
+
+                aliceChat.done();
+                bobChat.done();
             }
         }
     }

@@ -55,6 +55,7 @@ link_directories(${LIBTOX_LIBRARY_DIRS} ${LIBTOXAV_LIBRARY_DIRS})
 add_library(
 	${LIB_TARGET_NAME}
 	SHARED
+	ToxAv/av.cpp
 	ToxAv/lifecycle.cpp
 	ToxCore/clientinfo.cpp
 	ToxCore/connection.cpp

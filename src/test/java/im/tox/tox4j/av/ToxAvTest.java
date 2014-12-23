@@ -14,76 +14,18 @@ public class ToxAvTest extends ToxAvImplTestBase {
 
     @Test
     public void testIterationInterval() throws Exception {
-
+        try (ToxAv av = newToxAv()) {
+            assertNotEquals(0, av.iterationInterval());
+            assertTrue(av.iterationInterval() > 0);
+            assertTrue(av.iterationInterval() < 1000);
+        }
     }
 
     @Test
     public void testIteration() throws Exception {
-
+        try (ToxAv av = newToxAv()) {
+            av.iteration();
+        }
     }
 
-    @Test
-    public void testCall() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackCall() throws Exception {
-
-    }
-
-    @Test
-    public void testAnswer() throws Exception {
-
-    }
-
-    @Test
-    public void testCallControl() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackCallControl() throws Exception {
-
-    }
-
-    @Test
-    public void testSetAudioBitRate() throws Exception {
-
-    }
-
-    @Test
-    public void testSetVideoBitRate() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackRequestVideoFrame() throws Exception {
-
-    }
-
-    @Test
-    public void testSendVideoFrame() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackRequestAudioFrame() throws Exception {
-
-    }
-
-    @Test
-    public void testSendAudioFrame() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackReceiveVideoFrame() throws Exception {
-
-    }
-
-    @Test
-    public void testCallbackReceiveAudioFrame() throws Exception {
-
-    }
 }
