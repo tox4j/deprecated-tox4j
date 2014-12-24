@@ -100,7 +100,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
         protected void debug(@NotNull String message) {
             if (LOGGING) {
-                System.out.println(getName() + ": " + message);
+                System.out.println(Thread.currentThread().getName() + " " + getName() + ": " + message);
             }
         }
 
@@ -213,7 +213,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                     Thread.sleep(interval);
 
                     currentTime = System.currentTimeMillis();
-                    if (currentTime - startTime >= TIMEOUT - GRACE_PERIOD) {
+                    if (currentTime - startTime >= TIMEOUT) {
                         if (LOGGING) {
                             System.out.println("[!!] Test timed out; shutting down toxes");
                         }
@@ -226,7 +226,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             }
         }
 
-        if (currentTime - startTime >= TIMEOUT - GRACE_PERIOD) {
+        if (currentTime - startTime >= TIMEOUT) {
             // We timed out, now wait for junit to interrupt us.
             // The reason we handle it this way is that junit somehow murders the test thread ungracefully, which
             // causes a fault in our native code. This way, we can prevent that, since we do in fact control the loop
@@ -239,7 +239,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         if (LOGGING) {
             System.out.println("[!!] waiting for junit to kill the test");
         }
-        Thread.sleep(GRACE_PERIOD * 10);
+        Thread.sleep(TIMEOUT);
     }
 
     private static @NotNull String getToplevelMethod(@NotNull StackTraceElement[] stackTrace) {

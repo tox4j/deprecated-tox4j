@@ -21,10 +21,10 @@ import static org.junit.Assume.assumeTrue;
 
 public abstract class ToxCoreTestBase {
 
-    protected static final int GRACE_PERIOD = 1000;
-    protected static final int TIMEOUT = 40000 + GRACE_PERIOD;
+    private static final int GRACE_PERIOD = 1000;
+    protected static final int TIMEOUT = 60000;
     @Rule
-    public final Timeout globalTimeout = new Timeout(TIMEOUT);
+    public final Timeout globalTimeout = new Timeout(TIMEOUT + GRACE_PERIOD);
 
     protected static final boolean LOGGING = true;
     protected static final int ITERATIONS = 500;
@@ -43,22 +43,24 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected static final DhtNode[] nodes = {
+    protected static final DhtNode[] nodeCandidates = {
             // sonOfRa
-            new DhtNode(
-                    "144.76.60.215",
-                    "2a01:4f8:191:64d6::1",
-                    33445,
-                    "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"
-            ),
+            new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
             // stqism
-            new DhtNode(
-                    "192.254.75.98",
-                    "2607:5600:284::2",
-                    33445,
-                    "FE3914F4616E227F29B2103450D6B55A836AD4BD23F97144E2C4ABE8D504FE1B"
-            ),
+            new DhtNode("192.254.75.98", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
+            // others
+            new DhtNode("37.187.46.132", null, 33445, "A9D98212B3F972BD11DA52BEB0658C326FCCC1BFD49F347F9C2D3D8B61E1B927"),
+            new DhtNode("23.226.230.47", null, 33445, "A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074"),
+            new DhtNode("54.199.139.199", null, 33445, "7F9C31FE850E97CEFD4C4591DF93FC757C7C12549DDD55F8EEAECC34FE76C029"),
+            new DhtNode("192.210.149.121", null, 33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67"),
+            new DhtNode("37.59.102.176", null, 33445, "B98A2CEAA6C6A2FADC2C3632D284318B60FE5375CCB41EFA081AB67F500C1B0B"),
+            new DhtNode("178.21.112.187", null, 33445, "4B2C19E924972CB9B57732FB172F8A8604DE13EEDA2A6234E348983344B23057"),
+            new DhtNode("107.161.17.51", null, 33445, "7BE3951B97CA4B9ECDDA768E8C52BA19E9E2690AB584787BF4C90E04DBB75111"),
+            new DhtNode("31.7.57.236", null, 443, "2A4B50D1D525DA2E669592A20C327B5FAD6C7E5962DC69296F9FEC77C4436E4E"),
+            new DhtNode("63.165.243.15", null, 443, "8CD087E31C67568103E8C2A28653337E90E6B8EDA0D765D57C6B5172B4F1F04C"),
     };
+
+    protected abstract @NotNull DhtNode node();
 
     protected abstract @NotNull ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
 
@@ -102,17 +104,17 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected class ToxList implements Closeable {
+    protected static class ToxList implements Closeable {
         private final @NotNull ToxCore[] toxes;
         private final @NotNull ToxConnection[] connected;
 
-        public ToxList(int count) throws ToxNewException {
+        public ToxList(ToxCoreTestBase factory, int count) throws ToxNewException {
             this.toxes = new ToxCore[count];
             this.connected = new ToxConnection[toxes.length];
             for (int i = 0; i < count; i++) {
                 final int id = i;
                 connected[i] = ToxConnection.NONE;
-                toxes[i] = newTox();
+                toxes[i] = factory.newTox();
                 toxes[i].callbackConnectionStatus(new ConnectionStatusCallback() {
                     @Override
                     public void connectionStatus(@NotNull ToxConnection connectionStatus) {
@@ -231,18 +233,18 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected static void assumeIPv4() {
+    protected void assumeIPv4() {
         try {
-            Socket socket = new Socket(InetAddress.getByName(nodes[0].ipv4), nodes[0].port);
+            Socket socket = new Socket(InetAddress.getByName(node().ipv4), node().port);
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
             assumeTrue("An IPv4 network connection can be established", false);
         }
     }
 
-    protected static void assumeIPv6() {
+    protected void assumeIPv6() {
         try {
-            Socket socket = new Socket(InetAddress.getByName(nodes[0].ipv6), nodes[0].port);
+            Socket socket = new Socket(InetAddress.getByName(node().ipv6), node().port);
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
             assumeTrue("An IPv6 network connection can be established", false);
@@ -251,9 +253,9 @@ public abstract class ToxCoreTestBase {
 
     protected @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
         if (useIPv6) {
-            tox.bootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
+            tox.bootstrap(node().ipv6, node().port, node().dhtId);
         } else {
-            tox.bootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
+            tox.bootstrap(node().ipv4, node().port, node().dhtId);
         }
         return tox;
     }

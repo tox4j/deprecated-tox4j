@@ -1,24 +1,16 @@
 package im.tox.tox4j.av;
 
-import im.tox.tox4j.*;
+import im.tox.tox4j.AliceBobTestBase;
+import im.tox.tox4j.ToxAvImpl;
+import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.ToxAvEventListener;
-import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.enums.ToxCallState;
-import im.tox.tox4j.callbacks.ToxEventAdapter;
-import im.tox.tox4j.enums.ToxConnection;
-import im.tox.tox4j.enums.ToxProxyType;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.exceptions.ToxNewException;
-import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 public abstract class AliceBobAvTest extends AliceBobTestBase {
 

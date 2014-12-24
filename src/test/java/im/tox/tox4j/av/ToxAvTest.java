@@ -1,11 +1,16 @@
 package im.tox.tox4j.av;
 
+import im.tox.tox4j.DhtNodeSelector;
 import im.tox.tox4j.ToxAvImplTestBase;
+import im.tox.tox4j.annotations.NotNull;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ToxAvTest extends ToxAvImplTestBase {
+
+    private static final DhtNodeSelector dht = new DhtNodeSelector();
 
     @Test
     public void testClose() throws Exception {
@@ -28,4 +33,9 @@ public class ToxAvTest extends ToxAvImplTestBase {
         }
     }
 
+    @NotNull
+    @Override
+    protected DhtNode node() {
+        return dht.node(this);
+    }
 }

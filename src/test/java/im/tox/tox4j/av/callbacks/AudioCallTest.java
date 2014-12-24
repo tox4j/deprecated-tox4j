@@ -6,15 +6,12 @@ import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 
-import javax.sound.sampled.*;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.SourceDataLine;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public final class AudioCallTest extends AliceBobAvTest {
 

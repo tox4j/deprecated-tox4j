@@ -2,7 +2,6 @@ package im.tox.tox4j;
 
 import im.tox.tox4j.enums.ToxStatus;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
 
 public class LoadSaveTest extends ToxCoreImplTestBase {
 
