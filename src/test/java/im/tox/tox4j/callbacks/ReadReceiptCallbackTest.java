@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 
 public class ReadReceiptCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -33,7 +34,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxCore tox) throws ToxException {
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
                         debug("Sending " + ITERATIONS + " messages");
                         for (int i = 0; i < ITERATIONS; i++) {
                             pendingIds[i] = -1;

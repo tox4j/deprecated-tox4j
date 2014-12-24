@@ -10,6 +10,7 @@ import im.tox.tox4j.exceptions.ToxNewException;
 
 public class FriendConnectionStatusCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();

@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 
 public class CallCallbackTest extends AliceBobAvTest {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -26,7 +27,7 @@ public class CallCallbackTest extends AliceBobAvTest {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxAv av) throws ToxException {
+                    public void perform(@NotNull ToxAv av) throws ToxException {
                         av.call(friendNumber, 100, 100);
                         finish();
                     }

@@ -44,6 +44,8 @@ endfunction(add_junit_test)
 
 set(TEST_FILES
 	im/tox/tox4j/av/ToxAvTest.java
+	im/tox/tox4j/av/callbacks/AudioCallTest.java
+        im/tox/tox4j/av/callbacks/CallCallbackTest.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
 	im/tox/tox4j/callbacks/FileTransferHalfRequestedTest.java
@@ -89,6 +91,8 @@ add_dependencies(unit-tests ${LIB_TARGET_NAME})
 # A/V tests
 set(av_TESTS
 	im.tox.tox4j.av.ToxAvTest
+	im.tox.tox4j.av.callbacks.AudioCallTest
+        im.tox.tox4j.av.callbacks.CallCallbackTest
 )
 
 add_junit_test(test-av "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${av_TESTS}")

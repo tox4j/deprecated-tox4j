@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 public class FriendLossyPacketCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -26,7 +27,7 @@ public class FriendLossyPacketCallbackTest extends AliceBobTestBase {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxCore tox) throws ToxException {
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
                         byte[] packet = ("_My name is " + getName()).getBytes();
                         packet[0] = (byte) 200;
                         tox.sendLossyPacket(friendNumber, packet);

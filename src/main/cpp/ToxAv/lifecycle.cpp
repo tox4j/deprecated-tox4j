@@ -54,7 +54,7 @@ static void tox4j_request_video_frame_cb(ToxAV *av, uint32_t friend_number, void
 }
 
 static void tox4j_receive_audio_frame_cb(ToxAV *av, uint32_t friend_number,
-                                         uint16_t const *pcm,
+                                         int16_t const *pcm,
                                          size_t sample_count,
                                          uint8_t channels,
                                          uint32_t sampling_rate,

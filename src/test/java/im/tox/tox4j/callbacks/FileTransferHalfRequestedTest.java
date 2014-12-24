@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 
 public class FileTransferHalfRequestedTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -42,7 +43,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
                 if (isBob()) return;
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxCore tox) throws ToxException {
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
                         sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
                                 ("file for " + getFriendName() + ".png").getBytes());
                     }
@@ -61,7 +62,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
             assertEquals("file for " + getName() + ".png", new String(filename));
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     debug("sending control RESUME for " + fileNumber);
                     tox.fileControl(friendNumber, fileNumber, ToxFileControl.RESUME);
                 }
@@ -89,7 +90,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
             }
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     int half = (int) Math.ceil(length / 2d);
                     debug("sending " + half + "B to " + friendNumber);
                     tox.fileSendChunk(friendNumber, fileNumber,

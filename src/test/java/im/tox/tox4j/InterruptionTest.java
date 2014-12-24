@@ -11,6 +11,7 @@ public final class InterruptionTest extends ToxCoreImplTestBase {
     }
 
 //    @Test
+    @SuppressWarnings("deprecation")
     public void causeSegfault() throws Exception {
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
             final int cycle = i;
