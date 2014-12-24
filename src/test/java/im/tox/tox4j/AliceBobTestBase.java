@@ -214,6 +214,9 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
                     currentTime = System.currentTimeMillis();
                     if (currentTime - startTime >= TIMEOUT - GRACE_PERIOD) {
+                        if (LOGGING) {
+                            System.out.println("[!!] Test timed out; shutting down toxes");
+                        }
                         break;
                     }
                 }
@@ -234,7 +237,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
     private static void failedAfterTimeout() throws InterruptedException {
         if (LOGGING) {
-            System.out.println("Test timed out; waiting for junit to kill it");
+            System.out.println("[!!] waiting for junit to kill the test");
         }
         Thread.sleep(GRACE_PERIOD * 10);
     }
