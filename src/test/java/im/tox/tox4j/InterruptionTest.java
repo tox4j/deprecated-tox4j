@@ -1,8 +1,6 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.exceptions.ToxNewException;
-import org.junit.Test;
 
 public final class InterruptionTest extends ToxCoreImplTestBase {
 
@@ -20,7 +18,7 @@ public final class InterruptionTest extends ToxCoreImplTestBase {
                 public void run() {
                     System.out.println("Survived " + cycle + " seconds");
                     try (ToxCore tox = newTox()) {
-                        tox.bootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
+                        tox.bootstrap(node().ipv4, node().port, node().dhtId);
                         //noinspection InfiniteLoopStatement
                         while (true) {
                             tox.iteration();

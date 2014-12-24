@@ -45,7 +45,7 @@ endfunction(add_junit_test)
 set(TEST_FILES
 	im/tox/tox4j/av/ToxAvTest.java
 	im/tox/tox4j/av/callbacks/AudioCallTest.java
-        im/tox/tox4j/av/callbacks/CallCallbackTest.java
+	im/tox/tox4j/av/callbacks/CallCallbackTest.java
 	im/tox/tox4j/callbacks/ConnectionStatusCallbackTest.java
 	im/tox/tox4j/callbacks/FileReceiveCallbackTest.java
 	im/tox/tox4j/callbacks/FileTransferHalfRequestedTest.java
@@ -75,9 +75,12 @@ set(TEST_FILES
 	im/tox/tox4j/exceptions/ToxSetInfoExceptionTest.java
 	im/tox/tox4j/exceptions/ToxSetTypingExceptionTest.java
 	im/tox/tox4j/AliceBobTestBase.java
+	im/tox/tox4j/DhtNodeSelector.java
+	im/tox/tox4j/InterruptionTest.java
 	im/tox/tox4j/LoadSaveTest.java
 	im/tox/tox4j/NetworkTest.java
 	im/tox/tox4j/SocksServer.java
+	im/tox/tox4j/ToxAvImplTestBase.java
 	im/tox/tox4j/ToxCoreImplTestBase.java
 	im/tox/tox4j/ToxCorePlayground.java
 	im/tox/tox4j/ToxCoreTest.java
@@ -92,7 +95,7 @@ add_dependencies(unit-tests ${LIB_TARGET_NAME})
 set(av_TESTS
 	im.tox.tox4j.av.ToxAvTest
 	im.tox.tox4j.av.callbacks.AudioCallTest
-        im.tox.tox4j.av.callbacks.CallCallbackTest
+	im.tox.tox4j.av.callbacks.CallCallbackTest
 )
 
 add_junit_test(test-av "${CMAKE_CURRENT_BINARY_DIR}/unit-tests.jar" "${av_TESTS}")

@@ -1,14 +1,6 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.enums.ToxProxyType;
-import im.tox.tox4j.enums.ToxStatus;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.*;
 
 public class NetworkTest extends ToxCoreImplTestBase {
 
@@ -36,13 +28,13 @@ public class NetworkTest extends ToxCoreImplTestBase {
     @Test
     public void testBootstrap4() throws Exception {
         assumeIPv4();
-        testBootstrap(nodes[0].ipv4, nodes[0].port, nodes[0].dhtId);
+        testBootstrap(node().ipv4, node().port, node().dhtId);
     }
 
     @Test
     public void testBootstrap6() throws Exception {
         assumeIPv6();
-        testBootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
+        testBootstrap(node().ipv6, node().port, node().dhtId);
     }
 
     @Test
@@ -52,7 +44,7 @@ public class NetworkTest extends ToxCoreImplTestBase {
 
     @Test
     public void testLANDiscoveryAll() throws Exception {
-        try (ToxList toxes = new ToxList(TOX_COUNT)) {
+        try (ToxList toxes = new ToxList(this, TOX_COUNT)) {
             long start = System.currentTimeMillis();
             // TODO: Generous timeout required for this; should be made more reliable.
             while (!toxes.isAllConnected()) {
@@ -71,7 +63,7 @@ public class NetworkTest extends ToxCoreImplTestBase {
 
     @Test
     public void testLANDiscoveryAny() throws Exception {
-        try (ToxList toxes = new ToxList(TOX_COUNT)) {
+        try (ToxList toxes = new ToxList(this, TOX_COUNT)) {
             long start = System.currentTimeMillis();
             while (!toxes.isAnyConnected()) {
                 toxes.iteration();

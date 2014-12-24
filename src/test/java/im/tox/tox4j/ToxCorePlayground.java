@@ -1,8 +1,6 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.exceptions.ToxNewException;
-import org.junit.Test;
 
 public final class ToxCorePlayground {
 

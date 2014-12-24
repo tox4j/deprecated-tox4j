@@ -87,14 +87,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(nodes[0].ipv4, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(node().ipv4, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBorderlinePort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(nodes[0].ipv4, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(node().ipv4, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 

@@ -1,6 +1,5 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.*;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.av.ToxAvTestBase;
