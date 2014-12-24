@@ -368,6 +368,11 @@ new_tox_self_set_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR
       if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;
     }
+  if (length == 0)
+    {
+      length = 1;
+      name = (uint8_t const *)"";
+    }
   if (tox_set_name (tox->tox, name, length) == -1)
     {
       if (error) *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
@@ -380,13 +385,22 @@ new_tox_self_set_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR
 size_t
 new_tox_self_get_name_size (new_Tox const *tox)
 {
-  return tox_get_self_name_size (tox->tox);
+  size_t size = tox_get_self_name_size (tox->tox);
+  if (size == 1)
+    {
+      uint8_t name[1];
+      tox_get_self_name (tox->tox, name);
+      if (name[0] == '\0')
+        size = 0;
+    }
+  return size;
 }
 
 void
 new_tox_self_get_name (new_Tox const *tox, uint8_t *name)
 {
-  tox_get_self_name (tox->tox, name);
+  if (new_tox_self_get_name_size (tox) != 0)
+    tox_get_self_name (tox->tox, name);
 }
 
 bool
