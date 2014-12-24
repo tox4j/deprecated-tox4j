@@ -22,12 +22,13 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
         return default_value<return_type>();
     }
 
-    std::lock_guard<std::mutex> ilock(*instance.mutex);
-    tox_traits::subsystem *tox = instance.tox.get();
-    Events &events = *instance.events;
-    lock.unlock();
+    return instance.with_lock([&] {
+        tox_traits::subsystem *tox = instance.tox.get();
+        Events &events = *instance.events;
+        lock.unlock();
 
-    return func(tox, events);
+        return func(tox, events);
+    });
 }
 
 
