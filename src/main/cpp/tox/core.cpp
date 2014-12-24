@@ -416,9 +416,14 @@ new_tox_self_set_status_message (new_Tox *tox, uint8_t const *status, size_t len
       if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;
     }
+  if (length == 0)
+    {
+      length = 1;
+      status = (uint8_t const *)"";
+    }
   if (tox_set_status_message (tox->tox, status, length) == -1)
     {
-      if (error) *error = TOX_ERR_SET_INFO_NULL; // Toxcore didn't like zero-length nicks, yet.
+      if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;
     }
   if (error) *error = TOX_ERR_SET_INFO_OK;
@@ -428,7 +433,15 @@ new_tox_self_set_status_message (new_Tox *tox, uint8_t const *status, size_t len
 size_t
 new_tox_self_get_status_message_size (new_Tox const *tox)
 {
-  return tox_get_self_status_message_size (tox->tox);
+  size_t size = tox_get_self_status_message_size (tox->tox);
+  if (size == 1)
+    {
+      uint8_t name[1];
+      tox_get_self_status_message (tox->tox, name, 1);
+      if (name[0] == '\0')
+        size = 0;
+    }
+  return size;
 }
 
 void
@@ -436,9 +449,11 @@ new_tox_self_get_status_message (new_Tox const *tox, uint8_t *status)
 {
   // XXX: current tox core doesn't do what it says, which is to truncate if it
   // goes over the length. instead, it simply writes as much as the length
-  // indicates, so we need to ask for the length again here.
+  // indicates, so we need to ask for the length again here, hoping it didn't
+  // change in the meantime (tox4j takes care of proper locking).
   size_t length = new_tox_self_get_status_message_size (tox);
-  tox_get_self_status_message (tox->tox, status, length);
+  if (length != 0)
+    tox_get_self_status_message (tox->tox, status, length);
 }
 
 void
