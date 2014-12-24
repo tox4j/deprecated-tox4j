@@ -43,6 +43,18 @@ public:
     bool isLive() const { return live; }
     bool isDead() const { return !live; }
 
+    void assertValid() const {
+        if (isLive()) {
+            assert(tox    != nullptr);
+            assert(events != nullptr);
+            assert(mutex  != nullptr);
+        } else {
+            assert(tox    == nullptr);
+            assert(events == nullptr);
+            assert(mutex  == nullptr);
+        }
+    }
+
     tox_instance(pointer &&tox,
                  std::unique_ptr<events_type> &&events,
                  std::unique_ptr<std::mutex> &&mutex)
@@ -53,22 +65,33 @@ public:
 
     // Move members from another object into this new one, then set the old one to the DEAD state.
     tox_instance(tox_instance &&rhs)
-    : tox(std::move(rhs.tox))
+    : live(rhs.live)
+    , tox(std::move(rhs.tox))
     , events(std::move(rhs.events))
     , mutex(std::move(rhs.mutex))
-    { rhs.live = false; }
+    {
+        rhs.live = false;
+
+        this->assertValid();
+        rhs.assertValid();
+    }
 
     // Move members from another object into this existing one, then set the right hand side to the DEAD state.
     // This object is then live again.
     tox_instance &operator=(tox_instance &&rhs) {
         assert(this->isDead());
         assert(rhs.isLive());
+        this->assertValid();
+        rhs.assertValid();
 
         tox = std::move(rhs.tox);
         events = std::move(rhs.events);
         mutex = std::move(rhs.mutex);
         rhs.live = false;
         this->live = true;
+
+        this->assertValid();
+        rhs.assertValid();
 
         return *this;
     }
@@ -163,6 +186,7 @@ public:
         }
 
         assert(dying.isLive());
+        assert(dying.mutex != nullptr);
         std::lock_guard<std::mutex> ilock(*dying.mutex);
     }
 
@@ -196,6 +220,7 @@ public:
         if ((*this)[instanceNumber].isLive()) {
             instance_type dying(remove(instanceNumber));
             assert(dying.isLive());
+            assert(dying.mutex != nullptr);
             std::lock_guard<std::mutex> ilock(*dying.mutex);
         }
 
