@@ -119,14 +119,20 @@ struct new_Tox
     {
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_name;
-      cb.func (self, friendnumber, newname, length, cb.user_data);
+      if (length == 1 && newname[0] == '\0')
+        cb.func (self, friendnumber, nullptr, 0, cb.user_data);
+      else
+        cb.func (self, friendnumber, newname, length, cb.user_data);
     }
 
     static void status_message (Tox *tox, int32_t friendnumber, const uint8_t *newstatus, uint16_t length, void *userdata)
     {
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_status_message;
-      cb.func (self, friendnumber, newstatus, length, cb.user_data);
+      if (length == 1 && newstatus[0] == '\0')
+        cb.func (self, friendnumber, nullptr, 0, cb.user_data);
+      else
+        cb.func (self, friendnumber, newstatus, length, cb.user_data);
     }
 
     static void user_status (Tox *tox, int32_t friendnumber, uint8_t TOX_USERSTATUS, void *userdata)
