@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 public class FriendRequestCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -48,7 +49,7 @@ public class FriendRequestCallbackTest extends AliceBobTestBase {
             assertEquals("Hey this is " + getFriendName(), new String(message));
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     tox.addFriendNoRequest(clientId);
                 }
             });

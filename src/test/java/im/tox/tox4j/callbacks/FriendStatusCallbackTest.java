@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 public class FriendStatusCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -34,7 +35,7 @@ public class FriendStatusCallbackTest extends AliceBobTestBase {
         private void go(final ToxStatus status) {
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     tox.setStatus(selfStatus = status);
                 }
             });

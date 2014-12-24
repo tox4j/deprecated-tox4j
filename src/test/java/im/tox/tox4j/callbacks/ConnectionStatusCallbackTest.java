@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotEquals;
 
 public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();

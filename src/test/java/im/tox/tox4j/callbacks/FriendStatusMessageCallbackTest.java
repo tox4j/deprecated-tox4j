@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -27,7 +28,7 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
                 debug("is now connected to friend " + friendNumber);
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxCore tox) throws ToxException {
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
                         tox.setStatusMessage(("I like " + getFriendName()).getBytes());
                     }
                 });

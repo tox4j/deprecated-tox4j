@@ -11,6 +11,7 @@ public class ToxSendFrameException extends ToxException {
         FRIEND_NOT_IN_CALL,
         NOT_REQUESTED,
         INVALID,
+        BAD_LENGTH,
     }
 
     private final @NotNull Code code;

@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 
 public class FileTransferTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -42,7 +43,7 @@ public class FileTransferTest extends AliceBobTestBase {
                 if (isBob()) return;
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxCore tox) throws ToxException {
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
                         sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
                                 ("file for " + getFriendName() + ".png").getBytes());
                     }
@@ -61,7 +62,7 @@ public class FileTransferTest extends AliceBobTestBase {
             assertEquals("file for " + getName() + ".png", new String(filename));
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     debug("sending control RESUME for " + fileNumber);
                     tox.fileControl(friendNumber, fileNumber, ToxFileControl.RESUME);
                 }
@@ -90,7 +91,7 @@ public class FileTransferTest extends AliceBobTestBase {
             }
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     debug("sending " + length + "B to " + friendNumber);
                     tox.fileSendChunk(friendNumber, fileNumber,
                             Arrays.copyOfRange(fileData, (int) position, Math.min((int) position + length, fileData.length)));

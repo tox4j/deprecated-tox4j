@@ -1,5 +1,6 @@
 package im.tox.tox4j;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.After;
 
@@ -12,6 +13,7 @@ public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
         System.gc();
     }
 
+    @NotNull
     @Override
     protected final ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
         return new ToxCoreImpl(options, data);

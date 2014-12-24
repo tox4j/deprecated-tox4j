@@ -1,5 +1,6 @@
 package im.tox.tox4j.av;
 
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.*;
 import im.tox.tox4j.av.enums.ToxCallControl;
@@ -18,29 +19,29 @@ public interface ToxAv extends Closeable {
 
     void call(int friendNumber, int audioBitRate, int videoBitRate) throws ToxCallException;
 
-    void callbackCall(CallCallback callback);
+    void callbackCall(@Nullable CallCallback callback);
 
     void answer(int friendNumber, int audioBitRate, int videoBitRate) throws ToxAnswerException;
 
-    void callControl(int friendNumber, ToxCallControl control) throws ToxCallControlException;
+    void callControl(int friendNumber, @NotNull ToxCallControl control) throws ToxCallControlException;
 
-    void callbackCallControl(CallStateCallback callback);
+    void callbackCallControl(@Nullable CallStateCallback callback);
 
     void setAudioBitRate(int friendNumber, int bitRate) throws ToxBitRateException;
 
     void setVideoBitRate(int friendNumber, int bitRate) throws ToxBitRateException;
 
-    void callbackRequestVideoFrame(RequestVideoFrameCallback callback);
+    void callbackRequestVideoFrame(@Nullable RequestVideoFrameCallback callback);
 
-    void sendVideoFrame(int friendNumber, int width, int height, byte[] y, byte[] u, byte[] v, byte[] a) throws ToxSendFrameException;
+    void sendVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) throws ToxSendFrameException;
 
-    void callbackRequestAudioFrame(RequestAudioFrameCallback callback);
+    void callbackRequestAudioFrame(@Nullable RequestAudioFrameCallback callback);
 
-    void sendAudioFrame(int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
+    void sendAudioFrame(int friendNumber, @NotNull short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
 
-    void callbackReceiveVideoFrame(ReceiveVideoFrameCallback callback);
+    void callbackReceiveVideoFrame(@Nullable ReceiveVideoFrameCallback callback);
 
-    void callbackReceiveAudioFrame(ReceiveAudioFrameCallback callback);
+    void callbackReceiveAudioFrame(@Nullable ReceiveAudioFrameCallback callback);
 
     /**
      * Convenience method to set all event handlers at once.

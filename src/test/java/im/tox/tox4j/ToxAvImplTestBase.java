@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.*;
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.av.ToxAvTestBase;
 import im.tox.tox4j.av.exceptions.ToxAvNewException;
@@ -17,6 +18,7 @@ public abstract class ToxAvImplTestBase extends ToxAvTestBase {
         System.gc();
     }
 
+    @NotNull
     @Override
     protected final ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
         return new ToxCoreImpl(options, data);

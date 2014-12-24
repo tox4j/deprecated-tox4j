@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.av.callbacks.*;
@@ -158,7 +159,7 @@ public final class ToxAvImpl implements ToxAv {
     }
 
     @Override
-    public void callbackCall(CallCallback callback) {
+    public void callbackCall(@Nullable CallCallback callback) {
         this.callCallback = callback;
     }
 
@@ -174,12 +175,12 @@ public final class ToxAvImpl implements ToxAv {
     private static native void toxAvCallControl(int instanceNumber, int friendNumber, int control) throws ToxCallControlException;
 
     @Override
-    public void callControl(int friendNumber, ToxCallControl control) throws ToxCallControlException {
+    public void callControl(int friendNumber, @NotNull ToxCallControl control) throws ToxCallControlException {
         toxAvCallControl(instanceNumber, friendNumber, control.ordinal());
     }
 
     @Override
-    public void callbackCallControl(CallStateCallback callback) {
+    public void callbackCallControl(@Nullable CallStateCallback callback) {
         this.callStateCallback = callback;
     }
 
@@ -200,7 +201,7 @@ public final class ToxAvImpl implements ToxAv {
     }
 
     @Override
-    public void callbackRequestVideoFrame(RequestVideoFrameCallback callback) {
+    public void callbackRequestVideoFrame(@Nullable RequestVideoFrameCallback callback) {
         this.requestVideoFrameCallback = callback;
     }
 
@@ -208,12 +209,12 @@ public final class ToxAvImpl implements ToxAv {
     private static native void toxAvSendVideoFrame(int instanceNumber, int friendNumber, int width, int height, byte[] y, byte[] u, byte[] v, byte[] a) throws ToxSendFrameException;
 
     @Override
-    public void sendVideoFrame(int friendNumber, int width, int height, byte[] y, byte[] u, byte[] v, byte[] a) throws ToxSendFrameException {
+    public void sendVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) throws ToxSendFrameException {
         toxAvSendVideoFrame(instanceNumber, friendNumber, width, height, y, u, v, a);
     }
 
     @Override
-    public void callbackRequestAudioFrame(RequestAudioFrameCallback callback) {
+    public void callbackRequestAudioFrame(@Nullable RequestAudioFrameCallback callback) {
         this.requestAudioFrameCallback = callback;
     }
 
@@ -221,7 +222,7 @@ public final class ToxAvImpl implements ToxAv {
     private static native void toxAvSendAudioFrame(int instanceNumber, int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
 
     @Override
-    public void sendAudioFrame(int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException {
+    public void sendAudioFrame(int friendNumber, @NotNull short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException {
         toxAvSendAudioFrame(instanceNumber, friendNumber, pcm, sampleCount, channels, samplingRate);
     }
 

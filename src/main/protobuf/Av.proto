@@ -33,7 +33,7 @@ message RequestVideoFrame {
 
 message ReceiveAudioFrame {
     required uint32  friendNumber     = 1;
-    repeated uint32  pcm              = 2 [packed = true];
+    repeated int32   pcm              = 2 [packed = true];
     required uint32  channels         = 3;
     required uint32  samplingRate     = 4;
 }

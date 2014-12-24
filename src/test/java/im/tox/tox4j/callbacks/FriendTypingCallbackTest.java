@@ -14,6 +14,7 @@ import static org.junit.Assert.assertFalse;
 
 public class FriendTypingCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -26,7 +27,7 @@ public class FriendTypingCallbackTest extends AliceBobTestBase {
         private void setTyping(final int friendNumber, final boolean isTyping) {
             addTask(new Task() {
                 @Override
-                public void perform(ToxCore tox) throws ToxException {
+                public void perform(@NotNull ToxCore tox) throws ToxException {
                     tox.setTyping(friendNumber, isTyping);
                 }
             });

@@ -32,7 +32,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             wakeUp--;
         }
 
-        public abstract void perform(T tox) throws ToxException;
+        public abstract void perform(@NotNull T tox) throws ToxException;
     }
 
     protected static class ChatClient extends ToxEventAdapter {
@@ -53,8 +53,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         }
 
         private final List<Task> tasks = new ArrayList<>();
-        private String name = "<unnamed>";
-        private String friendName = "<unnamed>";
+        private @NotNull String name = "<unnamed>";
+        private @NotNull String friendName = "<unnamed>";
         private byte[] friendAddress;
         private boolean connected;
         private boolean chatting = true;
@@ -75,11 +75,11 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             return connected;
         }
 
-        public String getName() {
+        public @NotNull String getName() {
             return name;
         }
 
-        public String getFriendName() {
+        public @NotNull String getFriendName() {
             return friendName;
         }
 
@@ -98,7 +98,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             chatting = false;
         }
 
-        protected void debug(String message) {
+        protected void debug(@NotNull String message) {
             if (LOGGING) {
                 System.out.println(getName() + ": " + message);
             }
@@ -113,12 +113,12 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                 debug("is now disconnected from the network");
         }
 
-        protected static <Task extends TaskBase<?>> void addTask(List<Task> tasks, Task task) {
+        protected static <Task extends TaskBase<?>> void addTask(@NotNull List<Task> tasks, @NotNull Task task) {
             task.creationTrace = new Throwable().getStackTrace();
             tasks.add(task);
         }
 
-        protected void addTask(Task task) {
+        protected void addTask(@NotNull Task task) {
             addTask(tasks, task);
         }
 
@@ -126,10 +126,10 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             performTasks(this.tasks, tox);
         }
 
-        protected final <T, Task extends TaskBase<T>> void performTasks(List<Task> tasks, T tox) throws ToxException {
-            List<Task> iterationTasks = new ArrayList<>(tasks);
+        protected final <T, TaskT extends TaskBase<T>> void performTasks(@NotNull List<TaskT> tasks, @NotNull T tox) throws ToxException {
+            List<TaskT> iterationTasks = new ArrayList<>(tasks);
             tasks.clear();
-            for (Task task : iterationTasks) {
+            for (TaskT task : iterationTasks) {
                 try {
                     if (task.sleeping()) {
                         task.slept();
@@ -159,17 +159,17 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         }
     }
 
-    protected abstract ChatClient newAlice();
+    protected abstract @NotNull ChatClient newAlice() throws Exception;
 
-    protected ChatClient newBob() {
+    protected @NotNull ChatClient newBob() throws Exception {
         return newAlice();
     }
 
     private interface ToxFactory {
-        ToxCore make() throws ToxException;
+        @NotNull ToxCore make() throws ToxException;
     }
 
-    private void runAliceBobTest(ToxFactory factory) throws Exception {
+    private void runAliceBobTest(@NotNull ToxFactory factory) throws Exception {
         final long startTime = System.currentTimeMillis();
         long currentTime = startTime;
 
@@ -242,7 +242,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         Thread.sleep(GRACE_PERIOD * 10);
     }
 
-    private static String getToplevelMethod(StackTraceElement[] stackTrace) {
+    private static @NotNull String getToplevelMethod(@NotNull StackTraceElement[] stackTrace) {
         StackTraceElement last = stackTrace[0];
         for (StackTraceElement element : Arrays.asList(stackTrace).subList(1, stackTrace.length - 1)) {
             if (!element.getClassName().equals(AliceBobTestBase.class.getName())) {
@@ -256,6 +256,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     @Test
     public void runAliceBobTest_UDP4() throws Exception {
         runAliceBobTest(new ToxFactory() {
+            @NotNull
             @Override
             public ToxCore make() throws ToxNewException {
                 return newTox(false, true);
@@ -266,6 +267,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     @Test
     public void runAliceBobTest_UDP6() throws Exception {
         runAliceBobTest(new ToxFactory() {
+            @NotNull
             @Override
             public ToxCore make() throws ToxNewException {
                 return newTox(true, true);
@@ -277,6 +279,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     public void runAliceBobTest_TCP4() throws Exception {
         assumeIPv4();
         runAliceBobTest(new ToxFactory() {
+            @NotNull
             @Override
             public ToxCore make() throws ToxException {
                 return bootstrap(false, newTox(false, false));
@@ -288,6 +291,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     public void runAliceBobTest_TCP6() throws Exception {
         assumeIPv6();
         runAliceBobTest(new ToxFactory() {
+            @NotNull
             @Override
             public ToxCore make() throws ToxException {
                 return bootstrap(true, newTox(true, false));
@@ -306,6 +310,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         proxyThread.start();
         try {
             runAliceBobTest(new ToxFactory() {
+                @NotNull
                 @Override
                 public ToxCore make() throws ToxException {
                     return bootstrap(ipv6Enabled, newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort()));

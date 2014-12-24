@@ -60,28 +60,28 @@ public abstract class ToxCoreTestBase {
             ),
     };
 
-    protected abstract ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
+    protected abstract @NotNull ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
 
-    protected final ToxCore newTox() throws ToxNewException {
+    protected final @NotNull ToxCore newTox() throws ToxNewException {
         return newTox(new ToxOptions(), null);
     }
 
-    protected final ToxCore newTox(byte[] data) throws ToxNewException {
+    protected final @NotNull ToxCore newTox(byte[] data) throws ToxNewException {
         return newTox(new ToxOptions(), data);
     }
 
-    protected final ToxCore newTox(ToxOptions options) throws ToxNewException {
+    protected final @NotNull ToxCore newTox(ToxOptions options) throws ToxNewException {
         return newTox(options, null);
     }
 
-    protected final ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
+    protected final @NotNull ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
         ToxOptions options = new ToxOptions();
         options.setIpv6Enabled(ipv6Enabled);
         options.setUdpEnabled(udpEnabled);
         return newTox(options, null);
     }
 
-    protected final ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) throws ToxNewException {
+    protected final @NotNull ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) throws ToxNewException {
         ToxOptions options = new ToxOptions();
         options.setIpv6Enabled(ipv6Enabled);
         options.setUdpEnabled(udpEnabled);
@@ -90,7 +90,7 @@ public abstract class ToxCoreTestBase {
     }
 
     protected static class ConnectedListener implements ConnectionStatusCallback {
-        private ToxConnection value = ToxConnection.NONE;
+        private @NotNull ToxConnection value = ToxConnection.NONE;
 
         @Override
         public void connectionStatus(@NotNull ToxConnection connectionStatus) {
@@ -103,8 +103,8 @@ public abstract class ToxCoreTestBase {
     }
 
     protected class ToxList implements Closeable {
-        private final ToxCore[] toxes;
-        private final ToxConnection[] connected;
+        private final @NotNull ToxCore[] toxes;
+        private final @NotNull ToxConnection[] connected;
 
         public ToxList(int count) throws ToxNewException {
             this.toxes = new ToxCore[count];
@@ -170,7 +170,7 @@ public abstract class ToxCoreTestBase {
     }
 
 
-    protected static double entropy(byte[] data) {
+    protected static double entropy(@NotNull byte[] data) {
         int[] frequencies = new int[256];
         for (byte b : data) {
             frequencies[127 - b]++;
@@ -188,7 +188,7 @@ public abstract class ToxCoreTestBase {
     }
 
 
-    protected static byte[] randomBytes(int length) {
+    protected static @NotNull byte[] randomBytes(int length) {
         byte[] array = new byte[length];
         new Random().nextBytes(array);
         return array;
@@ -196,7 +196,7 @@ public abstract class ToxCoreTestBase {
 
 
     // return one of the friends (the last one)
-    protected int addFriends(ToxCore tox, int count) throws ToxNewException, ToxFriendAddException {
+    protected int addFriends(@NotNull ToxCore tox, int count) throws ToxNewException, ToxFriendAddException {
         if (count < 1) {
             throw new IllegalArgumentException("Cannot add less than 1 friend: " + count);
         }
@@ -210,7 +210,7 @@ public abstract class ToxCoreTestBase {
         return friendNumber;
     }
 
-    private static byte[] parseClientId(String id) {
+    private static byte[] parseClientId(@NotNull String id) {
         byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
         for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
             clientId[i] = (byte) (
@@ -249,7 +249,7 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected ToxCore bootstrap(boolean useIPv6, ToxCore tox) throws ToxBootstrapException {
+    protected @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
         if (useIPv6) {
             tox.bootstrap(nodes[0].ipv6, nodes[0].port, nodes[0].dhtId);
         } else {

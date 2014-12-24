@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 public class FileReceiveCallbackTest extends AliceBobTestBase {
 
+    @NotNull
     @Override
     protected ChatClient newAlice() {
         return new Client();
@@ -40,7 +41,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
                 assertEquals(FRIEND_NUMBER, friendNumber);
                 addTask(new Task() {
                     @Override
-                    public void perform(ToxCore tox) throws ToxException {
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
                         sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
                                 ("file for " + getFriendName() + ".png").getBytes());
                     }

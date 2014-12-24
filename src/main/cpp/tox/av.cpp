@@ -38,20 +38,20 @@ struct new_ToxAV
     callback<toxav_receive_video_frame_cb> receive_video_frame;
   } callbacks;
 
+  av_call &get_call (uint32_t friend_number)
+  {
+    auto found = friend_to_call.find (friend_number);
+    assert (found != friend_to_call.end ());
+
+    return found->second;
+  }
+
   struct CB
   {
     static uint32_t get_friend_number (new_ToxAV *self, int32_t call_idx)
     {
       auto found = self->call_to_friend.find (call_idx);
       assert (found != self->call_to_friend.end ());
-
-      return found->second;
-    }
-
-    static av_call &get_call (new_ToxAV *self, uint32_t friend_number)
-    {
-      auto found = self->friend_to_call.find (friend_number);
-      assert (found != self->friend_to_call.end ());
 
       return found->second;
     }
@@ -76,7 +76,7 @@ struct new_ToxAV
       auto self = static_cast<new_ToxAV *> (userdata);
       uint32_t friend_number = get_friend_number (self, call_idx);
 
-      av_call &call = get_call (self, friend_number);
+      av_call &call = self->get_call (friend_number);
       call.state = TOXAV_CALL_STATE_RINGING;
 
       auto cb = self->callbacks.call_state;
@@ -88,7 +88,7 @@ struct new_ToxAV
       auto self = static_cast<new_ToxAV *> (userdata);
       uint32_t friend_number = get_friend_number (self, call_idx);
 
-      av_call &call = get_call (self, friend_number);
+      av_call &call = self->get_call (friend_number);
 
       TOXAV_CALL_STATE state;
       switch (int (call.settings.call_type))
@@ -107,6 +107,10 @@ struct new_ToxAV
         }
       assert (call.state != state);
       call.state = state;
+
+      // Prepare codecs regardless of whether we're actually going to send
+      // anything right now.
+      toxav_prepare_transmission (self->av, call_idx, 1);
 
       auto cb = self->callbacks.call_state;
       cb.func (self, friend_number, call.state, cb.user_data);
@@ -157,7 +161,16 @@ struct new_ToxAV
     static void audio (void *agent, int32_t call_idx, int16_t const *pcm, uint16_t size, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
-      assert (false);
+      uint32_t friend_number = get_friend_number (self, call_idx);
+
+      av_call &call = self->get_call (friend_number);
+      ToxAvCSettings settings;
+      toxav_get_peer_csettings (self->av, call.index, 0, &settings);
+
+      size_t sample_count = settings.audio_channels * settings.audio_sample_rate * call.settings.audio_frame_duration / 1000;
+
+      auto cb = self->callbacks.receive_audio_frame;
+      cb.func (self, friend_number, pcm, sample_count, settings.audio_channels, settings.audio_sample_rate, cb.user_data);
     }
 
     static void video (void *agent, int32_t call_idx, vpx_image_t const *img, void *userdata)
@@ -278,14 +291,14 @@ new_toxav_iteration (new_ToxAV *av)
 static ToxAvCSettings
 make_settings (uint32_t audio_bit_rate, uint32_t video_bit_rate)
 {
-  auto settings = ToxAvCSettings ();
+  auto settings = av_DefaultSettings;
 
   if (audio_bit_rate != 0)
     {
       settings.call_type = av_TypeAudio;
-      settings.audio_bitrate = audio_bit_rate;
-      settings.audio_frame_duration = 20;
-      settings.audio_sample_rate = 48000;
+      settings.audio_bitrate = audio_bit_rate * 1000;
+      settings.audio_frame_duration = 60;
+      settings.audio_sample_rate = 8000;
       settings.audio_channels = 1;
     }
   if (video_bit_rate != 0)
@@ -393,13 +406,28 @@ new_toxav_callback_request_audio_frame (new_ToxAV *av, toxav_request_audio_frame
 
 bool
 new_toxav_send_audio_frame (new_ToxAV *av, uint32_t friend_number,
-                            uint16_t const *pcm,
+                            int16_t const *pcm,
                             size_t sample_count,
                             uint8_t channels,
                             uint32_t sampling_rate,
                             TOXAV_ERR_SEND_FRAME *error)
 {
-  assert (false);
+  av_call &call = av->get_call (friend_number);
+  assert (sample_count == sampling_rate * channels * call.settings.audio_frame_duration / 1000);
+  assert (channels == call.settings.audio_channels);
+  assert (sampling_rate == call.settings.audio_sample_rate);
+
+  std::vector<uint8_t> dest (1500);
+  int result = toxav_prepare_audio_frame (av->av, call.index, dest.data (), dest.size (), (int16_t const *) pcm, sample_count * channels);
+  if (result <= 0)
+    assert (false);
+  if (toxav_send_audio (av->av, call.index, dest.data(), result) < 0)
+    assert (false);
+
+  call.audio_event_pending = false;
+
+  if (error) *error = TOXAV_ERR_SEND_FRAME_OK;
+  return true;
 }
 
 void

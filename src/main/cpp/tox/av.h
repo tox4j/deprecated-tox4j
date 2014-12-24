@@ -364,8 +364,8 @@ typedef enum TOXAV_ERR_BIT_RATE {
  *
  * @param friend_number The friend number of the friend for which to set the
  *   audio bit rate.
- * @param audio_bit_rate The new audio bit rate. Set to 0 to disable audio
- *   sending.
+ * @param audio_bit_rate The new audio bit rate in Kb/sec. Set to 0 to disable
+ *   audio sending.
  *
  * @see toxav_call for the valid bit rates.
  */
@@ -376,8 +376,8 @@ bool toxav_set_audio_bit_rate(ToxAV *av, uint32_t friend_number, uint32_t audio_
  *
  * @param friend_number The friend number of the friend for which to set the
  *   video bit rate.
- * @param video_bit_rate The new video bit rate. Set to 0 to disable video
- *   sending.
+ * @param video_bit_rate The new video bit rate in Kb/sec. Set to 0 to disable
+ *   video sending.
  *
  * @see toxav_call for the valid bit rates.
  */
@@ -498,7 +498,7 @@ void toxav_callback_request_audio_frame(ToxAV *av, toxav_request_audio_frame_cb 
  *   rates are 8000, 12000, 16000, 24000, or 48000.
  */
 bool toxav_send_audio_frame(ToxAV *av, uint32_t friend_number,
-                            uint16_t const *pcm,
+                            int16_t const *pcm,
                             size_t sample_count,
                             uint8_t channels,
                             uint32_t sampling_rate,
@@ -550,7 +550,7 @@ void toxav_callback_receive_video_frame(ToxAV *av, toxav_receive_video_frame_cb 
  * @see toxav_send_audio_frame for the audio format.
  */
 typedef void toxav_receive_audio_frame_cb(ToxAV *av, uint32_t friend_number,
-                                          uint16_t const *pcm,
+                                          int16_t const *pcm,
                                           size_t sample_count,
                                           uint8_t channels,
                                           uint32_t sampling_rate,
