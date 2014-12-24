@@ -317,9 +317,14 @@ new_toxav_call (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, 
 {
   auto settings = make_settings (audio_bit_rate, video_bit_rate);
 
+  assert (av->friend_to_call.find (friend_number) == av->friend_to_call.end ());
+
   int call_index;
-  if (toxav_call (av->av, &call_index, friend_number, &settings, 0x7fffffff) != 0)
-    assert (false);
+  if (int result = toxav_call (av->av, &call_index, friend_number, &settings, 0x7fffffff))
+    {
+      printf ("%d\n", result);
+      assert (false);
+    }
 
   av_call call (call_index);
   call.settings = settings;
