@@ -30,8 +30,8 @@ class tox_instance {
     bool live = true;
 
     typedef typename ToxTraits::subsystem subsystem_type;
-    typedef typename ToxTraits::events events_type;
-    typedef typename ToxTraits::deleter deleter_type;
+    typedef typename ToxTraits::events    events_type;
+    typedef typename ToxTraits::deleter   deleter_type;
 
 public:
     typedef std::unique_ptr<subsystem_type, deleter_type> pointer;
@@ -42,6 +42,15 @@ public:
 
     bool isLive() const { return live; }
     bool isDead() const { return !live; }
+
+    template<typename Func, typename... Args>
+    auto with_lock(Func func, Args const &...args) const
+        -> typename std::result_of<Func(Args...)>::type
+    {
+        assert(mutex != nullptr);
+        std::lock_guard<std::mutex> lock(*mutex);
+        return func(args...);
+    }
 
     void assertValid() const {
         if (isLive()) {
@@ -61,7 +70,7 @@ public:
     : tox(std::move(tox))
     , events(std::move(events))
     , mutex(std::move(mutex))
-    { }
+    { assertValid(); }
 
     // Move members from another object into this new one, then set the old one to the DEAD state.
     tox_instance(tox_instance &&rhs)
@@ -186,7 +195,7 @@ public:
         }
 
         assert(dying.isLive());
-        assert(dying.mutex != nullptr);
+        dying.assertValid();
         std::lock_guard<std::mutex> ilock(*dying.mutex);
     }
 
@@ -218,9 +227,10 @@ public:
 
         // This instance was leaked, kill it before setting it free.
         if ((*this)[instanceNumber].isLive()) {
+            printf("Leaked Tox instance #%d\n", instanceNumber);
             instance_type dying(remove(instanceNumber));
             assert(dying.isLive());
-            assert(dying.mutex != nullptr);
+            dying.assertValid();
             std::lock_guard<std::mutex> ilock(*dying.mutex);
         }
 
