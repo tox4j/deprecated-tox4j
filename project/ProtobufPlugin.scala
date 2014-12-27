@@ -3,36 +3,37 @@ import Jni.Keys._
 import Keys._
 
 
-object ProtobufPlugin {
+object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
 
   object Keys {
-    val includePaths = TaskKey[Seq[File]]("protobuf-include-paths", "The paths that contain *.proto dependencies.")
-    val protoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
-    val externalIncludePath = SettingKey[File]("protobuf-external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
-    val generatedTargets = SettingKey[Seq[(File,String)]]("protobuf-generated-targets", "Targets for protoc: target directory and glob for generated source files")
-    val generate = TaskKey[Seq[File]]("protobuf-generate", "Compile the protobuf sources.")
-    val unpackDependencies = TaskKey[UnpackedDependencies]("protobuf-unpack-dependencies", "Unpack dependencies.")
-    val protocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
+    val includePaths = taskKey[Seq[File]]("The paths that contain *.proto dependencies.")
+    val generate = taskKey[Seq[File]]("Compile the protobuf sources.")
+    val unpackDependencies = taskKey[UnpackedDependencies]("Unpack dependencies.")
+
+    val protoc = settingKey[String]("The path+name of the protoc executable.")
+    val externalIncludePath = settingKey[File]("The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
+    val generatedTargets = settingKey[Seq[(File,String)]]("Targets for protoc: target directory and glob for generated source files")
+    val protocOptions = settingKey[Seq[String]]("Additional options to be passed to protoc")
   }
 
   import Keys._
 
-  val settings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
+  override val settings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
+
     sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
     sourceDirectories <<= sourceDirectory apply (_ :: Nil),
-    nativeSource <<= (managedNativeSourceDirectories in Compile) { _ / "compiled_protobuf" },
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
-    version := "2.5.0",
+    version := (Process(Seq(protoc.value, "--version")) !!).split(" ")(1).trim,
 
     generatedTargets := Nil,
-    generatedTargets <+= (javaSource in protobufConfig)((_, "*.java")), // add javaSource to the list of patterns
-    generatedTargets <+= (nativeSource in protobufConfig)((_, "*.pb.cpp")),
+    generatedTargets <+= javaSource((_, "*.java")), // add javaSource to the list of patterns
+    generatedTargets <+= (managedNativeSource in Compile)((_, "*.pb.cpp")),
 
     protocOptions := Nil,
-    protocOptions <++= (generatedTargets in protobufConfig){ generatedTargets =>
+    protocOptions <++= generatedTargets{ generatedTargets =>
       val java_out =
         generatedTargets.find(_._2.endsWith(".java")) match {
           case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.absolutePath))
@@ -52,7 +53,7 @@ object ProtobufPlugin {
 
     unpackDependencies <<= unpackDependenciesTask,
 
-    includePaths <<= (sourceDirectory in protobufConfig) map (identity(_) :: Nil),
+    includePaths <<= sourceDirectory map (identity(_) :: Nil),
     includePaths <+= externalIncludePath map (identity(_)),
 
     generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
@@ -65,7 +66,6 @@ object ProtobufPlugin {
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
     ivyConfigurations += protobufConfig,
 
-    extraHeadersPath := (managedNativeSourceDirectories in Compile).value / "compiled_protobuf",
     jniSourceFiles <++= (generatedTargets in protobufConfig){ generatedTargets =>
       generatedTargets.find(_._2.endsWith(".pb.cpp")) match {
         case Some(targetForCpp) => (targetForCpp._1 ** targetForCpp._2).get
@@ -96,17 +96,12 @@ object ProtobufPlugin {
 
     log.info("Compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
     log.debug("protoc options:")
-    protocOptions.map("\t"+_).foreach(log.debug(_))
+    protocOptions.map("\t" + _).foreach(log.debug(_))
     schemas.foreach(schema => log.info("Compiling schema %s" format schema))
 
     val exitCode = executeProtoc(protocCommand, schemas, includePaths, protocOptions, log)
     if (exitCode != 0)
       sys.error("protoc returned exit code: %d" format exitCode)
-
-    log.info("Compiling protobuf")
-    generatedTargetDirs.foreach{ dir =>
-      log.info("Protoc target directory: %s".format(dir.absolutePath))
-    }
 
     (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
   }
