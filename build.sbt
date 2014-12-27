@@ -9,6 +9,8 @@ compileOrder := CompileOrder.JavaThenScala
 
 // Test dependencies
 libraryDependencies ++= Seq(
+  "org.json" % "json" % "20131018",
+
   "com.novocode" % "junit-interface" % "0.11" % Test,
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % Test,
   "junit" % "junit" % "4.12" % Test
