@@ -20,12 +20,13 @@ public class JsonNodeParser implements NodeParser {
     private static final String IPV6 = "ipv6";
     private static final String PORT = "port";
 
+    @Override
     public List<Node> parse(String json) throws ParseException {
         JSONObject object = new JSONObject(json);
         return parseRootObject(object);
     }
 
-    private List<Node> parseRootObject(JSONObject root) {
+    private static List<Node> parseRootObject(JSONObject root) {
         List<Node> nodes = new ArrayList<>();
         JSONArray serverNodes = root.getJSONArray(SERVERS);
         for (int i = 0; i < serverNodes.length(); i++) {
@@ -41,7 +42,7 @@ public class JsonNodeParser implements NodeParser {
         return nodes;
     }
 
-    private Node parseNode(JSONObject jsonObject) throws Exception {
+    private static Node parseNode(JSONObject jsonObject) throws Exception {
         String owner = jsonObject.optString(OWNER, null);
         String publicKey = jsonObject.getString(PUBLIC_KEY);
         String ipv4Value = jsonObject.getString(IPV4);
