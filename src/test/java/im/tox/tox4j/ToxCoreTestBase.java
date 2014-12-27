@@ -24,7 +24,7 @@ public abstract class ToxCoreTestBase {
     private static final int GRACE_PERIOD = 1000;
     protected static final int TIMEOUT = 60000;
     @Rule
-    public final Timeout globalTimeout = new Timeout(TIMEOUT + GRACE_PERIOD);
+    public final Timeout globalTimeout = Timeout.seconds(TIMEOUT + GRACE_PERIOD);
 
     protected static final boolean LOGGING = true;
     protected static final int ITERATIONS = 500;
