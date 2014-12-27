@@ -3,7 +3,8 @@
 #include <tox/av.h>
 #include <tox/core.h>
 
-#include "JTox.h"
+#include "im_tox_tox4j_ToxAvImpl.h"
+#include "im_tox_tox4j_ToxCoreImpl.h"
 
 #include "Av.pb.h"
 #include "Core.pb.h"
