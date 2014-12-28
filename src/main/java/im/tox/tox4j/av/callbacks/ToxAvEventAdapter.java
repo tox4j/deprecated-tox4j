@@ -2,12 +2,7 @@ package im.tox.tox4j.av.callbacks;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
-import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.enums.ToxCallState;
-import im.tox.tox4j.enums.ToxConnection;
-import im.tox.tox4j.enums.ToxFileControl;
-import im.tox.tox4j.enums.ToxFileKind;
-import im.tox.tox4j.enums.ToxStatus;
 
 public class ToxAvEventAdapter implements ToxAvEventListener {
 
