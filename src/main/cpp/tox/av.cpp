@@ -119,42 +119,49 @@ struct new_ToxAV
     static void callstate_OnCancel (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
     static void callstate_OnReject (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
     static void callstate_OnEnd (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
     static void callstate_OnRequestTimeout (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
     static void callstate_OnPeerTimeout (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
     static void callstate_OnPeerCSChange (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
     static void callstate_OnSelfCSChange (void *agent, int32_t call_idx, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
 
@@ -176,6 +183,7 @@ struct new_ToxAV
     static void video (void *agent, int32_t call_idx, vpx_image_t const *img, void *userdata)
     {
       auto self = static_cast<new_ToxAV *> (userdata);
+      assert (self != nullptr);
       assert (false);
     }
   };
