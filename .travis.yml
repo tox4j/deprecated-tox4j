@@ -1,17 +1,16 @@
 language: cpp
 compiler: clang
 script:
-   - mkdir _build
-   - cd _build
-   - cmake .. -DPROTOBUF_FULL=/usr/share/java/protobuf-java.jar
-   - make -j4 junit
+   - sbt compile
+   - sbt test
 
 install:
    - pwd > $HOME/.pushd
    # Package dependencies.
-   - sudo apt-get install libvpx-dev libprotobuf-dev libprotobuf-java protobuf-compiler
-   - wget http://central.maven.org/maven2/junit/junit/4.12/junit-4.12.jar -O lib/junit-4.12.jar
-   - wget http://central.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar -O lib/hamcrest-core-1.3.jar
+   - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler
+   - wget https://dl.bintray.com/sbt/debian/sbt-0.13.7.deb
+   - sudo dpkg -i sbt-0.13.7.deb
+   - protoc --version || true
    # opus
    - cd $HOME
    - git clone --depth=1 git://git.opus-codec.org/opus.git
@@ -62,6 +61,8 @@ install:
    - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/local/lib/libtoxencryptsave.so
    - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/local/lib/libtoxencryptsave.so.0
    - cd `cat $HOME/.pushd`
+   # Trigger installation of SBT.
+   - sbt exit
 
 # whitelist
 branches:

@@ -113,6 +113,14 @@ object Jni extends Plugin {
   }
 
   private def pkgConfig(pkgs: Seq[String]) = {
+    pkgs map { pkg =>
+      (pkg, Seq("pkg-config", pkg) !< nullLog != 0)
+    } filter (_._2) map (_._1) match {
+      case Nil =>
+      case missing =>
+        sys.error(s"missing ${missing.size} packages: ${missing.mkString(", ")}")
+    }
+
     pkgs match {
       case Nil =>
         Nil
