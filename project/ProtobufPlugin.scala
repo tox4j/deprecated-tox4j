@@ -2,6 +2,7 @@ import sbt._
 import Jni.Keys._
 import Keys._
 
+import scala.language.postfixOps
 
 object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
@@ -26,7 +27,24 @@ object ProtobufPlugin extends Plugin {
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
-    version := (Process(Seq(protoc.value, "--version")) !!).split(" ")(1).trim,
+    version := {
+      object versionLog extends ProcessLogger {
+        import scala.collection.mutable
+
+        val result = new mutable.StringBuilder
+
+        def buffer[T](f: => T): T = f
+        def error(s: => String) = {
+          sys.error("unexpected error output from protoc: " + s)
+        }
+        def info(s: => String) = {
+          result ++= s
+        }
+      }
+      Seq(protoc.value, "--version") !< versionLog
+    	
+      versionLog.result.mkString.split(" ")(1).trim
+    },
 
     generatedTargets := Nil,
     generatedTargets <+= javaSource((_, "*.java")), // add javaSource to the list of patterns
@@ -79,11 +97,8 @@ object ProtobufPlugin extends Plugin {
   private def executeProtoc(protocCommand: String, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) =
     try {
       val incPath = includePaths.map("-I" + _.absolutePath)
-      val proc = Process(
-        protocCommand,
-        incPath ++ protocOptions ++ schemas.map(_.absolutePath)
-      )
-      proc ! log
+      val command = Seq(protocCommand) ++ incPath ++ protocOptions ++ schemas.map(_.absolutePath)
+      command ! log
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
