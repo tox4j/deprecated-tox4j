@@ -18,7 +18,7 @@ install:
    - ./autogen.sh
    - mkdir _build
    - cd _build
-   - ../configure
+   - ../configure --prefix=/usr
    - make -j4
    - sudo make install
    # libsodium
@@ -28,7 +28,7 @@ install:
    - ./autogen.sh
    - mkdir _build
    - cd _build
-   - ../configure
+   - ../configure --prefix=/usr
    - make -j4
    - sudo make install
    # toxcore
@@ -38,28 +38,28 @@ install:
    - ./autogen.sh
    - mkdir _build
    - cd _build
-   - ../configure
+   - ../configure --prefix=/usr
    - make -j4
    #- sudo make install
-   - sudo mkdir -p /usr/local/include/tox
-   - sudo mkdir -p /usr/local/lib/pkgconfig
-   - sudo cp *.pc /usr/local/lib/pkgconfig/
-   - sudo cp ../toxav/toxav.h /usr/local/include/tox/
-   - sudo cp ../toxcore/tox.h /usr/local/include/tox/
-   - sudo cp ../toxdns/toxdns.h /usr/local/include/tox/
-   - sudo cp ../toxencryptsave/toxencryptsave.h /usr/local/include/tox/
-   - sudo cp build/.libs/libtoxav.so /usr/local/lib/libtoxav.so.0.0.0
-   - sudo cp build/.libs/libtoxcore.so /usr/local/lib/libtoxcore.so.0.0.0
-   - sudo cp build/.libs/libtoxdns.so /usr/local/lib/libtoxdns.so.0.0.0
-   - sudo cp build/.libs/libtoxencryptsave.so /usr/local/lib/libtoxencryptsave.so.0.0.0
-   - sudo ln -s libtoxav.so.0.0.0 /usr/local/lib/libtoxav.so
-   - sudo ln -s libtoxav.so.0.0.0 /usr/local/lib/libtoxav.so.0
-   - sudo ln -s libtoxcore.so.0.0.0 /usr/local/lib/libtoxcore.so
-   - sudo ln -s libtoxcore.so.0.0.0 /usr/local/lib/libtoxcore.so.0
-   - sudo ln -s libtoxdns.so.0.0.0 /usr/local/lib/libtoxdns.so
-   - sudo ln -s libtoxdns.so.0.0.0 /usr/local/lib/libtoxdns.so.0
-   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/local/lib/libtoxencryptsave.so
-   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/local/lib/libtoxencryptsave.so.0
+   - sudo mkdir -p /usr/include/tox
+   - sudo mkdir -p /usr/lib/pkgconfig
+   - sudo cp *.pc /usr/lib/pkgconfig/
+   - sudo cp ../toxav/toxav.h /usr/include/tox/
+   - sudo cp ../toxcore/tox.h /usr/include/tox/
+   - sudo cp ../toxdns/toxdns.h /usr/include/tox/
+   - sudo cp ../toxencryptsave/toxencryptsave.h /usr/include/tox/
+   - sudo cp build/.libs/libtoxav.so /usr/lib/libtoxav.so.0.0.0
+   - sudo cp build/.libs/libtoxcore.so /usr/lib/libtoxcore.so.0.0.0
+   - sudo cp build/.libs/libtoxdns.so /usr/lib/libtoxdns.so.0.0.0
+   - sudo cp build/.libs/libtoxencryptsave.so /usr/lib/libtoxencryptsave.so.0.0.0
+   - sudo ln -s libtoxav.so.0.0.0 /usr/lib/libtoxav.so
+   - sudo ln -s libtoxav.so.0.0.0 /usr/lib/libtoxav.so.0
+   - sudo ln -s libtoxcore.so.0.0.0 /usr/lib/libtoxcore.so
+   - sudo ln -s libtoxcore.so.0.0.0 /usr/lib/libtoxcore.so.0
+   - sudo ln -s libtoxdns.so.0.0.0 /usr/lib/libtoxdns.so
+   - sudo ln -s libtoxdns.so.0.0.0 /usr/lib/libtoxdns.so.0
+   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/lib/libtoxencryptsave.so
+   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/lib/libtoxencryptsave.so.0
    - cd `cat $HOME/.pushd`
    # Trigger installation of SBT.
    - sbt exit
