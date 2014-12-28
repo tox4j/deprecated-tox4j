@@ -1,5 +1,6 @@
 #undef Tox
 #undef Tox_Options
+#undef TOX_PROXY_TYPE
 #undef tox_options_default
 #undef tox_options_new
 #undef tox_options_free

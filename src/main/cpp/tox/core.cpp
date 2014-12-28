@@ -115,6 +115,10 @@ new_tox_new (struct new_Tox_Options const *options, uint8_t const *data, size_t 
 
   if (options != nullptr)
     {
+      auto opts = Tox_Options ();
+      opts.ipv6enabled = options->ipv6_enabled;
+      opts.udp_disabled = !options->udp_enabled;
+
       if (options->proxy_type != TOX_PROXY_TYPE_NONE)
         {
           if (options->proxy_address == nullptr)
@@ -142,11 +146,20 @@ new_tox_new (struct new_Tox_Options const *options, uint8_t const *data, size_t 
             }
         }
 
-      auto opts = Tox_Options ();
-      opts.ipv6enabled = options->ipv6_enabled;
-      opts.udp_disabled = !options->udp_enabled;
-      opts.proxy_enabled = options->proxy_type != TOX_PROXY_TYPE_NONE;
-      if (opts.proxy_enabled)
+      switch (options->proxy_type)
+        {
+        case TOX_PROXY_TYPE_NONE:
+          opts.proxy_type = TOX_PROXY_NONE;
+          break;
+        case TOX_PROXY_TYPE_SOCKS5:
+          opts.proxy_type = TOX_PROXY_SOCKS5;
+          break;
+        case TOX_PROXY_TYPE_HTTP:
+          opts.proxy_type = TOX_PROXY_HTTP;
+          break;
+        }
+
+      if (opts.proxy_type != TOX_PROXY_NONE)
         {
           std::strncpy (opts.proxy_address, options->proxy_address, sizeof opts.proxy_address - 1);
           opts.proxy_port = options->proxy_port;

@@ -1,5 +1,6 @@
 #define Tox new_Tox
 #define Tox_Options new_Tox_Options
+#define TOX_PROXY_TYPE new_TOX_PROXY_TYPE
 #define tox_options_default new_tox_options_default
 #define tox_options_new new_tox_options_new
 #define tox_options_free new_tox_options_free
