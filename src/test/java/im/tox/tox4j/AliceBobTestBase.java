@@ -43,8 +43,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
         private boolean done;
 
-        public boolean isDone() {
-            return done;
+        public boolean isRunning() {
+            return !done;
         }
 
         public void done() throws InterruptedException {
@@ -73,10 +73,6 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             return chatting;
         }
 
-        public boolean isConnected() {
-            return connected;
-        }
-
         public @NotNull String getName() {
             return name;
         }
@@ -102,7 +98,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
         protected void debug(@NotNull String message) {
             if (LOGGING) {
-                System.out.println(Thread.currentThread().getName() + " " + getName() + ": " + message);
+                System.out.println(Thread.currentThread().getName() + ' ' + getName() + ": " + message);
             }
         }
 

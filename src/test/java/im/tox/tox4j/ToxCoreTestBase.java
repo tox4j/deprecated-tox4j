@@ -25,7 +25,7 @@ import static org.junit.Assume.assumeTrue;
 public abstract class ToxCoreTestBase {
 
     private static final int GRACE_PERIOD = 1000;
-    protected static final int TIMEOUT = 60000;
+    static final int TIMEOUT = 60000;
     @Rule
     public final Timeout globalTimeout = Timeout.seconds(TIMEOUT + GRACE_PERIOD);
 
@@ -46,7 +46,7 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected static final DhtNode[] nodeCandidates = {
+    static final DhtNode[] nodeCandidates = {
             // sonOfRa
             new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
             // stqism
@@ -163,7 +163,7 @@ public abstract class ToxCoreTestBase {
     }
 
 
-    protected static double entropy(@NotNull byte[] data) {
+    static double entropy(@NotNull byte[] data) {
         int[] frequencies = new int[256];
         for (byte b : data) {
             frequencies[127 - b]++;
@@ -225,8 +225,7 @@ public abstract class ToxCoreTestBase {
     }
 
     protected void assumeIPv4() {
-        try {
-            Socket socket = new Socket(InetAddress.getByName(node().ipv4), node().port);
+        try (Socket socket = new Socket(InetAddress.getByName(node().ipv4), node().port)) {
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
             assumeTrue("An IPv4 network connection can be established", false);
@@ -234,15 +233,14 @@ public abstract class ToxCoreTestBase {
     }
 
     protected void assumeIPv6() {
-        try {
-            Socket socket = new Socket(InetAddress.getByName(node().ipv6), node().port);
+        try (Socket socket = new Socket(InetAddress.getByName(node().ipv6), node().port)) {
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
             assumeTrue("An IPv6 network connection can be established", false);
         }
     }
 
-    protected @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
+    @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
         if (useIPv6) {
             tox.bootstrap(node().ipv6, node().port, node().dhtId);
         } else {

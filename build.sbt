@@ -40,3 +40,11 @@ jniSourceFiles ++= Seq(
   managedNativeSource.value / "Av.pb.cc",
   managedNativeSource.value / "Core.pb.cc"
 )
+
+// Java 1.6 for production code.
+javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
+scalacOptions in Compile += "-target:jvm-" + "1.6"
+
+// Java 1.7 for test code.
+javacOptions in Test ++= Seq("-source", "1.7", "-target", "1.7")
+scalacOptions in Compile += "-target:jvm-" + "1.7"

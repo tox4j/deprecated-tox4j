@@ -11,11 +11,11 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class LoadSaveTest extends ToxCoreImplTestBase {
+public final class LoadSaveTest extends ToxCoreImplTestBase {
 
     private interface Check {
         boolean change(ToxCore tox) throws ToxException;
-        void check(ToxCore tox) throws ToxException;
+        void check(ToxCore tox);
     }
 
     private void testLoadSave(Check check) throws Exception {
@@ -81,7 +81,7 @@ public class LoadSaveTest extends ToxCoreImplTestBase {
     @Test
     public void testStatus() throws Exception {
         testLoadSave(new Check() {
-            private List<ToxStatus> expected = new ArrayList<>(Arrays.asList(ToxStatus.values()));
+            private final List<ToxStatus> expected = new ArrayList<>(Arrays.asList(ToxStatus.values()));
 
             @Override
             public boolean change(ToxCore tox) throws ToxException {

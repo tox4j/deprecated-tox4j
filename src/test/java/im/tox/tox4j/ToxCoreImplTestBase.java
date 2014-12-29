@@ -8,7 +8,7 @@ import org.junit.After;
 
 public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
 
-    private static DhtNodeSelector dht = new DhtNodeSelector();
+    private static final DhtNodeSelector dht = new DhtNodeSelector();
 
     @After
     public void tearDown() {
