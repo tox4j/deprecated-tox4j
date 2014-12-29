@@ -1,4 +1,4 @@
-package im.tox.tox4j.proto;
+package im.tox.tox4j.core.proto;
 
 option optimize_for = LITE_RUNTIME;
 

@@ -1,7 +1,7 @@
 #include "ToxAv.h"
 
-using AvInstanceManager = instance_manager<av::tox_traits>;
-using AvInstance = tox_instance<av::tox_traits>;
+using AvInstanceManager = instance_manager<tox_traits>;
+using AvInstance = tox_instance<tox_traits>;
 
 
 static void tox4j_call_cb(ToxAV *av, uint32_t friend_number, void *user_data)
@@ -19,7 +19,7 @@ static void tox4j_call_state_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_ST
     auto msg = events.add_callstate();
     msg->set_friendnumber(friend_number);
 
-    using im::tox::tox4j::proto::CallState;
+    using proto::CallState;
     switch (state) {
 #define call_state_case(STATE)                  \
         case TOXAV_CALL_STATE_##STATE:          \

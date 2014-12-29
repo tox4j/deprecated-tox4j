@@ -1,11 +1,13 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.callbacks.ToxEventAdapter;
-import im.tox.tox4j.enums.ToxConnection;
-import im.tox.tox4j.enums.ToxProxyType;
+import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.callbacks.ToxEventAdapter;
+import im.tox.tox4j.core.enums.ToxConnection;
+import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.exceptions.ToxNewException;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.exceptions.ToxNewException;
 import org.junit.Test;
 
 import java.util.ArrayList;

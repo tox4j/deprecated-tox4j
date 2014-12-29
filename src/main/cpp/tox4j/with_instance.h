@@ -43,7 +43,7 @@ with_error_handling(JNIEnv *env, char const *method, ErrorFunc error_func, Succe
         case ErrorHandling::SUCCESS:
             return success_func(value);
         case ErrorHandling::FAILURE:
-            throw_tox_exception(env, method, result.error);
+            throw_tox_exception(env, tox_traits::module, method, result.error);
             break;
         case ErrorHandling::UNHANDLED:
             throw_illegal_state_exception(env, error, "Unknown error code");

@@ -42,7 +42,7 @@ object ProtobufPlugin extends Plugin {
         }
       }
       Seq(protoc.value, "--version") !< versionLog
-    	
+
       versionLog.result.mkString.split(" ")(1).trim
     },
 

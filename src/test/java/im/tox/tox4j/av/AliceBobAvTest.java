@@ -2,11 +2,11 @@ package im.tox.tox4j.av;
 
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxAvImpl;
-import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.ToxAvEventListener;
 import im.tox.tox4j.av.enums.ToxCallState;
+import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.exceptions.ToxException;
 
 import java.util.ArrayList;

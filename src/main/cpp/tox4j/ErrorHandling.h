@@ -8,7 +8,7 @@
 void throw_tox_killed_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message);
-void throw_tox_exception(JNIEnv *env, char const *method, char const *code);
+void throw_tox_exception(JNIEnv *env, char const *module, char const *method, char const *code);
 
 #include "ToxInstances.h"
 
@@ -82,25 +82,9 @@ template<typename SuccessFunc, typename ToxFunc, typename... Args>
 using tox_success_t = typename std::result_of<SuccessFunc(typename std::result_of<ToxFunc(Args..., tox_error_t<ToxFunc> *)>::type)>::type;
 
 
-namespace core {
-    using Events = im::tox::tox4j::proto::CoreEvents;
-
-    struct Deleter {
-        void operator()(Tox *tox) {
-            tox_kill(tox);
-        }
-    };
-
-    struct tox_traits {
-        typedef Tox subsystem;
-        typedef Events events;
-        typedef Deleter deleter;
-    };
-#include "with_instance.h"
-}
-
 namespace av {
-    using Events = im::tox::tox4j::proto::AvEvents;
+    namespace proto = im::tox::tox4j::av::proto;
+    using Events = proto::AvEvents;
 
     struct Deleter {
         void operator()(ToxAV *av) {
@@ -112,6 +96,28 @@ namespace av {
         typedef ToxAV subsystem;
         typedef Events events;
         typedef Deleter deleter;
+
+        static char const *const module;
+    };
+#include "with_instance.h"
+}
+
+namespace core {
+    namespace proto = im::tox::tox4j::core::proto;
+    using Events = proto::CoreEvents;
+
+    struct Deleter {
+        void operator()(Tox *tox) {
+            tox_kill(tox);
+        }
+    };
+
+    struct tox_traits {
+        typedef Tox subsystem;
+        typedef Events events;
+        typedef Deleter deleter;
+
+        static char const *const module;
     };
 #include "with_instance.h"
 }

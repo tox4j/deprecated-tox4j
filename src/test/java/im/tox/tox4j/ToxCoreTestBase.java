@@ -1,12 +1,15 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.callbacks.ConnectionStatusCallback;
-import im.tox.tox4j.enums.ToxConnection;
-import im.tox.tox4j.enums.ToxProxyType;
-import im.tox.tox4j.exceptions.ToxBootstrapException;
-import im.tox.tox4j.exceptions.ToxFriendAddException;
-import im.tox.tox4j.exceptions.ToxNewException;
+import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxOptions;
+import im.tox.tox4j.core.callbacks.ConnectionStatusCallback;
+import im.tox.tox4j.core.enums.ToxConnection;
+import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.exceptions.ToxBootstrapException;
+import im.tox.tox4j.core.exceptions.ToxFriendAddException;
+import im.tox.tox4j.core.exceptions.ToxNewException;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 
@@ -30,10 +33,10 @@ public abstract class ToxCoreTestBase {
     protected static final int ITERATIONS = 500;
 
     protected static class DhtNode {
-        protected final String ipv4;
-        protected final String ipv6;
-        protected final int port;
-        protected final byte[] dhtId;
+        public final String ipv4;
+        public final String ipv6;
+        public final int port;
+        public final byte[] dhtId;
 
         public DhtNode(String ipv4, String ipv6, int port, String dhtId) {
             this.ipv4 = ipv4;
@@ -62,7 +65,8 @@ public abstract class ToxCoreTestBase {
 
     protected abstract @NotNull DhtNode node();
 
-    protected abstract @NotNull ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
+    protected abstract @NotNull
+    ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
 
     protected final @NotNull ToxCore newTox() throws ToxNewException {
         return newTox(new ToxOptions(), null);
@@ -89,19 +93,6 @@ public abstract class ToxCoreTestBase {
         options.setUdpEnabled(udpEnabled);
         options.enableProxy(proxyType, proxyAddress, proxyPort);
         return newTox(options, null);
-    }
-
-    protected static class ConnectedListener implements ConnectionStatusCallback {
-        private @NotNull ToxConnection value = ToxConnection.NONE;
-
-        @Override
-        public void connectionStatus(@NotNull ToxConnection connectionStatus) {
-            value = connectionStatus;
-        }
-
-        public boolean isConnected() {
-            return value != ToxConnection.NONE;
-        }
     }
 
     protected static class ToxList implements Closeable {

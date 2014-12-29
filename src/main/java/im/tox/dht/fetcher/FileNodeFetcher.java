@@ -17,11 +17,14 @@ public class FileNodeFetcher implements NodeFetcher {
         StringBuilder sb = new StringBuilder();
         String line;
         try {
-            try (BufferedReader br = new BufferedReader(new FileReader(nodeFile))) {
+            BufferedReader br = new BufferedReader(new FileReader(nodeFile));
+            try {
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
                 return sb.toString();
+            } finally {
+                br.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

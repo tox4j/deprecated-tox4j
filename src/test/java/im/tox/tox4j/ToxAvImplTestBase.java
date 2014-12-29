@@ -4,7 +4,9 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.av.ToxAv;
 import im.tox.tox4j.av.ToxAvTestBase;
 import im.tox.tox4j.av.exceptions.ToxAvNewException;
-import im.tox.tox4j.exceptions.ToxNewException;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxOptions;
+import im.tox.tox4j.core.exceptions.ToxNewException;
 import org.junit.After;
 
 public abstract class ToxAvImplTestBase extends ToxAvTestBase {

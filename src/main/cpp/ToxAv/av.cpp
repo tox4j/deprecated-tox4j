@@ -153,7 +153,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
         uData.size() != pixel_count ||
         vData.size() != pixel_count ||
         (!aData.empty() && aData.size() != pixel_count)) {
-        throw_tox_exception(env, "SendFrame", "BAD_LENGTH");
+        throw_tox_exception(env, tox_traits::module, "SendFrame", "BAD_LENGTH");
         return;
     }
 
@@ -186,7 +186,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendAudioFrame
 
     ShortArray pcmData(env, pcm);
     if (pcmData.size() != size_t (sampleCount * channels)) {
-        throw_tox_exception(env, "SendFrame", "BAD_LENGTH");
+        throw_tox_exception(env, tox_traits::module, "SendFrame", "BAD_LENGTH");
         return;
     }
 
