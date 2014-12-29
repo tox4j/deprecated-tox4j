@@ -74,41 +74,12 @@ object Jni extends Plugin {
       None
   }
 
-  private val jreIncludeFolder = {
-    import grizzled.sys._
-    os match {
-      case OperatingSystem.Posix => "linux"
-      case OperatingSystem.Mac => "darwin"
-    }
-  }
-
-  private val jreIncludes = {
+  private val jreInclude = {
     jdkHome.map { home =>
       val absHome = home.getAbsoluteFile.getParentFile
       // In a typical installation, JDK files are one directory above the
       // location of the JRE set in 'java.home'.
-      Seq(
-        absHome / "include",
-        absHome / "include" / jreIncludeFolder
-      )
-    }
-  }
-
-  private def executableName(name: String) = {
-    import grizzled.sys._
-    os match {
-      case OperatingSystem.Posix => name
-      case OperatingSystem.Mac => name
-      case OperatingSystem.Windows => name + ".exe"
-    }
-  }
-
-  private def sharedLibraryName(name: String) = {
-    import grizzled.sys._
-    os match {
-      case OperatingSystem.Posix => "lib" + name + ".so"
-      case OperatingSystem.Mac => "lib" + name + ".dylib"
-      case OperatingSystem.Windows => name + ".dll"
+      Seq(absHome / "include")
     }
   }
 
@@ -186,7 +157,7 @@ object Jni extends Plugin {
       (managedNativeSource in Compile).value
     ),
   
-    includes ++= jreIncludes.getOrElse(Nil)
+    includes ++= jreInclude.getOrElse(Nil)
 
   )) ++ Seq(
 
@@ -242,7 +213,7 @@ object Jni extends Plugin {
       // Make sure the output directory exists.
       binPath.value.mkdirs()
 
-      val output = (binPath.value / sharedLibraryName(libraryName.value)).getPath
+      val output = (binPath.value / System.mapLibraryName(libraryName.value)).getPath
       val flags = ccOptions.value.distinct
       val sources = jniSourceFiles.value.map(_.getPath)
 

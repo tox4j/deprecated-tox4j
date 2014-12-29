@@ -4,7 +4,6 @@ import im.tox.dht.fetcher.NodeFetcher;
 import im.tox.dht.fetcher.StringNodeFetcher;
 import im.tox.dht.parser.JsonNodeParser;
 import im.tox.dht.parser.NodeParser;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.List;
