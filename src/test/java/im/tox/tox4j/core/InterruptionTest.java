@@ -9,7 +9,7 @@ public final class InterruptionTest extends ToxCoreImplTestBase {
         new InterruptionTest().causeSegfault();
     }
 
-//    @Test
+    //    @Test
     @SuppressWarnings("deprecation")
     public void causeSegfault() throws Exception {
         for (int i = 0; i < Integer.MAX_VALUE; i++) {

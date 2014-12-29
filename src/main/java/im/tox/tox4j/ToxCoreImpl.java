@@ -70,12 +70,12 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
 
     private static native int toxNew(
-            byte[] data,
-            boolean ipv6Enabled,
-            boolean udpEnabled,
-            int proxyType,
-            String proxyAddress,
-            int proxyPort
+        byte[] data,
+        boolean ipv6Enabled,
+        boolean udpEnabled,
+        int proxyType,
+        String proxyAddress,
+        int proxyPort
     ) throws ToxNewException;
 
     public ToxCoreImpl() throws ToxNewException {
@@ -93,12 +93,12 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     public ToxCoreImpl(@NotNull ToxOptions options, @NotNull byte[] data) throws ToxNewException {
         instanceNumber = toxNew(
-                data,
-                options.isIpv6Enabled(),
-                options.isUdpEnabled(),
-                options.getProxyType().ordinal(),
-                options.getProxyAddress(),
-                options.getProxyPort()
+            data,
+            options.isIpv6Enabled(),
+            options.isUdpEnabled(),
+            options.getProxyType().ordinal(),
+            options.getProxyAddress(),
+            options.getProxyPort()
         );
     }
 

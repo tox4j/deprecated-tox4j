@@ -44,7 +44,7 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
             thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (!isDone()) {
+                    while (isRunning()) {
                         av.iteration();
                         try {
                             performTasks(av);

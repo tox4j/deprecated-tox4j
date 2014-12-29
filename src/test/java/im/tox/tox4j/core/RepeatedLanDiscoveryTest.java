@@ -3,7 +3,7 @@ package im.tox.tox4j.core;
 import im.tox.tox4j.ConnectedListener;
 import im.tox.tox4j.ToxCoreImpl;
 
-public class RepeatedLanDiscoveryTest {
+public final class RepeatedLanDiscoveryTest {
 
     public static void main() throws Exception {
         for (int i = 0; i < 1000; i++) {

@@ -21,7 +21,6 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
     private static class Client extends ChatClient {
 
         private byte[] fileData;
-        private Integer sentFileNumber = null;
 
         @Override
         public void setup(ToxCore tox) throws ToxException {
@@ -39,7 +38,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
                 addTask(new Task() {
                     @Override
                     public void perform(@NotNull ToxCore tox) throws ToxException {
-                        sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
+                        tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
                                 ("file for " + getFriendName() + ".png").getBytes());
                     }
                 });
