@@ -40,8 +40,7 @@ public class LoadSaveTest extends ToxCoreImplTestBase {
             @Override
             public boolean change(ToxCore tox) throws ToxException {
                 if (expected == null) {
-                    // Don't test 0 length for now (core doesn't yet support it).
-                    expected = new byte[]{ 123 };
+                    expected = new byte[0];
                 } else {
                     expected = randomBytes(expected.length + 1);
                 }
@@ -51,11 +50,7 @@ public class LoadSaveTest extends ToxCoreImplTestBase {
 
             @Override
             public void check(ToxCore tox) {
-                if (expected.length == 0) {
-                    assertNull(tox.getName());
-                } else {
-                    assertArrayEquals(expected, tox.getName());
-                }
+                assertArrayEquals(expected, tox.getName());
             }
         });
     }
@@ -78,11 +73,7 @@ public class LoadSaveTest extends ToxCoreImplTestBase {
 
             @Override
             public void check(ToxCore tox) {
-                if (expected.length == 0) {
-                    assertNull(tox.getStatusMessage());
-                } else {
-                    assertArrayEquals(expected, tox.getStatusMessage());
-                }
+                assertArrayEquals(expected, tox.getStatusMessage());
             }
         });
     }

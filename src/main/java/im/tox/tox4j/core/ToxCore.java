@@ -153,7 +153,7 @@ public interface ToxCore extends Closeable {
      *
      * @return our nickname.
      */
-    @Nullable
+    @NotNull
     byte[] getName();
 
     /**
@@ -171,7 +171,7 @@ public interface ToxCore extends Closeable {
      *
      * @return our status message.
      */
-    @Nullable
+    @NotNull
     byte[] getStatusMessage();
 
     /**

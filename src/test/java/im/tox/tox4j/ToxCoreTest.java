@@ -210,7 +210,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testGetAndSetName() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
             assertArrayEquals("myname".getBytes(), tox.getName());
         }
@@ -248,29 +248,29 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testUnsetName1() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
             assertNotNull(tox.getName());
             tox.setName(null);
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
         }
     }
 
     @Test
     public void testUnsetName2() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
             assertNotNull(tox.getName());
             tox.setName(new byte[0]);
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
         }
     }
 
     @Test
     public void testGetAndSetStatusMessage() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertArrayEquals("message".getBytes(), tox.getStatusMessage());
         }
@@ -308,22 +308,22 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testUnsetStatusMessage1() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertNotNull(tox.getStatusMessage());
             tox.setStatusMessage(null);
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
         }
     }
 
     @Test
     public void testUnsetStatusMessage2() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertNotNull(tox.getStatusMessage());
             tox.setStatusMessage(new byte[0]);
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
         }
     }
 

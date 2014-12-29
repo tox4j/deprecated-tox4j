@@ -11,6 +11,12 @@ class ToxClientSpec extends FlatSpec {
     assert(tox.getName == "Alice")
   }
 
+  it must "return an empty string if no name was set" in {
+    val tox = new ToxClient
+    assert(tox.getName == "")
+  }
+
+
   "getStatus" should "return the status set by setStatus" in {
     val tox = new ToxClient
     assert(tox.getStatus == ToxStatus.NONE)
@@ -18,10 +24,21 @@ class ToxClientSpec extends FlatSpec {
     assert(tox.getStatus == ToxStatus.AWAY)
   }
 
+  it should "return NONE if no status was set" in {
+    val tox = new ToxClient
+    assert(tox.getStatus == ToxStatus.NONE)
+  }
+
+
   "getStatusMessage" should "return the status message set by setStatusMessage" in {
     val tox = new ToxClient
     tox.setStatusMessage("Yo, cool status")
     assert(tox.getStatusMessage == "Yo, cool status")
+  }
+
+  it should "return an empty string if no status message was set" in {
+    val tox = new ToxClient
+    assert(tox.getName == "")
   }
 
 }
