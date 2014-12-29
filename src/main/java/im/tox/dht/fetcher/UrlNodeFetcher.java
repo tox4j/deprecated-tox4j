@@ -22,10 +22,14 @@ public class UrlNodeFetcher implements NodeFetcher {
 
             StringBuilder sb = new StringBuilder();
             String line;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(nodeURL.openStream()))) {
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(nodeURL.openStream()));
+            try {
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
+            } finally {
+                br.close();
             }
             return sb.toString();
         } catch (IOException e) {

@@ -27,7 +27,7 @@ public class JsonNodeParser implements NodeParser {
     }
 
     private static List<Node> parseRootObject(JSONObject root) {
-        List<Node> nodes = new ArrayList<>();
+        List<Node> nodes = new ArrayList<Node>();
         JSONArray serverNodes = root.getJSONArray(SERVERS);
         for (int i = 0; i < serverNodes.length(); i++) {
             try {

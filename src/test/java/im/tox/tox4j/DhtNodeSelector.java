@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.exceptions.ToxException;
 
 public final class DhtNodeSelector {
@@ -17,7 +18,7 @@ public final class DhtNodeSelector {
         for (ToxCoreTestBase.DhtNode node : ToxCoreTestBase.nodeCandidates) {
             try (ToxCore tox = factory.newTox(true, true)) {
                 // Simple listener for the connected event.
-                ToxCoreTestBase.ConnectedListener status = new ToxCoreTestBase.ConnectedListener();
+                ConnectedListener status = new ConnectedListener();
                 tox.callbackConnectionStatus(status);
 
                 tox.bootstrap(node.ipv4, node.port, node.dhtId);

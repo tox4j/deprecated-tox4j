@@ -1,11 +1,11 @@
 package im.tox.tox4j.av;
 
-import im.tox.tox4j.ToxCore;
 import im.tox.tox4j.ToxCoreTestBase;
-import im.tox.tox4j.ToxOptions;
 import im.tox.tox4j.av.exceptions.ToxAvNewException;
-import im.tox.tox4j.enums.ToxProxyType;
-import im.tox.tox4j.exceptions.ToxNewException;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxOptions;
+import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.exceptions.ToxNewException;
 
 public abstract class ToxAvTestBase extends ToxCoreTestBase {
 

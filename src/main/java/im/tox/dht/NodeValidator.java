@@ -1,6 +1,6 @@
 package im.tox.dht;
 
-import im.tox.tox4j.ToxConstants;
+import im.tox.tox4j.core.ToxConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class NodeValidator {
     }
 
     public static List<Node> getValidNodes(List<Node> nodes) {
-        List<Node> validNodes = new ArrayList<>();
+        List<Node> validNodes = new ArrayList<Node>();
 
         for (Node node : nodes) {
             if (NodeValidator.isValid(node)) {

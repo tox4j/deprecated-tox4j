@@ -1,8 +1,5 @@
 package im.tox.tox4j.v1;
 
-import im.tox.tox4j.ToxCore;
-import im.tox.tox4j.ToxCoreImpl;
-
 /**
  * Implementation of a simple 1:1 Wrapper for the Tox API
  * <p>

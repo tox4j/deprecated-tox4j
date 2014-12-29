@@ -9,12 +9,15 @@ compileOrder := CompileOrder.JavaThenScala
 
 // Test dependencies
 libraryDependencies ++= Seq(
-  "org.json" % "json" % "20131018",
-
-  "com.novocode" % "junit-interface" % "0.11" % Test,
-  "org.scalatest" %% "scalatest" % "2.2.1" % Test,
-  "junit" % "junit" % "4.12" % Test
+  "org.json" % "json" % "20131018"
 )
+
+libraryDependencies ++= Seq(
+  "com.novocode" % "junit-interface" % "0.11",
+  "org.scalatest" %% "scalatest" % "2.2.1",
+  "junit" % "junit" % "4.12"
+  //"org.easetech" % "easytest" % "0.6.3"
+) map (_ % Test)
 
 // JNI
 import Jni.Keys._

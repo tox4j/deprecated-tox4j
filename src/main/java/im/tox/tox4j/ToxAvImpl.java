@@ -8,7 +8,8 @@ import im.tox.tox4j.av.callbacks.*;
 import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.av.exceptions.*;
-import im.tox.tox4j.proto.Av;
+import im.tox.tox4j.av.proto.Av;
+import im.tox.tox4j.core.ToxCore;
 
 public final class ToxAvImpl implements ToxAv {
 

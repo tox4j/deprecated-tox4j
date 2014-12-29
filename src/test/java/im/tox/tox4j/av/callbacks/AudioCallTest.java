@@ -3,7 +3,7 @@ package im.tox.tox4j.av.callbacks;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.av.AliceBobAvTest;
 import im.tox.tox4j.av.ToxAv;
-import im.tox.tox4j.enums.ToxConnection;
+import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.exceptions.ToxException;
 
 import javax.sound.sampled.AudioFormat;

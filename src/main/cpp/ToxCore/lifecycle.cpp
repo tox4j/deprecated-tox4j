@@ -1,8 +1,7 @@
 #include "ToxCore.h"
 
-
-using CoreInstanceManager = instance_manager<core::tox_traits>;
-using CoreInstance = tox_instance<core::tox_traits>;
+using CoreInstanceManager = instance_manager<tox_traits>;
+using CoreInstance = tox_instance<tox_traits>;
 
 
 template<typename Message>
@@ -13,7 +12,7 @@ void add_connectionstatus(Message &msg, TOX_CONNECTION connection_status)
             msg->set_connectionstatus(Socket::STATUS);  \
             break
 
-    using im::tox::tox4j::proto::Socket;
+    using proto::Socket;
     switch (connection_status) {
         connection_case(NONE);
         connection_case(UDP4);
@@ -58,7 +57,7 @@ static void tox4j_friend_status_cb(Tox *tox, uint32_t friend_number, TOX_STATUS 
     auto msg = events.add_friendstatus();
     msg->set_friendnumber(friend_number);
 
-    using im::tox::tox4j::proto::FriendStatus;
+    using proto::FriendStatus;
     switch (status) {
         case TOX_STATUS_NONE:
             msg->set_status(FriendStatus::NONE);
@@ -137,7 +136,7 @@ static void tox4j_file_control_cb(Tox *tox, uint32_t friend_number, uint32_t fil
     msg->set_friendnumber(friend_number);
     msg->set_filenumber(file_number);
 
-    using im::tox::tox4j::proto::FileControl;
+    using proto::FileControl;
     switch (control) {
         case TOX_FILE_CONTROL_RESUME:
             msg->set_control(FileControl::RESUME);
@@ -170,7 +169,7 @@ static void tox4j_file_receive_cb(Tox *tox, uint32_t friend_number, uint32_t fil
     msg->set_friendnumber(friend_number);
     msg->set_filenumber(file_number);
 
-    using im::tox::tox4j::proto::FileReceive;
+    using proto::FileReceive;
     switch (kind) {
         case TOX_FILE_KIND_DATA:
             msg->set_kind(FileReceive::DATA);
@@ -246,7 +245,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
 
     std::unique_ptr<Tox_Options, Tox_Options_Deleter> opts(tox_options_new(nullptr));
     if (!opts) {
-        throw_tox_exception(env, "New", "MALLOC");
+        throw_tox_exception(env, tox_traits::module, "New", "MALLOC");
         return 0;
     }
 

@@ -1,7 +1,10 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.enums.ToxProxyType;
-import im.tox.tox4j.enums.ToxStatus;
+import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxOptions;
+import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.enums.ToxStatus;
 import org.junit.Test;
 
 import java.util.ArrayList;

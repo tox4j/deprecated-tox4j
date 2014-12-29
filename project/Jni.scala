@@ -217,6 +217,13 @@ object Jni extends Plugin {
       Seq("-std=c++0x")
     ),
 
+    // Debug flags.
+    ccOptions ++= checkCcOptions(nativeCompiler.value, "",
+      Seq("-ggdb3"),
+      Seq("-g3"),
+      Seq("-g")
+    ),
+
     // Warning flags.
     ccOptions ++= checkCcOptions(nativeCompiler.value, "", Seq("-Wall")),
     ccOptions ++= checkCcOptions(nativeCompiler.value, "", Seq("-Wextra")),
@@ -275,9 +282,9 @@ object Jni extends Plugin {
     ),
 
     // Make shared lib available at runtime. Must be used with forked JVM to work.
-    javaOptions in Test += s"-Djava.library.path=${binPath.value}",
+    javaOptions += s"-Djava.library.path=${binPath.value}",
     // Required in order to have a separate JVM to set Java options.
-    fork in Test := true
+    fork := true
   )
 }
 

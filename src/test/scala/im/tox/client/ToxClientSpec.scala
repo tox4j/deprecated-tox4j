@@ -1,8 +1,9 @@
 package im.tox.client
 
-import im.tox.tox4j.enums.ToxStatus
+import im.tox.tox4j.core.enums.ToxStatus
+import org.scalatest.FlatSpec
 
-class ToxClientSpec extends org.scalatest.FlatSpec {
+class ToxClientSpec extends FlatSpec {
 
   "getName" should "return the name set by setName" in {
     val tox = new ToxClient

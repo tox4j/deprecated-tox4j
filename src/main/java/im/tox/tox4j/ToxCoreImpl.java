@@ -2,13 +2,16 @@ package im.tox.tox4j;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.callbacks.*;
-import im.tox.tox4j.enums.ToxConnection;
-import im.tox.tox4j.enums.ToxFileControl;
-import im.tox.tox4j.enums.ToxFileKind;
-import im.tox.tox4j.enums.ToxStatus;
-import im.tox.tox4j.exceptions.*;
-import im.tox.tox4j.proto.Core;
+import im.tox.tox4j.core.AbstractToxCore;
+import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxOptions;
+import im.tox.tox4j.core.callbacks.*;
+import im.tox.tox4j.core.enums.ToxConnection;
+import im.tox.tox4j.core.enums.ToxFileControl;
+import im.tox.tox4j.core.enums.ToxFileKind;
+import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.exceptions.*;
+import im.tox.tox4j.core.proto.Core;
 
 public final class ToxCoreImpl extends AbstractToxCore {
 

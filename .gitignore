@@ -2,8 +2,11 @@
 /project/project
 /project/target
 
-# Output directory.
+# SBT output directory.
 /target
+
+# IDEA output directory.
+/classes
 
 # Local build files for protobuf. Don't put these in git
 /generated
