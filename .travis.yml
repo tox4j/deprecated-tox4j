@@ -62,7 +62,7 @@ install:
    - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/lib/libtoxencryptsave.so.0
    - cd `cat $HOME/.pushd`
    # Trigger installation of SBT.
-   - sbt exit
+   - sbt update
 
 # whitelist
 branches:
