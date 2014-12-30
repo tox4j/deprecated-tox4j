@@ -249,6 +249,7 @@ new_Tox *
 new_toxav_get_tox (new_ToxAV *av)
 {
   assert (false);
+  return nullptr;
 }
 
 uint32_t
@@ -376,6 +377,7 @@ bool
 new_toxav_call_control (new_ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTROL control, TOXAV_ERR_CALL_CONTROL *error)
 {
   assert (false);
+  return false;
 }
 
 void
@@ -388,12 +390,14 @@ bool
 new_toxav_set_audio_bit_rate (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, TOXAV_ERR_BIT_RATE *error)
 {
   assert (false);
+  return false;
 }
 
 bool
 new_toxav_set_video_bit_rate (new_ToxAV *av, uint32_t friend_number, uint32_t video_bit_rate, TOXAV_ERR_BIT_RATE *error)
 {
   assert (false);
+  return false;
 }
 
 void
@@ -409,6 +413,7 @@ new_toxav_send_video_frame (new_ToxAV *av, uint32_t friend_number,
                             TOXAV_ERR_SEND_FRAME *error)
 {
   assert (false);
+  return false;
 }
 
 void
