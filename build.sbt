@@ -43,7 +43,7 @@ jniSourceFiles ++= Seq(
 )
 
 // Java 1.6 for production code.
-javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
+javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.7")
 scalacOptions in Compile += "-target:jvm-" + "1.6"
 
 // Java 1.7 for test code.
