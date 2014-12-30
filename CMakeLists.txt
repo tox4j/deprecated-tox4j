@@ -1,0 +1,91 @@
+cmake_minimum_required(VERSION 2.8.7)
+
+
+# If we are crosscompiling, we have to add our own jni headers.
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+	find_package(JNI REQUIRED)
+	set(NEED_JNI_MD y)
+else()
+	# On most platforms, there is a jni_md.h that is included by jni.h. On
+	# other platforms (e.g. Android), jni_md.h does not exist.
+	# If we are crosscompiling for such a platform, we have to set
+	# -DNEED_JNI_MD=n, so it is not included.
+	if(NOT DEFINED NEED_JNI_MD)
+		set(NEED_JNI_MD y)
+	endif()
+	if(DEFINED JNI_H)
+		set(JAVA_INCLUDE_PATH ${JNI_H})
+	else()
+		message(FATAL_ERROR "Need to specify jni.h location when "
+			"cross-compiling. Please specify location with "
+			"-DJNI_H=/path/to/jni.h")
+	endif()
+	if(DEFINED JNI_MD_H)
+		set(JAVA_INCLUDE_PATH2 ${JNI_MD_H})
+	else()
+		if(NOT ${NEED_JNI_MD} MATCHES n)
+			message(FATAL_ERROR "Need to specify jni_md.h "
+				"location when cross-compiling. Please "
+				"specify location with "
+				"-DJNI_MD_H=/path/to/jni_md.h. When "
+				"building for a platform without jni_md.h "
+				"(e.g. Android), set -DNEED_JNI_MD=n")
+		endif()
+	endif()
+endif()
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBTOXAV REQUIRED libtoxav)
+pkg_check_modules(LIBTOXCORE REQUIRED libtoxcore)
+pkg_check_modules(PROTOBUF_LITE REQUIRED protobuf-lite)
+
+
+# Depending on whether we need jni_md.h or not, define the include directories
+include_directories(
+	src/main/cpp
+	target/cpp/include
+	target/cpp/source
+	${LIBTOXAV_INCLUDE_DIRS}
+        ${LIBTOXCORE_INCLUDE_DIRS}
+        ${PROTOBUF_LITE_INCLUDE_DIRS}
+)
+
+include_directories("${JAVA_INCLUDE_PATH}")
+if(DEFINED JAVA_INCLUDE_PATH2)
+	include_directories("${JAVA_INCLUDE_PATH2}")
+endif()
+
+
+link_directories(
+	${LIBTOXAV_LIBRARY_DIRS}
+        ${LIBTOXCORE_LIBRARY_DIRS}
+        ${PROTOBUF_LITE_LIBRARY_DIRS}
+)
+
+add_library(
+	${LIB_TARGET_NAME}
+	SHARED
+	src/main/cpp/ToxAv/av
+	src/main/cpp/ToxAv/lifecycle
+	src/main/cpp/ToxCore/clientinfo
+	src/main/cpp/ToxCore/connection
+	src/main/cpp/ToxCore/custom
+	src/main/cpp/ToxCore/filetransfer
+	src/main/cpp/ToxCore/friendlist
+	src/main/cpp/ToxCore/interaction
+	src/main/cpp/ToxCore/lifecycle
+	src/main/cpp/ToxCore/playground
+	src/main/cpp/tox/av
+	src/main/cpp/tox/core
+	src/main/cpp/tox4j/ErrorHandling
+	target/cpp/source/Av.pb
+	target/cpp/source/Core.pb
+)
+
+target_link_libraries(
+	${LIB_TARGET_NAME}
+	${LIBTOXAV_LIBRARIES}
+        ${LIBTOXCORE_LIBRARIES}
+	${PROTOBUF_LITE_LIBRARIES}
+	${WS2_32}
+)

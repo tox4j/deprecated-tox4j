@@ -13,6 +13,8 @@ object Jni extends Plugin {
 
     // settings
 
+    val useCMake = settingKey[Boolean]("Use CMake instead of built-in C++ build system")
+
     val libraryName = settingKey[String]("Shared library produced by JNI")
 
     val packageDependencies = settingKey[Seq[String]]("Dependencies from pkg-config")
@@ -23,9 +25,11 @@ object Jni extends Plugin {
 
     val binPath = settingKey[File]("Shared libraries produced by JNI")
 
-    val nativeCompiler = settingKey[String]("Compiler to use")
+    val nativeCC = settingKey[String]("Compiler to use")
+    val nativeCXX = settingKey[String]("Compiler to use")
 
-    val ccOptions = settingKey[Seq[String]]("Flags to be passed to the native compiler")
+    val ccOptions = settingKey[Seq[String]]("Flags to be passed to the native compiler when compiling")
+    val ldOptions = settingKey[Seq[String]]("Flags to be passed to the native compiler when linking")
 
     val jniClasses = settingKey[Seq[String]]("Classes with native methods")
     val jniSourceFiles = settingKey[Seq[File]]("JNI source files")
@@ -65,7 +69,6 @@ object Jni extends Plugin {
     }
   }
 
-
   private val jdkHome = {
     val home = file(sys.props("java.home"))
     if (home.exists)
@@ -83,7 +86,7 @@ object Jni extends Plugin {
     }
   }
 
-  private def pkgConfig(pkgs: Seq[String]) = {
+  private def pkgConfig(query: String, pkgs: Seq[String]) = {
     pkgs map { pkg =>
       (pkg, Seq("pkg-config", pkg) !< nullLog != 0)
     } filter (_._2) map (_._1) match {
@@ -96,13 +99,24 @@ object Jni extends Plugin {
       case Nil =>
         Nil
       case pkgs =>
-        val command = Seq("pkg-config", "--cflags", "--libs") ++ pkgs
+        val command = Seq("pkg-config", "--" + query) ++ pkgs
         (command !!).split(" ").map(_.trim).filter(!_.isEmpty).toSeq
     }
   }
 
-  private def findCc() = {
-    Seq("clang++", "g++", "c++") find { cc =>
+
+  private val toolchain = Option(System.getenv("TOOLCHAIN")) map file
+  private def mkToolchain(tools: Seq[String]) = {
+    val prefixTools =
+      toolchain map { toolchain =>
+        val triple = toolchain.getName
+        (tools map { tool => (toolchain / "bin" / s"$triple-$tool").getAbsolutePath })
+      } getOrElse Nil
+    prefixTools ++ tools
+  }
+
+  private def findTool(candidates: String*) = {
+    mkToolchain(candidates) find { cc =>
       try {
         Seq(cc, "--version") !< nullLog == 0
       } catch {
@@ -111,19 +125,25 @@ object Jni extends Plugin {
     } getOrElse "false"
   }
 
+  private def findCc() = findTool("clang", "gcc", "cc")
+  private def findCxx() = findTool("clang++", "g++", "c++")
+
   private def checkCcOptions(compiler: String, code: String, flags: Seq[String]*) = {
     import java.io.File
     import java.io.PrintWriter
 
     val sourceFile = File.createTempFile("configtest", cppExtensions(0))
-    val out = new PrintWriter(sourceFile)
-    out.println(code)
-    out.println("int main () { return 0; }")
-    out.close()
-
     val targetFile = File.createTempFile("configtest", ".out")
 
     try {
+      val out = new PrintWriter(sourceFile)
+      try {
+        out.println(code)
+        out.println("int main () { return 0; }")
+      } finally {
+        out.close()
+      }
+
       flags find { flags =>
         Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath) ++ flags !< nullLog match {
           case 0 => true
@@ -136,11 +156,11 @@ object Jni extends Plugin {
     }
   }
 
-  private def checkExitCode(command: Seq[String], log: Logger) = {
+  private def checkExitCode(command: ProcessBuilder, log: Logger) = {
     command ! log match {
       case 0 =>
       case exitCode =>
-        sys.error(s"command failed with exit code ${exitCode}:\n  ${command.mkString(" ")}")
+        sys.error(s"command failed with exit code $exitCode:\n  $command")
     }
   }
 
@@ -176,34 +196,63 @@ object Jni extends Plugin {
     binPath := nativeTarget.value / "bin",
 
     // Default native C++ compiler to Clang.
-    nativeCompiler := findCc(),
+    nativeCC := findCc(),
+    nativeCXX := findCxx(),
 
-    // Check for some C++ compiler flags.
+    // Use CMake by default.
+    useCMake := true,
+
+    // Empty sequences by default.
     ccOptions := Nil,
-    ccOptions ++= checkCcOptions(nativeCompiler.value, "",
-      Seq("-fPIC", "-shared")
-    ),
-    ccOptions ++= checkCcOptions(nativeCompiler.value, "auto f = []{};",
+    ldOptions := Nil,
+
+    // Shared library flags.
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fPIC")),
+    ldOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-shared")),
+
+    // Check for some C++11 support.
+    ccOptions ++= checkCcOptions(nativeCXX.value, "auto f = []{};",
       Seq("-std=c++11"),
       Seq("-std=c++0x")
     ),
 
     // Debug flags.
-    ccOptions ++= checkCcOptions(nativeCompiler.value, "",
+    ccOptions ++= checkCcOptions(nativeCXX.value, "",
       Seq("-ggdb3"),
       Seq("-g3"),
       Seq("-g")
     ),
 
     // Warning flags.
-    ccOptions ++= checkCcOptions(nativeCompiler.value, "", Seq("-Wall")),
-    ccOptions ++= checkCcOptions(nativeCompiler.value, "", Seq("-Wextra")),
-    ccOptions ++= checkCcOptions(nativeCompiler.value, "", Seq("-pedantic")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wall")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wextra")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-pedantic")),
+
+    // No RTTI and no exceptions.
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-exceptions")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-rtti")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
+
+    // Error on undefined references in shared object.
+    ldOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wl,-z,defs")),
 
     // Include directories.
     ccOptions ++= (includes in jniConfig).value.map("-I" + _),
     // pkg-config flags.
-    ccOptions ++= pkgConfig(packageDependencies.value),
+    ccOptions ++= {
+      if (useCMake.value) {
+        Nil
+      } else {
+        pkgConfig("cflags", packageDependencies.value)
+      }
+    },
+    ldOptions ++= {
+      if (useCMake.value) {
+        Nil
+      } else {
+        pkgConfig("libs", packageDependencies.value)
+      }
+    },
 
     jniSourceFiles := filterNativeSources((nativeSource.value ** "*").get),
 
@@ -213,11 +262,92 @@ object Jni extends Plugin {
       // Make sure the output directory exists.
       binPath.value.mkdirs()
 
-      val output = (binPath.value / System.mapLibraryName(libraryName.value)).getPath
-      val flags = ccOptions.value.distinct
+      val cxxflags = ccOptions.value.distinct
+      val ldflags = ldOptions.value.distinct
       val sources = jniSourceFiles.value.map(_.getPath)
 
-      val command = Seq(nativeCompiler.value, "-o", output) ++ flags ++ sources
+      val command =
+        if (useCMake.value) {
+          import java.io.File
+          import java.io.PrintWriter
+
+          val buildPath = nativeTarget.value / "_build"
+          buildPath.mkdirs()
+
+          val crossCompilation = toolchain.map { toolchain =>
+            val toolchainFile = nativeTarget.value / "Toolchain.cmake"
+            val out = new PrintWriter(toolchainFile)
+            try {
+              out.print(s"""
+SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_C_COMPILER ${nativeCC.value})
+SET(CMAKE_CXX_COMPILER ${nativeCXX.value})
+SET(CMAKE_FIND_ROOT_PATH ${toolchain / "sysroot"})
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+add_definitions(-DANDROID)
+                """)
+            } finally {
+              out.close()
+            }
+
+            val jniPath = toolchain / "sysroot" / "usr" / "include"
+            if (!(jniPath / "jni.h").exists) {
+              sys.error("JNI path does not contain jni.h: " + jniPath)
+            }
+
+            Seq(
+              "-DCMAKE_TOOLCHAIN_FILE=" + toolchainFile.getAbsolutePath,
+              "-DJNI_H=" + jniPath.getAbsolutePath,
+              "-DNEED_JNI_MD=n"
+            )
+          }
+
+          val env =
+            toolchain match {
+              case None =>
+                Seq(
+                  ("CC", nativeCC.value),
+                  ("CXX", nativeCXX.value),
+                  ("CXXFLAGS", cxxflags.mkString(" "))
+                )
+              case Some(toolchain) =>
+                val pkgConfigPath = toolchain / "sysroot" / "usr" / "lib" / "pkgconfig"
+                if (!pkgConfigPath.exists) {
+                  sys.error("pkg-config path does not exist: " + pkgConfigPath)
+                }
+                Seq(
+                  ("CXXFLAGS", cxxflags.mkString(" ")),
+                  ("PATH",
+                    System.getenv("PATH") +
+                    File.pathSeparator +
+                    (toolchain / "bin").getAbsolutePath),
+                  ("PKG_CONFIG_PATH",
+                    pkgConfigPath.getAbsolutePath)
+                )
+            }
+
+          val cmake = Process(
+            Seq(
+              "cmake",
+              "-DLIB_TARGET_NAME=" + libraryName.value,
+              "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + binPath.value,
+              baseDirectory.value.getPath
+            ) ++ crossCompilation.getOrElse(Nil),
+            buildPath,
+            env:_*
+          )
+
+          log.info(s"Configuring C++ build")
+          checkExitCode(cmake, log)
+
+          Process(Seq("make"), buildPath)
+        } else {
+          val output = (binPath.value / System.mapLibraryName(libraryName.value)).getPath
+
+          Process(Seq(nativeCXX.value, "-o", output) ++ cxxflags ++ ldflags ++ sources)
+        }
 
       log.info(s"Compiling ${sources.size} C++ sources to ${binPath.value}")
       checkExitCode(command, log)
@@ -226,12 +356,14 @@ object Jni extends Plugin {
      .value,
 
     javah := Def.task {
+      import java.io.File
+
       val log = streams.value.log
 
       val classpath = (
         (dependencyClasspath in Compile).value.files ++
         Seq((classDirectory in Compile).value)
-      ).mkString(sys.props("path.separator"))
+      ).mkString(File.pathSeparator)
 
       val command = Seq(
         "javah",
