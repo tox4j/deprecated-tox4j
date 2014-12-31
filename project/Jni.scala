@@ -6,11 +6,6 @@ import scala.language.postfixOps
 object Jni extends Plugin {
   object Keys {
 
-    // tasks
-
-    val jniCompile = taskKey[Unit]("Compiles JNI native sources")
-    val javah = taskKey[Unit]("Generates JNI header files")
-
     // settings
 
     val useCMake = settingKey[Boolean]("Use CMake instead of built-in C++ build system")
@@ -18,6 +13,7 @@ object Jni extends Plugin {
     val libraryName = settingKey[String]("Shared library produced by JNI")
 
     val packageDependencies = settingKey[Seq[String]]("Dependencies from pkg-config")
+    val versionSync = settingKey[String]("Package from pkg-config we want to sync our version number with")
 
     val nativeSource = settingKey[File]("JNI native sources")
     val nativeTarget = settingKey[File]("JNI native target directory")
@@ -43,6 +39,14 @@ object Jni extends Plugin {
 
   private object PrivateKeys {
 
+    // tasks
+
+    val checkVersion = taskKey[Unit]("Check the versionSync variable")
+    val javah = taskKey[Unit]("Generates JNI header files")
+    val jniCompile = taskKey[Unit]("Compiles JNI native sources")
+
+    // settings
+
     val headersPath = settingKey[File]("Generated JNI headers")
     val includes = settingKey[Seq[File]]("Compiler include directories")
 
@@ -56,7 +60,6 @@ object Jni extends Plugin {
     def error(s: => String) = { }
     def info(s: => String) = { }
   }
-
 
   /**
    * Extensions of source files.
@@ -72,14 +75,14 @@ object Jni extends Plugin {
   private val jdkHome = {
     val home = file(sys.props("java.home"))
     if (home.exists)
-      Some(home)
+      Some(home.getAbsoluteFile)
     else
       None
   }
 
   private val jreInclude = {
     jdkHome.map { home =>
-      val absHome = home.getAbsoluteFile.getParentFile
+      val absHome = home.getParentFile
       // In a typical installation, JDK files are one directory above the
       // location of the JRE set in 'java.home'.
       Seq(absHome / "include")
@@ -104,13 +107,17 @@ object Jni extends Plugin {
     }
   }
 
+  private def pkgConfig(pkg: String): String = {
+    pkgConfig("modversion", Seq(pkg)).head
+  }
 
-  private val toolchain = Option(System.getenv("TOOLCHAIN")) map file
+
+  private val toolchain = Option(System.getenv("TOOLCHAIN")) map file map (_.getAbsoluteFile)
   private def mkToolchain(tools: Seq[String]) = {
     val prefixTools =
       toolchain map { toolchain =>
         val triple = toolchain.getName
-        (tools map { tool => (toolchain / "bin" / s"$triple-$tool").getAbsolutePath })
+        (tools map { tool => (toolchain / "bin" / s"$triple-$tool").getPath })
       } getOrElse Nil
     prefixTools ++ tools
   }
@@ -167,8 +174,10 @@ object Jni extends Plugin {
 
   override val settings = inConfig(jniConfig)(Seq(
 
+    // Target for javah-generated headers.
     headersPath := nativeTarget.value / "include",
 
+    // Include directories.
     includes := Nil,
 
     includes ++= Seq(
@@ -177,7 +186,21 @@ object Jni extends Plugin {
       (managedNativeSource in Compile).value
     ),
   
-    includes ++= jreInclude.getOrElse(Nil)
+    includes ++= jreInclude.getOrElse(Nil),
+
+    // Check modversion
+    checkVersion := Def.task {
+      val log = streams.value.log
+
+      versionSync.value match {
+        case "" =>
+        case pkg =>
+          val pkgVersion = pkgConfig(pkg)
+          if (version.value != pkgVersion) {
+            log.warn(s"${name.value} version ${version.value} does not match $pkg version $pkgVersion")
+          }
+      }
+    }.value
 
   )) ++ Seq(
 
@@ -186,6 +209,7 @@ object Jni extends Plugin {
 
     // Initialise pkg-config dependencies to the empty sequence.
     packageDependencies := Nil,
+    versionSync := "",
 
     // Native source directory defaults to "src/main/cpp".
     nativeSource := (sourceDirectory in Compile).value / "cpp",
@@ -256,104 +280,6 @@ object Jni extends Plugin {
 
     jniSourceFiles := filterNativeSources((nativeSource.value ** "*").get),
 
-    jniCompile := Def.task {
-      val log = streams.value.log
-
-      // Make sure the output directory exists.
-      binPath.value.mkdirs()
-
-      val cxxflags = ccOptions.value.distinct
-      val ldflags = ldOptions.value.distinct
-      val sources = jniSourceFiles.value.map(_.getPath)
-
-      val command =
-        if (useCMake.value) {
-          import java.io.File
-          import java.io.PrintWriter
-
-          val buildPath = nativeTarget.value / "_build"
-          buildPath.mkdirs()
-
-          val crossCompilation = toolchain.map { toolchain =>
-            val toolchainFile = nativeTarget.value / "Toolchain.cmake"
-            val out = new PrintWriter(toolchainFile)
-            try {
-              out.print(s"""
-SET(CMAKE_SYSTEM_NAME Linux)
-SET(CMAKE_C_COMPILER ${nativeCC.value})
-SET(CMAKE_CXX_COMPILER ${nativeCXX.value})
-SET(CMAKE_FIND_ROOT_PATH ${toolchain / "sysroot"})
-SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-add_definitions(-DANDROID)
-                """)
-            } finally {
-              out.close()
-            }
-
-            val jniPath = toolchain / "sysroot" / "usr" / "include"
-            if (!(jniPath / "jni.h").exists) {
-              sys.error("JNI path does not contain jni.h: " + jniPath)
-            }
-
-            Seq(
-              "-DCMAKE_TOOLCHAIN_FILE=" + toolchainFile.getAbsolutePath,
-              "-DJNI_H=" + jniPath.getAbsolutePath,
-              "-DNEED_JNI_MD=n"
-            )
-          }
-
-          val env =
-            toolchain match {
-              case None =>
-                Seq(
-                  ("CC", nativeCC.value),
-                  ("CXX", nativeCXX.value),
-                  ("CXXFLAGS", cxxflags.mkString(" "))
-                )
-              case Some(toolchain) =>
-                val pkgConfigPath = toolchain / "sysroot" / "usr" / "lib" / "pkgconfig"
-                if (!pkgConfigPath.exists) {
-                  sys.error("pkg-config path does not exist: " + pkgConfigPath)
-                }
-                Seq(
-                  ("CXXFLAGS", cxxflags.mkString(" ")),
-                  ("PATH",
-                    System.getenv("PATH") +
-                    File.pathSeparator +
-                    (toolchain / "bin").getAbsolutePath),
-                  ("PKG_CONFIG_PATH",
-                    pkgConfigPath.getAbsolutePath)
-                )
-            }
-
-          val cmake = Process(
-            Seq(
-              "cmake",
-              "-DLIB_TARGET_NAME=" + libraryName.value,
-              "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + binPath.value,
-              baseDirectory.value.getPath
-            ) ++ crossCompilation.getOrElse(Nil),
-            buildPath,
-            env:_*
-          )
-
-          log.info(s"Configuring C++ build")
-          checkExitCode(cmake, log)
-
-          Process(Seq("make"), buildPath)
-        } else {
-          val output = (binPath.value / System.mapLibraryName(libraryName.value)).getPath
-
-          Process(Seq(nativeCXX.value, "-o", output) ++ cxxflags ++ ldflags ++ sources)
-        }
-
-      log.info(s"Compiling ${sources.size} C++ sources to ${binPath.value}")
-      checkExitCode(command, log)
-    }.dependsOn(javah)
-     .tag(Tags.Compile, Tags.CPU)
-     .value,
 
     javah := Def.task {
       import java.io.File
@@ -374,8 +300,139 @@ add_definitions(-DANDROID)
       log.info(s"Running javah to generate ${jniClasses.value.size} JNI headers")
       checkExitCode(command, log)
     }.dependsOn(compile in Compile)
+     .dependsOn(checkVersion in jniConfig)
      .tag(Tags.Compile, Tags.CPU)
      .value,
+
+
+    jniCompile := Def.task {
+      val log = streams.value.log
+
+      // Make sure the output directory exists.
+      binPath.value.mkdirs()
+
+      val cxxflags = ccOptions.value.distinct
+      val ldflags = ldOptions.value.distinct
+      val sources = jniSourceFiles.value.map(_.getPath)
+
+      val command =
+        if (useCMake.value) {
+          import java.io.File
+          import java.io.PrintWriter
+
+          val buildPath = nativeTarget.value / "_build"
+          buildPath.mkdirs()
+
+          val (flags, env) = toolchain match {
+            case None =>
+              val env =
+                Seq(
+                  ("CC", nativeCC.value),
+                  ("CXX", nativeCXX.value),
+                  ("CXXFLAGS", cxxflags.mkString(" "))
+                )
+
+              (Nil, env)
+
+            case Some(toolchain) =>
+              val toolchainFile = nativeTarget.value / "Toolchain.cmake"
+              val out = new PrintWriter(toolchainFile)
+              try {
+                out.println(s"""
+SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_C_COMPILER ${nativeCC.value})
+SET(CMAKE_CXX_COMPILER ${nativeCXX.value})
+SET(CMAKE_FIND_ROOT_PATH ${toolchain / "sysroot"})
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+add_definitions(-DANDROID)""")
+              } finally {
+                out.close()
+              }
+
+              val jniPath = toolchain / "sysroot" / "usr" / "include"
+              if (!(jniPath / "jni.h").exists) {
+                sys.error("JNI path does not contain jni.h: " + jniPath)
+              }
+
+              val flags =
+                Seq(
+                  "-DCMAKE_TOOLCHAIN_FILE=" + toolchainFile,
+                  "-DJNI_H=" + jniPath,
+                  "-DNEED_JNI_MD=n"
+                )
+
+              val pkgConfigPath = toolchain / "sysroot" / "usr" / "lib" / "pkgconfig"
+              if (!pkgConfigPath.exists) {
+                sys.error("pkg-config path does not exist: " + pkgConfigPath)
+              }
+
+              val env =
+                Seq(
+                  ("CXXFLAGS", cxxflags.mkString(" ")),
+                  ("PATH",
+                    System.getenv("PATH") +
+                    File.pathSeparator +
+                    (toolchain / "bin")),
+                  ("PKG_CONFIG_PATH", pkgConfigPath.getPath)
+                )
+
+              (flags, env)
+          }
+
+          val cmake = {
+            val targetFile = nativeTarget.value / "Target.cmake"
+            val out = new PrintWriter(targetFile)
+            try {
+              if (!packageDependencies.value.isEmpty) {
+                out.println("find_package(PkgConfig REQUIRED)")
+              }
+              packageDependencies.value foreach { pkg =>
+                val PKG = pkg.toUpperCase.replace('-', '_')
+                out.println(s"pkg_check_modules($PKG REQUIRED $pkg)")
+                out.println(s"include_directories($${${PKG}_INCLUDE_DIRS})")
+                out.println(s"link_directories($${${PKG}_LIBRARY_DIRS})")
+                out.println(s"link_libraries($${${PKG}_LIBRARIES})")
+              }
+
+              Seq(nativeSource.value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
+                out.println(s"include_directories(${dir.getPath})")
+              }
+
+              out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
+              out.println(s"add_library(${libraryName.value} SHARED ${sources.mkString(" ")})")
+            } finally {
+              out.close()
+            }
+
+            Process(
+              Seq(
+                "cmake",
+                "-DTARGET_FILE=" + targetFile.getPath,
+                baseDirectory.value.getPath
+              ) ++ flags,
+              buildPath,
+              env:_*
+            )
+          }
+
+          log.info(s"Configuring C++ build")
+          checkExitCode(cmake, log)
+
+          Process(Seq("make", "-j4"), buildPath)
+        } else {
+          val output = (binPath.value / System.mapLibraryName(libraryName.value)).getPath
+
+          Process(Seq(nativeCXX.value, "-o", output) ++ cxxflags ++ ldflags ++ sources)
+        }
+
+      log.info(s"Compiling ${sources.size} C++ sources to ${binPath.value}")
+      checkExitCode(command, log)
+    }.dependsOn(javah)
+     .tag(Tags.Compile, Tags.CPU)
+     .value,
+
 
     compile <<= (compile in Compile, jniCompile).map((result, _) => result),
 
