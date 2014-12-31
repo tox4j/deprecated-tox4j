@@ -101,7 +101,7 @@ object Jni extends Plugin {
     pkgs match {
       case Nil =>
         Nil
-      case pkgs =>
+      case _ =>
         val command = Seq("pkg-config", "--" + query) ++ pkgs
         (command !!).split(" ").map(_.trim).filter(!_.isEmpty).toSeq
     }
@@ -117,7 +117,7 @@ object Jni extends Plugin {
     val prefixTools =
       toolchain map { toolchain =>
         val triple = toolchain.getName
-        (tools map { tool => (toolchain / "bin" / s"$triple-$tool").getPath })
+        tools map { tool => (toolchain / "bin" / s"$triple-$tool").getPath }
       } getOrElse Nil
     prefixTools ++ tools
   }
@@ -334,7 +334,7 @@ object Jni extends Plugin {
 
               (Nil, env)
 
-            case Some(toolchain) =>
+            case Some(toolchainPath) =>
               val toolchainFile = nativeTarget.value / "Toolchain.cmake"
               val out = new PrintWriter(toolchainFile)
               try {
@@ -342,7 +342,7 @@ object Jni extends Plugin {
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_C_COMPILER ${nativeCC.value})
 SET(CMAKE_CXX_COMPILER ${nativeCXX.value})
-SET(CMAKE_FIND_ROOT_PATH ${toolchain / "sysroot"})
+SET(CMAKE_FIND_ROOT_PATH ${toolchainPath / "sysroot"})
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
@@ -351,7 +351,7 @@ add_definitions(-DANDROID)""")
                 out.close()
               }
 
-              val jniPath = toolchain / "sysroot" / "usr" / "include"
+              val jniPath = toolchainPath / "sysroot" / "usr" / "include"
               if (!(jniPath / "jni.h").exists) {
                 sys.error("JNI path does not contain jni.h: " + jniPath)
               }
@@ -363,7 +363,7 @@ add_definitions(-DANDROID)""")
                   "-DNEED_JNI_MD=n"
                 )
 
-              val pkgConfigPath = toolchain / "sysroot" / "usr" / "lib" / "pkgconfig"
+              val pkgConfigPath = toolchainPath / "sysroot" / "usr" / "lib" / "pkgconfig"
               if (!pkgConfigPath.exists) {
                 sys.error("pkg-config path does not exist: " + pkgConfigPath)
               }
@@ -374,7 +374,7 @@ add_definitions(-DANDROID)""")
                   ("PATH",
                     System.getenv("PATH") +
                     File.pathSeparator +
-                    (toolchain / "bin")),
+                    (toolchainPath / "bin")),
                   ("PKG_CONFIG_PATH", pkgConfigPath.getPath)
                 )
 
@@ -385,7 +385,7 @@ add_definitions(-DANDROID)""")
             val targetFile = nativeTarget.value / "Target.cmake"
             val out = new PrintWriter(targetFile)
             try {
-              if (!packageDependencies.value.isEmpty) {
+              if (packageDependencies.value.nonEmpty) {
                 out.println("find_package(PkgConfig REQUIRED)")
               }
               packageDependencies.value foreach { pkg =>
