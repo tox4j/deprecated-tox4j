@@ -27,25 +27,32 @@ packageDependencies ++= Seq(
   "protobuf-lite",
   "libtoxcore",
   "libtoxav",
-  // Required, since toxcore's pkg-config files are incomplete:
-  "libsodium",
+  // Required, since toxav's pkg-config files are incomplete:
   "vpx"
 )
 
+// Keep version in sync with libtoxcore.
+versionSync := "libtoxcore"
+
+// TODO: infer this (harder).
 jniClasses := Seq(
   "im.tox.tox4j.ToxAvImpl",
   "im.tox.tox4j.ToxCoreImpl"
 )
 
+// TODO: infer this (easy).
 jniSourceFiles ++= Seq(
   managedNativeSource.value / "Av.pb.cc",
   managedNativeSource.value / "Core.pb.cc"
 )
 
+// Current VM version.
+val javaVersion = sys.props("java.specification.version")
+
 // Java 1.6 for production code.
-javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.7")
+javacOptions in Compile ++= Seq("-source", "1.6", "-target", javaVersion)
 scalacOptions in Compile += "-target:jvm-" + "1.6"
 
-// Java 1.7 for test code.
-javacOptions in Test ++= Seq("-source", "1.7", "-target", "1.7")
-scalacOptions in Compile += "-target:jvm-" + "1.7"
+// Latest Java for test code.
+javacOptions in Test ++= Seq("-source", javaVersion, "-target", javaVersion)
+scalacOptions in Compile += "-target:jvm-" + javaVersion
