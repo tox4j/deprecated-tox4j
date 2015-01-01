@@ -7,7 +7,7 @@ script:
 install:
    - pwd > $HOME/.pushd
    # Package dependencies.
-   - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler
+   - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler libgtest-dev
    - wget https://dl.bintray.com/sbt/debian/sbt-0.13.7.deb
    - sudo dpkg -i sbt-0.13.7.deb
    - protoc --version || true
