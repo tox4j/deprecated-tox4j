@@ -256,6 +256,7 @@ object Jni extends Plugin {
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-exceptions")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-rtti")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-DGTEST_HAS_RTTI=0")),
 
     // Error on undefined references in shared object.
     ldOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wl,-z,defs")),

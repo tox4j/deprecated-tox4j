@@ -28,6 +28,7 @@ packageDependencies ++= Seq(
   "libtoxcore",
   "libtoxav",
   // Required, since toxav's pkg-config files are incomplete:
+  "libsodium",
   "vpx"
 )
 
