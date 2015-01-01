@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstddef>
 
 #include <array>
 #include <tuple>
@@ -12,7 +13,7 @@ namespace tox
 {
   typedef unsigned char byte;
 
-  template<size_t N>
+  template<std::size_t N>
   using byte_array = std::array<byte, N>;
 
   using byte_vector = std::vector<byte>;
@@ -88,18 +89,18 @@ namespace tox
   };
 
 
-  template<size_t...>
+  template<std::size_t...>
   struct seq { };
 
-  template<size_t N, size_t ...S>
+  template<std::size_t N, std::size_t ...S>
   struct make_seq_t : make_seq_t<N - 1, N - 1, S...> { };
 
-  template<size_t ...S>
+  template<std::size_t ...S>
   struct make_seq_t<0, S...>
   { typedef seq<S...> type; };
 
 
-  template<size_t N>
+  template<std::size_t N>
   using make_seq = typename make_seq_t<N>::type;
 
 
@@ -117,7 +118,7 @@ namespace tox
     }
 
   private:
-    template<typename Success, size_t ...S>
+    template<typename Success, std::size_t ...S>
     Success make_success (seq<S...>) const
     {
       return Success (std::get<S> (args_)...);
