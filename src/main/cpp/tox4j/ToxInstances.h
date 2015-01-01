@@ -1,57 +1,98 @@
 #pragma once
 
+#include <tox/av.h>
 #include <tox/core.h>
-#include "JTox.h"
-#include "events.pb.h"
+
+#include "im_tox_tox4j_ToxAvImpl.h"
+#include "im_tox_tox4j_ToxCoreImpl.h"
+
+#include "Av.pb.h"
+#include "Core.pb.h"
 
 #include <algorithm>
 #include <memory>
 #include <mutex>
 
-using im::tox::tox4j::proto::ToxEvents;
+
+template<typename T>
+std::string to_string(T const &v) {
+    std::ostringstream out;
+    out << v;
+    return out.str();
+}
 
 
-struct ToxDeleter {
-    void operator()(Tox *tox) {
-        tox_kill(tox);
-    }
-};
-
-class ToxInstance {
+template<typename ToxTraits>
+class tox_instance {
     // Objects of this class can conceptually have three states:
     // - LIVE: A tox instance is alive and running.
     // - DEAD: The object is empty, all pointers are nullptr.
     // - COLLECTED: state is DEAD, and the object's instance_number is in instance_freelist.
     bool live = true;
 
+    typedef typename ToxTraits::subsystem subsystem_type;
+    typedef typename ToxTraits::events    events_type;
+    typedef typename ToxTraits::deleter   deleter_type;
+
 public:
-    std::unique_ptr<Tox, ToxDeleter> tox;
-    std::unique_ptr<ToxEvents> events;
+    typedef std::unique_ptr<subsystem_type, deleter_type> pointer;
+
+    pointer tox;
+    std::unique_ptr<events_type> events;
     std::unique_ptr<std::mutex> mutex;
 
     bool isLive() const { return live; }
     bool isDead() const { return !live; }
 
-    ToxInstance(std::unique_ptr<Tox, ToxDeleter> &&tox,
-                std::unique_ptr<ToxEvents> &&events,
-                std::unique_ptr<std::mutex> &&mutex)
+    template<typename Func, typename... Args>
+    auto with_lock(Func func, Args const &...args) const
+        -> typename std::result_of<Func(Args...)>::type
+    {
+        assert(mutex != nullptr);
+        std::lock_guard<std::mutex> lock(*mutex);
+        return func(args...);
+    }
+
+    void assertValid() const {
+        if (isLive()) {
+            assert(tox    != nullptr);
+            assert(events != nullptr);
+            assert(mutex  != nullptr);
+        } else {
+            assert(tox    == nullptr);
+            assert(events == nullptr);
+            assert(mutex  == nullptr);
+        }
+    }
+
+    tox_instance(pointer &&tox,
+                 std::unique_ptr<events_type> &&events,
+                 std::unique_ptr<std::mutex> &&mutex)
     : tox(std::move(tox))
     , events(std::move(events))
     , mutex(std::move(mutex))
-    { }
+    { assertValid(); }
 
     // Move members from another object into this new one, then set the old one to the DEAD state.
-    ToxInstance(ToxInstance &&rhs)
-    : tox(std::move(rhs.tox))
+    tox_instance(tox_instance &&rhs)
+    : live(rhs.live)
+    , tox(std::move(rhs.tox))
     , events(std::move(rhs.events))
     , mutex(std::move(rhs.mutex))
-    { rhs.live = false; }
+    {
+        rhs.live = false;
+
+        this->assertValid();
+        rhs.assertValid();
+    }
 
     // Move members from another object into this existing one, then set the right hand side to the DEAD state.
     // This object is then live again.
-    ToxInstance &operator=(ToxInstance &&rhs) {
+    tox_instance &operator=(tox_instance &&rhs) {
         assert(this->isDead());
         assert(rhs.isLive());
+        this->assertValid();
+        rhs.assertValid();
 
         tox = std::move(rhs.tox);
         events = std::move(rhs.events);
@@ -59,15 +100,22 @@ public:
         rhs.live = false;
         this->live = true;
 
+        this->assertValid();
+        rhs.assertValid();
+
         return *this;
     }
 };
-// This struct should remain small. Check some assumptions here.
-static_assert(sizeof(ToxInstance) == sizeof(void *) * 4,
-    "ToxInstance has unexpected members or padding");
 
-class InstanceManager {
-    std::vector<ToxInstance> instances;
+template<typename ToxTraits>
+class instance_manager {
+    typedef tox_instance<ToxTraits> instance_type;
+
+    // This struct should remain small. Check some assumptions here.
+    static_assert(sizeof(instance_type) == sizeof(void *) * 4,
+        "tox_instance has unexpected members or padding");
+
+    std::vector<instance_type> instances;
     std::vector<jint> freelist;
 
 public:
@@ -86,11 +134,11 @@ public:
         freelist.push_back(instance_number);
     }
 
-    ToxInstance const &operator[](jint instance_number) const {
+    instance_type const &operator[](jint instance_number) const {
         return instances[instance_number - 1];
     }
 
-    jint add(ToxInstance &&instance) {
+    jint add(instance_type &&instance) {
         // If there are free objects we can reuse..
         if (!freelist.empty()) {
             // ..use the last object that became unreachable (it will most likely be in cache).
@@ -108,18 +156,91 @@ public:
         return (jint) instances.size();
     }
 
-    ToxInstance remove(jint instance_number) {
+private:
+    instance_type remove(jint instance_number) {
         return std::move(instances[instance_number - 1]);
-    }
-
-    void destroyAll() {
-        for (ToxInstance &instance : instances) {
-            ToxInstance dying(std::move(instance));
-        }
     }
 
     bool empty() const { return instances.empty(); }
     size_t size() const { return instances.size(); }
 
-    static InstanceManager self;
+
+public:
+    void destroyAll() {
+        for (instance_type &instance : instances) {
+            instance_type dying(std::move(instance));
+        }
+    }
+
+    void kill(JNIEnv *env, jint instanceNumber)
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+
+        if (instanceNumber < 0) {
+            throw_illegal_state_exception(env, instanceNumber, "Tox instance out of range");
+            return;
+        }
+
+        if (!isValid(instanceNumber)) {
+            throw_tox_killed_exception(env, instanceNumber, "close called on invalid instance");
+            return;
+        }
+
+        // After this move, the pointers in instance_vector[instance_number] will all be nullptr...
+        instance_type dying(remove(instanceNumber));
+
+        // ... so that this check will fail, if the function is called twice on the same instance.
+        if (!dying.tox) {
+            throw_tox_killed_exception(env, instanceNumber, "close called on already closed instance");
+            return;
+        }
+
+        assert(dying.isLive());
+        dying.assertValid();
+        std::lock_guard<std::mutex> ilock(*dying.mutex);
+    }
+
+    void finalize(JNIEnv *env, jint instanceNumber)
+    {
+        if (instanceNumber == 0) {
+            // This can happen when an exception is thrown from the constructor, giving this object an invalid state,
+            // containing instanceNumber = 0.
+            return;
+        }
+
+        if (empty()) {
+            throw_illegal_state_exception(env, instanceNumber, "Tox instance manager is empty");
+            return;
+        }
+
+        std::lock_guard<std::mutex> lock(mutex);
+        if (!isValid(instanceNumber)) {
+            throw_illegal_state_exception(env, instanceNumber,
+                "Tox instance out of range (max: " + to_string(size() - 1) + ")");
+            return;
+        }
+
+        // An instance should never be on this list twice.
+        if (isFree(instanceNumber)) {
+            throw_illegal_state_exception(env, instanceNumber, "Tox instance already on free list");
+            return;
+        }
+
+        // This instance was leaked, kill it before setting it free.
+        if ((*this)[instanceNumber].isLive()) {
+            printf("Leaked Tox instance #%d\n", instanceNumber);
+            instance_type dying(remove(instanceNumber));
+            assert(dying.isLive());
+            dying.assertValid();
+            std::lock_guard<std::mutex> ilock(*dying.mutex);
+        }
+
+        assert((*this)[instanceNumber].isDead());
+        setFree(instanceNumber);
+    }
+
+    static instance_manager self;
 };
+
+template<typename ToxTraits>
+instance_manager<ToxTraits> instance_manager<ToxTraits>::self;

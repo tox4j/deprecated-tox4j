@@ -34,7 +34,8 @@ struct ByteArray {
     ~ByteArray() { if (byteArray) env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
 
     uint8_t const *data() const { return (uint8_t *) bytes; }
-    size_t size() const { return (size_t) byteArray ? env->GetArrayLength(byteArray) : 0; }
+    size_t size() const { return (size_t) (byteArray ? env->GetArrayLength(byteArray) : 0); }
+    bool empty() const { return size() == 0; }
 
     operator uint8_t const *() const { return data(); }
     operator std::vector<uint8_t>() const { return std::vector<uint8_t>(data(), data() + size()); }
@@ -43,6 +44,26 @@ private:
     JNIEnv *env;
     jbyteArray byteArray;
     jbyte *bytes;
+};
+
+struct ShortArray {
+    ShortArray(JNIEnv *env, jshortArray jArray)
+    : env(env)
+    , jArray(jArray && env->GetArrayLength(jArray) != 0 ? jArray : nullptr)
+    , cArray(this->jArray ? env->GetShortArrayElements(jArray, 0) : nullptr) { }
+
+    ShortArray(ShortArray const &) = delete;
+    ~ShortArray() { if (jArray) env->ReleaseShortArrayElements(jArray, cArray, JNI_ABORT); }
+
+    int16_t const *data() const { return (int16_t *) cArray; }
+    size_t size() const { return (size_t) (jArray ? env->GetArrayLength(jArray) : 0); }
+
+    operator std::vector<int16_t>() const { return std::vector<int16_t>(data(), data() + size()); }
+
+private:
+    JNIEnv *env;
+    jshortArray jArray;
+    jshort *cArray;
 };
 
 

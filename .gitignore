@@ -1,20 +1,19 @@
-*.class
+# SBT compiled build system
+/project/project
+/project/target
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# SBT output directory.
+/target
 
-# Package Files #
-*.jar
-*.war
-*.ear
+# IDEA output directory.
+/classes
+
+# Local build files for protobuf. Don't put these in git
+/generated
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-build/
-.idea/
+# IDEA meta files
+/.idea
 *.iml
-
-# Local build files for protobuf. Don't put these in git
-/out/
-/proto/

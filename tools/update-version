@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+ROOT=`dirname \`readlink -f $0\``
+if [ ! -d $ROOT ]; then
+   echo "Could not determine project root directory"
+   exit 1
+fi
+
+VERSION=`pkg-config --modversion libtoxcore`
+
+sed -i -e 's/^version\s*:=.*/version       := "'$VERSION'"/' build.sbt

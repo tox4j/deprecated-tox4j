@@ -1,70 +1,19 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.exceptions.ToxKilledException;
-import im.tox.tox4j.callbacks.ConnectionStatusCallback;
-import im.tox.tox4j.enums.ToxFileKind;
-import im.tox.tox4j.enums.ToxProxyType;
-import im.tox.tox4j.enums.ToxStatus;
-import im.tox.tox4j.exceptions.*;
+import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxOptions;
+import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.enums.ToxStatus;
 import org.junit.Test;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
-public abstract class ToxCoreTest extends ToxCoreTestBase {
-
-    private static final boolean SLOW_TESTS = true;
-    private static final int TOX_COUNT = 10;
-
-    private static final String bootstrapValidIP = "144.76.60.215";
-    private static final int bootstrapValidPort = 33445;
-    private static final byte[] bootstrapValidDhtId =
-            parseClientId("04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F");
-
-    private static byte[] parseClientId(String id) {
-        byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
-        for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
-            clientId[i] = (byte) (
-                (fromHexDigit(id.charAt(i * 2)) << 4) +
-                (fromHexDigit(id.charAt(i * 2 + 1)))
-            );
-        }
-        return clientId;
-    }
-
-    private static byte fromHexDigit(char c) {
-        if (c >= '0' && c <= '9') {
-            return (byte)(c - '0');
-        } else if (c >= 'A' && c <= 'F') {
-            return (byte)(c - 'A' + 10);
-        } else {
-            throw new IllegalArgumentException("Non-hex digit character: " + c);
-        }
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testBootstrap() throws Exception {
-        if (!SLOW_TESTS) return;
-        try (ToxCore tox = newTox()) {
-            long start = System.currentTimeMillis();
-            tox.bootstrap(bootstrapValidIP, bootstrapValidPort, bootstrapValidDhtId);
-            ConnectedListener status = new ConnectedListener();
-            tox.callbackConnectionStatus(status);
-            while (!status.isConnected()) {
-                tox.iteration();
-                try {
-                    Thread.sleep(tox.iterationInterval());
-                } catch (InterruptedException e) {
-                    // Probably the timeout was reached, so we ought to be killed soon.
-                }
-            }
-            long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
-        }
-    }
+public class ToxCoreTest extends ToxCoreImplTestBase {
 
     @Test
     public void testToxNew() throws Exception {
@@ -141,58 +90,14 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(bootstrapValidIP, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(node().ipv4, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBorderlinePort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(bootstrapValidIP, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
-        }
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testBootstrapSelf() throws Exception {
-        // TODO: don't know how to test this on localhost
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testLANDiscoveryAll() throws Exception {
-        if (!SLOW_TESTS) return;
-        try (ToxList toxes = new ToxList(TOX_COUNT)) {
-            long start = System.currentTimeMillis();
-            // TODO: Generous timeout required for this; should be made more reliable.
-            while (!toxes.isAllConnected()) {
-                toxes.iteration();
-                try {
-                    Thread.sleep(toxes.iterationInterval());
-                } catch (InterruptedException e) {
-                    // Probably the timeout was reached, so we ought to be killed soon.
-                }
-            }
-            long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Connecting all of " + toxes.size() + " toxes with LAN discovery " +
-                    "took " + (end - start) + "ms");
-        }
-    }
-
-    @Test(timeout = TIMEOUT)
-    public void testLANDiscoveryAny() throws Exception {
-        if (!SLOW_TESTS) return;
-        try (ToxList toxes = new ToxList(TOX_COUNT)) {
-            long start = System.currentTimeMillis();
-            while (!toxes.isAnyConnected()) {
-                toxes.iteration();
-                try {
-                    Thread.sleep(toxes.iterationInterval());
-                } catch (InterruptedException e) {
-                    // Probably the timeout was reached, so we ought to be killed soon.
-                }
-            }
-            long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Connecting one of " + toxes.size() + " toxes with LAN discovery " +
-                    "took " + (end - start) + "ms");
+            tox.bootstrap(node().ipv4, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
         }
     }
 
@@ -216,28 +121,6 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testClose() throws Exception {
         newTox().close();
-    }
-
-    @Test
-    public void testSaveNotEmpty() throws Exception {
-        ToxCore tox = newTox();
-        byte[] data = tox.save();
-        assertNotNull(data);
-        assertNotEquals(0, data.length);
-    }
-
-    @Test
-    public void testSaveRepeatable() throws Exception {
-        ToxCore tox = newTox();
-        assertArrayEquals(tox.save(), tox.save());
-    }
-
-    @Test
-    public void testLoadSave() throws Exception {
-        ToxCore tox = newTox();
-        byte[] data = tox.save();
-        tox.load(data);
-        assertArrayEquals(data, tox.save());
     }
 
     @Test
@@ -294,7 +177,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
 
     @Test
     public void testNoSpam() throws Exception {
-        int tests[] = {
+        int[] tests = {
                 0x12345678,
                 0xffffffff,
                 0x00000000,
@@ -308,7 +191,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
                 tox.setNospam(test);
                 assertEquals(test, tox.getNospam());
                 assertEquals(tox.getNospam(), tox.getNospam());
-                byte[] check = new byte[]{
+                byte[] check = {
                         (byte)(test >> 8 * 0),
                         (byte)(test >> 8 * 1),
                         (byte)(test >> 8 * 2),
@@ -327,7 +210,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testGetAndSetName() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
             assertArrayEquals("myname".getBytes(), tox.getName());
         }
@@ -365,29 +248,29 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testUnsetName1() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
             assertNotNull(tox.getName());
             tox.setName(null);
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
         }
     }
 
     @Test
     public void testUnsetName2() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
             assertNotNull(tox.getName());
             tox.setName(new byte[0]);
-            assertNull(tox.getName());
+            assertArrayEquals(new byte[0], tox.getName());
         }
     }
 
     @Test
     public void testGetAndSetStatusMessage() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertArrayEquals("message".getBytes(), tox.getStatusMessage());
         }
@@ -425,22 +308,22 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     @Test
     public void testUnsetStatusMessage1() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertNotNull(tox.getStatusMessage());
             tox.setStatusMessage(null);
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
         }
     }
 
     @Test
     public void testUnsetStatusMessage2() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());
             assertNotNull(tox.getStatusMessage());
             tox.setStatusMessage(new byte[0]);
-            assertNull(tox.getStatusMessage());
+            assertArrayEquals(new byte[0], tox.getStatusMessage());
         }
     }
 
@@ -478,7 +361,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
                     assertEquals(i, friendNumber);
                 }
             }
-            assertEquals(tox.getFriendList().length, ITERATIONS);
+            assertEquals(ITERATIONS, tox.getFriendList().length);
         }
     }
 
@@ -486,7 +369,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     public void testFriendListSize() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, ITERATIONS);
-            assertEquals(tox.getFriendList().length, ITERATIONS);
+            assertEquals(ITERATIONS, tox.getFriendList().length);
         }
     }
 
@@ -544,7 +427,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     public void testGetFriendClientId() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 1);
-            assertEquals(tox.getClientId(0).length, ToxConstants.CLIENT_ID_SIZE);
+            assertEquals(ToxConstants.CLIENT_ID_SIZE, tox.getClientId(0).length);
             assertArrayEquals(tox.getClientId(0), tox.getClientId(0));
             double e = entropy(tox.getClientId(0));
             assertTrue("Entropy of friend's client ID should be >= 0.5, but was " + e, e >= 0.5);
@@ -556,7 +439,7 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 10);
             for (int i = 0; i < 10; i++) {
-                assertEquals(tox.getFriendByClientId(tox.getClientId(i)), i);
+                assertEquals(i, tox.getFriendByClientId(tox.getClientId(i)));
             }
         }
     }
@@ -575,11 +458,20 @@ public abstract class ToxCoreTest extends ToxCoreTestBase {
     }
 
     @Test
-    public void testGetPort() throws Exception {
+    public void testGetUdpPort() throws Exception {
         try (ToxCore tox = newTox()) {
-            assertNotEquals(0, tox.getPort());
-            assertTrue(tox.getPort() >  0);
-            assertTrue(tox.getPort() <= 65535);
+            assertNotEquals(0, tox.getUdpPort());
+            assertTrue(tox.getUdpPort() > 0);
+            assertTrue(tox.getUdpPort() <= 65535);
+        }
+    }
+
+    @Test
+    public void testGetTcpPort() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertNotEquals(0, tox.getTcpPort());
+            assertTrue(tox.getTcpPort() > 0);
+            assertTrue(tox.getTcpPort() <= 65535);
         }
     }
 
