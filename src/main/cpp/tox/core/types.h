@@ -60,13 +60,31 @@ namespace tox
     bool ok () const
     { return status_ == Status::OK; }
 
+    template<typename MapF>
+    typename std::result_of<MapF (Success)>::type
+    operator >>= (MapF const &func)
+    {
+      if (ok ())
+        return func (value ());
+      return typename std::result_of<MapF (Success)>::type (code ());
+    }
+
+    template<typename VoidF>
+    typename std::result_of<VoidF ()>::type
+    operator >> (VoidF const &func)
+    {
+      if (ok ())
+        return func ();
+      return typename std::result_of<VoidF ()>::type (code ());
+    }
+
+  private:
     Success value () const
     {
       assert (ok ());
       return *reinterpret_cast<Success const *> (value_);
     }
 
-  private:
     Status status_;
     alignas (Success) char value_[sizeof (Success)];
   };
@@ -74,7 +92,7 @@ namespace tox
 
   struct failure
   {
-    failure (Status status)
+    failure (Status status = Status::Unknown)
       : status_ (status)
     { }
 
@@ -89,48 +107,16 @@ namespace tox
   };
 
 
-  template<std::size_t...>
-  struct seq { };
-
-  template<std::size_t N, std::size_t ...S>
-  struct make_seq_t : make_seq_t<N - 1, N - 1, S...> { };
-
-  template<std::size_t ...S>
-  struct make_seq_t<0, S...>
-  { typedef seq<S...> type; };
-
-
-  template<std::size_t N>
-  using make_seq = typename make_seq_t<N>::type;
-
-
-  template<typename... Args>
-  struct success_t
+  template<typename Success>
+  Partial<Success>
+  success (Success const &success)
   {
-    success_t (Args const &...args)
-      : args_ (args...)
-    { }
+    return Partial<Success> (success);
+  }
 
-    template<typename Success>
-    operator Partial<Success> () const
-    {
-      return Partial<Success> (make_success<Success> (make_seq<sizeof... (Args)> ()));
-    }
-
-  private:
-    template<typename Success, std::size_t ...S>
-    Success make_success (seq<S...>) const
-    {
-      return Success (std::get<S> (args_)...);
-    }
-
-    std::tuple<Args...> const args_;
-  };
-
-  template<typename... Args>
-  success_t<Args...>
-  success (Args const &...args)
+  static inline Partial<bool>
+  success ()
   {
-    return success_t<Args...> (args...);
+    return Partial<bool> (true);
   }
 }

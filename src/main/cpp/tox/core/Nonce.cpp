@@ -21,3 +21,15 @@ Nonce::operator++ ()
       break;
   return *this;
 }
+
+
+UniqueNonce::UniqueNonce ()
+{
+}
+
+
+Nonce
+UniqueNonce::next ()
+{
+  return ++this->last;
+}

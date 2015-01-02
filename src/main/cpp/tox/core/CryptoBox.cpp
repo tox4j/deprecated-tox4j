@@ -24,7 +24,7 @@ CryptoBox::CryptoBox (PublicKey const &public_key, SecretKey const &secret_key)
 
 
 CipherText
-CryptoBox::encrypt (PlainText const &plain, Nonce const &n)
+CryptoBox::encrypt (PlainText const &plain, Nonce const &n) const
 {
   byte_vector padded_plain (plain.size () + crypto_box_ZEROBYTES);
   std::copy (plain.begin (), plain.end (), padded_plain.begin () + crypto_box_ZEROBYTES);
@@ -38,9 +38,9 @@ CryptoBox::encrypt (PlainText const &plain, Nonce const &n)
   size_t const mlen = plain.size () + crypto_box_ZEROBYTES;
 
   // The crypto_box function encrypts and authenticates a message.
-  byte_vector padded_crypto (plain.size () + crypto_box_BOXZEROBYTES + crypto_box_MACBYTES);
+  CipherText padded_crypto (plain.size () + crypto_box_BOXZEROBYTES + crypto_box_MACBYTES);
   int result = crypto_box_afternm (padded_crypto.data (), padded_plain.data (), mlen,
-                                  n.data (), shared_key_.data ());
+                                   n.data (), shared_key_.data ());
   // It then returns 0.
   assert (result == 0);
 
@@ -55,7 +55,7 @@ CryptoBox::encrypt (PlainText const &plain, Nonce const &n)
 
 
 Partial<PlainText>
-CryptoBox::decrypt (CipherText const &crypto, Nonce const &n)
+CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
 {
   byte_vector padded_crypto (crypto.size () + crypto_box_BOXZEROBYTES);
   std::copy (crypto.begin (), crypto.end (), padded_crypto.begin () + crypto_box_BOXZEROBYTES);
@@ -69,9 +69,9 @@ CryptoBox::decrypt (CipherText const &crypto, Nonce const &n)
   // mlen counts all of the bytes, including the bytes required to be 0.
   size_t const mlen = crypto.size () + crypto_box_BOXZEROBYTES;
 
-  byte_vector padded_plain (crypto.size () + crypto_box_ZEROBYTES);
+  PlainText padded_plain (crypto.size () + crypto_box_ZEROBYTES);
   int result = crypto_box_open_afternm (padded_plain.data (), padded_crypto.data (), mlen,
-                                       n.data (), shared_key_.data ());
+                                        n.data (), shared_key_.data ());
   if (result != 0)
     return failure (Status::HMAC_ERROR);
 
@@ -80,6 +80,6 @@ CryptoBox::decrypt (CipherText const &crypto, Nonce const &n)
   assert (is_all_zero (padded_plain.cbegin (),
                        padded_plain.cbegin () + crypto_box_ZEROBYTES));
 
-  return success (padded_plain.cbegin () + crypto_box_ZEROBYTES,
-                  padded_plain.cend () - crypto_box_MACBYTES);
+  return success (PlainText (padded_plain.cbegin () + crypto_box_ZEROBYTES,
+                             padded_plain.cend () - crypto_box_MACBYTES));
 }

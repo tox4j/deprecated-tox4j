@@ -33,3 +33,16 @@ TEST (Nonce, IncrementMany) {
   EXPECT_EQ (1, nonce[23]);
   EXPECT_EQ (1, nonce[22]);
 }
+
+
+TEST (UniqueNonce, Next) {
+  UniqueNonce nonces;
+
+  for (int i = 0; i < 254; i++)
+    nonces.next ();
+  EXPECT_EQ (255, nonces.next ()[23]);
+
+  Nonce nonce = nonces.next ();
+  EXPECT_EQ (0, nonce[23]);
+  EXPECT_EQ (1, nonce[22]);
+}

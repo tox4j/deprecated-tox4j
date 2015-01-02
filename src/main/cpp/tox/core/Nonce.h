@@ -16,4 +16,18 @@ namespace tox
 
     Nonce &operator++ ();
   };
+
+
+  struct UniqueNonce
+  {
+    UniqueNonce ();
+
+    Nonce next ();
+
+  private:
+    Nonce last;
+
+    UniqueNonce &operator= (UniqueNonce const &rhs) = delete;
+    UniqueNonce (UniqueNonce const &rhs) = delete;
+  };
 }
