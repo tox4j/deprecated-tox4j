@@ -1,4 +1,4 @@
-package im.tox.tox4j.core.exceptions;
+package im.tox.tox4j.exceptions;
 
 import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.core.ToxCore;
@@ -15,7 +15,7 @@ public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
         try {
             tox.close();
         } catch (ToxKilledException e) {
-            fail("The first close should not have thrown");
+            Assert.fail("The first close should not have thrown");
         }
         tox.close();
     }
