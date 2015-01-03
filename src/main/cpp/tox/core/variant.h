@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 
 template<typename T>
@@ -12,29 +13,50 @@ struct variant_member
   T value;
 };
 
-template<std::size_t Index, typename ...Types>
-union variant_storage;
+template<typename ...Types>
+union variant;
 
-template<std::size_t Index, typename Head, typename ...Tail>
-union variant_storage<Index, Head, Tail...>
+template<typename Head, typename ...Tail>
+union variant<Head, Tail...>
 {
-  typedef variant_storage<Index + 1, Tail...> tail_type;
+  static std::size_t const index = sizeof... (Tail);
 
-  variant_member<Head> head;
+  typedef variant_member<Head> head_type;
+  typedef variant<Tail...> tail_type;
+
+  head_type head;
   tail_type tail;
 
   template<typename T>
-  variant_storage (T const &value)
+  variant (T const &value)
     : tail (value)
   { }
 
-  variant_storage (Head const &head)
-    : head { Index, head }
+  variant (Head const &head)
+    : head { index, head }
   { }
 
-  ~variant_storage ()
+  variant (variant &&rhs)
   {
-    if (head.tag == Index)
+    if (rhs.head.tag == index)
+      new (&head) head_type (std::move (rhs.head));
+    else
+      new (&tail) tail_type (std::move (rhs.tail));
+    assert (head.tag == rhs.head.tag);
+  }
+
+  variant (variant const &rhs)
+  {
+    if (rhs.head.tag == index)
+      new (&head) head_type (rhs.head);
+    else
+      new (&tail) tail_type (rhs.tail);
+    assert (head.tag == rhs.head.tag);
+  }
+
+  ~variant ()
+  {
+    if (head.tag == index)
       head.value.~Head ();
     else
       tail.~tail_type ();
@@ -44,33 +66,28 @@ union variant_storage<Index, Head, Tail...>
   typename std::result_of<Visitor (Head)>::type
   operator () (Visitor const &v) const
   {
-    if (head.tag == Index)
+    return visit<typename std::result_of<Visitor (Head)>::type> (v);
+  }
+
+  template<typename Result, typename Visitor>
+  Result visit (Visitor const &v) const
+  {
+    if (head.tag == index)
       return v (head.value);
     else
-      return tail (v);
+      return tail.template visit<Result> (v);
   }
 };
 
-template<std::size_t Index>
-union variant_storage<Index>
+template<>
+union variant<>
 {
   template<typename T>
-  variant_storage (T const &)
+  variant (T const &)
   { static_assert (std::is_void<T>::value,
                    "Attempted to instantiate variant with incorrect type"); }
 
-  struct any
-  {
-    template<typename T>
-    operator T () const
-    { assert (false); }
-  };
-
-  template<typename Visitor>
-  any operator () (Visitor const &) const
+  template<typename Result, typename Visitor>
+  Result visit (Visitor const &) const
   { assert (false); }
 };
-
-
-template<typename ...Types>
-using variant = variant_storage<0, Types...>;

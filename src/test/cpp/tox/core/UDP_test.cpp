@@ -133,7 +133,6 @@ TEST (NodesRequest, GetNodes) {
 
   CryptoBox box (bootstrap_node, self.secret_key);
 
-  //int v = NodesResponse::create;
   NodesRequest req (self.public_key, nonces.next (),
                     box,
                     client_id, 1234);
