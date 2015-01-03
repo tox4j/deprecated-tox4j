@@ -7,7 +7,7 @@ using namespace tox;
 PlainText &
 tox::operator << (PlainText &packet, Protocol protocol)
 {
-  return packet;
+  return packet << static_cast<byte> (protocol);
 }
 
 

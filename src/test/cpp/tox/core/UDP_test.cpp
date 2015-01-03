@@ -44,7 +44,6 @@ struct io_callback
 
   void handle_packet (CipherText const &packet)
   {
-    ByteStream<CipherText> stream (packet);
   }
 
   void operator() (ev::io &w, int revents)

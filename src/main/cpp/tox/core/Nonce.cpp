@@ -1,6 +1,8 @@
 #include "Nonce.h"
 #include "Logging.h"
 
+#include "Message.h"
+
 #include <sodium.h>
 
 using namespace tox;
@@ -37,3 +39,15 @@ UniqueNonce::next ()
   ++next_;
   return next;
 }
+
+
+template<typename MessageFormat>
+MessageFormat &
+Message<MessageFormat>::operator << (Nonce const &nonce)
+{
+  append (nonce.cbegin (), nonce.cend ());
+  return static_cast<MessageFormat &> (*this);
+}
+
+template struct tox::Message<PlainText>;
+template struct tox::Message<CipherText>;

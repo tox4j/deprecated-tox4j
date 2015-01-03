@@ -60,24 +60,6 @@ Message<MessageFormat>::operator << (MessageFormat const &message)
 }
 
 
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (PublicKey const &key)
-{
-  append (key.cbegin (), key.cend ());
-  return static_cast<MessageFormat &> (*this);
-}
-
-
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (Nonce const &nonce)
-{
-  append (nonce.cbegin (), nonce.cend ());
-  return static_cast<MessageFormat &> (*this);
-}
-
-
 template struct tox::Message<PlainText>;
 template struct tox::Message<CipherText>;
 

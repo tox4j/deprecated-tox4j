@@ -7,6 +7,7 @@ using namespace tox;
 PlainText &
 tox::operator << (PlainText &packet, IPv4Address address)
 {
+  //packet.write (address.data (), address.size ());
   return packet;
 }
 
@@ -14,5 +15,6 @@ tox::operator << (PlainText &packet, IPv4Address address)
 PlainText &
 tox::operator << (PlainText &packet, IPv6Address address)
 {
+  //packet.write (address.data (), address.size ());
   return packet;
 }

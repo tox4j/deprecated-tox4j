@@ -2,11 +2,16 @@
 
 #include <string>
 
-#include "KeyPair.h"
-#include "Nonce.h"
+#include "types.h"
 
 namespace tox
 {
+  struct PublicKey;
+  struct Nonce;
+  struct IPv4Address;
+  struct IPv6Address;
+
+
   template<typename MessageFormat>
   struct Message;
 
@@ -110,8 +115,11 @@ namespace tox
     MessageFormat &operator << (uint32_t l);
     MessageFormat &operator << (uint64_t q);
     MessageFormat &operator << (MessageFormat const &plain);
+
     MessageFormat &operator << (PublicKey const &key);
     MessageFormat &operator << (Nonce const &nonce);
+    MessageFormat &operator << (IPv4Address const &nonce);
+    MessageFormat &operator << (IPv6Address const &nonce);
 
   protected:
     template<typename InputIt>
@@ -156,33 +164,5 @@ namespace tox
       assert (bytes.size () >= length);
       return CipherText (bytes.begin (), bytes.begin () + length);
     }
-  };
-
-
-  template<typename MessageFormat>
-  struct ByteStream
-  {
-    explicit ByteStream (MessageFormat const &message)
-      : message_ (message)
-      , position_ (0)
-    { }
-
-    ByteStream operator >> (uint8_t  &b) const;
-    ByteStream operator >> (uint16_t &s) const;
-    ByteStream operator >> (uint32_t &l) const;
-    ByteStream operator >> (uint64_t &q) const;
-    ByteStream operator >> (MessageFormat &plain) const;
-    ByteStream operator >> (PublicKey &key) const;
-    ByteStream operator >> (Nonce &nonce) const;
-
-  private:
-    ByteStream (MessageFormat const &message, std::size_t const position)
-      : message_ (message)
-      , position_ (position)
-    {
-    }
-
-    MessageFormat const &message_;
-    std::size_t const position_;
   };
 }
