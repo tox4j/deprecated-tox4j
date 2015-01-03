@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CryptoBox.h"
+#include "variant.h"
 
 
 template<typename T>
@@ -215,12 +216,25 @@ namespace tox
     {
       typedef typename packet_argument_list<
         Args,
-        SizeType,
         vector<
           typename reduce_tuple<
             typename packet_arguments<
               PacketFormatTag<Fields...>
             >::type
+          >::type
+        >,
+        Rest...
+      >::type type;
+    };
+
+    template<typename Args, typename ...Choices, typename ...Rest>
+    struct packet_argument_list<Args, choice<Choices...>, Rest...>
+    {
+      typedef typename packet_argument_list<
+        Args,
+        variant<
+          typename packet_arguments<
+            PacketFormatTag<Choices...>
           >::type
         >,
         Rest...
