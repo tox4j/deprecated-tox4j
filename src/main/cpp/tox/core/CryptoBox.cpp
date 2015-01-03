@@ -28,6 +28,7 @@ CipherText
 CryptoBox::encrypt (PlainText const &plain, Nonce const &n) const
 {
   LOG (INFO) << "Encrypting " << plain.size () << " bytes with nonce " << n;
+  output_hex (LOG (INFO) << "Plain text: ", plain.data (), plain.size ());
 
   byte_vector padded_plain (plain.size () + crypto_box_ZEROBYTES);
   std::copy (plain.begin (), plain.end (), padded_plain.begin () + crypto_box_ZEROBYTES);

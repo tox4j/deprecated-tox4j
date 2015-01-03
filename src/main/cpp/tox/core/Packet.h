@@ -129,9 +129,10 @@ namespace tox
     template<typename IntegralType, IntegralType Value, typename ...Fmts, typename ...Args>
     struct write_packet<PacketFormatTag<std::integral_constant<IntegralType, Value>, Fmts...>, Args...>
     {
-      static void write (CipherText &packet, Args const &...args)
+      template<typename MessageFormat>
+      static void write (MessageFormat &packet, Args const &...args)
       {
-        packet << std::integral_constant<IntegralType, Value>::value;
+        packet << Value;
         write_packet<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
       }
     };
@@ -206,14 +207,115 @@ namespace tox
     };
 
 
+    template<typename Fmts, typename ...Args>
+    struct write_packet_bits
+    {
+      static_assert (std::is_same<Fmts, PacketFormatTag<>>::value,
+                     "Base case for bitfield template must be at the end of the format list");
+      static_assert (sizeof... (Args) == 0,
+                     "Base case for bitfield template must be at the end of the argument list");
+
+      template<typename ...Bitfield>
+      struct inner
+      {
+        static_assert (sizeof... (Bitfield) == 0,
+                       "Base case for inner bitfield template must be empty.");
+
+        template<std::size_t Offset>
+        static void write (PlainText &packet, Args const &...args)
+        {
+          static_assert (Offset % 8 == 0, "Bitfields do not end on a byte boundary");
+          write_packet<Fmts, Args...>::write (packet, args...);
+        }
+      };
+
+      template<typename IntegralType, IntegralType Value, std::size_t BitSize, typename ...Bitfield>
+      struct inner<
+        bitfield::member<std::integral_constant<IntegralType, Value>, BitSize>, Bitfield...
+      >
+      {
+        template<std::size_t Offset>
+        static void write (PlainText &packet, Args const &...args)
+        {
+          packet << Value;
+          packet.shift_left (Offset, BitSize);
+          inner<Bitfield...>::
+            template write<Offset + BitSize> (packet, args...);
+        }
+      };
+    };
+
+
+    template<typename Fmts, typename Field, typename ...Args>
+    struct write_packet_bits<Fmts, Field, Args...>
+    {
+      template<typename ...Bitfield>
+      struct inner
+      {
+        static_assert (sizeof... (Bitfield) == 0,
+                       "Base case for inner bitfield template must be empty.");
+
+        template<std::size_t Offset>
+        static void write (PlainText &packet, Field const &field, Args const &...args)
+        {
+          static_assert (Offset % 8 == 0, "Bitfields do not end on a byte boundary");
+          write_packet<Fmts, Field, Args...>::write (packet, field, args...);
+        }
+      };
+
+      template<typename MemberType, std::size_t BitSize, typename ...Bitfield>
+      struct inner<
+        bitfield::member<MemberType, BitSize>, Bitfield...
+      >
+      {
+        template<std::size_t Offset>
+        static void write (PlainText &packet, Field const &field, Args const &...args)
+        {
+          write_packet<PacketFormatTag<MemberType>, Field>::write (packet, field);
+          packet.shift_left (Offset, BitSize);
+          write_packet_bits<Fmts, Args...>::
+            template inner<Bitfield...>::
+            template write<Offset + BitSize> (packet, args...);
+        }
+      };
+
+      template<typename IntegralType, IntegralType Value, std::size_t BitSize, typename ...Bitfield>
+      struct inner<
+        bitfield::member<std::integral_constant<IntegralType, Value>, BitSize>, Bitfield...
+      >
+      {
+        template<std::size_t Offset>
+        static void write (PlainText &packet, Field const &field, Args const &...args)
+        {
+          packet << Value;
+          packet.shift_left (Offset, BitSize);
+          inner<Bitfield...>::
+            template write<Offset + BitSize> (packet, field, args...);
+        }
+      };
+    };
+
+    template<typename ...Members, typename ...Fmts, typename ...Args>
+    struct write_packet<PacketFormatTag<bitfield::type<Members...>, Fmts...>, Args...>
+    {
+      static void write (PlainText &packet, Args const &...args)
+      {
+        write_packet_bits<PacketFormatTag<Fmts...>, Args...>::
+          template inner<Members...>::
+          template write<0> (packet, args...);
+      }
+    };
+
+
     template<typename ...Members, typename ...Fmts, typename ...Fields, typename ...Args>
     struct write_packet<PacketFormatTag<bitfield::type<Members...>, Fmts...>, std::tuple<Fields...>, Args...>
     {
       template<std::size_t ...S>
       static void write_bitfields (seq<S...>, PlainText &packet, std::tuple<Fields...> const &fields, Args const &...args)
       {
-        //write_packet<PacketFormatTag<Members..., Fmts...>, Fields..., Args...>::
-          //write (packet, std::get<S> (fields)..., args...);
+        write_packet_bits<PacketFormatTag<Fmts...>, Fields..., Args...>::
+          template inner<Members...>::
+          template write<0> (packet, std::get<S> (fields)..., args...);
       }
 
       static void write (PlainText &packet, std::tuple<Fields...> const &fields, Args const &...args)
@@ -226,9 +328,7 @@ namespace tox
     template<>
     struct write_packet_recurse<PacketFormatTag<>>
     {
-      static void write (PlainText &/*plain*/)
-      {
-      }
+      static void write (PlainText &/*plain*/) { }
     };
 
     template<typename FirstFmt, typename ...Fmts, typename FirstArg, typename ...Args>

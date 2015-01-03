@@ -4,6 +4,13 @@
 using namespace tox;
 
 
+PlainText &
+tox::operator << (PlainText &packet, Protocol protocol)
+{
+  return packet;
+}
+
+
 NodesResponse::NodesResponse (PublicKey const &sender, Nonce const &nonce,
                               CryptoBox const &box,
                               std::vector<

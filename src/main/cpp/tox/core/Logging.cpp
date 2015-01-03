@@ -11,9 +11,8 @@ void
 tox::output_hex (std::ostream &os, byte const *data, size_t length)
 {
   os << '[';
-  os << std::setfill ('0') << std::setw (2) << std::hex;
   for (size_t i = 0; i < length; i++)
-    os << int (data[i]);
+    os << format ("%02x", data[i]);
   os << ']';
 }
 

@@ -142,6 +142,8 @@ namespace tox
     {
       return PlainText (str.begin (), str.end ());
     }
+
+    void shift_left (std::size_t offset, std::size_t bit_size);
   };
 
   struct CipherText

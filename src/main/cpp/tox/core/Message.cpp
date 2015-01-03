@@ -80,3 +80,28 @@ Message<MessageFormat>::operator << (Nonce const &nonce)
 
 template struct tox::Message<PlainText>;
 template struct tox::Message<CipherText>;
+
+
+void
+PlainText::shift_left (std::size_t offset, std::size_t bit_size)
+{
+  assert (!empty ());
+  assert (bit_size <= 8);
+
+  if (offset == 0 && bit_size == 1)
+    {
+      assert ((at (size () - 1) & __extension__ 0b11111110) == 0);
+      at (size () - 1) <<= 8 - bit_size;
+    }
+  else if (offset == 1 && bit_size == 7)
+    {
+      assert ((at (size () - 2) & __extension__ 0b01111111) == 0);
+      at (size () - 2) |= at (size () - 1);
+      pop_back ();
+    }
+  else
+    {
+      printf ("shift_left (%zd, %zd)\n", offset, bit_size);
+      abort ();
+    }
+}

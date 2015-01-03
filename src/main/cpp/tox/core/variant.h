@@ -39,18 +39,18 @@ union variant<Head, Tail...>
   variant (variant &&rhs)
   {
     if (rhs.head.tag == index)
-      new (&head) head_type (std::move (rhs.head));
+      new (static_cast<void *> (&head)) head_type (std::move (rhs.head));
     else
-      new (&tail) tail_type (std::move (rhs.tail));
+      new (static_cast<void *> (&tail)) tail_type (std::move (rhs.tail));
     assert (head.tag == rhs.head.tag);
   }
 
   variant (variant const &rhs)
   {
     if (rhs.head.tag == index)
-      new (&head) head_type (rhs.head);
+      new (static_cast<void *> (&head)) head_type (rhs.head);
     else
-      new (&tail) tail_type (rhs.tail);
+      new (static_cast<void *> (&tail)) tail_type (rhs.tail);
     assert (head.tag == rhs.head.tag);
   }
 
@@ -66,16 +66,16 @@ union variant<Head, Tail...>
   typename std::result_of<Visitor (Head)>::type
   operator () (Visitor const &v) const
   {
-    return visit<typename std::result_of<Visitor (Head)>::type> (v);
+    return dispatch<typename std::result_of<Visitor (Head)>::type> (v);
   }
 
   template<typename Result, typename Visitor>
-  Result visit (Visitor const &v) const
+  Result dispatch (Visitor const &v) const
   {
     if (head.tag == index)
       return v (head.value);
     else
-      return tail.template visit<Result> (v);
+      return tail.template dispatch<Result> (v);
   }
 };
 
@@ -88,6 +88,6 @@ union variant<>
                    "Attempted to instantiate variant with incorrect type"); }
 
   template<typename Result, typename Visitor>
-  Result visit (Visitor const &) const
+  Result dispatch (Visitor const &) const
   { assert (false); }
 };

@@ -58,4 +58,7 @@ namespace tox
                    > const &nodes,
                    uint64_t ping_id);
   };
+
+
+  PlainText &operator << (PlainText &packet, Protocol protocol);
 }
