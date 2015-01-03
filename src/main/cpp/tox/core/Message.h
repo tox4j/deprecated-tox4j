@@ -96,7 +96,7 @@ namespace tox
     Message ()
     { }
 
-    Message (size_t initial)
+    Message (std::size_t initial)
       : byte_vector (initial)
     { }
 
@@ -105,11 +105,25 @@ namespace tox
     { }
 
 
+    MessageFormat &operator << (uint8_t  b);
+    MessageFormat &operator << (uint16_t s);
+    MessageFormat &operator << (uint32_t l);
+    MessageFormat &operator << (uint64_t q);
+    MessageFormat &operator << (MessageFormat const &plain);
+    MessageFormat &operator << (PublicKey const &key);
+    MessageFormat &operator << (Nonce const &nonce);
+
   protected:
     template<typename InputIt>
     Message (InputIt first, InputIt last)
       : byte_vector (first, last)
     {
+    }
+
+    template<typename InputIt>
+    void append (InputIt first, InputIt last)
+    {
+      return byte_vector::insert (byte_vector::end (), first, last);
     }
   };
 
@@ -128,23 +142,45 @@ namespace tox
     {
       return PlainText (str.begin (), str.end ());
     }
-
-    PlainText &operator << (byte b);
-    PlainText &operator << (PlainText const &plain);
-    PlainText &operator << (PublicKey const &key);
-    PlainText &operator << (Nonce const &nonce);
-
-  private:
-    template<typename InputIt>
-    void append (InputIt first, InputIt last)
-    {
-      return byte_vector::insert (byte_vector::end (), first, last);
-    }
   };
 
   struct CipherText
     : Message<CipherText>
   {
     using Message<CipherText>::Message;
+
+    static CipherText from_bytes (byte_vector const &bytes, std::size_t length)
+    {
+      assert (bytes.size () >= length);
+      return CipherText (bytes.begin (), bytes.begin () + length);
+    }
+  };
+
+
+  template<typename MessageFormat>
+  struct ByteStream
+  {
+    explicit ByteStream (MessageFormat const &message)
+      : message_ (message)
+      , position_ (0)
+    { }
+
+    ByteStream operator >> (uint8_t  &b) const;
+    ByteStream operator >> (uint16_t &s) const;
+    ByteStream operator >> (uint32_t &l) const;
+    ByteStream operator >> (uint64_t &q) const;
+    ByteStream operator >> (MessageFormat &plain) const;
+    ByteStream operator >> (PublicKey &key) const;
+    ByteStream operator >> (Nonce &nonce) const;
+
+  private:
+    ByteStream (MessageFormat const &message, std::size_t const position)
+      : message_ (message)
+      , position_ (position)
+    {
+    }
+
+    MessageFormat const &message_;
+    std::size_t const position_;
   };
 }

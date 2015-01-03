@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-
 #include "tox/core/Nonce.h"
+#include "tox/core/Logging.h"
+#include <gtest/gtest.h>
 
 using namespace tox;
 

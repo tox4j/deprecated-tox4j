@@ -1,4 +1,5 @@
 #include "Nonce.h"
+#include "Logging.h"
 
 #include <sodium.h>
 
@@ -24,6 +25,7 @@ Nonce::operator++ ()
 
 
 UniqueNonce::UniqueNonce ()
+  : next_ ()
 {
 }
 
@@ -31,5 +33,7 @@ UniqueNonce::UniqueNonce ()
 Nonce
 UniqueNonce::next ()
 {
-  return ++this->last;
+  Nonce next = next_;
+  ++next_;
+  return next;
 }

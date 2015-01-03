@@ -25,7 +25,7 @@ namespace tox
     Nonce next ();
 
   private:
-    Nonce last;
+    Nonce next_;
 
     UniqueNonce &operator= (UniqueNonce const &rhs) = delete;
     UniqueNonce (UniqueNonce const &rhs) = delete;

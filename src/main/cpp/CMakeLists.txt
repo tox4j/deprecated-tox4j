@@ -37,5 +37,8 @@ if(DEFINED JAVA_INCLUDE_PATH2)
 	include_directories("${JAVA_INCLUDE_PATH2}")
 endif()
 
+# Non-pkg-config libraries.
+link_libraries(glog)
+
 # Sources and pkg-config requirements from SBT.
 include(${TARGET_FILE})

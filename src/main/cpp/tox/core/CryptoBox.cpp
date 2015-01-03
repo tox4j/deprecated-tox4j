@@ -1,6 +1,5 @@
 #include "CryptoBox.h"
-
-#include <cassert>
+#include "Logging.h"
 
 #include <algorithm>
 
@@ -19,20 +18,24 @@ is_all_zero (ForwardIterator begin, ForwardIterator end)
 
 CryptoBox::CryptoBox (PublicKey const &public_key, SecretKey const &secret_key)
 {
+  LOG (INFO) << "Deriving shared key from public key " << public_key << " and secret key " << secret_key;
   crypto_box_beforenm (shared_key_.data (), public_key.data (), secret_key.data ());
+  LOG (INFO) << "Shared key: " << shared_key_;
 }
 
 
 CipherText
 CryptoBox::encrypt (PlainText const &plain, Nonce const &n) const
 {
+  LOG (INFO) << "Encrypting " << plain.size () << " bytes with nonce " << n;
+
   byte_vector padded_plain (plain.size () + crypto_box_ZEROBYTES);
   std::copy (plain.begin (), plain.end (), padded_plain.begin () + crypto_box_ZEROBYTES);
 
   // The caller must ensure, before calling the C NaCl crypto_box function,
   // that the first crypto_box_ZEROBYTES bytes of the message m are all 0.
-  assert (is_all_zero (padded_plain.cbegin (),
-                       padded_plain.cbegin () + crypto_box_ZEROBYTES));
+  LOG_ASSERT (is_all_zero (padded_plain.cbegin (),
+                           padded_plain.cbegin () + crypto_box_ZEROBYTES));
 
   // mlen counts all of the bytes, including the bytes required to be 0.
   size_t const mlen = plain.size () + crypto_box_ZEROBYTES;
@@ -42,12 +45,14 @@ CryptoBox::encrypt (PlainText const &plain, Nonce const &n) const
   int result = crypto_box_afternm (padded_crypto.data (), padded_plain.data (), mlen,
                                    n.data (), shared_key_.data ());
   // It then returns 0.
-  assert (result == 0);
+  LOG_ASSERT (result == 0);
 
   // The crypto_box function ensures that the first crypto_box_BOXZEROBYTES
   // bytes of the ciphertext c are all 0.
-  assert (is_all_zero (padded_crypto.cbegin (),
-                       padded_crypto.cbegin () + crypto_box_BOXZEROBYTES));
+  LOG_ASSERT (is_all_zero (padded_crypto.cbegin (),
+                           padded_crypto.cbegin () + crypto_box_BOXZEROBYTES));
+
+  LOG (INFO) << "Cipher text is " << padded_crypto.size () - crypto_box_BOXZEROBYTES << " bytes";
 
   return CipherText (padded_crypto.cbegin () + crypto_box_BOXZEROBYTES,
                      padded_crypto.cend ());
@@ -63,8 +68,8 @@ CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
   // The caller must ensure, before calling the crypto_box_open function,
   // that the first crypto_box_BOXZEROBYTES bytes of the ciphertext c are
   // all 0.
-  assert (is_all_zero (padded_crypto.cbegin (),
-                       padded_crypto.cbegin () + crypto_box_BOXZEROBYTES));
+  LOG_ASSERT (is_all_zero (padded_crypto.cbegin (),
+                           padded_crypto.cbegin () + crypto_box_BOXZEROBYTES));
 
   // mlen counts all of the bytes, including the bytes required to be 0.
   size_t const mlen = crypto.size () + crypto_box_BOXZEROBYTES;
@@ -77,8 +82,8 @@ CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
 
   // The crypto_box_open function ensures (in case of success) that the first
   // crypto_box_ZEROBYTES bytes of the plaintext m are all 0.
-  assert (is_all_zero (padded_plain.cbegin (),
-                       padded_plain.cbegin () + crypto_box_ZEROBYTES));
+  LOG_ASSERT (is_all_zero (padded_plain.cbegin (),
+                           padded_plain.cbegin () + crypto_box_ZEROBYTES));
 
   return success (PlainText (padded_plain.cbegin () + crypto_box_ZEROBYTES,
                              padded_plain.cend () - crypto_box_MACBYTES));

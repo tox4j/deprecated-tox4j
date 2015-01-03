@@ -6,11 +6,11 @@
 
 namespace tox
 {
-  struct DhtPacket
-    : private Packet
-  {
-    DhtPacket (PacketKind kind, PublicKey const &sender, Nonce const &nonce,
-               CryptoBox const &box,
-               PlainText const &plain);
-  };
+  template<PacketKind Kind, typename ...Contents>
+  using DhtPacketFormat = PacketFormat<
+    Kind,
+    PublicKey,
+    Nonce,
+    encrypted<Contents...>
+  >;
 }

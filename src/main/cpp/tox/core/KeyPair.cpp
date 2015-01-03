@@ -1,4 +1,5 @@
 #include "KeyPair.h"
+#include "Logging.h"
 
 #include <sodium.h>
 

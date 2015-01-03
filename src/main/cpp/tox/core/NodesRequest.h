@@ -5,8 +5,14 @@
 
 namespace tox
 {
+  using NodesRequestFormat = DhtPacketFormat<
+    PacketKind::NodesRequest,
+    PublicKey,
+    uint64_t
+  >;
+
   struct NodesRequest
-    : private DhtPacket
+    : Packet<NodesRequestFormat>
   {
     NodesRequest (PublicKey const &sender, Nonce const &nonce,
                   CryptoBox const &box,
