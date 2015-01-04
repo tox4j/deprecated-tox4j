@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Packet/constructor.h"
+#include "Packet/decoder.h"
+#include "Packet/encoder.h"
 
 #include <limits>
 
@@ -28,6 +29,7 @@ namespace tox
 
 
   CipherText &operator << (CipherText &packet, PacketKind kind);
+  BitStream<CipherText> operator >> (BitStream<CipherText> const &packet, PacketKind &kind);
 
 
   template<PacketKind Kind, typename ...Contents>
@@ -37,10 +39,23 @@ namespace tox
   >;
 
 
-  template<typename Format>
-  struct Packet
-    : detail::packet_constructor_t<Format>
+  template<typename Format, typename ArgsTuple = typename detail::packet_arguments<Format>::type>
+  struct Packet;
+
+  template<typename Format, typename... Args>
+  struct Packet<Format, std::tuple<Args...>>
+    : detail::packet_encoder<Format, std::tuple<Args...>>
+    , detail::packet_decoder<Format, std::tuple<Args...>>
   {
-    using detail::packet_constructor_t<Format>::packet_constructor_t;
+    explicit Packet (Args const &...args)
+    {
+      this->encode (packet_, args...);
+    }
+
+    byte const *data () const { return packet_.data (); }
+    std::size_t size () const { return packet_.size (); }
+
+  private:
+    CipherText packet_;
   };
 }

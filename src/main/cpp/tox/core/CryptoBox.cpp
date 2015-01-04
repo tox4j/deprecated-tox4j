@@ -1,6 +1,10 @@
 #include "CryptoBox.h"
 #include "Logging.h"
 
+#include "KeyPair.h"
+#include "Message.h"
+#include "Nonce.h"
+
 #include <algorithm>
 
 #include <sodium.h>
@@ -14,6 +18,11 @@ static bool
 is_all_zero (ForwardIterator begin, ForwardIterator end)
 {
   return std::find_if (begin, end, [](byte zero) { return zero != 0; }) == end;
+}
+
+CryptoBox::CryptoBox (KeyPair const &pair)
+  : CryptoBox (pair.public_key, pair.secret_key)
+{
 }
 
 CryptoBox::CryptoBox (PublicKey const &public_key, SecretKey const &secret_key)
@@ -61,10 +70,12 @@ CryptoBox::encrypt (PlainText const &plain, Nonce const &n) const
 
 
 Partial<PlainText>
-CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
+CryptoBox::decrypt (BitStream<CipherText> const &crypto, Nonce const &n) const
 {
+  LOG (INFO) << "Decrypting " << crypto.size () << " bytes with nonce " << n;
+
   byte_vector padded_crypto (crypto.size () + crypto_box_BOXZEROBYTES);
-  std::copy (crypto.begin (), crypto.end (), padded_crypto.begin () + crypto_box_BOXZEROBYTES);
+  std::copy (crypto.cbegin (), crypto.cend (), padded_crypto.begin () + crypto_box_BOXZEROBYTES);
 
   // The caller must ensure, before calling the crypto_box_open function,
   // that the first crypto_box_BOXZEROBYTES bytes of the ciphertext c are
@@ -79,7 +90,7 @@ CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
   int result = crypto_box_open_afternm (padded_plain.data (), padded_crypto.data (), mlen,
                                         n.data (), shared_key_.data ());
   if (result != 0)
-    return failure (Status::HMAC_ERROR);
+    return failure (Status::HMACError);
 
   // The crypto_box_open function ensures (in case of success) that the first
   // crypto_box_ZEROBYTES bytes of the plaintext m are all 0.
@@ -88,4 +99,11 @@ CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
 
   return success (PlainText (padded_plain.cbegin () + crypto_box_ZEROBYTES,
                              padded_plain.cend () - crypto_box_MACBYTES));
+}
+
+
+Partial<PlainText>
+CryptoBox::decrypt (CipherText const &crypto, Nonce const &n) const
+{
+  return decrypt (BitStream<CipherText> (crypto), n);
 }

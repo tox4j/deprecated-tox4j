@@ -2,6 +2,10 @@
 #include "tox/core/Logging.h"
 #include <gtest/gtest.h>
 
+#include "tox/core/KeyPair.h"
+#include "tox/core/Message.h"
+#include "tox/core/Nonce.h"
+
 using namespace tox;
 
 
@@ -124,7 +128,7 @@ TEST (CryptoBox, DecryptFailure) {
   encrypted.data ()[0]++;
 
   Partial<PlainText> result = box.decrypt (encrypted, nonce);
-  EXPECT_EQ (Status::HMAC_ERROR, result.code ());
+  EXPECT_EQ (Status::HMACError, result.code ());
 }
 
 
@@ -141,5 +145,5 @@ TEST (CryptoBox, BadNonce) {
   nonce[0]++;
 
   Partial<PlainText> result = box.decrypt (encrypted, nonce);
-  EXPECT_EQ (Status::HMAC_ERROR, result.code ());
+  EXPECT_EQ (Status::HMACError, result.code ());
 }

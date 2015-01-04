@@ -21,7 +21,7 @@ TEST (Nonce, Increment) {
 TEST (Nonce, IncrementMany) {
   Nonce nonce;
 
-  for (int i = 0; i < 255; i++)
+  for (int i = 0; i < 256; i++)
     ++nonce;
   EXPECT_EQ (255, nonce[23]);
 
@@ -38,7 +38,7 @@ TEST (Nonce, IncrementMany) {
 TEST (UniqueNonce, Next) {
   UniqueNonce nonces;
 
-  for (int i = 0; i < 254; i++)
+  for (int i = 0; i < 255; i++)
     nonces.next ();
   EXPECT_EQ (255, nonces.next ()[23]);
 

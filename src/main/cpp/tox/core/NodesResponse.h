@@ -2,6 +2,7 @@
 
 #include "DhtPacket.h"
 #include "IPAddress.h"
+#include "KeyPair.h"
 
 
 namespace tox

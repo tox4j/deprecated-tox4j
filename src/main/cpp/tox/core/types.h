@@ -18,6 +18,29 @@ namespace tox
 
   using byte_vector = std::vector<byte>;
 
+  template<typename Success>
+  struct Partial;
+
+  template<typename T>
+  struct is_partial
+  {
+    static bool const value = false;
+  };
+
+  template<typename T>
+  struct is_partial<Partial<T>>
+  {
+    static bool const value = true;
+  };
+
+  template<typename Call>
+  struct partial_type
+  {
+    typedef typename std::result_of<Call>::type type;
+
+    static_assert (is_partial<type>::value,
+                   "Monadic bind must return Partial<T>");
+  };
 
   /**
    * The type of partial functions.
@@ -50,9 +73,7 @@ namespace tox
 
     Partial (Status status)
       : status_ (status)
-    {
-      assert (!ok ());
-    }
+    { assert (!ok ()); }
 
     Status code () const
     { return status_; }
@@ -61,21 +82,23 @@ namespace tox
     { return status_ == Status::OK; }
 
     template<typename MapF>
-    typename std::result_of<MapF (Success)>::type
+    typename partial_type<MapF (Success)>::type
     operator >>= (MapF const &func)
     {
+      typedef typename partial_type<MapF (Success)>::type result_type;
       if (ok ())
         return func (value ());
-      return typename std::result_of<MapF (Success)>::type (code ());
+      return result_type (code ());
     }
 
     template<typename VoidF>
-    typename std::result_of<VoidF ()>::type
+    typename partial_type<VoidF ()>::type
     operator >> (VoidF const &func)
     {
+      typedef typename partial_type<VoidF ()>::type result_type;
       if (ok ())
         return func ();
-      return typename std::result_of<VoidF ()>::type (code ());
+      return result_type (code ());
     }
 
   private:
@@ -87,6 +110,54 @@ namespace tox
 
     Status status_;
     alignas (Success) char value_[sizeof (Success)];
+  };
+
+
+  template<>
+  struct Partial<void>
+  {
+    Partial ()
+      : status_ (Status::OK)
+    { }
+
+    Partial (Partial const &rhs)
+      : status_ (rhs.status_)
+    { }
+
+    ~Partial ()
+    { }
+
+    Partial (Status status)
+      : status_ (status)
+    { assert (!ok ()); }
+
+    Status code () const
+    { return status_; }
+
+    bool ok () const
+    { return status_ == Status::OK; }
+
+    template<typename MapF>
+    typename partial_type<MapF ()>::type
+    operator >>= (MapF const &func)
+    {
+      // Map function doesn't get any argument, so it's the same as the
+      // ignore-result operator >>.
+      return *this >> func;
+    }
+
+    template<typename VoidF>
+    typename partial_type<VoidF ()>::type
+    operator >> (VoidF const &func)
+    {
+      typedef typename partial_type<VoidF ()>::type result_type;
+      if (ok ())
+        return func ();
+      return result_type (code ());
+    }
+
+  private:
+    Status status_;
   };
 
 
@@ -114,9 +185,22 @@ namespace tox
     return Partial<Success> (success);
   }
 
-  static inline Partial<bool>
+  static inline Partial<void>
   success ()
   {
-    return Partial<bool> (true);
+    return Partial<void> ();
   }
+
+  // Forward declarations.
+  struct KeyPair;
+  struct PublicKey;
+  struct SecretKey;
+  struct Nonce;
+  struct PlainText;
+  struct CipherText;
+  template<typename MessageFormat>
+  struct BitStream;
+  struct CryptoBox;
+  struct IPv4Address;
+  struct IPv6Address;
 }

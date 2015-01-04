@@ -18,8 +18,4 @@ namespace tox
   {
     typedef byte_array<16> super;
   };
-
-
-  PlainText &operator << (PlainText &packet, IPv4Address address);
-  PlainText &operator << (PlainText &packet, IPv6Address address);
 }

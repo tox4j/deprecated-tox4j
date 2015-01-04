@@ -6,12 +6,6 @@
 
 namespace tox
 {
-  struct PublicKey;
-  struct Nonce;
-  struct IPv4Address;
-  struct IPv6Address;
-
-
   template<typename MessageFormat>
   struct Message;
 
@@ -79,6 +73,8 @@ namespace tox
   struct Message
     : protected byte_vector
   {
+    friend struct BitStream<MessageFormat>;
+
     /**
      * Only const_iterator is allowed. Mutation via iterators is dangerous,
      * since it allows algorithms to bypass static message format checking.
@@ -159,10 +155,65 @@ namespace tox
   {
     using Message<CipherText>::Message;
 
+    struct BitStream;
+
+    static CipherText from_bytes (byte const *bytes, std::size_t length)
+    {
+      return CipherText (bytes, bytes + length);
+    }
+
     static CipherText from_bytes (byte_vector const &bytes, std::size_t length)
     {
       assert (bytes.size () >= length);
       return CipherText (bytes.begin (), bytes.begin () + length);
     }
+  };
+
+  template<typename MessageFormat>
+  struct BitStream
+  {
+    BitStream (MessageFormat const &packet)
+      : BitStream (0, packet)
+    { }
+
+    std::size_t size () const { return packet_.size () - position_ / 8; }
+    typename MessageFormat::const_iterator cbegin () const { return packet_.cbegin () + position_ / 8; }
+    typename MessageFormat::const_iterator cend   () const { return packet_.cend   () + position_ / 8; }
+
+    BitStream read (uint8_t &b, std::size_t bit_size) const;
+
+    BitStream operator >> (uint8_t &b) const;
+
+    template<std::size_t BitSize>
+    struct with_bit_size
+    {
+      with_bit_size (BitStream const &stream)
+        : stream_ (stream)
+      { }
+
+      template<typename T>
+      BitStream operator >> (T &v) const
+      {
+        return stream_.read (v, BitSize);
+      }
+
+    private:
+      BitStream const stream_;
+    };
+
+    template<std::size_t BitSize>
+    with_bit_size<BitSize> bit_size () const
+    {
+      return with_bit_size<BitSize> (*this);
+    }
+
+  private:
+    BitStream (std::size_t position, MessageFormat const &packet)
+      : position_ (position)
+      , packet_ (packet)
+    { }
+
+    std::size_t const position_;
+    MessageFormat const &packet_;
   };
 }

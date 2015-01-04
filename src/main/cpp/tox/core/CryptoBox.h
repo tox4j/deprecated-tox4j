@@ -1,24 +1,19 @@
 #pragma once
 
-#include <sodium.h>
+#include "types.h"
 
-#include "KeyPair.h"
-#include "Nonce.h"
-#include "Message.h"
+#include <sodium.h>
 
 
 namespace tox
 {
   struct CryptoBox
   {
-    CryptoBox (KeyPair const &pair)
-      : CryptoBox (pair.public_key, pair.secret_key)
-    {
-    }
-
+    CryptoBox (KeyPair const &pair);
     CryptoBox (PublicKey const &public_key, SecretKey const &secret_key);
 
     CipherText encrypt (PlainText const &plain, Nonce const &n) const;
+    Partial<PlainText> decrypt (BitStream<CipherText> const &crypto, Nonce const &n) const;
     Partial<PlainText> decrypt (CipherText const &crypto, Nonce const &n) const;
 
   private:

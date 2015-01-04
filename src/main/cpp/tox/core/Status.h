@@ -5,8 +5,9 @@ namespace tox
   enum class Status
   {
     OK,
-    Unknown,
-    HMAC_ERROR,
+    Unknown = 1000,
+    HMACError,
     Failure,
+    FormatError,
   };
 }

@@ -87,3 +87,41 @@ PlainText::shift_left (std::size_t offset, std::size_t bit_size)
       abort ();
     }
 }
+
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (uint8_t &b) const
+{
+  assert (position_ % 8 == 0);
+  printf ("reading at %zd bits %zd (of %zd)\n", 8, position_, packet_.size () * 8);
+  assert (position_ / 8 < packet_.size ());
+  b = packet_[position_ / 8];
+  printf ("byte at %zd: %02x\n", position_, b);
+  return { position_ + 8, packet_ };
+}
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::read (uint8_t &b, std::size_t bit_size) const
+{
+  printf ("reading %zd bits at %zd (of %zd)\n", bit_size, position_, packet_.size () * 8);
+  assert (position_ / 8 < packet_.size ());
+  if (position_ % 8 == 0 && bit_size == 1)
+    b = packet_[position_ / 8] >> 7;
+  else if (position_ % 8 == 1 && bit_size == 7)
+    b = packet_[position_ / 8] & __extension__ 0b01111111;
+  else
+    {
+      printf ("read at %zd, bit_size = %zd\n", position_, bit_size);
+      abort ();
+    }
+  printf ("byte at %zd: %02x\n", position_, b);
+  return { position_ + bit_size, packet_ };
+}
+
+
+template struct tox::BitStream<PlainText>;
+template struct tox::BitStream<CipherText>;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "tox/core/CryptoBox.h"
+#include "tox/core/Message.h"
+
 #include "tox/core/tuple_util.h"
 #include "tox/core/variant.h"
 
@@ -8,6 +10,7 @@
 #include "arguments.h"
 
 #include <limits>
+
 
 namespace tox
 {
@@ -178,6 +181,21 @@ namespace tox
         }
       };
 
+      template<typename IntegralType, IntegralType Value, std::size_t BitSize, typename ...Bitfield>
+      struct inner<
+        bitfield::member<std::integral_constant<IntegralType, Value>, BitSize>, Bitfield...
+      >
+      {
+        template<std::size_t Offset>
+        static void write (PlainText &packet, Field const &field, Args const &...args)
+        {
+          packet << Value;
+          packet.shift_left (Offset, BitSize);
+          inner<Bitfield...>::
+            template write<Offset + BitSize> (packet, field, args...);
+        }
+      };
+
       template<typename MemberType, std::size_t BitSize, typename ...Bitfield>
       struct inner<
         bitfield::member<MemberType, BitSize>, Bitfield...
@@ -191,21 +209,6 @@ namespace tox
           write_packet_bits<Fmts, Args...>::
             template inner<Bitfield...>::
             template write<Offset + BitSize> (packet, args...);
-        }
-      };
-
-      template<typename IntegralType, IntegralType Value, std::size_t BitSize, typename ...Bitfield>
-      struct inner<
-        bitfield::member<std::integral_constant<IntegralType, Value>, BitSize>, Bitfield...
-      >
-      {
-        template<std::size_t Offset>
-        static void write (PlainText &packet, Field const &field, Args const &...args)
-        {
-          packet << Value;
-          packet.shift_left (Offset, BitSize);
-          inner<Bitfield...>::
-            template write<Offset + BitSize> (packet, field, args...);
         }
       };
     };
@@ -262,31 +265,16 @@ namespace tox
   namespace detail
   {
     template<typename Format, typename ArgsTuple>
-    struct packet_constructor;
+    struct packet_encoder;
 
     template<typename Format, typename ...Args>
-    struct packet_constructor<Format, std::tuple<Args...>>
+    struct packet_encoder<Format, std::tuple<Args...>>
     {
-      static void create (Args const &...contents);
-
-      packet_constructor (Args const &...contents)
+    protected:
+      static void encode (CipherText &packet, Args const &...contents)
       {
-        write_packet<Format, Args...>::write (packet_, contents...);
+        write_packet<Format, Args...>::write (packet, contents...);
       }
-
-      byte const *data () const { return packet_.data (); }
-      std::size_t size () const { return packet_.size (); }
-
-    private:
-      CipherText packet_;
     };
-
-
-    template<typename Format>
-    using packet_constructor_t =
-      packet_constructor<
-        Format,
-        typename packet_arguments<Format>::type
-      >;
   }
 }

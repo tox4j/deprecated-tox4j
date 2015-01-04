@@ -1,7 +1,9 @@
-#include "tox/core/NodesRequest.h"
-#include "tox/core/NodesResponse.h"
 #include "tox/core/Logging.h"
 #include <gtest/gtest.h>
+
+#include "tox/core/NodesRequest.h"
+#include "tox/core/NodesResponse.h"
+#include "tox/core/Nonce.h"
 
 #include <ev++.h>
 
@@ -152,5 +154,5 @@ TEST (NodesRequest, GetNodes) {
     die ("sendto");
 
   LOG (INFO) << "Starting event loop";
-  ev::get_default_loop ().run ();
+  //ev::get_default_loop ().run ();
 }
