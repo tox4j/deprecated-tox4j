@@ -200,7 +200,7 @@ object Jni extends Plugin {
             log.warn(s"${name.value} version ${version.value} does not match $pkg version $pkgVersion")
           }
       }
-    }
+    }.value
 
   )) ++ Seq(
 
@@ -303,7 +303,7 @@ object Jni extends Plugin {
     }.dependsOn(compile in Compile)
      .dependsOn(checkVersion in jniConfig)
      .tag(Tags.Compile, Tags.CPU)
-     .taskValue,
+     .value,
 
 
     jniCompile := Def.task {
@@ -447,7 +447,7 @@ add_definitions(-DANDROID)""")
       checkExitCode(command, log)
     }.dependsOn(javah)
      .tag(Tags.Compile, Tags.CPU)
-     .taskValue,
+     .value,
 
 
     compile <<= (compile in Compile, jniCompile).map((result, _) => result),
@@ -459,6 +459,7 @@ add_definitions(-DANDROID)""")
 
     // Make shared lib available at runtime. Must be used with forked JVM to work.
     javaOptions += s"-Djava.library.path=${binPath.value}",
+    initialCommands in console := "im.tox.tox4j.JavaLibraryPath.addLibraryPath(\"" + binPath.value + "\")",
     // Required in order to have a separate JVM to set Java options.
     fork := true
   )
