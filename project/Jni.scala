@@ -185,7 +185,7 @@ object Jni extends Plugin {
       (nativeSource in Compile).value,
       (managedNativeSource in Compile).value
     ),
-  
+
     includes ++= jreInclude.getOrElse(Nil),
 
     // Check modversion
@@ -200,7 +200,7 @@ object Jni extends Plugin {
             log.warn(s"${name.value} version ${version.value} does not match $pkg version $pkgVersion")
           }
       }
-    }.value
+    }
 
   )) ++ Seq(
 
@@ -303,7 +303,7 @@ object Jni extends Plugin {
     }.dependsOn(compile in Compile)
      .dependsOn(checkVersion in jniConfig)
      .tag(Tags.Compile, Tags.CPU)
-     .value,
+     .taskValue,
 
 
     jniCompile := Def.task {
@@ -384,7 +384,7 @@ add_definitions(-DANDROID)""")
 
           val cmake = {
             val dependenciesFile = {
-	      val fileName = nativeTarget.value / "Dependencies.cmake"
+              val fileName = nativeTarget.value / "Dependencies.cmake"
               val out = new PrintWriter(fileName)
               try {
                 if (packageDependencies.value.nonEmpty) {
@@ -406,10 +406,10 @@ add_definitions(-DANDROID)""")
               }
 
               fileName
-	    }
+            }
 
             val targetFile = {
-	      val fileName = nativeTarget.value / "Target.cmake"
+              val fileName = nativeTarget.value / "Target.cmake"
               val out = new PrintWriter(fileName)
               try {
                 out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
@@ -419,7 +419,7 @@ add_definitions(-DANDROID)""")
               }
 
               fileName
-	    }
+            }
 
             Process(
               Seq(
@@ -447,12 +447,12 @@ add_definitions(-DANDROID)""")
       checkExitCode(command, log)
     }.dependsOn(javah)
      .tag(Tags.Compile, Tags.CPU)
-     .value,
+     .taskValue,
 
 
     compile <<= (compile in Compile, jniCompile).map((result, _) => result),
 
-    cleanFiles ++= Seq( 
+    cleanFiles ++= Seq(
       binPath.value,
       (headersPath in jniConfig).value
     ),
