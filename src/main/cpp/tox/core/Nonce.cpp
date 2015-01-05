@@ -51,3 +51,21 @@ Message<MessageFormat>::operator << (Nonce const &nonce)
 
 template struct tox::Message<PlainText>;
 template struct tox::Message<CipherText>;
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (Nonce &nonce) const
+{
+  assert (position_ % 8 == 0);
+  assert (packet_.size () > position_ / 8 + nonce.size ());
+#if 0
+  std::copy (cbegin (),
+             cbegin () + nonce.size (),
+             nonce.begin ());
+#endif
+  return { position_ + nonce.size () * 8, packet_ };
+}
+
+template struct tox::BitStream<PlainText>;
+template struct tox::BitStream<CipherText>;

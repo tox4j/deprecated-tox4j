@@ -95,7 +95,7 @@ BitStream<MessageFormat>
 BitStream<MessageFormat>::operator >> (uint8_t &b) const
 {
   assert (position_ % 8 == 0);
-  printf ("reading at %zd bits %zd (of %zd)\n", 8, position_, packet_.size () * 8);
+  printf ("reading %zd bits at %zd (of %zd)\n", 8, position_, packet_.size () * 8);
   assert (position_ / 8 < packet_.size ());
   b = packet_[position_ / 8];
   printf ("byte at %zd: %02x\n", position_, b);

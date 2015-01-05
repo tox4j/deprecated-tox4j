@@ -27,9 +27,11 @@ die (char const *func)
 struct io_callback
 {
   int sock;
+  CryptoBox const &box;
 
-  io_callback ()
+  io_callback (CryptoBox const &box)
     : sock (socket (AF_INET, SOCK_DGRAM, 0))
+    , box (box)
   {
     if (sock == -1)
       die ("socket");
@@ -46,6 +48,9 @@ struct io_callback
 
   void handle_packet (CipherText const &packet)
   {
+    assert (packet.size () > 0);
+    assert (packet.data ()[0] == 0x04);
+    //NodesResponse::decode (packet, box);
   }
 
   void operator() (ev::io &w, int revents)
@@ -119,7 +124,13 @@ TEST (NodesRequest, GetNodes) {
 
   ev::io loop;
 
-  io_callback cb;
+  KeyPair self;
+  PublicKey bootstrap_node = parse_key (key);
+  PublicKey client_id      = parse_key ("DA6B2411E6880C6CE25DA59E4163F70C6963108DD61E2C71D725E2F59F4C7B2F");
+
+  CryptoBox box (bootstrap_node, self.secret_key);
+
+  io_callback cb (box);
 
   loop.set (cb.sock, EV_READ);
   loop.set (&cb);
@@ -127,12 +138,6 @@ TEST (NodesRequest, GetNodes) {
 
   UniqueNonce nonces;
   LOG (INFO) << "First nonce: " << nonces.next ();
-
-  KeyPair self;
-  PublicKey bootstrap_node = parse_key (key);
-  PublicKey client_id      = parse_key ("DA6B2411E6880C6CE25DA59E4163F70C6963108DD61E2C71D725E2F59F4C7B2F");
-
-  CryptoBox box (bootstrap_node, self.secret_key);
 
   NodesRequest req (self.public_key, nonces.next (),
                     box,
@@ -154,5 +159,5 @@ TEST (NodesRequest, GetNodes) {
     die ("sendto");
 
   LOG (INFO) << "Starting event loop";
-  //ev::get_default_loop ().run ();
+  ev::get_default_loop ().run ();
 }

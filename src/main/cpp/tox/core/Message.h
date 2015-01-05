@@ -114,8 +114,8 @@ namespace tox
 
     MessageFormat &operator << (PublicKey const &key);
     MessageFormat &operator << (Nonce const &nonce);
-    MessageFormat &operator << (IPv4Address const &nonce);
-    MessageFormat &operator << (IPv6Address const &nonce);
+    MessageFormat &operator << (IPv4Address const &address);
+    MessageFormat &operator << (IPv6Address const &address);
 
   protected:
     template<typename InputIt>
@@ -178,11 +178,19 @@ namespace tox
 
     std::size_t size () const { return packet_.size () - position_ / 8; }
     typename MessageFormat::const_iterator cbegin () const { return packet_.cbegin () + position_ / 8; }
-    typename MessageFormat::const_iterator cend   () const { return packet_.cend   () + position_ / 8; }
+    typename MessageFormat::const_iterator cend   () const { return packet_.cend   (); }
 
     BitStream read (uint8_t &b, std::size_t bit_size) const;
 
     BitStream operator >> (uint8_t &b) const;
+    BitStream operator >> (uint16_t &s) const;
+    BitStream operator >> (uint32_t &l) const;
+    BitStream operator >> (uint64_t &q) const;
+
+    BitStream operator >> (PublicKey &key) const;
+    BitStream operator >> (Nonce &nonce) const;
+    BitStream operator >> (IPv4Address &address) const;
+    BitStream operator >> (IPv6Address &address) const;
 
     template<std::size_t BitSize>
     struct with_bit_size

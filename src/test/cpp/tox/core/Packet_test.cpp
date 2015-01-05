@@ -38,9 +38,42 @@ TEST (Packet, Simple) {
 }
 
 
+TEST (Packet, NoncePacket) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    Nonce,
+    uint8_t,
+    encrypted<
+      uint8_t
+    >
+  >;
+
+  KeyPair key_pair;
+  CryptoBox box (key_pair);
+  Nonce nonce { };
+
+  Packet<Format> packet (nonce, 0x99, box, nonce, 0xaa);
+
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  Partial<int> result = packet.decode (t, box, nonce) >>= [](Nonce nonce, uint8_t &&first, uint8_t second) {
+    EXPECT_EQ (Nonce (), nonce);
+    EXPECT_EQ (0x99, first);
+    EXPECT_EQ (0xaa, second);
+    return success (1234);
+  };
+
+  EXPECT_TRUE (result.ok ());
+  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
+}
+
+
 TEST (Packet, Bitfield) {
   using Format = PacketFormat<
     PacketKind::PingResponse,
+    Nonce,
     uint8_t,
     encrypted<
       bitfield::type<
@@ -54,10 +87,11 @@ TEST (Packet, Bitfield) {
   CryptoBox box (key_pair);
   Nonce nonce { };
 
-  Packet<Format> packet (0x99, box, nonce, 1);
+  Packet<Format> packet (nonce, 0x99, box, nonce, 1);
 
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
-  auto result = packet.decode (t, box, nonce) >>= [](uint8_t &&first, uint8_t second) {
+  auto result = packet.decode (t, box, nonce) >>= [](Nonce nonce, uint8_t &&first, uint8_t second) {
+    EXPECT_EQ (Nonce (), nonce);
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (1, second);
     return success ();
