@@ -1,7 +1,7 @@
 // General settings
 organization  := "im.tox"
 name          := "tox4j"
-version       := "0.0.0"
+version       := "0.0.0-SNAPSHOT"
 scalaVersion  := "2.11.4"
 
 // Compile Java code first.

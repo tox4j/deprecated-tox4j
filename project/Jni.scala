@@ -196,7 +196,7 @@ object Jni extends Plugin {
         case "" =>
         case pkg =>
           val pkgVersion = pkgConfig(pkg)
-          if (version.value != pkgVersion) {
+          if (version.value != pkgVersion && version.value != pkgVersion + "-SNAPSHOT") {
             log.warn(s"${name.value} version ${version.value} does not match $pkg version $pkgVersion")
           }
       }
