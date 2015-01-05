@@ -15,7 +15,7 @@ public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
         try {
             tox.close();
         } catch (ToxKilledException e) {
-            Assert.fail("The first close should not have thrown");
+            fail("The first close should not have thrown");
         }
         tox.close();
     }
