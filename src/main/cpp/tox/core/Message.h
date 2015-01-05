@@ -110,7 +110,7 @@ namespace tox
     MessageFormat &operator << (uint16_t s);
     MessageFormat &operator << (uint32_t l);
     MessageFormat &operator << (uint64_t q);
-    MessageFormat &operator << (MessageFormat const &plain);
+    MessageFormat &operator << (MessageFormat const &message);
 
     MessageFormat &operator << (PublicKey const &key);
     MessageFormat &operator << (Nonce const &nonce);
@@ -187,6 +187,7 @@ namespace tox
     BitStream operator >> (uint32_t &l) const;
     BitStream operator >> (uint64_t &q) const;
 
+    BitStream operator >> (MessageFormat &message) const;
     BitStream operator >> (PublicKey &key) const;
     BitStream operator >> (Nonce &nonce) const;
     BitStream operator >> (IPv4Address &address) const;

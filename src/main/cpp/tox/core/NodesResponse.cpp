@@ -24,6 +24,6 @@ NodesResponse::NodesResponse (PublicKey const &sender, Nonce const &nonce,
                                 >
                               > const &nodes,
                               uint64_t ping_id)
-  : Packet<NodesResponseFormat> (sender, nonce, box, nonce, nodes, ping_id)
+  : Packet<NodesResponseFormat> (sender, nonce, box, nodes, ping_id)
 {
 }

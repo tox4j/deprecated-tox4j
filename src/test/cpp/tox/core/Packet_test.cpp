@@ -8,23 +8,20 @@
 using namespace tox;
 
 
-TEST (Packet, Simple) {
+TEST (Packet, Plain) {
   using Format = PacketFormat<
     PacketKind::PingResponse,
     uint8_t,
-    encrypted<
-      uint8_t
-    >
+    uint8_t
   >;
 
-  KeyPair key_pair;
-  CryptoBox box (key_pair);
-  Nonce nonce { };
-
-  Packet<Format> packet (0x99, box, nonce, 0xaa);
+  Packet<Format> packet (0x99, 0xaa);
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
 
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
-  Partial<int> result = packet.decode (t, box, nonce) >>= [](uint8_t &&first, uint8_t second) {
+  Partial<int> result = packet.decode (t) >>= [&](uint8_t &&first, uint8_t second) {
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (0xaa, second);
     return success (1234);
@@ -32,31 +29,117 @@ TEST (Packet, Simple) {
 
   EXPECT_TRUE (result.ok ());
   result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+}
 
+
+TEST (Packet, PlainNonceLast) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    uint8_t,
+    Nonce
+  >;
+
+  Nonce orig_nonce = Nonce::random ();
+
+  Packet<Format> packet (0x99, orig_nonce);
+  std::cout << "Packet data: ";
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
+
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  Partial<int> result = packet.decode (t) >>= [&](uint8_t first, Nonce nonce) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (0x99, first);
+    return success (1234);
+  };
+
+  EXPECT_TRUE (result.ok ());
+  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+}
+
+
+TEST (Packet, PlainNonceFirst) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    Nonce,
+    uint8_t
+  >;
+
+  Nonce orig_nonce = Nonce::random ();
+
+  Packet<Format> packet (orig_nonce, 0x99);
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
+
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  Partial<int> result = packet.decode (t) >>= [&](Nonce nonce, uint8_t second) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (0x99, second);
+    return success (1234);
+  };
+
+  EXPECT_TRUE (result.ok ());
+  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+}
+
+
+TEST (Packet, Simple) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    uint8_t,
+    Nonce,
+    encrypted<
+      uint8_t
+    >
+  >;
+
+  KeyPair key_pair;
+  CryptoBox box (key_pair);
+  Nonce orig_nonce = Nonce::random ();
+
+  Packet<Format> packet (0x99, orig_nonce, box, 0xaa);
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
+
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  Partial<int> result = packet.decode (t, box) >>= [&](uint8_t &&first, Nonce nonce, uint8_t second) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (0x99, first);
+    EXPECT_EQ (0xaa, second);
+    return success (1234);
+  };
+
+  EXPECT_TRUE (result.ok ());
+  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
 TEST (Packet, NoncePacket) {
   using Format = PacketFormat<
     PacketKind::PingResponse,
-    Nonce,
     uint8_t,
+    Nonce,
     encrypted<
+      Nonce,
       uint8_t
     >
   >;
 
   KeyPair key_pair;
   CryptoBox box (key_pair);
-  Nonce nonce { };
+  Nonce orig_nonce = Nonce::random ();
 
-  Packet<Format> packet (nonce, 0x99, box, nonce, 0xaa);
+  Packet<Format> packet (0x99, orig_nonce, box, orig_nonce, 0xaa);
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
 
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
-  Partial<int> result = packet.decode (t, box, nonce) >>= [](Nonce nonce, uint8_t &&first, uint8_t second) {
-    EXPECT_EQ (Nonce (), nonce);
+  Partial<int> result = packet.decode (t, box) >>= [&](uint8_t &&first, Nonce nonce, Nonce &&encrypted_nonce, uint8_t second) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (orig_nonce, encrypted_nonce);
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (0xaa, second);
     return success (1234);
@@ -64,9 +147,6 @@ TEST (Packet, NoncePacket) {
 
   EXPECT_TRUE (result.ok ());
   result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
-
-  output_hex (std::cout, packet.data (), packet.size ());
-  std::cout << "\n";
 }
 
 
@@ -85,20 +165,88 @@ TEST (Packet, Bitfield) {
 
   KeyPair key_pair;
   CryptoBox box (key_pair);
-  Nonce nonce { };
+  Nonce orig_nonce = Nonce::random ();
 
-  Packet<Format> packet (nonce, 0x99, box, nonce, 1);
+  Packet<Format> packet (orig_nonce, 0x99, box, 1);
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
 
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
-  auto result = packet.decode (t, box, nonce) >>= [](Nonce nonce, uint8_t &&first, uint8_t second) {
-    EXPECT_EQ (Nonce (), nonce);
+  auto result = packet.decode (t, box) >>= [&](Nonce nonce, uint8_t &&first, uint8_t second) {
+    EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (1, second);
     return success ();
   };
 
   EXPECT_TRUE (result.ok ());
+}
 
+
+#if 0
+TEST (Packet, Repeated) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    Nonce,
+    uint8_t,
+    encrypted<
+      repeated<uint8_t, uint8_t>
+    >
+  >;
+
+  KeyPair key_pair;
+  CryptoBox box (key_pair);
+  Nonce orig_nonce = Nonce::random ();
+
+  Packet<Format> packet (orig_nonce, 0x99, box, { 1, 2, 3, 4 });
+  std::cout << "Packet data: ";
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
+
+#if 0
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  auto result = packet.decode (t, box) >>= [&](Nonce nonce, uint8_t &&first, uint8_t second) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (0x99, first);
+    EXPECT_EQ (1, second);
+    return success ();
+  };
+
+  EXPECT_TRUE (result.ok ());
+#endif
+}
+#endif
+
+
+TEST (Packet, RepeatedTuple) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    Nonce,
+    encrypted<
+      repeated<uint8_t, uint8_t, uint8_t>
+    >
+  >;
+
+  KeyPair key_pair;
+  CryptoBox box (key_pair);
+  Nonce orig_nonce = Nonce::random ();
+
+  std::vector<std::tuple<uint8_t, uint8_t>> data = {
+    std::tuple<uint8_t, uint8_t> { 1, 2 },
+    std::tuple<uint8_t, uint8_t> { 3, 4 },
+  };
+  Packet<Format> packet (orig_nonce, box, data);
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
+
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  auto result = packet.decode (t, box) >>= [&](Nonce nonce, std::vector<std::tuple<uint8_t, uint8_t>> second) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (data, second);
+    return success ();
+  };
+
+  EXPECT_TRUE (result.ok ());
 }

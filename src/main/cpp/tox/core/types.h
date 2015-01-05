@@ -191,6 +191,13 @@ namespace tox
     return Partial<void> ();
   }
 
+  template<typename T, typename... Args>
+  T &renew (T &v, Args &&...args)
+  {
+    v.~T ();
+    return *new (static_cast<void *> (&v)) T (args...);
+  }
+
   // Forward declarations.
   struct KeyPair;
   struct PublicKey;

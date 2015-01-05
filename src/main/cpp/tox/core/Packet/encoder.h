@@ -31,6 +31,12 @@ namespace tox
       {
         write_packet_recurse<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
       }
+
+      template<typename MessageFormat>
+      static void write (Nonce const &nonce, MessageFormat &packet, Args const &...args)
+      {
+        write_packet_recurse<PacketFormatTag<Fmts...>, Args...>::write (nonce, packet, args...);
+      }
     };
 
     // Flatten PacketFormatTags.
@@ -47,22 +53,44 @@ namespace tox
     template<typename IntegralType, IntegralType Value, typename ...Fmts, typename ...Args>
     struct write_packet<PacketFormatTag<std::integral_constant<IntegralType, Value>, Fmts...>, Args...>
     {
-      template<typename MessageFormat>
-      static void write (MessageFormat &packet, Args const &...args)
+      static void write (CipherText &packet, Args const &...args)
       {
         packet << Value;
         write_packet<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
       }
+
+      template<typename MessageFormat>
+      static void write (Nonce const &nonce, MessageFormat &packet, Args const &...args)
+      {
+        packet << Value;
+        write_packet<PacketFormatTag<Fmts...>, Args...>::write (nonce, packet, args...);
+      }
     };
 
     template<typename ...Fmts, typename ...Args>
-    struct write_packet<PacketFormatTag<encrypted<Fmts...>>, CryptoBox, Nonce, Args...>
+    struct write_packet<PacketFormatTag<encrypted<Fmts...>>, CryptoBox, Args...>
     {
-      static void write (CipherText &packet, CryptoBox const &box, Nonce const &nonce, Args const &...args)
+      static void write (Nonce const &nonce, CipherText &packet, CryptoBox const &box, Args const &...args)
       {
         PlainText plain;
         write_packet<PacketFormatTag<Fmts...>, Args...>::write (plain, args...);
         packet << box.encrypt (plain, nonce);
+      }
+    };
+
+    template<typename ...Fmts, typename ...Args>
+    struct write_packet<PacketFormatTag<Nonce, Fmts...>, Nonce, Args...>
+    {
+      static void write (PlainText &packet, Nonce const &nonce, Args const &...args)
+      {
+        packet << nonce;
+        write_packet<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
+      }
+
+      static void write (CipherText &packet, Nonce const &nonce, Args const &...args)
+      {
+        packet << nonce;
+        write_packet<PacketFormatTag<Fmts...>, Args...>::write (nonce, packet, args...);
       }
     };
 
@@ -246,7 +274,9 @@ namespace tox
     template<>
     struct write_packet_recurse<PacketFormatTag<>>
     {
-      static void write (PlainText &/*plain*/) { }
+      static void write (PlainText &/*packet*/) { }
+      static void write (CipherText &/*packet*/) { }
+      static void write (Nonce const &/*nonce*/, CipherText &/*packet*/) { }
     };
 
     template<typename FirstFmt, typename ...Fmts, typename FirstArg, typename ...Args>
@@ -257,6 +287,13 @@ namespace tox
       {
         packet << arg;
         write_packet<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
+      }
+
+      template<typename MessageFormat>
+      static void write (Nonce const &nonce, MessageFormat &packet, FirstArg const &arg, Args const &...args)
+      {
+        packet << arg;
+        write_packet<PacketFormatTag<Fmts...>, Args...>::write (nonce, packet, args...);
       }
     };
   }

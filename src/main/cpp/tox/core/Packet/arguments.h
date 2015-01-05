@@ -10,11 +10,6 @@
 
 namespace tox
 {
-  // Forward declarations
-  struct CryptoBox;
-  struct Nonce;
-
-
   namespace detail
   {
     template<typename Args, typename ...Contents>
@@ -61,7 +56,6 @@ namespace tox
       typedef typename packet_argument_list<
         Args,
         CryptoBox,
-        Nonce,
         EncryptedContents...
       >::type type;
     };

@@ -58,12 +58,10 @@ BitStream<MessageFormat>
 BitStream<MessageFormat>::operator >> (Nonce &nonce) const
 {
   assert (position_ % 8 == 0);
-  assert (packet_.size () > position_ / 8 + nonce.size ());
-#if 0
+  assert (packet_.size () >= position_ / 8 + nonce.size ());
   std::copy (cbegin (),
              cbegin () + nonce.size (),
              nonce.begin ());
-#endif
   return { position_ + nonce.size () * 8, packet_ };
 }
 

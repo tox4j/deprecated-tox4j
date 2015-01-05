@@ -105,6 +105,18 @@ BitStream<MessageFormat>::operator >> (uint8_t &b) const
 
 template<typename MessageFormat>
 BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (MessageFormat &message) const
+{
+  assert (position_ % 8 == 0);
+  message.clear ();
+  message.append (packet_.begin () + position_ / 8,
+                  packet_.end ());
+  return { size () * 8, packet_ };
+}
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
 BitStream<MessageFormat>::read (uint8_t &b, std::size_t bit_size) const
 {
   printf ("reading %zd bits at %zd (of %zd)\n", bit_size, position_, packet_.size () * 8);
