@@ -383,33 +383,48 @@ add_definitions(-DANDROID)""")
           }
 
           val cmake = {
-            val targetFile = nativeTarget.value / "Target.cmake"
-            val out = new PrintWriter(targetFile)
-            try {
-              if (packageDependencies.value.nonEmpty) {
-                out.println("find_package(PkgConfig REQUIRED)")
-              }
-              packageDependencies.value foreach { pkg =>
-                val PKG = pkg.toUpperCase.replace('-', '_')
-                out.println(s"pkg_check_modules($PKG REQUIRED $pkg)")
-                out.println(s"include_directories($${${PKG}_INCLUDE_DIRS})")
-                out.println(s"link_directories($${${PKG}_LIBRARY_DIRS})")
-                out.println(s"link_libraries($${${PKG}_LIBRARIES})")
+            val dependenciesFile = {
+	      val fileName = nativeTarget.value / "Dependencies.cmake"
+              val out = new PrintWriter(fileName)
+              try {
+                if (packageDependencies.value.nonEmpty) {
+                  out.println("find_package(PkgConfig REQUIRED)")
+                }
+                packageDependencies.value foreach { pkg =>
+                  val PKG = pkg.toUpperCase.replace('-', '_')
+                  out.println(s"pkg_check_modules($PKG REQUIRED $pkg)")
+                  out.println(s"include_directories($${${PKG}_INCLUDE_DIRS})")
+                  out.println(s"link_directories($${${PKG}_LIBRARY_DIRS})")
+                  out.println(s"link_libraries($${${PKG}_LIBRARIES})")
+                }
+
+                Seq(nativeSource.value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
+                  out.println(s"include_directories(${dir.getPath})")
+                }
+              } finally {
+                out.close()
               }
 
-              Seq(nativeSource.value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
-                out.println(s"include_directories(${dir.getPath})")
+              fileName
+	    }
+
+            val targetFile = {
+	      val fileName = nativeTarget.value / "Target.cmake"
+              val out = new PrintWriter(fileName)
+              try {
+                out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
+                out.println(s"add_library(${libraryName.value} SHARED ${sources.mkString(" ")})")
+              } finally {
+                out.close()
               }
 
-              out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
-              out.println(s"add_library(${libraryName.value} SHARED ${sources.mkString(" ")})")
-            } finally {
-              out.close()
-            }
+              fileName
+	    }
 
             Process(
               Seq(
                 "cmake",
+                "-DDEPENDENCIES_FILE=" + dependenciesFile.getPath,
                 "-DTARGET_FILE=" + targetFile.getPath,
                 baseDirectory.value.getPath
               ) ++ flags,
