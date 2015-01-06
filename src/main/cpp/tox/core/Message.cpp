@@ -4,40 +4,33 @@
 using namespace tox;
 
 
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (uint8_t  b)
+void
+MessageBase::append (uint8_t b)
 {
   push_back (b & 0xff);
-  return static_cast<MessageFormat &> (*this);
 }
 
 
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (uint16_t s)
+void
+MessageBase::append (uint16_t s)
 {
   push_back ((s >> 8 * 1) & 0xff);
   push_back ((s >> 8 * 0) & 0xff);
-  return static_cast<MessageFormat &> (*this);
 }
 
 
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (uint32_t l)
+void
+MessageBase::append (uint32_t l)
 {
   push_back ((l >> 8 * 3) & 0xff);
   push_back ((l >> 8 * 2) & 0xff);
   push_back ((l >> 8 * 1) & 0xff);
   push_back ((l >> 8 * 0) & 0xff);
-  return static_cast<MessageFormat &> (*this);
 }
 
 
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (uint64_t q)
+void
+MessageBase::append (uint64_t q)
 {
   push_back ((q >> 8 * 7) & 0xff);
   push_back ((q >> 8 * 6) & 0xff);
@@ -47,21 +40,7 @@ Message<MessageFormat>::operator << (uint64_t q)
   push_back ((q >> 8 * 2) & 0xff);
   push_back ((q >> 8 * 1) & 0xff);
   push_back ((q >> 8 * 0) & 0xff);
-  return static_cast<MessageFormat &> (*this);
 }
-
-
-template<typename MessageFormat>
-MessageFormat &
-Message<MessageFormat>::operator << (MessageFormat const &message)
-{
-  append (message.cbegin (), message.cend ());
-  return static_cast<MessageFormat &> (*this);
-}
-
-
-template struct tox::Message<PlainText>;
-template struct tox::Message<CipherText>;
 
 
 void

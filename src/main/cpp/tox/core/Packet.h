@@ -40,14 +40,14 @@ namespace tox
 
 
   template<typename Format, typename ArgsTuple = typename detail::packet_arguments<Format>::type>
-  struct Packet;
+  struct PacketBase;
 
   template<typename Format, typename... Args>
-  struct Packet<Format, std::tuple<Args...>>
+  struct PacketBase<Format, std::tuple<Args...>>
     : detail::packet_encoder<Format, std::tuple<Args...>>
     , detail::packet_decoder<Format, std::tuple<Args...>>
   {
-    explicit Packet (Args const &...args)
+    explicit PacketBase (Args const &...args)
     {
       this->encode (packet_, args...);
     }
@@ -58,4 +58,8 @@ namespace tox
   private:
     CipherText packet_;
   };
+
+
+  template<typename Format>
+  using Packet = PacketBase<Format>;
 }

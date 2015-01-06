@@ -189,7 +189,6 @@ TEST (Packet, Repeated) {
   using Format = PacketFormat<
     PacketKind::PingResponse,
     Nonce,
-    uint8_t,
     encrypted<
       repeated<uint8_t, uint8_t>
     >
@@ -199,22 +198,21 @@ TEST (Packet, Repeated) {
   CryptoBox box (key_pair);
   Nonce orig_nonce = Nonce::random ();
 
-  Packet<Format> packet (orig_nonce, 0x99, box, { 1, 2, 3, 4 });
+  std::vector<uint8_t> data = { 1, 2, 3, 4 };
+
+  Packet<Format> packet (orig_nonce, box, data);
   std::cout << "Packet data: ";
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-#if 0
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
-  auto result = packet.decode (t, box) >>= [&](Nonce nonce, uint8_t &&first, uint8_t second) {
+  auto result = packet.decode (t, box) >>= [&](Nonce nonce, std::vector<uint8_t> &&first) {
     EXPECT_EQ (orig_nonce, nonce);
-    EXPECT_EQ (0x99, first);
-    EXPECT_EQ (1, second);
+    EXPECT_EQ (data, first);
     return success ();
   };
 
   EXPECT_TRUE (result.ok ());
-#endif
 }
 #endif
 

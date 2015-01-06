@@ -1,7 +1,9 @@
 #pragma once
 
 #include "tox/core/CryptoBox.h"
+#include "tox/core/KeyPair.h"
 #include "tox/core/Message.h"
+#include "tox/core/Nonce.h"
 
 #include "tox/core/tuple_util.h"
 #include "tox/core/variant.h"

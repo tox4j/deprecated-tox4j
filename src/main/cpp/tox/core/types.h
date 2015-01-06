@@ -6,8 +6,10 @@
 #include <array>
 #include <tuple>
 #include <vector>
+#include <type_traits>
 
 #include "Status.h"
+#include "tuple_util.h"
 
 namespace tox
 {
@@ -23,15 +25,13 @@ namespace tox
 
   template<typename T>
   struct is_partial
-  {
-    static bool const value = false;
-  };
+    : std::false_type
+  { };
 
   template<typename T>
   struct is_partial<Partial<T>>
-  {
-    static bool const value = true;
-  };
+    : std::true_type
+  { };
 
   template<typename Call>
   struct partial_type
@@ -191,23 +191,31 @@ namespace tox
     return Partial<void> ();
   }
 
+
   template<typename T, typename... Args>
-  T &renew (T &v, Args &&...args)
+  T &
+  renew (T &v, Args &&...args)
   {
     v.~T ();
     return *new (static_cast<void *> (&v)) T (args...);
   }
 
+
   // Forward declarations.
-  struct KeyPair;
   struct PublicKey;
   struct SecretKey;
+  struct KeyPair;
   struct Nonce;
+
+  struct CryptoBox;
+
+  template<typename MessageFormat>
+  struct Message;
   struct PlainText;
   struct CipherText;
   template<typename MessageFormat>
   struct BitStream;
-  struct CryptoBox;
+
   struct IPv4Address;
   struct IPv6Address;
 }

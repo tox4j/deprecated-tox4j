@@ -30,4 +30,10 @@ namespace tox
     UniqueNonce &operator= (UniqueNonce const &rhs) = delete;
     UniqueNonce (UniqueNonce const &rhs) = delete;
   };
+
+  template<typename MessageFormat>
+  BitStream<MessageFormat> operator >> (BitStream<MessageFormat> const &packet, Nonce &nonce)
+  {
+    return packet.read (nonce.begin (), nonce.end ());
+  }
 }
