@@ -66,15 +66,6 @@ namespace tox
   template<typename Success, typename Traits = partial_traits<Success>>
   struct Partial;
 
-  template<typename Call>
-  struct partial_type
-  {
-    typedef typename std::result_of<Call>::type type;
-
-    static_assert (is_specialisation_of<type, Partial>::value,
-                   "Monadic bind must return Partial<T>");
-  };
-
 
   /**
    * The type of partial functions.
@@ -99,10 +90,22 @@ namespace tox
     bool ok () const
     { return status_ == Status::OK; }
 
+
   protected:
+    template<typename Call>
+    struct return_type
+    {
+      typedef typename std::result_of<Call>::type type;
+
+      static_assert (is_specialisation_of<type, Partial>::value,
+                     "Monadic bind must return Partial<T>");
+    };
+
+
     PartialBase (Status status)
       : status_ (status)
     { }
+
 
   private:
     Status status_;
@@ -169,20 +172,20 @@ namespace tox
     }
 
     template<typename MapF>
-    typename partial_type<MapF (Success)>::type
+    typename return_type<MapF (Success)>::type
     operator >>= (MapF const &func)
     {
-      typedef typename partial_type<MapF (Success)>::type result_type;
+      typedef typename return_type<MapF (Success)>::type result_type;
       if (ok ())
         return func (value ());
       return result_type (code ());
     }
 
     template<typename VoidF>
-    typename partial_type<VoidF ()>::type
+    typename return_type<VoidF ()>::type
     operator >> (VoidF const &func)
     {
-      typedef typename partial_type<VoidF ()>::type result_type;
+      typedef typename return_type<VoidF ()>::type result_type;
       if (ok ())
         return func ();
       return result_type (code ());
@@ -217,10 +220,10 @@ namespace tox
     { assert (!ok ()); }
 
     template<typename VoidF>
-    typename partial_type<VoidF ()>::type
+    typename return_type<VoidF ()>::type
     operator >> (VoidF const &func)
     {
-      typedef typename partial_type<VoidF ()>::type result_type;
+      typedef typename return_type<VoidF ()>::type result_type;
       if (ok ())
         return func ();
       return result_type (code ());
