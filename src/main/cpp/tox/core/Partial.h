@@ -10,6 +10,17 @@
 
 namespace tox
 {
+  template<typename T, template<typename...> class Template>
+  struct is_specialisation_of
+    : std::false_type
+  { };
+
+  template<template<typename...> class Template, typename... Args>
+  struct is_specialisation_of<Template<Args...>, Template>
+    : std::true_type
+  { };
+
+
   template<typename T>
   struct partial_traits
   {
@@ -55,22 +66,12 @@ namespace tox
   template<typename Success, typename Traits = partial_traits<Success>>
   struct Partial;
 
-  template<typename T>
-  struct is_partial
-    : std::false_type
-  { };
-
-  template<typename T>
-  struct is_partial<Partial<T>>
-    : std::true_type
-  { };
-
   template<typename Call>
   struct partial_type
   {
     typedef typename std::result_of<Call>::type type;
 
-    static_assert (is_partial<type>::value,
+    static_assert (is_specialisation_of<type, Partial>::value,
                    "Monadic bind must return Partial<T>");
   };
 
