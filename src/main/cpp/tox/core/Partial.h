@@ -22,6 +22,33 @@ namespace tox
 
 
   template<typename T>
+  struct identity
+  { typedef T type; };
+
+
+  template<typename To>
+  To
+  implicit_cast (typename identity<To>::type const &from)
+  {
+    return from;
+  }
+
+  template<typename To, typename From>
+  To
+  pointer_cast (From *from)
+  {
+    return static_cast<To> (implicit_cast<void *> (from));
+  }
+
+  template<typename To, typename From>
+  To
+  pointer_cast (From const *from)
+  {
+    return static_cast<To> (implicit_cast<void const *> (from));
+  }
+
+
+  template<typename T>
   struct partial_traits
   {
     static void move (T &value, T &&from)
@@ -195,16 +222,16 @@ namespace tox
     Success &value ()
     {
       assert (ok ());
-      return *reinterpret_cast<Success *> (value_);
+      return *pointer_cast<Success *> (value_);
     }
 
     Success const &value () const
     {
       assert (ok ());
-      return *reinterpret_cast<Success const *> (value_);
+      return *pointer_cast<Success const *> (value_);
     }
 
-    alignas (Success) char value_[sizeof (Success)];
+    alignas (Success) unsigned char value_[sizeof (Success)];
   };
 
 
