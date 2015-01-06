@@ -20,14 +20,14 @@ TEST (Packet, Plain) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  Partial<int> result = packet.decode () >>= [&](uint8_t &&first, uint8_t second) {
+  Partial<int> result = packet.decode () ->* [&](uint8_t &&first, uint8_t second) {
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (0xaa, second);
     return success (1234);
   };
 
   EXPECT_TRUE (result.ok ());
-  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result ->* [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -45,14 +45,14 @@ TEST (Packet, PlainNonceLast) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  Partial<int> result = packet.decode () >>= [&](uint8_t first, Nonce nonce) {
+  Partial<int> result = packet.decode () ->* [&](uint8_t first, Nonce nonce) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (0x99, first);
     return success (1234);
   };
 
   EXPECT_TRUE (result.ok ());
-  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result ->* [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -70,14 +70,14 @@ TEST (Packet, PlainNonceFirst) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  Partial<int> result = packet.decode () >>= [&](Nonce nonce, uint8_t second) {
+  Partial<int> result = packet.decode () ->* [&](Nonce nonce, uint8_t second) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (0x99, second);
     return success (1234);
   };
 
   EXPECT_TRUE (result.ok ());
-  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result ->* [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -100,7 +100,7 @@ TEST (Packet, Simple) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  Partial<int> result = packet.decode (box) >>= [&](uint8_t &&first, Nonce nonce, uint8_t second) {
+  Partial<int> result = packet.decode (box) ->* [&](uint8_t &&first, Nonce nonce, uint8_t second) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (0xaa, second);
@@ -108,7 +108,7 @@ TEST (Packet, Simple) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result ->* [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -132,7 +132,7 @@ TEST (Packet, NoncePacket) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  Partial<int> result = packet.decode (box) >>= [&](uint8_t &&first, Nonce nonce, Nonce &&encrypted_nonce, uint8_t second) {
+  Partial<int> result = packet.decode (box) ->* [&](uint8_t &&first, Nonce nonce, Nonce &&encrypted_nonce, uint8_t second) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (orig_nonce, encrypted_nonce);
     EXPECT_EQ (0x99, first);
@@ -141,7 +141,7 @@ TEST (Packet, NoncePacket) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result ->* [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -167,7 +167,7 @@ TEST (Packet, Bitfield) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  auto result = packet.decode (box) >>= [&](Nonce nonce, uint8_t &&first, uint8_t second) {
+  auto result = packet.decode (box) ->* [&](Nonce nonce, uint8_t &&first, uint8_t second) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (0x99, first);
     EXPECT_EQ (1, second);
@@ -199,7 +199,7 @@ TEST (Packet, Repeated) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  auto result = packet.decode (box) >>= [&](Nonce nonce, std::vector<uint8_t> &&first) {
+  auto result = packet.decode (box) ->* [&](Nonce nonce, std::vector<uint8_t> &&first) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (data, first);
     return success ();
@@ -232,7 +232,7 @@ TEST (Packet, RepeatedTuple) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  auto result = packet.decode (box) >>= [&](Nonce nonce, std::vector<std::tuple<uint8_t, uint8_t>> second) {
+  auto result = packet.decode (box) ->* [&](Nonce nonce, std::vector<std::tuple<uint8_t, uint8_t>> second) {
     EXPECT_EQ (orig_nonce, nonce);
     EXPECT_EQ (data, second);
     return success ();
@@ -286,7 +286,7 @@ TEST (Packet, Choice) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  auto result = packet.decode (box) >>= [&](Nonce nonce, data_type second) {
+  auto result = packet.decode (box) ->* [&](Nonce nonce, data_type second) {
     EXPECT_EQ (orig_nonce, nonce);
     second.visit<void> () >>= {
       [](std::tuple<uint8_t, uint8_t> const &) {
@@ -347,7 +347,7 @@ TEST (Packet, PlainChoice) {
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-  auto result = packet.decode () >>= [&](data_type second) {
+  auto result = packet.decode () ->* [&](data_type second) {
     second.visit<void> () >>= {
       [](std::tuple<uint8_t, uint8_t> const &a) {
         EXPECT_EQ (4, std::get<0> (a));

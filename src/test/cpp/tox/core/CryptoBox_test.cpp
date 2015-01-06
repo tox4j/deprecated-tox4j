@@ -37,7 +37,7 @@ TEST (CryptoBox, EmptyString) {
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText (""), nonce), nonce);
   EXPECT_EQ (Status::OK, result.code ());
-  result >> [&](PlainText text) {
+  result ->* [&](PlainText text) {
     EXPECT_EQ ("", str (text));
     return success ();
   };
@@ -57,7 +57,7 @@ TEST (CryptoBox, LongString) {
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText (original), nonce), nonce);
   EXPECT_EQ (Status::OK, result.code ());
-  result >> [&](PlainText text) {
+  result ->* [&](PlainText text) {
     EXPECT_EQ (std::string (original.begin (), original.end ()), str (text));
     return success ();
   };
@@ -76,7 +76,7 @@ TEST (CryptoBox, LongString0) {
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText (original), nonce), nonce);
   EXPECT_EQ (Status::OK, result.code ());
-  result >> [&](PlainText text) {
+  result ->* [&](PlainText text) {
     EXPECT_EQ (std::string (original.begin (), original.end ()), str (text));
     return success ();
   };
@@ -92,7 +92,7 @@ TEST (CryptoBox, EncryptDecrypt) {
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText ("hello"), nonce), nonce);
   EXPECT_EQ (Status::OK, result.code ());
-  result >> [&](PlainText text) {
+  result ->* [&](PlainText text) {
     EXPECT_EQ ("hello", str (text));
     return success ();
   };
@@ -108,7 +108,7 @@ TEST (CryptoBox, RandomNonce) {
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText ("hello"), nonce), nonce);
   EXPECT_EQ (Status::OK, result.code ());
-  result >> [&](PlainText text) {
+  result ->* [&](PlainText text) {
     EXPECT_EQ ("hello", str (text));
     return success ();
   };

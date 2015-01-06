@@ -53,7 +53,7 @@ struct io_callback
       {
         LOG (INFO) << "Received NodesResponse packet";
         NodesResponse (packet).decode (box)
-          >>= [](PublicKey key,
+          ->* [](PublicKey key,
                  Nonce nonce,
                  std::vector<
                    std::tuple<

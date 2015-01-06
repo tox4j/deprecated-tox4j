@@ -124,12 +124,12 @@ namespace tox
 
         return box.decrypt (encrypted, nonce)
 
-          >> [&](PlainText const &plain) {
+          ->* [&](PlainText const &plain) {
             return read_packet<Member, PacketFormatTag<Fmts...>, std::tuple<>, DecodedArgs...>::
               read (decoded, BitStream<PlainText> (plain));
           }
 
-          >> [&] {
+          ->* [&] {
             return success (rest);
           };
       }
@@ -165,7 +165,7 @@ namespace tox
 
             auto result = read (crypto..., record, rest)
 
-              >> [&](BitStream<PlainText> const &new_rest) {
+              ->* [&](BitStream<PlainText> const &new_rest) {
                 std::get<Member> (decoded).push_back (std::move (record));
 
                 rest.~BitStream<PlainText> ();
@@ -237,7 +237,7 @@ namespace tox
       {
         return read_variant<sizeof... (Choices), MessageFormat>::read (crypto..., std::get<Member> (decoded), packet)
 
-          >> [&](BitStream<MessageFormat> const &rest) {
+          ->* [&](BitStream<MessageFormat> const &rest) {
             return read_packet<Member + 1, PacketFormatTag<Fmts...>, std::tuple<Crypto...>, DecodedArgs...>::
               read (crypto..., decoded, rest);
           };
@@ -328,15 +328,15 @@ namespace tox
         {
           Decoded decoded;
           return read_packet<0, Format, Crypto, DecodedArgs...>::
-            read (std::get<S> (crypto_)..., decoded, BitStream<CipherText> (packet_)) >>
-              [&] {
+            read (std::get<S> (crypto_)..., decoded, BitStream<CipherText> (packet_))
+              ->* [&] {
                 return apply (make_seq<sizeof... (DecodedArgs)> (), handler, std::move (decoded));
               };
         }
 
         template<typename Handler>
         typename std::result_of<Handler (DecodedArgs...)>::type
-        operator >>= (Handler const &handler)
+        operator ->* (Handler const &handler)
         {
           return read (make_seq<sizeof... (CryptoArgs)> (), handler);
         }
