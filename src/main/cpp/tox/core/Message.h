@@ -177,7 +177,7 @@ namespace tox
     MessageFormat &operator << (T const &data)
     {
       static_assert (is_allowed_in<T, MessageFormat>::value,
-                     "Value type is not allowed in this packet type");
+                     "Data type is not allowed in this packet type");
       append (data);
       return static_cast<MessageFormat &> (*this);
     }
