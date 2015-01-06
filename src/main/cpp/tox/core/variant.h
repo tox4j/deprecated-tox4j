@@ -190,3 +190,16 @@ union variant_storage<Tag>
 
 template<typename ...Types>
 using variant = variant_storage<unsigned char, Types...>;
+
+
+template<std::size_t Index, typename Variant>
+struct variant_type;
+
+template<std::size_t Index, typename T, typename ...Types>
+struct variant_type<Index, variant<T, Types...>>
+  : variant_type<Index - 1, variant<Types...>>
+{ };
+
+template<typename T, typename ...Types>
+struct variant_type<0, variant<T, Types...>>
+{ typedef T type; };

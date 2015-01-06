@@ -180,6 +180,19 @@ namespace tox
       }
     };
 
+#if 0
+    template<std::size_t Member, typename ...Choices, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
+    struct read_packet<Member, PacketFormatTag<choice<Choices...>, Fmts...>, Crypto, DecodedArgs...>
+    {
+      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
+                                                 BitStream<PlainText> packet)
+      {
+        return read_packet<Member, PacketFormatTag<Bitfields..., Fmts...>, Crypto, DecodedArgs...>::
+          read (decoded, packet);
+      }
+    };
+#endif
+
     template<std::size_t Member, typename ...Bitfields, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<bitfield::type<Bitfields...>, Fmts...>, Crypto, DecodedArgs...>
     {

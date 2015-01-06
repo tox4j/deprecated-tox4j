@@ -280,7 +280,7 @@ TEST (Packet, Choice) {
     std::tuple<uint8_t, uint8_t, uint8_t>
   > data_type;
   static_assert (sizeof (data_type) == 4, "");
-  std::tuple<uint8_t, uint8_t, uint8_t> data { 1, 2, 3 };
+  variant_type<1, data_type>::type data { 1, 2, 3 };
   Packet<Format> packet (orig_nonce, box, data_type (data));
   std::cout << "Packet data: ";
   output_hex (std::cout, packet.data (), packet.size ());
