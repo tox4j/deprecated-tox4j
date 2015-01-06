@@ -47,10 +47,34 @@ namespace tox
     : detail::packet_encoder<Format, std::tuple<Args...>>
     , detail::packet_decoder<Format, std::tuple<Args...>>
   {
+    typedef detail::packet_encoder<Format, std::tuple<Args...>> encoder_type;
+    typedef detail::packet_decoder<Format, std::tuple<Args...>> decoder_type;
+
+    typedef typename decoder_type::decoder decoder;
+
+
     explicit PacketBase (Args const &...args)
     {
       this->encode (packet_, args...);
     }
+
+    explicit PacketBase (CipherText const &packet)
+      : packet_ (packet)
+    { }
+
+
+    decoder decode () const
+    {
+      CipherText packet = CipherText::from_bytes (data (), size ());
+      return decoder_type::decode (std::move (packet));
+    }
+
+    decoder decode (CryptoBox const &box) const
+    {
+      CipherText packet = CipherText::from_bytes (data (), size ());
+      return decoder_type::decode (std::move (packet), box);
+    }
+
 
     byte const *data () const { return packet_.data (); }
     std::size_t size () const { return packet_.size (); }

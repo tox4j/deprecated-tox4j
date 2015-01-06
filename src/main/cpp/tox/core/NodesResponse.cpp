@@ -4,13 +4,6 @@
 using namespace tox;
 
 
-PlainText &
-tox::operator << (PlainText &packet, Protocol protocol)
-{
-  return packet << static_cast<byte> (protocol);
-}
-
-
 NodesResponse::NodesResponse (PublicKey const &sender, Nonce const &nonce,
                               CryptoBox const &box,
                               std::vector<
@@ -26,4 +19,30 @@ NodesResponse::NodesResponse (PublicKey const &sender, Nonce const &nonce,
                               uint64_t ping_id)
   : Packet<NodesResponseFormat> (sender, nonce, box, nodes, ping_id)
 {
+}
+
+
+PlainText &
+tox::operator << (PlainText &packet, Protocol protocol)
+{
+  return packet << static_cast<byte> (protocol);
+}
+
+
+std::ostream &
+tox::operator << (std::ostream &os, Protocol protocol)
+{
+  switch (protocol)
+    {
+    case Protocol::UDP:
+      os << "UDP";
+      break;
+    case Protocol::TCP:
+      os << "TCP";
+      break;
+    default:
+      os << "<invalid protocol>";
+      break;
+    }
+  return os;
 }

@@ -49,11 +49,57 @@ struct io_callback
   void handle_packet (CipherText const &packet)
   {
     assert (packet.size () > 0);
-    assert (packet.data ()[0] == 0x04);
-    //NodesResponse::decode (packet, box);
+    if (packet.data ()[0] == 0x04)
+      {
+        LOG (INFO) << "Received NodesResponse packet";
+        NodesResponse (packet).decode (box)
+          >>= [](PublicKey key,
+                 Nonce nonce,
+                 std::vector<
+                   std::tuple<
+                     variant<
+                       std::tuple<Protocol, IPv4Address>,
+                       std::tuple<Protocol, IPv6Address>
+                     >,
+                     uint16_t,
+                     PublicKey
+                   >
+                 > nodes, uint64_t ping_id) {
+            LOG (INFO) << "Packet decoded successfully";
+            LOG (INFO) << "Key: " << key;
+            LOG (INFO) << "Nonce: " << nonce;
+            LOG (INFO) << "Ping ID: " << ping_id;
+            LOG (INFO) << "Node count: " << nodes.size ();
+            for (auto node : nodes)
+              {
+                auto address   = std::get<0> (node);
+                auto port      = std::get<1> (node);
+                auto client_id = std::get<2> (node);
+                address.visit () >>= {
+                  [](std::tuple<Protocol, IPv4Address> address) {
+                    LOG (INFO) << "Protocol: " << std::get<0> (address);
+                    LOG (INFO) << "IPv4: " << std::get<1> (address);
+                  },
+
+                  [](std::tuple<Protocol, IPv6Address> address) {
+                    LOG (INFO) << "Protocol: " << std::get<0> (address);
+                    LOG (INFO) << "IPv6: " << std::get<1> (address);
+                  },
+                };
+                LOG (INFO) << "Port: " << port;
+                LOG (INFO) << "Client ID: " << client_id;
+              }
+            return success ();
+          };
+        ev::get_default_loop ().break_loop ();
+      }
+    else if (packet.data ()[0] == 0x00)
+      {
+        LOG (INFO) << "Received PingRequest packet";
+      }
   }
 
-  void operator() (ev::io &w, int revents)
+  void operator () (ev::io &w, int revents)
   {
     switch (revents)
       {

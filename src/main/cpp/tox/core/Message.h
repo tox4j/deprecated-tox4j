@@ -281,7 +281,10 @@ namespace tox
     BitStream operator >> (uint32_t &l) const;
     BitStream operator >> (uint64_t &q) const;
 
-    BitStream operator >> (MessageFormat &message) const;
+    BitStream operator >> (MessageFormat &data) const;
+    BitStream operator >> (PublicKey     &data) const;
+    BitStream operator >> (IPv4Address   &data) const;
+    BitStream operator >> (IPv6Address   &data) const;
 
     template<std::size_t BitSize>
     struct with_bit_size
@@ -293,7 +296,9 @@ namespace tox
       template<typename T>
       BitStream operator >> (T &v) const
       {
-        return stream_.read (v, BitSize);
+        if (sizeof (T) == sizeof (uint8_t))
+          return stream_.read ((uint8_t &)v, BitSize);
+        assert (false);
       }
 
     private:

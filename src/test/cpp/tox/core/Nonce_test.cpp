@@ -11,7 +11,7 @@ TEST (Nonce, Random) {
 
 
 TEST (Nonce, Increment) {
-  Nonce nonce;
+  Nonce nonce { };
   EXPECT_EQ (0, nonce[23]);
   ++nonce;
   EXPECT_EQ (1, nonce[23]);
@@ -19,9 +19,9 @@ TEST (Nonce, Increment) {
 
 
 TEST (Nonce, IncrementMany) {
-  Nonce nonce;
+  Nonce nonce { };
 
-  for (int i = 0; i < 256; i++)
+  for (int i = 0; i < 255; i++)
     ++nonce;
   EXPECT_EQ (255, nonce[23]);
 

@@ -16,4 +16,7 @@ namespace tox
   {
     typedef byte_array<16> super;
   };
+
+
+  std::ostream &operator << (std::ostream &os, IPv4Address const &address);
 }

@@ -161,10 +161,20 @@ public:
     return visitor_accept<Result> { *this };
   }
 
+  visitor_accept<void> visit () const
+  {
+    return visit<void> ();
+  }
+
   template<typename Result>
   Result visit (visitor<Result> const &v) const
   {
     return dispatch<Result> (v);
+  }
+
+  void visit (visitor<void> const &v) const
+  {
+    return visit<void> (v);
   }
 
 private:
@@ -181,6 +191,10 @@ private:
 template<typename Tag>
 union variant_storage<Tag>
 {
+  template<typename, typename ...>
+  friend union variant_storage;
+
+private:
   template<typename T>
   explicit variant_storage (T const &)
   { static_assert (std::is_void<T>::value,

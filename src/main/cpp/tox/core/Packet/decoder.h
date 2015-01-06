@@ -60,6 +60,20 @@ namespace tox
       }
     };
 
+    // Flatten nested PacketFormatTags.
+    template<std::size_t Member, typename ...InnerFmts, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
+    struct read_packet<Member, PacketFormatTag<PacketFormatTag<InnerFmts...>, Fmts...>, Crypto, DecodedArgs...>
+    {
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
+      {
+        return read_packet<Member, PacketFormatTag<InnerFmts..., Fmts...>, Crypto, DecodedArgs...>::
+          read (crypto, decoded, packet);
+      }
+    };
+
     template<std::size_t Member, typename IntegralType, IntegralType Value, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<std::integral_constant<IntegralType, Value>, Fmts...>, Crypto, DecodedArgs...>
     {
@@ -316,26 +330,26 @@ namespace tox
         {
           Decoded decoded;
           return read_packet<0, Format, Crypto, DecodedArgs...>::
-            read (crypto_, decoded, packet_) >>
+            read (crypto_, decoded, BitStream<CipherText> (packet_)) >>
               [&] {
                 return apply (make_seq<sizeof... (DecodedArgs)> (), handler, std::move (decoded));
               };
         }
 
-        decoder (CipherText &packet, CryptoArgs const &...crypto)
+        decoder (CipherText &&packet, CryptoArgs const &...crypto)
           : packet_ (packet)
           , crypto_ (crypto...)
         {
         }
 
       private:
-        BitStream<CipherText> const packet_;
+        CipherText const packet_;
         Crypto const crypto_;
       };
 
-      static decoder decode (CipherText &packet, CryptoArgs const &...crypto)
+      static decoder decode (CipherText &&packet, CryptoArgs const &...crypto)
       {
-        return decoder (packet, crypto...);
+        return decoder (std::move (packet), crypto...);
       }
     };
 

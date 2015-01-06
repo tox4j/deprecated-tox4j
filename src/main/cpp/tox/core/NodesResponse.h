@@ -45,6 +45,8 @@ namespace tox
   struct NodesResponse
     : Packet<NodesResponseFormat>
   {
+    using Packet<NodesResponseFormat>::Packet;
+
     NodesResponse (PublicKey const &sender, Nonce const &nonce,
                    CryptoBox const &box,
                    std::vector<
@@ -62,4 +64,5 @@ namespace tox
 
 
   PlainText &operator << (PlainText &packet, Protocol protocol);
+  std::ostream &operator << (std::ostream &os, Protocol protocol);
 }

@@ -101,23 +101,110 @@ BitStream<MessageFormat>::operator >> (uint8_t &b) const
   printf ("reading %zd bits at %zd (of %zd)\n", 8, position_, packet_.size () * 8);
 #endif
   assert (position_ / 8 < packet_.size ());
-  b = packet_[position_ / 8];
+  b = packet_[position_ / 8 + 0] << 8 * 0;
 #if 0
   printf ("byte at %zd: %02x\n", position_, b);
 #endif
   return { position_ + 8, packet_ };
 }
 
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (uint16_t &b) const
+{
+  assert (position_ % 8 == 0);
+#if 0
+  printf ("reading %zd bits at %zd (of %zd)\n", 8, position_, packet_.size () * 8);
+#endif
+  assert (position_ / 8 + 1 < packet_.size ());
+  b = 0;
+  b |= packet_[position_ / 8 + 0] << 8 * 1;
+  b |= packet_[position_ / 8 + 1] << 8 * 0;
+#if 0
+  printf ("byte at %zd: %02x\n", position_, b);
+#endif
+  return { position_ + 16, packet_ };
+}
 
 template<typename MessageFormat>
 BitStream<MessageFormat>
-BitStream<MessageFormat>::operator >> (MessageFormat &message) const
+BitStream<MessageFormat>::operator >> (uint32_t &b) const
 {
   assert (position_ % 8 == 0);
-  message.clear ();
-  message.append (packet_.begin () + position_ / 8,
-                  packet_.end ());
+#if 0
+  printf ("reading %zd bits at %zd (of %zd)\n", 8, position_, packet_.size () * 8);
+#endif
+  assert (position_ / 8 + 3 < packet_.size ());
+  b = 0;
+  b |= packet_[position_ / 8 + 0] << 8 * 3;
+  b |= packet_[position_ / 8 + 1] << 8 * 2;
+  b |= packet_[position_ / 8 + 2] << 8 * 1;
+  b |= packet_[position_ / 8 + 3] << 8 * 0;
+#if 0
+  printf ("byte at %zd: %02x\n", position_, b);
+#endif
+  return { position_ + 32, packet_ };
+}
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (uint64_t &b) const
+{
+  assert (position_ % 8 == 0);
+#if 0
+  printf ("reading %zd bits at %zd (of %zd)\n", 8, position_, packet_.size () * 8);
+#endif
+  assert (position_ / 8 + 7 < packet_.size ());
+  b = 0;
+  b |= uint64_t (packet_[position_ / 8 + 0]) << 8 * 7;
+  b |= uint64_t (packet_[position_ / 8 + 1]) << 8 * 6;
+  b |= uint64_t (packet_[position_ / 8 + 2]) << 8 * 5;
+  b |= uint64_t (packet_[position_ / 8 + 3]) << 8 * 4;
+  b |= uint64_t (packet_[position_ / 8 + 4]) << 8 * 3;
+  b |= uint64_t (packet_[position_ / 8 + 5]) << 8 * 2;
+  b |= uint64_t (packet_[position_ / 8 + 6]) << 8 * 1;
+  b |= uint64_t (packet_[position_ / 8 + 7]) << 8 * 0;
+#if 0
+  printf ("byte at %zd: %02x\n", position_, b);
+#endif
+  return { position_ + 64, packet_ };
+}
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (MessageFormat &data) const
+{
+  data.resize (size ());
+  read (data.data (), data.data () + data.size ());
   return { size () * 8, packet_ };
+}
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (PublicKey &data) const
+{
+  read (data.begin (), data.end ());
+  return { position_ + data.size () * 8, packet_ };
+}
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (IPv4Address &data) const
+{
+  read (data.begin (), data.end ());
+  return { position_ + data.size () * 8, packet_ };
+}
+
+
+template<typename MessageFormat>
+BitStream<MessageFormat>
+BitStream<MessageFormat>::operator >> (IPv6Address &data) const
+{
+  read (data.begin (), data.end ());
+  return { position_ + data.size () * 8, packet_ };
 }
 
 
