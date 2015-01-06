@@ -3,8 +3,12 @@ package im.tox.tox4j.core;
 import im.tox.tox4j.ConnectedListener;
 import im.tox.tox4j.ToxCoreImplTestBase;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetworkTest extends ToxCoreImplTestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(NetworkTest.class);
 
     private static final int TOX_COUNT = 10;
 
@@ -23,17 +27,17 @@ public class NetworkTest extends ToxCoreImplTestBase {
                 }
             }
             long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Bootstrap to remote bootstrap node took " + (end - start) + "ms");
+            logger.info("Bootstrap to remote bootstrap node took {} ms", end - start);
         }
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testBootstrap4() throws Exception {
         assumeIPv4();
         testBootstrap(node().ipv4, node().port, node().dhtId);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testBootstrap6() throws Exception {
         assumeIPv6();
         testBootstrap(node().ipv6, node().port, node().dhtId);
@@ -44,7 +48,7 @@ public class NetworkTest extends ToxCoreImplTestBase {
         // TODO: don't know how to test this on localhost
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testLANDiscoveryAll() throws Exception {
         try (ToxList toxes = new ToxList(this, TOX_COUNT)) {
             long start = System.currentTimeMillis();
@@ -58,12 +62,11 @@ public class NetworkTest extends ToxCoreImplTestBase {
                 }
             }
             long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Connecting all of " + toxes.size() + " toxes with LAN discovery " +
-                    "took " + (end - start) + "ms");
+            logger.info("Connecting all of {} toxes with LAN discovery took {} ms", toxes.size(), end - start);
         }
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testLANDiscoveryAny() throws Exception {
         try (ToxList toxes = new ToxList(this, TOX_COUNT)) {
             long start = System.currentTimeMillis();
@@ -76,8 +79,7 @@ public class NetworkTest extends ToxCoreImplTestBase {
                 }
             }
             long end = System.currentTimeMillis();
-            if (LOGGING) System.out.println("Connecting one of " + toxes.size() + " toxes with LAN discovery " +
-                    "took " + (end - start) + "ms");
+            logger.info("Connecting one of {} toxes with LAN discovery took {} ms", toxes.size(), end - start);
         }
     }
 

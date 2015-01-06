@@ -8,10 +8,9 @@ import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
 import im.tox.tox4j.exceptions.ToxException;
-import org.easetech.easytest.annotation.Parallel;
-import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +19,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(AliceBobTestBase.class);
 
     public abstract static class TaskBase<T> {
         protected StackTraceElement[] creationTrace = null;
@@ -100,9 +101,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         }
 
         protected void debug(@NotNull String message) {
-            if (LOGGING) {
-                System.out.println("[" + Thread.currentThread().getId() + "] " + getName() + ": " + message);
-            }
+            logger.info("[{}] {}: {}", new Object[]{ Thread.currentThread().getId(), getName(), message });
         }
 
         @Override
@@ -171,13 +170,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     }
 
     private void runAliceBobTest(@NotNull ToxFactory factory) throws Exception {
-        final long startTime = System.currentTimeMillis();
-        long currentTime = startTime;
-
-        if (LOGGING) {
-            String method = getToplevelMethod(Thread.currentThread().getStackTrace());
-            System.out.println("--- " + getClass().getSimpleName() + '.' + method);
-        }
+        String method = getToplevelMethod(Thread.currentThread().getStackTrace());
+        logger.info("[{}] --- {}.{}", new Object[]{ Thread.currentThread().getId(), getClass().getSimpleName(), method });
 
         ChatClient aliceChat = newAlice();
         ChatClient bobChat = newBob();
@@ -212,35 +206,12 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
                     long interval = Math.max(alice.iterationInterval(), bob.iterationInterval());
                     Thread.sleep(interval);
-
-                    currentTime = System.currentTimeMillis();
-                    if (currentTime - startTime >= TIMEOUT) {
-                        if (LOGGING) {
-                            System.out.println("[!!] Test timed out; shutting down toxes");
-                        }
-                        break;
-                    }
                 }
 
                 aliceChat.done();
                 bobChat.done();
             }
         }
-
-        if (currentTime - startTime >= TIMEOUT) {
-            // We timed out, now wait for junit to interrupt us.
-            // The reason we handle it this way is that junit somehow murders the test thread ungracefully, which
-            // causes a fault in our native code. This way, we can prevent that, since we do in fact control the loop
-            // well enough.
-            failedAfterTimeout();
-        }
-    }
-
-    private static void failedAfterTimeout() throws InterruptedException {
-        if (LOGGING) {
-            System.out.println("[!!] waiting for junit to kill the test");
-        }
-        Thread.sleep(TIMEOUT);
     }
 
     private static @NotNull String getToplevelMethod(@NotNull StackTraceElement[] stackTrace) {
@@ -254,7 +225,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         return last.getMethodName();
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_UDP4() throws Exception {
         runAliceBobTest(new ToxFactory() {
             @NotNull
@@ -265,7 +236,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         });
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_UDP6() throws Exception {
         runAliceBobTest(new ToxFactory() {
             @NotNull
@@ -276,7 +247,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         });
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP4() throws Exception {
         assumeIPv4();
         runAliceBobTest(new ToxFactory() {
@@ -288,7 +259,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         });
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP6() throws Exception {
         assumeIPv6();
         runAliceBobTest(new ToxFactory() {
@@ -327,22 +298,22 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         assertEquals(2, proxy.getAccepted());
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_UDP4() throws Exception {
         runAliceBobTest_SOCKS(false, true);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_UDP6() throws Exception {
         runAliceBobTest_SOCKS(true, true);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_TCP4() throws Exception {
         runAliceBobTest_SOCKS(false, false);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_TCP6() throws Exception {
         runAliceBobTest_SOCKS(true, false);
     }

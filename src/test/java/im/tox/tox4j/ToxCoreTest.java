@@ -6,6 +6,8 @@ import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.enums.ToxStatus;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +16,8 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 public class ToxCoreTest extends ToxCoreImplTestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(ToxCoreTest.class);
 
     @Test
     public void testToxNew() throws Exception {
@@ -63,7 +67,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
             newTox().close();
         }
         long end = System.currentTimeMillis();
-        if (LOGGING) System.out.println("Creating and destroying " + ITERATIONS + " toxes took " + (end - start) + "ms");
+        logger.info("Creating and destroying {} toxes took {} ms", ITERATIONS, end - start);
     }
 
     @Test
@@ -76,7 +80,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
             toxes.add(newTox());
         }
         long end = System.currentTimeMillis();
-        if (LOGGING) System.out.println("Creating " + iterations + " toxes took " + (end - start) + "ms");
+        logger.info("Creating {} toxes took {} ms", iterations, end - start);
 
         start = System.currentTimeMillis();
         Collections.reverse(toxes);
@@ -84,7 +88,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
             tox.close();
         }
         end = System.currentTimeMillis();
-        if (LOGGING) System.out.println("Destroying " + iterations + " toxes took " + (end - start) + "ms");
+        logger.info("Destroying {} toxes took {} ms", iterations, end - start);
     }
 
     @Test
@@ -178,12 +182,12 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testNoSpam() throws Exception {
         int[] tests = {
-                0x12345678,
-                0xffffffff,
-                0x00000000,
-                0x00000001,
-                0xfffffffe,
-                0x7fffffff,
+            0x12345678,
+            0xffffffff,
+            0x00000000,
+            0x00000001,
+            0xfffffffe,
+            0x7fffffff,
         };
         try (ToxCore tox = newTox()) {
             assertEquals(tox.getNospam(), tox.getNospam());
@@ -192,15 +196,15 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
                 assertEquals(test, tox.getNospam());
                 assertEquals(tox.getNospam(), tox.getNospam());
                 byte[] check = {
-                        (byte)(test >> 8 * 0),
-                        (byte)(test >> 8 * 1),
-                        (byte)(test >> 8 * 2),
-                        (byte)(test >> 8 * 3),
+                    (byte)(test >> 8 * 0),
+                    (byte)(test >> 8 * 1),
+                    (byte)(test >> 8 * 2),
+                    (byte)(test >> 8 * 3),
                 };
                 byte[] nospam = Arrays.copyOfRange(
-                        tox.getAddress(),
-                        ToxConstants.CLIENT_ID_SIZE,
-                        ToxConstants.CLIENT_ID_SIZE + 4
+                    tox.getAddress(),
+                    ToxConstants.CLIENT_ID_SIZE,
+                    ToxConstants.CLIENT_ID_SIZE + 4
                 );
                 assertArrayEquals(check, nospam);
             }

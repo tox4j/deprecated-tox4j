@@ -1,5 +1,5 @@
+import sbt.Keys._
 import sbt._
-import Keys._
 
 import scala.language.postfixOps
 
@@ -32,7 +32,7 @@ object Jni extends Plugin {
 
   }
 
-  import Keys._
+  import Jni.Keys._
 
 
   private val jniConfig = config("native")
@@ -52,7 +52,7 @@ object Jni extends Plugin {
 
   }
 
-  import PrivateKeys._
+  import Jni.PrivateKeys._
 
 
   private object nullLog extends AnyRef with ProcessLogger {
@@ -136,8 +136,7 @@ object Jni extends Plugin {
   private def findCxx() = findTool("clang++", "g++", "c++")
 
   private def checkCcOptions(compiler: String, code: String, flags: Seq[String]*) = {
-    import java.io.File
-    import java.io.PrintWriter
+    import java.io.{File, PrintWriter}
 
     val sourceFile = File.createTempFile("configtest", cppExtensions(0))
     val targetFile = File.createTempFile("configtest", ".out")
@@ -318,8 +317,7 @@ object Jni extends Plugin {
 
       val command =
         if (useCMake.value) {
-          import java.io.File
-          import java.io.PrintWriter
+          import java.io.{File, PrintWriter}
 
           val buildPath = nativeTarget.value / "_build"
           buildPath.mkdirs()

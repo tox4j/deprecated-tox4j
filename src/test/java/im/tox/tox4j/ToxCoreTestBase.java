@@ -12,8 +12,6 @@ import im.tox.tox4j.core.exceptions.ToxFriendAddException;
 import im.tox.tox4j.core.exceptions.ToxNewException;
 import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.junit.Rule;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.io.Closeable;
@@ -29,12 +27,8 @@ import static org.junit.Assume.assumeTrue;
 @Parallel()
 public abstract class ToxCoreTestBase {
 
-    private static final int GRACE_PERIOD = 1000;
-    static final int TIMEOUT = 60000;
-    @Rule
-    public final Timeout globalTimeout = Timeout.seconds(TIMEOUT + GRACE_PERIOD);
+    public static final int TIMEOUT = 60000;
 
-    protected static final boolean LOGGING = true;
     protected static final int ITERATIONS = 500;
 
     protected static class DhtNode {
@@ -52,20 +46,20 @@ public abstract class ToxCoreTestBase {
     }
 
     static final DhtNode[] nodeCandidates = {
-            // sonOfRa
-            new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
-            // stqism
-            new DhtNode("192.254.75.98", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
-            // others
-            new DhtNode("37.187.46.132", null, 33445, "A9D98212B3F972BD11DA52BEB0658C326FCCC1BFD49F347F9C2D3D8B61E1B927"),
-            new DhtNode("23.226.230.47", null, 33445, "A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074"),
-            new DhtNode("54.199.139.199", null, 33445, "7F9C31FE850E97CEFD4C4591DF93FC757C7C12549DDD55F8EEAECC34FE76C029"),
-            new DhtNode("192.210.149.121", null, 33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67"),
-            new DhtNode("37.59.102.176", null, 33445, "B98A2CEAA6C6A2FADC2C3632D284318B60FE5375CCB41EFA081AB67F500C1B0B"),
-            new DhtNode("178.21.112.187", null, 33445, "4B2C19E924972CB9B57732FB172F8A8604DE13EEDA2A6234E348983344B23057"),
-            new DhtNode("107.161.17.51", null, 33445, "7BE3951B97CA4B9ECDDA768E8C52BA19E9E2690AB584787BF4C90E04DBB75111"),
-            new DhtNode("31.7.57.236", null, 443, "2A4B50D1D525DA2E669592A20C327B5FAD6C7E5962DC69296F9FEC77C4436E4E"),
-            new DhtNode("63.165.243.15", null, 443, "8CD087E31C67568103E8C2A28653337E90E6B8EDA0D765D57C6B5172B4F1F04C"),
+        // sonOfRa
+        new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
+        // stqism
+        new DhtNode("192.254.75.98", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
+        // others
+        new DhtNode("37.187.46.132", null, 33445, "A9D98212B3F972BD11DA52BEB0658C326FCCC1BFD49F347F9C2D3D8B61E1B927"),
+        new DhtNode("23.226.230.47", null, 33445, "A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074"),
+        new DhtNode("54.199.139.199", null, 33445, "7F9C31FE850E97CEFD4C4591DF93FC757C7C12549DDD55F8EEAECC34FE76C029"),
+        new DhtNode("192.210.149.121", null, 33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67"),
+        new DhtNode("37.59.102.176", null, 33445, "B98A2CEAA6C6A2FADC2C3632D284318B60FE5375CCB41EFA081AB67F500C1B0B"),
+        new DhtNode("178.21.112.187", null, 33445, "4B2C19E924972CB9B57732FB172F8A8604DE13EEDA2A6234E348983344B23057"),
+        new DhtNode("107.161.17.51", null, 33445, "7BE3951B97CA4B9ECDDA768E8C52BA19E9E2690AB584787BF4C90E04DBB75111"),
+        new DhtNode("31.7.57.236", null, 443, "2A4B50D1D525DA2E669592A20C327B5FAD6C7E5962DC69296F9FEC77C4436E4E"),
+        new DhtNode("63.165.243.15", null, 443, "8CD087E31C67568103E8C2A28653337E90E6B8EDA0D765D57C6B5172B4F1F04C"),
     };
 
     protected abstract @NotNull DhtNode node();
@@ -212,8 +206,8 @@ public abstract class ToxCoreTestBase {
         byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
         for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
             clientId[i] = (byte) (
-                    (fromHexDigit(id.charAt(i * 2)) << 4) +
-                            (fromHexDigit(id.charAt(i * 2 + 1)))
+                (fromHexDigit(id.charAt(i * 2)) << 4) +
+                    (fromHexDigit(id.charAt(i * 2 + 1)))
             );
         }
         return clientId;

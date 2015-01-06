@@ -2,7 +2,6 @@ package im.tox.tox4j.exceptions;
 
 import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.exceptions.ToxKilledException;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;

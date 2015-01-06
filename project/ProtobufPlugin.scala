@@ -1,6 +1,6 @@
-import sbt._
 import Jni.Keys._
-import Keys._
+import sbt.Keys._
+import sbt._
 
 import scala.language.postfixOps
 
@@ -18,7 +18,7 @@ object ProtobufPlugin extends Plugin {
     val protocOptions = settingKey[Seq[String]]("Additional options to be passed to protoc")
   }
 
-  import Keys._
+  import ProtobufPlugin.Keys._
 
   override val settings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
 
