@@ -8,14 +8,14 @@
 namespace tox
 {
   struct PublicKey
-    : byte_array<crypto_box_PUBLICKEYBYTES>
+    : crypto_byte_array<crypto_box_PUBLICKEYBYTES>
   {
-    typedef byte_array<crypto_box_PUBLICKEYBYTES> super;
+    typedef crypto_byte_array<crypto_box_PUBLICKEYBYTES> super;
 
     PublicKey ()
     { }
 
-    PublicKey (byte const (&key)[crypto_box_PUBLICKEYBYTES])
+    explicit PublicKey (byte const (&key)[crypto_box_PUBLICKEYBYTES])
     {
       std::copy (key, key + crypto_box_PUBLICKEYBYTES, begin ());
     }
@@ -23,9 +23,9 @@ namespace tox
 
 
   struct SecretKey
-    : byte_array<crypto_box_SECRETKEYBYTES>
+    : crypto_byte_array<crypto_box_SECRETKEYBYTES>
   {
-    typedef byte_array<crypto_box_SECRETKEYBYTES> super;
+    typedef crypto_byte_array<crypto_box_SECRETKEYBYTES> super;
   };
 
 

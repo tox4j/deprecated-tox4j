@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 
+#include <google/protobuf/stubs/common.h>
+
 int
 main (int argc, char **argv)
 {
@@ -9,5 +11,10 @@ main (int argc, char **argv)
 
   google::LogToStderr ();
 
-  return RUN_ALL_TESTS ();
+  int result = RUN_ALL_TESTS ();
+
+  google::ShutdownGoogleLogging ();
+  google::protobuf::ShutdownProtobufLibrary ();
+
+  return result;
 }
