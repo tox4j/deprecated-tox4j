@@ -202,8 +202,8 @@ namespace tox
     }
 
     template<typename MapF>
-    typename return_type<MapF (Success)>::type
-    operator >>= (MapF const &func)
+    typename std::result_of<MapF (Success)>::type
+    operator >> (MapF const &func)
     {
       typedef typename return_type<MapF (Success)>::type result_type;
       if (ok ())
@@ -212,7 +212,7 @@ namespace tox
     }
 
     template<typename VoidF>
-    typename return_type<VoidF ()>::type
+    typename std::result_of<VoidF ()>::type
     operator >> (VoidF const &func)
     {
       typedef typename return_type<VoidF ()>::type result_type;
@@ -250,7 +250,7 @@ namespace tox
     { assert (!ok ()); }
 
     template<typename VoidF>
-    typename return_type<VoidF ()>::type
+    typename std::result_of<VoidF ()>::type
     operator >> (VoidF const &func)
     {
       typedef typename return_type<VoidF ()>::type result_type;

@@ -27,7 +27,7 @@ TEST (Packet, Plain) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -52,7 +52,7 @@ TEST (Packet, PlainNonceLast) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -77,7 +77,7 @@ TEST (Packet, PlainNonceFirst) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -108,7 +108,7 @@ TEST (Packet, Simple) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
@@ -141,7 +141,7 @@ TEST (Packet, NoncePacket) {
   };
 
   EXPECT_TRUE (result.ok ());
-  result >>= [](int i) { EXPECT_EQ (1234, i); return success (); };
+  result >> [](int i) { EXPECT_EQ (1234, i); return success (); };
 }
 
 
