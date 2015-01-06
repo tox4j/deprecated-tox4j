@@ -50,6 +50,24 @@ namespace tox
       }
     };
 
+
+    template<typename ...InnerFmts, typename ...Fmts, typename ...InnerArgs, typename ...Args>
+    struct write_packet<PacketFormatTag<PacketFormatTag<InnerFmts...>, Fmts...>, std::tuple<InnerArgs...>, Args...>
+    {
+      template<typename MessageFormat, std::size_t ...S>
+      static void write (seq<S...>, MessageFormat &packet, std::tuple<InnerArgs...> const &inner_args, Args const &...args)
+      {
+        write_packet<PacketFormatTag<InnerFmts..., Fmts...>, InnerArgs..., Args...>::write (packet, std::get<S> (inner_args)..., args...);
+      }
+
+      template<typename MessageFormat>
+      static void write (MessageFormat &packet, std::tuple<InnerArgs...> const &inner_args, Args const &...args)
+      {
+        write (make_seq<sizeof... (InnerArgs)> (), packet, inner_args, args...);
+      }
+    };
+
+
     template<typename IntegralType, IntegralType Value, typename ...Fmts, typename ...Args>
     struct write_packet<PacketFormatTag<std::integral_constant<IntegralType, Value>, Fmts...>, Args...>
     {

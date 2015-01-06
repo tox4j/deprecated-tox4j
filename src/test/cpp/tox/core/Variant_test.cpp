@@ -96,3 +96,43 @@ TEST (Variant, MoveInt) {
 
   EXPECT_EQ ("int", s2 (v ()));
 }
+
+
+TEST (Variant, Visitor) {
+  variant<int, char, std::string> s (3);
+
+  auto result = s.visit<char const *> () >>= {
+    [] (int) { return "int"; },
+    [] (char) { return "char"; },
+    [] (std::string) { return "std::string"; },
+  };
+
+  EXPECT_EQ ("int", result);
+}
+
+
+TEST (Variant, DefaultConstructed) {
+  variant<int, char, std::string> s;
+
+  EXPECT_TRUE (s.empty ());
+
+  s = 3;
+
+  auto result = s.visit<char const *> () >>= {
+    [] (int) { return "int"; },
+    [] (char) { return "char"; },
+    [] (std::string) { return "std::string"; },
+  };
+
+  EXPECT_EQ ("int", result);
+
+  s = std::string ("3");
+
+  result = s.visit<char const *> () >>= {
+    [] (int) { return "int"; },
+    [] (char) { return "char"; },
+    [] (std::string) { return "std::string"; },
+  };
+
+  EXPECT_EQ ("std::string", result);
+}

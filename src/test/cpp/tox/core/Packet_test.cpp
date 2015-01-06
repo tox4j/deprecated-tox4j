@@ -279,19 +279,29 @@ TEST (Packet, Choice) {
     std::tuple<uint8_t, uint8_t>,
     std::tuple<uint8_t, uint8_t, uint8_t>
   > data_type;
+  static_assert (sizeof (data_type) == 4, "");
   std::tuple<uint8_t, uint8_t, uint8_t> data { 1, 2, 3 };
-#if 0
   Packet<Format> packet (orig_nonce, box, data_type (data));
   std::cout << "Packet data: ";
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
-#endif
 
 #if 0
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
-  auto result = packet.decode (t, box) >>= [&](Nonce nonce, std::vector<std::tuple<uint8_t, uint8_t>> second) {
+  auto result = packet.decode (t, box) >>= [&](Nonce nonce, data_type second) {
     EXPECT_EQ (orig_nonce, nonce);
-    EXPECT_EQ (data, second);
+    second.visit<void> () >>= {
+      [](std::tuple<uint8_t, uint8_t> const &a) {
+        EXPECT_EQ (4, std::get<0> (a));
+        EXPECT_EQ (5, std::get<1> (a));
+      },
+
+      [](std::tuple<uint8_t, uint8_t, uint8_t> const &a) {
+        EXPECT_EQ (1, std::get<0> (a));
+        EXPECT_EQ (2, std::get<1> (a));
+        EXPECT_EQ (3, std::get<2> (a));
+      },
+    };
     return success ();
   };
 
