@@ -10,6 +10,7 @@ add_executable(tox_core_test
         tox/core/CryptoBox_test.cpp
         tox/core/Nonce_test.cpp
         tox/core/Packet_test.cpp
+        tox/core/Partial_test.cpp
         tox/core/Variant_test.cpp
         tox/core/UDP_test.cpp
 )
