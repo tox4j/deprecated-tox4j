@@ -302,7 +302,9 @@ public:
 
         // ... so that this check will fail, if the function is called twice on the same instance.
         if (!dying.tox) {
+#if 0
             throw_tox_killed_exception(env, instanceNumber, "close called on already closed instance");
+#endif
             return;
         }
 
