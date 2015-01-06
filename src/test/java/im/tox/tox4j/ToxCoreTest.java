@@ -92,6 +92,13 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     }
 
     @Test
+    public void testDoubleClose() throws Exception {
+        ToxCore tox = newTox();
+        tox.close();
+        tox.close();
+    }
+
+    @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
             tox.bootstrap(node().ipv4, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
