@@ -49,20 +49,51 @@ namespace tox
    * every possible input. In case an input was provided for which no valid
    * output can be produced, the function can return an error code.
    */
+  struct PartialBase
+  {
+    PartialBase ()
+      : status_ (Status::OK)
+    { }
+
+    PartialBase (PartialBase const &rhs)
+      : status_ (rhs.status_)
+    { }
+
+    Status code () const
+    { return status_; }
+
+    bool ok () const
+    { return status_ == Status::OK; }
+
+  protected:
+    PartialBase (Status status)
+      : status_ (status)
+    { }
+
+  private:
+    Status status_;
+  };
+
+
   template<typename Success>
   struct Partial
+    : PartialBase
   {
     Partial (Success const &success)
-      : status_ (Status::OK)
+      : PartialBase (Status::OK)
     {
       new (static_cast<void *> (value_)) Success (success);
     }
 
+    Partial (Status status)
+      : PartialBase (status)
+    { assert (!ok ()); }
+
     Partial (Partial const &rhs)
-      : status_ (rhs.status_)
+      : PartialBase (rhs)
     {
       if (ok ())
-        new (static_cast<void *> (value_)) Success (*reinterpret_cast<Success const *> (rhs.value_));
+        new (static_cast<void *> (value_)) Success (*rhs.value ());
     }
 
     ~Partial ()
@@ -71,23 +102,13 @@ namespace tox
         reinterpret_cast<Success *> (value_)->~Success ();
     }
 
-    Partial (Status status)
-      : status_ (status)
-    { assert (!ok ()); }
-
-    Status code () const
-    { return status_; }
-
-    bool ok () const
-    { return status_ == Status::OK; }
-
     template<typename MapF>
     typename partial_type<MapF (Success)>::type
     operator >>= (MapF const &func)
     {
       typedef typename partial_type<MapF (Success)>::type result_type;
       if (ok ())
-        return func (value ());
+        return func (*value ());
       return result_type (code ());
     }
 
@@ -102,49 +123,26 @@ namespace tox
     }
 
   private:
-    Success value () const
+    Success const *value () const
     {
       assert (ok ());
-      return *reinterpret_cast<Success const *> (value_);
+      return reinterpret_cast<Success const *> (value_);
     }
 
-    Status status_;
     alignas (Success) char value_[sizeof (Success)];
   };
 
 
   template<>
   struct Partial<void>
+    : PartialBase
   {
     Partial ()
-      : status_ (Status::OK)
-    { }
-
-    Partial (Partial const &rhs)
-      : status_ (rhs.status_)
-    { }
-
-    ~Partial ()
     { }
 
     Partial (Status status)
-      : status_ (status)
+      : PartialBase (status)
     { assert (!ok ()); }
-
-    Status code () const
-    { return status_; }
-
-    bool ok () const
-    { return status_ == Status::OK; }
-
-    template<typename MapF>
-    typename partial_type<MapF ()>::type
-    operator >>= (MapF const &func)
-    {
-      // Map function doesn't get any argument, so it's the same as the
-      // ignore-result operator >>.
-      return *this >> func;
-    }
 
     template<typename VoidF>
     typename partial_type<VoidF ()>::type
@@ -155,9 +153,6 @@ namespace tox
         return func ();
       return result_type (code ());
     }
-
-  private:
-    Status status_;
   };
 
 
