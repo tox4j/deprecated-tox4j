@@ -42,7 +42,7 @@ jniClasses := Seq(
 )
 
 // TODO: infer this (easy).
-jniSourceFiles ++= Seq(
+jniSourceFiles in Compile ++= Seq(
   managedNativeSource.value / "Av.pb.cc",
   managedNativeSource.value / "Core.pb.cc"
 )

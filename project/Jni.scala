@@ -211,7 +211,8 @@ object Jni extends Plugin {
     versionSync := "",
 
     // Native source directory defaults to "src/main/cpp".
-    nativeSource := (sourceDirectory in Compile).value / "cpp",
+    nativeSource in Compile := (sourceDirectory in Compile).value / "cpp",
+    nativeSource in Test := (sourceDirectory in Test).value / "cpp",
     nativeTarget := (target in Compile).value / "cpp",
     managedNativeSource := nativeTarget.value / "source",
 
@@ -278,7 +279,8 @@ object Jni extends Plugin {
       }
     },
 
-    jniSourceFiles := filterNativeSources((nativeSource.value ** "*").get),
+    jniSourceFiles in Compile := filterNativeSources(((nativeSource in Compile).value ** "*").get),
+    jniSourceFiles in Test := filterNativeSources(((nativeSource in Test).value ** "*").get),
 
 
     javah := Def.task {
@@ -313,7 +315,8 @@ object Jni extends Plugin {
 
       val cxxflags = ccOptions.value.distinct
       val ldflags = ldOptions.value.distinct
-      val sources = jniSourceFiles.value.map(_.getPath)
+      val mainSources = (jniSourceFiles in Compile).value
+      val testSources = (jniSourceFiles in Test).value
 
       val command =
         if (useCMake.value) {
@@ -396,7 +399,7 @@ add_definitions(-DANDROID)""")
                   out.println(s"link_libraries($${${PKG}_LIBRARIES})")
                 }
 
-                Seq(nativeSource.value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
+                Seq((nativeSource in Compile).value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
                   out.println(s"include_directories(${dir.getPath})")
                 }
               } finally {
@@ -406,12 +409,35 @@ add_definitions(-DANDROID)""")
               fileName
             }
 
-            val targetFile = {
-              val fileName = nativeTarget.value / "Target.cmake"
+            val mainFile = {
+              val fileName = nativeTarget.value / "Main.cmake"
               val out = new PrintWriter(fileName)
               try {
                 out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
-                out.println(s"add_library(${libraryName.value} SHARED ${sources.mkString(" ")})")
+                out.println(s"add_library(${libraryName.value} SHARED ${mainSources.mkString(" ")})")
+              } finally {
+                out.close()
+              }
+
+              fileName
+            }
+
+            val testFile = {
+              val fileName = nativeTarget.value / "Test.cmake"
+              val out = new PrintWriter(fileName)
+              try {
+                out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
+                out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
+
+                testSources.foreach { source =>
+                  if (source.getName != "main.cpp") {
+                    import org.apache.commons.io.FilenameUtils
+
+                    val testName = FilenameUtils.removeExtension(source.getName)
+                    out.println(s"add_executable($testName main.cpp $source)")
+                    out.println(s"add_test($testName $testName)")
+                  }
+                }
               } finally {
                 out.close()
               }
@@ -423,7 +449,8 @@ add_definitions(-DANDROID)""")
               Seq(
                 "cmake",
                 "-DDEPENDENCIES_FILE=" + dependenciesFile.getPath,
-                "-DTARGET_FILE=" + targetFile.getPath,
+                "-DMAIN_FILE=" + mainFile.getPath,
+                "-DTEST_FILE=" + testFile.getPath,
                 baseDirectory.value.getPath
               ) ++ flags,
               buildPath,
@@ -438,10 +465,10 @@ add_definitions(-DANDROID)""")
         } else {
           val output = (binPath.value / System.mapLibraryName(libraryName.value)).getPath
 
-          Process(Seq(nativeCXX.value, "-o", output) ++ cxxflags ++ ldflags ++ sources)
+          Process(Seq(nativeCXX.value, "-o", output) ++ cxxflags ++ ldflags ++ mainSources.map(_.getPath))
         }
 
-      log.info(s"Compiling ${sources.size} C++ sources to ${binPath.value}")
+      log.info(s"Compiling ${mainSources.size} C++ sources to ${binPath.value}")
       checkExitCode(command, log)
     }.dependsOn(javah)
      .tag(Tags.Compile, Tags.CPU)

@@ -130,7 +130,7 @@ namespace tox
           }
 
           ->* [&] {
-            return success (rest);
+            return success (std::move (rest));
           };
       }
     };
@@ -296,7 +296,7 @@ namespace tox
                                                      std::tuple<DecodedArgs...> &/*decoded*/,
                                                      BitStream<MessageFormat> packet)
       {
-        return success (packet);
+        return success (std::move (packet));
       }
     };
   }
@@ -352,7 +352,7 @@ namespace tox
         Crypto const crypto_;
       };
 
-      static decoder decode (CipherText &&packet, CryptoArgs const &...crypto)
+      static decoder decode_packet (CipherText &&packet, CryptoArgs const &...crypto)
       {
         return decoder (std::move (packet), crypto...);
       }

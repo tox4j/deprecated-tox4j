@@ -51,17 +51,22 @@ namespace tox
   template<typename T>
   struct partial_traits
   {
-    static void move (T &value, T &&from)
+    typedef typename std::remove_const<T>::type       &      reference;
+    typedef typename std::remove_const<T>::type const &const_reference;
+    typedef typename std::remove_const<T>::type       *      pointer;
+    typedef typename std::remove_const<T>::type const *const_pointer;
+
+    static void move (reference value, T &&from)
     {
       new (static_cast<void *> (&value)) T (std::move (from));
     }
 
-    static void copy (T &value, T const &from)
+    static void copy (reference value, T const &from)
     {
       new (static_cast<void *> (&value)) T (from);
     }
 
-    static void destroy (T &value)
+    static void destroy (reference value)
     {
       value.~T ();
     }
@@ -70,19 +75,24 @@ namespace tox
   template<std::size_t N, typename T>
   struct partial_traits<T[N]>
   {
-    static void move (T (&values)[N], T (&&from)[N])
+    typedef typename std::remove_const<T>::type       (&      reference)[N];
+    typedef typename std::remove_const<T>::type const (&const_reference)[N];
+    typedef typename std::remove_const<T>::type       (*      pointer  )[N];
+    typedef typename std::remove_const<T>::type const (*const_pointer  )[N];
+
+    static void move (reference values, T (&&from)[N])
     {
       for (std::size_t i = 0; i < N; i++)
         partial_traits<T>::move (values[i], std::move (from[i]));
     }
 
-    static void copy (T (&values)[N], T const (&from)[N])
+    static void copy (reference values, T const (&from)[N])
     {
       for (std::size_t i = 0; i < N; i++)
         partial_traits<T>::copy (values[i], from[i]);
     }
 
-    static void destroy (T (&values)[N])
+    static void destroy (reference values)
     {
       for (std::size_t i = 0; i < N; i++)
         partial_traits<T>::destroy (values[i]);
@@ -90,7 +100,7 @@ namespace tox
   };
 
 
-  template<typename Success, typename Traits = partial_traits<Success>>
+  template<typename Success, typename Traits = partial_traits<typename std::remove_reference<Success>::type>>
   struct Partial;
 
   struct failure;
@@ -149,16 +159,15 @@ namespace tox
     template<typename OtherSuccess, typename OtherTraits>
     friend struct Partial;
 
+    typedef typename Traits::      reference       reference;
+    typedef typename Traits::const_reference const_reference;
+    typedef typename Traits::      pointer         pointer;
+    typedef typename Traits::const_pointer   const_pointer;
+
     Partial (Success &&success)
       : PartialBase (Status::OK)
     {
       Traits::move (value (), std::move (success));
-    }
-
-    Partial (Success const &success)
-      : PartialBase (Status::OK)
-    {
-      Traits::copy (value (), success);
     }
 
     Partial (Status status)
@@ -222,16 +231,16 @@ namespace tox
     }
 
   private:
-    Success &value ()
+    reference value ()
     {
       assert (ok ());
-      return *pointer_cast<Success *> (value_);
+      return *pointer_cast<pointer> (value_);
     }
 
-    Success const &value () const
+    const_reference value () const
     {
       assert (ok ());
-      return *pointer_cast<Success const *> (value_);
+      return *pointer_cast<const_pointer> (value_);
     }
 
     alignas (Success) unsigned char value_[sizeof (Success)];
@@ -280,9 +289,9 @@ namespace tox
 
   template<typename Success>
   Partial<Success>
-  success (Success const &success)
+  success (Success &&success)
   {
-    return Partial<Success> (success);
+    return Partial<Success> (std::forward<Success> (success));
   }
 
   static inline Partial<void>

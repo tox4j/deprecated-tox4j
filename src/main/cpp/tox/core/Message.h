@@ -108,9 +108,9 @@ namespace tox
   struct MessageBase
     : protected byte_vector
   {
+    using byte_vector::empty;
     using byte_vector::data;
     using byte_vector::size;
-    using byte_vector::push_back;
 
     /**
      * Constructors.

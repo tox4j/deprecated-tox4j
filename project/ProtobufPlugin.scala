@@ -84,7 +84,7 @@ object ProtobufPlugin extends Plugin {
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
     ivyConfigurations += protobufConfig,
 
-    jniSourceFiles <++= (generatedTargets in protobufConfig){ generatedTargets =>
+    jniSourceFiles in Compile <++= (generatedTargets in protobufConfig){ generatedTargets =>
       generatedTargets.find(_._2.endsWith(".pb.cpp")) match {
         case Some(targetForCpp) => (targetForCpp._1 ** targetForCpp._2).get
         case None => Nil

@@ -47,6 +47,7 @@ namespace tox
     : detail::packet_encoder<Format, std::tuple<Args...>>
     , detail::packet_decoder<Format, std::tuple<Args...>>
   {
+    typedef Format packet_format;
     typedef detail::packet_encoder<Format, std::tuple<Args...>> encoder_type;
     typedef detail::packet_decoder<Format, std::tuple<Args...>> decoder_type;
 
@@ -55,7 +56,7 @@ namespace tox
 
     explicit PacketBase (Args const &...args)
     {
-      this->encode (packet_, args...);
+      this->encode_packet (packet_, args...);
     }
 
     explicit PacketBase (CipherText const &packet)
@@ -65,14 +66,12 @@ namespace tox
 
     decoder decode () const
     {
-      CipherText packet = CipherText::from_bytes (data (), size ());
-      return decoder_type::decode (std::move (packet));
+      return this->decode_packet (CipherText::from_bytes (data (), size ()));
     }
 
     decoder decode (CryptoBox const &box) const
     {
-      CipherText packet = CipherText::from_bytes (data (), size ());
-      return decoder_type::decode (std::move (packet), box);
+      return this->decode_packet (CipherText::from_bytes (data (), size ()), box);
     }
 
 

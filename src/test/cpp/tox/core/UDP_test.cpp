@@ -4,6 +4,7 @@
 #include "tox/core/NodesRequest.h"
 #include "tox/core/NodesResponse.h"
 #include "tox/core/Nonce.h"
+#include "tox/core/PacketHandler.h"
 
 #include <ev++.h>
 
@@ -24,15 +25,64 @@ die (char const *func)
 }
 
 
+struct HandleNodeResponse
+  : PacketHandler<HandleNodeResponse, NodesResponseFormat>
+{
+  Partial<void> handle (PublicKey key,
+                        Nonce nonce,
+                        std::vector<
+                          std::tuple<
+                            variant<
+                              std::tuple<Protocol, IPv4Address>,
+                              std::tuple<Protocol, IPv6Address>
+                            >,
+                            uint16_t,
+                            PublicKey
+                          >
+                        > &&nodes, uint64_t ping_id)
+  {
+    LOG (INFO) << "Received NodesResponse packet";
+    LOG (INFO) << "Key: " << key;
+    LOG (INFO) << "Nonce: " << nonce;
+    LOG (INFO) << "Ping ID: " << ping_id;
+    LOG (INFO) << "Node count: " << nodes.size ();
+    for (auto node : nodes)
+      {
+        auto address   = std::get<0> (node);
+        auto port      = std::get<1> (node);
+        auto client_id = std::get<2> (node);
+        address.visit () >>= {
+          [](std::tuple<Protocol, IPv4Address> address) {
+            LOG (INFO) << "Protocol: " << std::get<0> (address);
+            LOG (INFO) << "IPv4: " << std::get<1> (address);
+          },
+
+          [](std::tuple<Protocol, IPv6Address> address) {
+            LOG (INFO) << "Protocol: " << std::get<0> (address);
+            LOG (INFO) << "IPv6: " << std::get<1> (address);
+          },
+        };
+        LOG (INFO) << "Port: " << port;
+        LOG (INFO) << "Client ID: " << client_id;
+      }
+    ev::get_default_loop ().break_loop ();
+    return success ();
+  }
+};
+
+
 struct io_callback
 {
   int sock;
   CryptoBox const &box;
+  PacketDispatcher dispatcher;
 
-  io_callback (CryptoBox const &box)
+  explicit io_callback (CryptoBox const &box)
     : sock (socket (AF_INET, SOCK_DGRAM, 0))
     , box (box)
   {
+    dispatcher.register_handler<HandleNodeResponse> ();
+
     if (sock == -1)
       die ("socket");
 
@@ -44,59 +94,6 @@ struct io_callback
 
     if (bind (sock, (struct sockaddr *) &addr, sizeof addr) != 0)
       die ("bind");
-  }
-
-  void handle_packet (CipherText const &packet)
-  {
-    assert (packet.size () > 0);
-    if (packet.data ()[0] == 0x04)
-      {
-        LOG (INFO) << "Received NodesResponse packet";
-        NodesResponse (packet).decode (box)
-          ->* [](PublicKey key,
-                 Nonce nonce,
-                 std::vector<
-                   std::tuple<
-                     variant<
-                       std::tuple<Protocol, IPv4Address>,
-                       std::tuple<Protocol, IPv6Address>
-                     >,
-                     uint16_t,
-                     PublicKey
-                   >
-                 > nodes, uint64_t ping_id) {
-            LOG (INFO) << "Packet decoded successfully";
-            LOG (INFO) << "Key: " << key;
-            LOG (INFO) << "Nonce: " << nonce;
-            LOG (INFO) << "Ping ID: " << ping_id;
-            LOG (INFO) << "Node count: " << nodes.size ();
-            for (auto node : nodes)
-              {
-                auto address   = std::get<0> (node);
-                auto port      = std::get<1> (node);
-                auto client_id = std::get<2> (node);
-                address.visit () >>= {
-                  [](std::tuple<Protocol, IPv4Address> address) {
-                    LOG (INFO) << "Protocol: " << std::get<0> (address);
-                    LOG (INFO) << "IPv4: " << std::get<1> (address);
-                  },
-
-                  [](std::tuple<Protocol, IPv6Address> address) {
-                    LOG (INFO) << "Protocol: " << std::get<0> (address);
-                    LOG (INFO) << "IPv6: " << std::get<1> (address);
-                  },
-                };
-                LOG (INFO) << "Port: " << port;
-                LOG (INFO) << "Client ID: " << client_id;
-              }
-            return success ();
-          };
-        ev::get_default_loop ().break_loop ();
-      }
-    else if (packet.data ()[0] == 0x00)
-      {
-        LOG (INFO) << "Received PingRequest packet";
-      }
   }
 
   void operator () (ev::io &w, int revents)
@@ -115,7 +112,8 @@ struct io_callback
 
           LOG (INFO) << format ("events: EV_READ (%zd) [%02x]", size, packet_data.front ());
 
-          handle_packet (CipherText::from_bytes (packet_data, size));
+          assert (size > 0);
+          dispatcher.handle (CipherText::from_bytes (packet_data, size), box);
           break;
         }
       case EV_WRITE:
@@ -129,22 +127,21 @@ struct io_callback
 };
 
 
-static int
-unhex (char c)
-{
-  if (c >= '0' && c <= '9')
-    return c - '0';
-  if (c >= 'a' && c <= 'z')
-    return c - 'a' + 10;
-  if (c >= 'A' && c <= 'Z')
-    return c - 'A' + 10;
-  assert (false);
-}
-
-
 static PublicKey
 parse_key (char const *str)
 {
+  auto unhex = [] (char c)
+  {
+    if (c >= '0' && c <= '9')
+      return c - '0';
+    if (c >= 'a' && c <= 'z')
+      return c - 'a' + 10;
+    if (c >= 'A' && c <= 'Z')
+      return c - 'A' + 10;
+    assert (false);
+  };
+
+
   byte key[32];
   for (size_t i = 0; i < sizeof key; i++)
     {
@@ -156,7 +153,7 @@ parse_key (char const *str)
 }
 
 
-TEST (NodesRequest, GetNodes) {
+TEST (UDP, NodesRequest) {
 #if 0
   char const *key = "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F";
   char const *ip = "144.76.60.215";
@@ -168,7 +165,7 @@ TEST (NodesRequest, GetNodes) {
   char const *port = "33445";
 #endif
 
-  ev::io loop;
+  ev::io io_watcher;
 
   KeyPair self;
   PublicKey bootstrap_node = parse_key (key);
@@ -178,9 +175,9 @@ TEST (NodesRequest, GetNodes) {
 
   io_callback cb (box);
 
-  loop.set (cb.sock, EV_READ);
-  loop.set (&cb);
-  loop.start ();
+  io_watcher.set (cb.sock, EV_READ);
+  io_watcher.set (&cb);
+  io_watcher.start ();
 
   UniqueNonce nonces;
   LOG (INFO) << "First nonce: " << nonces.next ();

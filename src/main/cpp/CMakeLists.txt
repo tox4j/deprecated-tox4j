@@ -38,4 +38,4 @@ if(DEFINED JAVA_INCLUDE_PATH2)
 endif()
 
 # Sources from SBT.
-include(${TARGET_FILE})
+include(${MAIN_FILE})

@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include <array>
+#include <memory>
 #include <tuple>
 #include <vector>
 #include <type_traits>
@@ -86,4 +87,37 @@ namespace tox
 
   struct IPv4Address;
   struct IPv6Address;
+
+
+  enum class Protocol
+    : byte
+  {
+    UDP = 0,
+    TCP = 1,
+  };
+
+
+  template<typename DataType>
+  struct PrivateType
+  {
+    typedef DataType Data;
+    typedef std::unique_ptr<Data> pointer;
+
+    Data       &data ()       { return *d; }
+    Data const &data () const { return *d; }
+
+    explicit PrivateType (pointer &&d) : d (std::move (d)) { }
+    PrivateType (PrivateType &&rhs) : d (std::move (rhs.d)) { }
+    ~PrivateType () { }
+
+  protected:
+    pointer d;
+  };
+
+  template<typename T, typename ...Args>
+  std::unique_ptr<T>
+  make_unique (Args &&...args)
+  {
+    return std::unique_ptr<T> (new T (std::forward<Args> (args)...));
+  }
 }

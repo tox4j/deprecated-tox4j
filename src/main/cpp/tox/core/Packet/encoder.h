@@ -315,7 +315,7 @@ namespace tox
     struct packet_encoder<Format, std::tuple<Args...>>
     {
     protected:
-      static void encode (CipherText &packet, Args const &...contents)
+      static void encode_packet (CipherText &packet, Args const &...contents)
       {
         write_packet<std::tuple<>, Format, Args...>::write (packet, contents...);
       }
