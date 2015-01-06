@@ -105,6 +105,8 @@ CryptoBox::decrypt (BitStream<CipherText> const &crypto, Nonce const &n) const
               padded_plain.size () - crypto_box_ZEROBYTES - crypto_box_MACBYTES);
 #endif
 
+  LOG (INFO) << "Plain text is " << padded_plain.size () - crypto_box_ZEROBYTES - crypto_box_MACBYTES << " bytes";
+
   return success (PlainText (padded_plain.cbegin () + crypto_box_ZEROBYTES,
                              padded_plain.cend () - crypto_box_MACBYTES));
 }

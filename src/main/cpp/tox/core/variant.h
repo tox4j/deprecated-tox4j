@@ -37,6 +37,7 @@ private:
 template<typename Result>
 struct variant_visitor<Result>
 {
+protected:
   Result operator () () const;
 };
 
