@@ -248,3 +248,53 @@ TEST (Packet, RepeatedTuple) {
 
   EXPECT_TRUE (result.ok ());
 }
+
+
+TEST (Packet, Choice) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    Nonce,
+    encrypted<
+      choice<
+        PacketFormatTag<
+          uint8_t,
+          std::integral_constant<uint8_t, 1>,
+          uint8_t
+        >,
+        PacketFormatTag<
+          uint8_t,
+          std::integral_constant<uint8_t, 2>,
+          uint8_t,
+          uint8_t
+        >
+      >
+    >
+  >;
+
+  KeyPair key_pair;
+  CryptoBox box (key_pair);
+  Nonce orig_nonce = Nonce::random ();
+
+  typedef variant<
+    std::tuple<uint8_t, uint8_t>,
+    std::tuple<uint8_t, uint8_t, uint8_t>
+  > data_type;
+  std::tuple<uint8_t, uint8_t, uint8_t> data { 1, 2, 3 };
+#if 0
+  Packet<Format> packet (orig_nonce, box, data_type (data));
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
+#endif
+
+#if 0
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  auto result = packet.decode (t, box) >>= [&](Nonce nonce, std::vector<std::tuple<uint8_t, uint8_t>> second) {
+    EXPECT_EQ (orig_nonce, nonce);
+    EXPECT_EQ (data, second);
+    return success ();
+  };
+
+  EXPECT_TRUE (result.ok ());
+#endif
+}

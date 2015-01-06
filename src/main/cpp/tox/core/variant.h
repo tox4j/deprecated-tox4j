@@ -28,11 +28,11 @@ union variant<Head, Tail...>
   tail_type tail;
 
   template<typename T>
-  variant (T const &value)
+  explicit variant (T const &value)
     : tail (value)
   { }
 
-  variant (Head const &head)
+  explicit variant (Head const &head)
     : head { index, head }
   { }
 
@@ -83,7 +83,7 @@ template<>
 union variant<>
 {
   template<typename T>
-  variant (T const &)
+  explicit variant (T const &)
   { static_assert (std::is_void<T>::value,
                    "Attempted to instantiate variant with incorrect type"); }
 

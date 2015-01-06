@@ -1,6 +1,10 @@
 #include "Message.h"
 #include "Logging.h"
 
+#include "IPAddress.h"
+#include "KeyPair.h"
+#include "Nonce.h"
+
 using namespace tox;
 
 
@@ -42,6 +46,25 @@ MessageBase::append (uint64_t q)
   push_back ((q >> 8 * 0) & 0xff);
 }
 
+PlainText  &PlainText ::operator << (uint8_t            data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (uint16_t           data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (uint32_t           data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (uint64_t           data) { append (data); return *this; }
+
+PlainText  &PlainText ::operator << (PlainText   const &data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (PublicKey   const &data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (Nonce       const &data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (IPv4Address const &data) { append (data); return *this; }
+PlainText  &PlainText ::operator << (IPv6Address const &data) { append (data); return *this; }
+
+CipherText &CipherText::operator << (uint8_t            data) { append (data); return *this; }
+CipherText &CipherText::operator << (uint16_t           data) { append (data); return *this; }
+CipherText &CipherText::operator << (uint32_t           data) { append (data); return *this; }
+CipherText &CipherText::operator << (uint64_t           data) { append (data); return *this; }
+
+CipherText &CipherText::operator << (CipherText  const &data) { append (data); return *this; }
+CipherText &CipherText::operator << (PublicKey   const &data) { append (data); return *this; }
+CipherText &CipherText::operator << (Nonce       const &data) { append (data); return *this; }
 
 void
 PlainText::shift_left (std::size_t offset, std::size_t bit_size)

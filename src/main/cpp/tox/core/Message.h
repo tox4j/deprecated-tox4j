@@ -104,6 +104,7 @@ namespace tox
     Underlying underlying_;
   };
 
+
   struct MessageBase
     : protected byte_vector
   {
@@ -117,7 +118,7 @@ namespace tox
     MessageBase ()
     { }
 
-    MessageBase (std::size_t initial)
+    explicit MessageBase (std::size_t initial)
       : byte_vector (initial)
     { }
 
@@ -142,6 +143,7 @@ namespace tox
     template<typename InputIt>
     void append (InputIt first, InputIt last)
     {
+      printf ("adding %zd\n", last - first);
       return byte_vector::insert (byte_vector::end (), first, last);
     }
   };
@@ -173,15 +175,6 @@ namespace tox
     const_iterator cbegin () const { return const_iterator (byte_vector::cbegin ()); }
     const_iterator cend   () const { return const_iterator (byte_vector::cend   ()); }
 
-    template<typename T>
-    MessageFormat &operator << (T const &data)
-    {
-      static_assert (is_allowed_in<T, MessageFormat>::value,
-                     "Data type is not allowed in this packet type");
-      append (data);
-      return static_cast<MessageFormat &> (*this);
-    }
-
     Message (const_iterator first, const_iterator last)
       : MessageBase (first, last)
     { }
@@ -189,6 +182,16 @@ namespace tox
   protected:
     Message ()
     { }
+
+    template<typename T>
+    void append (T const &data)
+    {
+      static_assert (is_allowed_in<T, MessageFormat>::value,
+                     "Data type is not allowed in this packet type");
+      MessageBase::append (data);
+    }
+
+    using MessageBase::append;
   };
 
 
@@ -196,6 +199,17 @@ namespace tox
     : Message<PlainText>
   {
     using Message<PlainText>::Message;
+
+    PlainText &operator << (uint8_t  data);
+    PlainText &operator << (uint16_t data);
+    PlainText &operator << (uint32_t data);
+    PlainText &operator << (uint64_t data);
+
+    PlainText &operator << (PlainText const &data);
+    PlainText &operator << (PublicKey const &data);
+    PlainText &operator << (Nonce const &data);
+    PlainText &operator << (IPv4Address const &data);
+    PlainText &operator << (IPv6Address const &data);
 
     static PlainText from_bytes (byte_vector const &bytes)
     {
@@ -215,7 +229,14 @@ namespace tox
   {
     using Message<CipherText>::Message;
 
-    struct BitStream;
+    CipherText &operator << (uint8_t  data);
+    CipherText &operator << (uint16_t data);
+    CipherText &operator << (uint32_t data);
+    CipherText &operator << (uint64_t data);
+
+    CipherText &operator << (CipherText const &data);
+    CipherText &operator << (PublicKey const &data);
+    CipherText &operator << (Nonce const &data);
 
     static CipherText from_bytes (byte const *bytes, std::size_t length)
     {

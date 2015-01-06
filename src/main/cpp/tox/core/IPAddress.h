@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Message.h"
-
-#include <sodium.h>
+#include "types.h"
 
 
 namespace tox

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tox/core/types.h"
+#include "types.h"
 
 #include <sodium.h>
 

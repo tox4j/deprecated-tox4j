@@ -53,7 +53,8 @@ namespace tox
     template<typename IntegralType, IntegralType Value, typename ...Fmts, typename ...Args>
     struct write_packet<PacketFormatTag<std::integral_constant<IntegralType, Value>, Fmts...>, Args...>
     {
-      static void write (CipherText &packet, Args const &...args)
+      template<typename MessageFormat>
+      static void write (MessageFormat &packet, Args const &...args)
       {
         packet << Value;
         write_packet<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
