@@ -135,11 +135,11 @@ union variant_storage<Tag, Head, Tail...>
     head.tag = invalid_index;
   }
 
-  template<typename Visitor>
-  typename std::result_of<Visitor (Head)>::type
-  operator () (Visitor const &v) const
+  template<typename Visitor, typename ...Args>
+  typename std::result_of<Visitor (Head, Args...)>::type
+  operator () (Visitor const &v, Args const &...args) const
   {
-    return dispatch<typename std::result_of<Visitor (Head)>::type> (v);
+    return dispatch<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
   }
 
 private:
@@ -178,13 +178,13 @@ public:
   }
 
 private:
-  template<typename Result, typename Visitor>
-  Result dispatch (Visitor const &v) const
+  template<typename Result, typename Visitor, typename ...Args>
+  Result dispatch (Visitor const &v, Args const &...args) const
   {
     if (head.tag == index)
-      return v (head.value);
+      return v (head.value, args...);
     else
-      return tail.template dispatch<Result> (v);
+      return tail.template dispatch<Result> (v, args...);
   }
 };
 
@@ -200,8 +200,8 @@ private:
   { static_assert (std::is_void<T>::value,
                    "Attempted to instantiate variant with incorrect type"); }
 
-  template<typename Result, typename Visitor>
-  Result dispatch (Visitor const &) const
+  template<typename Result, typename Visitor, typename ...Args>
+  Result dispatch (Visitor const &, Args const &...) const
   { assert (!"Attempted to visit empty variant"); }
 };
 
