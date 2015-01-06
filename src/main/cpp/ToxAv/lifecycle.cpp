@@ -95,18 +95,6 @@ static void tox4j_receive_video_frame_cb(ToxAV *av, uint32_t friend_number,
 
 /*
  * Class:     im_tox_tox4jToxAvImpl
- * Method:    destroyAll
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_destroyAll
-  (JNIEnv *, jclass)
-{
-    std::lock_guard<std::mutex> lock(AvInstanceManager::self.mutex);
-    AvInstanceManager::self.destroyAll();
-}
-
-/*
- * Class:     im_tox_tox4jToxAvImpl
  * Method:    toxAvNew
  * Signature: (ZZILjava/lang/String;I)I
  */

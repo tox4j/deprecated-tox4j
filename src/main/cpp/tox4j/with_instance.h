@@ -9,7 +9,7 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
         return default_value<return_type>();
     }
 
-    std::unique_lock<std::mutex> lock(instance_manager<tox_traits>::self.mutex);
+    auto lock = instance_manager<tox_traits>::self.lock();
     if (!instance_manager<tox_traits>::self.isValid(instance_number)) {
         throw_tox_killed_exception(env, instance_number, "Tox function invoked on invalid tox instance");
         return default_value<return_type>();
@@ -22,11 +22,8 @@ with_instance(JNIEnv *env, jint instance_number, Func func)
         return default_value<return_type>();
     }
 
-    return instance.with_lock([&] {
-        tox_traits::subsystem *tox = instance.tox.get();
-        Events &events = *instance.events;
+    return instance.with_lock([&](tox_traits::subsystem *tox, Events &events) {
         lock.unlock();
-
         return func(tox, events);
     });
 }

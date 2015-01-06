@@ -215,18 +215,6 @@ static void tox4j_friend_lossless_packet_cb(Tox *tox, uint32_t friend_number, ui
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    destroyAll
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_destroyAll
-  (JNIEnv *, jclass)
-{
-    std::lock_guard<std::mutex> lock(CoreInstanceManager::self.mutex);
-    CoreInstanceManager::self.destroyAll();
-}
-
-/*
- * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxNew
  * Signature: (ZZILjava/lang/String;I)I
  */
@@ -236,6 +224,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
     assert(proxyType >= 0);
     assert(proxyPort >= 0);
     assert(proxyPort <= 65535);
+
+//    scope_guard {
+//        [&]{ printf("creating new instance"); },
+//    };
 
     struct Tox_Options_Deleter {
         void operator()(Tox_Options *options) {
@@ -304,8 +296,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
             std::unique_ptr<std::mutex>(new std::mutex)
         };
 
-        // This lock guards the instance manager.
-        std::lock_guard<std::mutex> lock(CoreInstanceManager::self.mutex);
+        // This call locks the instance manager.
         return CoreInstanceManager::self.add(std::move(instance));
     }, tox_new, opts.get(), save_data.data(), save_data.size());
 }

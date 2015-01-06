@@ -1,5 +1,17 @@
 #include "ErrorHandling.h"
 
+#include <unistd.h>
+#include <execinfo.h>
+
+void
+assert_failure(char const *cond, char const *file, int line, char const *func)
+{
+    printf("%s:%d: %s: Assertion `%s' failed.\n", file, line, func, cond);
+
+    void *buffer[100];
+    backtrace_symbols_fd(buffer, backtrace(buffer, 100), STDOUT_FILENO);
+}
+
 
 static std::string
 fullMessage(jint instance_number, char const *message)

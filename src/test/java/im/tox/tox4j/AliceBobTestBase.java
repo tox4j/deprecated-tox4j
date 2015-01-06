@@ -8,7 +8,10 @@ import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
 import im.tox.tox4j.exceptions.ToxException;
+import org.easetech.easytest.annotation.Parallel;
+import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +101,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
         protected void debug(@NotNull String message) {
             if (LOGGING) {
-                System.out.println(Thread.currentThread().getName() + ' ' + getName() + ": " + message);
+                System.out.println("[" + Thread.currentThread().getId() + "] " + getName() + ": " + message);
             }
         }
 

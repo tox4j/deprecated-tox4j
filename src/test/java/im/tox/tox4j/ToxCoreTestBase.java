@@ -10,8 +10,11 @@ import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxBootstrapException;
 import im.tox.tox4j.core.exceptions.ToxFriendAddException;
 import im.tox.tox4j.core.exceptions.ToxNewException;
+import org.easetech.easytest.annotation.Parallel;
+import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -22,6 +25,8 @@ import java.util.Random;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
+@RunWith(DataDrivenTestRunner.class)
+@Parallel()
 public abstract class ToxCoreTestBase {
 
     private static final int GRACE_PERIOD = 1000;

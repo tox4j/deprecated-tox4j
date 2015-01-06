@@ -10,13 +10,6 @@ public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
 
     private static final DhtNodeSelector dht = new DhtNodeSelector();
 
-    @After
-    public void tearDown() {
-        // Make sure we leave the system in a clean state in the event of exceptions that prevented a cleanup.
-        ToxCoreImpl.destroyAll();
-        System.gc();
-    }
-
     @NotNull
     @Override
     protected final ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {

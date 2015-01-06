@@ -12,6 +12,43 @@
 #include <algorithm>
 #include <memory>
 #include <mutex>
+#include <functional>
+
+
+void assert_failure(char const *cond, char const *file, int line, char const *func);
+
+#undef assert
+#define assert(cond) do {                                               \
+    if (!(cond)) {                                                      \
+        assert_failure(#cond, __FILE__, __LINE__, __PRETTY_FUNCTION__); \
+    }                                                                   \
+} while (0)
+
+struct scope_guard
+{
+    scope_guard(std::function<void()> enter)
+      : exit([=]{ enter(); printf(" [done]"); fflush(stdout); })
+    {
+
+        enter();
+        printf("\n");
+    }
+
+    scope_guard(std::function<void()> enter, std::function<void()> exit)
+      : exit(exit)
+    { enter(); printf("\n"); fflush(stdout); }
+
+    ~scope_guard()
+    { this->exit(); printf("\n"); fflush(stdout); }
+
+private:
+    std::function<void ()> enter;
+    std::function<void ()> exit;
+};
+
+#define CAT(a, b) CAT_(a, b)
+#define CAT_(a, b) a##b
+#define scope_guard scope_guard CAT(scope_guard_, __LINE__)
 
 
 template<typename T>
@@ -22,8 +59,46 @@ std::string to_string(T const &v) {
 }
 
 
+template<typename T>
+struct unique_id
+{
+    static std::size_t get(T *p)
+    {
+        if (p == nullptr) {
+            return 0;
+        }
+
+        std::lock_guard<std::mutex> lock(mutex);
+        auto found = ids.find(p);
+        if (found == ids.end()) {
+            ids.insert(std::make_pair(p, ids.size() + 1));
+            return ids.size();
+        }
+        return found->second;
+    }
+
+private:
+    static std::mutex mutex;
+    static std::map<T *, std::size_t> ids;
+};
+
+template<typename T> std::mutex unique_id<T>::mutex;
+template<typename T> std::map<T *, std::size_t> unique_id<T>::ids;
+
+template<typename T, typename Delete>
+std::size_t ID(std::unique_ptr<T, Delete> const &p)
+{
+    return unique_id<T>::get(p.get());
+}
+
+
+template<typename ToxTraits>
+class instance_manager;
+
 template<typename ToxTraits>
 class tox_instance {
+    friend class instance_manager<ToxTraits>;
+
     // Objects of this class can conceptually have three states:
     // - LIVE: A tox instance is alive and running.
     // - DEAD: The object is empty, all pointers are nullptr.
@@ -39,18 +114,26 @@ public:
 
     pointer tox;
     std::unique_ptr<events_type> events;
+
+private:
     std::unique_ptr<std::mutex> mutex;
 
+public:
     bool isLive() const { return live; }
     bool isDead() const { return !live; }
 
     template<typename Func, typename... Args>
-    auto with_lock(Func func, Args const &...args) const
-        -> typename std::result_of<Func(Args...)>::type
+    typename std::result_of<Func(typename pointer::pointer, events_type &, Args...)>::type
+    with_lock(Func func, Args const &...args) const
     {
         assert(mutex != nullptr);
         std::lock_guard<std::mutex> lock(*mutex);
-        return func(args...);
+//        scope_guard {
+//            [&]{ printf("locking instance %zd", ID(tox)); },
+//            [&]{ printf("unlocking instance %zd", ID(tox)); },
+//        };
+        assert(events != nullptr);
+        return func(tox.get(), *events, args...);
     }
 
     void assertValid() const {
@@ -71,7 +154,12 @@ public:
     : tox(std::move(tox))
     , events(std::move(events))
     , mutex(std::move(mutex))
-    { assertValid(); }
+    {
+//        scope_guard {
+//            [&]{ printf("new %zd", ID(tox)); }
+//        };
+        assertValid();
+    }
 
     // Move members from another object into this new one, then set the old one to the DEAD state.
     tox_instance(tox_instance &&rhs)
@@ -80,6 +168,9 @@ public:
     , events(std::move(rhs.events))
     , mutex(std::move(rhs.mutex))
     {
+//        scope_guard {
+//            [&]{ printf("move: %zd -> %zd", ID(rhs.tox), ID(tox)); },
+//        };
         rhs.live = false;
 
         this->assertValid();
@@ -89,6 +180,9 @@ public:
     // Move members from another object into this existing one, then set the right hand side to the DEAD state.
     // This object is then live again.
     tox_instance &operator=(tox_instance &&rhs) {
+//        scope_guard {
+//            [&]{ printf("assign: %zd <- %zd", ID(tox), ID(rhs.tox)); }
+//        };
         assert(this->isDead());
         assert(rhs.isLive());
         this->assertValid();
@@ -107,6 +201,7 @@ public:
     }
 };
 
+
 template<typename ToxTraits>
 class instance_manager {
     typedef tox_instance<ToxTraits> instance_type;
@@ -117,28 +212,60 @@ class instance_manager {
 
     std::vector<instance_type> instances;
     std::vector<jint> freelist;
-
-public:
     std::mutex mutex;
 
+    bool is_locked() const
+    {
+        return !const_cast<std::mutex &>(mutex).try_lock();
+    }
+
+public:
+    std::unique_lock<std::mutex> lock() {
+        return std::unique_lock<std::mutex> (mutex);
+    }
+
     bool isValid(jint instance_number) const {
+        assert(is_locked());
         return instance_number > 0
             && (size_t) instance_number <= instances.size();
     }
 
     bool isFree(jint instance_number) const {
+        assert(is_locked());
         return std::find(freelist.begin(), freelist.end(), instance_number) != freelist.end();
     }
 
     void setFree(jint instance_number) {
+        assert(is_locked());
         freelist.push_back(instance_number);
     }
 
     instance_type const &operator[](jint instance_number) const {
+        assert(is_locked());
         return instances[instance_number - 1];
     }
 
-    jint add(instance_type &&instance) {
+private:
+    instance_type remove(jint instance_number) {
+        assert(is_locked());
+        return std::move(instances[instance_number - 1]);
+    }
+
+    bool empty() const {
+        assert(is_locked());
+        return instances.empty();
+    }
+    size_t size() const {
+        assert(is_locked());
+        return instances.size();
+    }
+
+
+public:
+    jint add(instance_type &&instance)
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+
         // If there are free objects we can reuse..
         if (!freelist.empty()) {
             // ..use the last object that became unreachable (it will most likely be in cache).
@@ -154,22 +281,6 @@ public:
         // Otherwise, add a new one.
         instances.push_back(std::move(instance));
         return (jint) instances.size();
-    }
-
-private:
-    instance_type remove(jint instance_number) {
-        return std::move(instances[instance_number - 1]);
-    }
-
-    bool empty() const { return instances.empty(); }
-    size_t size() const { return instances.size(); }
-
-
-public:
-    void destroyAll() {
-        for (instance_type &instance : instances) {
-            instance_type dying(std::move(instance));
-        }
     }
 
     void kill(JNIEnv *env, jint instanceNumber)
@@ -208,12 +319,12 @@ public:
             return;
         }
 
+        std::lock_guard<std::mutex> lock(mutex);
         if (empty()) {
             throw_illegal_state_exception(env, instanceNumber, "Tox instance manager is empty");
             return;
         }
 
-        std::lock_guard<std::mutex> lock(mutex);
         if (!isValid(instanceNumber)) {
             throw_illegal_state_exception(env, instanceNumber,
                 "Tox instance out of range (max: " + to_string(size() - 1) + ")");

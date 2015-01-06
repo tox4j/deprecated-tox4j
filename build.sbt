@@ -16,8 +16,8 @@ libraryDependencies ++= Seq(
   "com.novocode" % "junit-interface" % "0.11",
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.hamcrest" % "hamcrest-all" % "1.3",
-  "junit" % "junit" % "4.12"
-  //"org.easetech" % "easytest" % "0.6.3"
+  "junit" % "junit" % "4.12",
+  "org.easetech" % "easytest-core" % "1.3.1"
 ) map (_ % Test)
 
 // JNI

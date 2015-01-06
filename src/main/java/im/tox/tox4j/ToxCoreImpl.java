@@ -55,14 +55,6 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private FriendLossyPacketCallback friendLossyPacketCallback;
     private FriendLosslessPacketCallback friendLosslessPacketCallback;
 
-    /**
-     * Calls kill() on every tox instance. This will invalidate all instances without notice, and should only be
-     * used during testing or debugging. If there are still any AV instances unclosed, these will not be notified
-     * of this destruction. It is recommended that {@link im.tox.tox4j.ToxAvImpl#destroyAll} is called immediately
-     * after calling this function, if there are any live AV instances.
-     */
-    static native void destroyAll();
-
     private static native void playground(int instanceNumber);
     void playground() {
         playground(instanceNumber);

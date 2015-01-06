@@ -26,13 +26,6 @@ public final class ToxAvImpl implements ToxAv {
     private ReceiveVideoFrameCallback receiveVideoFrameCallback;
     private ReceiveAudioFrameCallback receiveAudioFrameCallback;
 
-    /**
-     * Calls kill() on every AV instance. This will invalidate all instances without notice, and should only be
-     * used during testing or debugging. In particular, {@link im.tox.tox4j.ToxCoreImpl} will contain references to
-     * destroyed AV instances.
-     */
-    static native void destroyAll();
-
     private static native int toxAvNew(int toxInstanceNumber) throws ToxAvNewException;
 
     public ToxAvImpl(ToxCore tox) throws ToxAvNewException {
