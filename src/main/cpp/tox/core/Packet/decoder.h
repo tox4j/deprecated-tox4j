@@ -49,17 +49,10 @@ namespace tox
     template<std::size_t Member, typename Fmt, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<Fmt, Fmts...>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
-      {
-        auto rest = packet >> std::get<Member> (decoded);
-        return read_packet<Member + 1, PacketFormatTag<Fmts...>, Crypto, DecodedArgs...>::
-          read (decoded, rest);
-      }
-
-      static Partial<BitStream<CipherText>> read (Crypto const &crypto,
-                                                  std::tuple<DecodedArgs...> &decoded,
-                                                  BitStream<CipherText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
         auto rest = packet >> std::get<Member> (decoded);
         return read_packet<Member + 1, PacketFormatTag<Fmts...>, Crypto, DecodedArgs...>::
@@ -70,9 +63,10 @@ namespace tox
     template<std::size_t Member, typename IntegralType, IntegralType Value, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<std::integral_constant<IntegralType, Value>, Fmts...>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<CipherText>> read (Crypto const &crypto,
-                                                  std::tuple<DecodedArgs...> &decoded,
-                                                  BitStream<CipherText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
         IntegralType value;
         auto rest = packet >> value;
@@ -86,22 +80,15 @@ namespace tox
     template<std::size_t Member, typename ...Fmts, typename ...CryptoArgs, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<Nonce, Fmts...>, std::tuple<CryptoArgs...>, DecodedArgs...>
     {
-      static Partial<BitStream<CipherText>> read (std::tuple<CryptoArgs...> const &crypto,
-                                                  std::tuple<DecodedArgs...> &decoded,
-                                                  BitStream<CipherText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (std::tuple<CryptoArgs...> const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
         Nonce &nonce = std::get<Member> (decoded);
         auto rest = packet >> nonce;
         return read_packet<Member + 1, PacketFormatTag<Fmts...>, std::tuple<CryptoArgs..., Nonce const &>, DecodedArgs...>::
           read (std::tuple_cat (crypto, std::tuple<Nonce const &> (nonce)), decoded, rest);
-      }
-
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
-      {
-        auto rest = packet >> std::get<Member> (decoded);
-        return read_packet<Member + 1, PacketFormatTag<Fmts...>, std::tuple<CryptoArgs...>, DecodedArgs...>::
-          read (decoded, rest);
       }
     };
 
@@ -127,7 +114,7 @@ namespace tox
 
           >>= [&](PlainText const &plain) {
             return read_packet<Member, PacketFormatTag<Fmts...>, std::tuple<>, DecodedArgs...>::
-              read (decoded, BitStream<PlainText> (plain))
+              read (std::tuple<> (), decoded, BitStream<PlainText> (plain))
 
           >> [&] {
             return success (rest);
@@ -141,16 +128,19 @@ namespace tox
     {
       typedef typename std::tuple_element<Member, std::tuple<DecodedArgs...>>::type::value_type record_type;
 
-      template<typename ...FieldTypes>
-      static Partial<BitStream<PlainText>> read (BitStream<PlainText> packet,
-                                                 std::tuple<FieldTypes...> &decoded_field)
+      template<typename MessageFormat, typename ...FieldTypes>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<FieldTypes...> &decoded_field,
+                                                     BitStream<MessageFormat> packet)
       {
         return read_packet<0, PacketFormatTag<Fields...>, Crypto, FieldTypes...>::
-          read (decoded_field, packet);
+          read (crypto, decoded_field, packet);
       }
 
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
         SizeType size;
         BitStream<PlainText> rest = packet >> size;
@@ -161,7 +151,7 @@ namespace tox
           {
             record_type record;
 
-            auto result = read (rest, record)
+            auto result = read (crypto, record, rest)
 
               >>= [&](BitStream<PlainText> const &new_rest) {
                 std::get<Member> (decoded).push_back (std::move (record));
@@ -176,73 +166,123 @@ namespace tox
           }
 
         return read_packet<Member + 1, PacketFormatTag<Fmts...>, Crypto, DecodedArgs...>::
-          read (decoded, rest);
+          read (crypto, decoded, rest);
       }
     };
 
-#if 0
     template<std::size_t Member, typename ...Choices, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<choice<Choices...>, Fmts...>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
+      template<typename FormatChoice, typename MessageFormat, typename ...Types>
+      static Partial<BitStream<MessageFormat>> try_read (Crypto const &crypto,
+                                                         std::tuple<Types...> &decoded,
+                                                         BitStream<MessageFormat> packet)
       {
-        return read_packet<Member, PacketFormatTag<Bitfields..., Fmts...>, Crypto, DecodedArgs...>::
-          read (decoded, packet);
+        return read_packet<0, FormatChoice, Crypto, Types...>::
+          read (crypto, decoded, packet);
+      }
+
+      template<std::size_t Choice, typename MessageFormat>
+      struct read_variant
+      {
+        template<typename ...VariantTypes>
+        static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                       variant<VariantTypes...> &decoded_variant,
+                                                       BitStream<MessageFormat> packet)
+        {
+          (void) decoded_variant;
+          typedef typename std::tuple_element<Choice - 1, std::tuple<Choices...>>::type format_choice;
+          typedef typename variant_type<Choice - 1, variant<VariantTypes...>>::type variant_choice;
+
+          variant_choice decoded;
+          auto result = try_read<format_choice> (crypto, decoded, packet);
+          if (result.ok ())
+            {
+              decoded_variant = decoded;
+              return result;
+            }
+
+          return read_variant<Choice - 1, MessageFormat>::read (crypto, decoded_variant, packet);
+        }
+      };
+
+      template<typename MessageFormat>
+      struct read_variant<0, MessageFormat>
+      {
+        template<typename ...VariantTypes>
+        static Partial<BitStream<MessageFormat>> read (Crypto const &/*crypto*/,
+                                                       variant<VariantTypes...> &/*decoded_variant*/,
+                                                       BitStream<MessageFormat> /*packet*/)
+        {
+          return failure (Status::FormatError);
+        }
+      };
+
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
+      {
+        return read_variant<sizeof... (Choices), MessageFormat>::read (crypto, std::get<Member> (decoded), packet)
+
+          >>= [&](BitStream<MessageFormat> const &rest) {
+            return read_packet<Member + 1, PacketFormatTag<Fmts...>, Crypto, DecodedArgs...>::
+              read (crypto, decoded, rest);
+          };
       }
     };
-#endif
 
     template<std::size_t Member, typename ...Bitfields, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<bitfield::type<Bitfields...>, Fmts...>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
         return read_packet<Member, PacketFormatTag<Bitfields..., Fmts...>, Crypto, DecodedArgs...>::
-          read (decoded, packet);
+          read (crypto, decoded, packet);
       }
     };
 
     template<std::size_t Member, typename MemberType, std::size_t BitSize, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<bitfield::member<MemberType, BitSize>, Fmts...>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
-        auto rest = packet.bit_size<BitSize> () >> std::get<Member> (decoded);
+        auto rest = packet.template bit_size<BitSize> () >> std::get<Member> (decoded);
         return read_packet<Member + 1, PacketFormatTag<Fmts...>, Crypto, DecodedArgs...>::
-          read (decoded, rest);
+          read (crypto, decoded, rest);
       }
     };
 
     template<std::size_t Member, typename IntegralType, IntegralType Value, std::size_t BitSize, typename ...Fmts, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<bitfield::member<std::integral_constant<IntegralType, Value>, BitSize>, Fmts...>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &decoded,
-                                                 BitStream<PlainText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &crypto,
+                                                     std::tuple<DecodedArgs...> &decoded,
+                                                     BitStream<MessageFormat> packet)
       {
         IntegralType value;
-        auto rest = packet.bit_size<BitSize> () >> value;
+        auto rest = packet.template bit_size<BitSize> () >> value;
         if (value != Value)
           return failure (Status::FormatError);
         return read_packet<Member, PacketFormatTag<Fmts...>, Crypto, DecodedArgs...>::
-          read (decoded, rest);
+          read (crypto, decoded, rest);
       }
     };
 
     template<std::size_t Member, typename Crypto, typename ...DecodedArgs>
     struct read_packet<Member, PacketFormatTag<>, Crypto, DecodedArgs...>
     {
-      static Partial<BitStream<PlainText>> read (std::tuple<DecodedArgs...> &/*decoded*/,
-                                                 BitStream<PlainText> packet)
-      {
-        return success (packet);
-      }
-
-      static Partial<BitStream<CipherText>> read (Crypto const &/*crypto*/,
-                                                  std::tuple<DecodedArgs...> &/*decoded*/,
-                                                  BitStream<CipherText> packet)
+      template<typename MessageFormat>
+      static Partial<BitStream<MessageFormat>> read (Crypto const &/*crypto*/,
+                                                     std::tuple<DecodedArgs...> &/*decoded*/,
+                                                     BitStream<MessageFormat> packet)
       {
         return success (packet);
       }

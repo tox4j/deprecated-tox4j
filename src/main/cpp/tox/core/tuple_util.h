@@ -57,3 +57,49 @@ struct tuple_append<std::tuple<TupleTypes...>, Types...>
 {
   typedef std::tuple<TupleTypes..., Types...> type;
 };
+
+
+
+namespace detail
+{
+  template<typename T, typename Tuple>
+  struct type_occurrences;
+
+  template<typename T, typename Type, typename ...Types>
+  struct type_occurrences<T, std::tuple<Type, Types...>>
+  {
+    static std::size_t const value =
+      std::is_same<T, Type>::value + type_occurrences<T, std::tuple<Types...>>::value;
+  };
+
+  template<typename T>
+  struct type_occurrences<T, std::tuple<>>
+  {
+    static std::size_t const value = 0;
+  };
+
+
+  template<typename Tuple, typename ...Types>
+  struct tuple_types_distinct;
+
+  template<typename Tuple, typename T, typename ...Types>
+  struct tuple_types_distinct<Tuple, T, Types...>
+  {
+    static bool const value = type_occurrences<T, Tuple>::value == 1
+                           && tuple_types_distinct<Tuple, Types...>::value;
+  };
+
+  template<typename Tuple>
+  struct tuple_types_distinct<Tuple>
+    : std::true_type
+  { };
+}
+
+
+template<typename Tuple>
+struct tuple_types_distinct;
+
+template<typename ...Types>
+struct tuple_types_distinct<std::tuple<Types...>>
+  : detail::tuple_types_distinct<std::tuple<Types...>, Types...>
+{ };

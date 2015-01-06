@@ -99,6 +99,12 @@ CryptoBox::decrypt (BitStream<CipherText> const &crypto, Nonce const &n) const
   LOG_ASSERT (is_all_zero (padded_plain.cbegin (),
                            padded_plain.cbegin () + crypto_box_ZEROBYTES));
 
+#if 0
+  output_hex (LOG (INFO) << "Plain text: ",
+              padded_plain.data () + crypto_box_ZEROBYTES,
+              padded_plain.size () - crypto_box_ZEROBYTES - crypto_box_MACBYTES);
+#endif
+
   return success (PlainText (padded_plain.cbegin () + crypto_box_ZEROBYTES,
                              padded_plain.cend () - crypto_box_MACBYTES));
 }

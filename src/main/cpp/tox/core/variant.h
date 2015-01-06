@@ -2,10 +2,12 @@
 
 #include <cassert>
 #include <cstddef>
+
+#include <functional>
 #include <type_traits>
 #include <utility>
 
-#include <functional>
+#include "tuple_util.h"
 
 
 template<typename Result, typename ...Types>
@@ -60,6 +62,8 @@ union variant_storage<Tag, Head, Tail...>
   static_assert (static_cast<std::size_t> (index) == sizeof... (Tail) &&
                  index < invalid_index,
                  "Tag type is too small for this variant");
+  static_assert (tuple_types_distinct<std::tuple<Head, Tail...>>::value,
+                 "Variant members must all be distinct types");
 
   template<typename Result>
   using visitor = variant_visitor<Result, Head, Tail...>;

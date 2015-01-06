@@ -132,15 +132,15 @@ namespace tox
       }
     };
 
-    template<typename Choices, typename ...Variants>
+    template<typename MessageFormat, typename Choices, typename ...Variants>
     struct write_choice;
 
-    template<typename Choice, typename ...Choices, typename Variant, typename ...Variants>
-    struct write_choice<choice<Choice, Choices...>, Variant, Variants...>
-      : write_choice<choice<Choices...>, Variants...>
+    template<typename MessageFormat, typename Choice, typename ...Choices, typename Variant, typename ...Variants>
+    struct write_choice<MessageFormat, choice<Choice, Choices...>, Variant, Variants...>
+      : write_choice<MessageFormat, choice<Choices...>, Variants...>
     {
-      using write_choice<choice<Choices...>, Variants...>::write_choice;
-      using write_choice<choice<Choices...>, Variants...>::operator ();
+      using write_choice<MessageFormat, choice<Choices...>, Variants...>::write_choice;
+      using write_choice<MessageFormat, choice<Choices...>, Variants...>::operator ();
 
       void operator () (Variant const &variant) const
       {
@@ -148,25 +148,33 @@ namespace tox
       }
     };
 
-    template<>
-    struct write_choice<choice<>>
+    template<typename MessageFormat>
+    struct write_choice<MessageFormat, choice<>>
     {
-      write_choice (PlainText &packet)
+      write_choice (MessageFormat &packet)
         : packet_ (&packet)
       { }
 
     protected:
       void operator () () const;
 
-      PlainText *packet_;
+      MessageFormat *packet_;
     };
 
     template<typename ...Choices, typename ...Fmts, typename ...Variants, typename ...Args>
     struct write_packet<PacketFormatTag<choice<Choices...>, Fmts...>, variant<Variants...>, Args...>
     {
-      static void write (PlainText &packet, variant<Variants...> const &choices, Args const &...args)
+      template<typename MessageFormat>
+      static void write (Nonce const &nonce, MessageFormat &packet, variant<Variants...> const &choices, Args const &...args)
       {
-        choices (write_choice<choice<Choices...>, Variants...> (packet));
+        choices (write_choice<MessageFormat, choice<Choices...>, Variants...> (packet));
+        write_packet<PacketFormatTag<Fmts...>, Args...>::write (nonce, packet, args...);
+      }
+
+      template<typename MessageFormat>
+      static void write (MessageFormat &packet, variant<Variants...> const &choices, Args const &...args)
+      {
+        choices (write_choice<MessageFormat, choice<Choices...>, Variants...> (packet));
         write_packet<PacketFormatTag<Fmts...>, Args...>::write (packet, args...);
       }
     };

@@ -266,6 +266,13 @@ TEST (Packet, Choice) {
           std::integral_constant<uint8_t, 2>,
           uint8_t,
           uint8_t
+        >,
+        PacketFormatTag<
+          uint8_t,
+          std::integral_constant<uint8_t, 3>,
+          uint8_t,
+          uint8_t,
+          uint8_t
         >
       >
     >
@@ -277,23 +284,22 @@ TEST (Packet, Choice) {
 
   typedef variant<
     std::tuple<uint8_t, uint8_t>,
-    std::tuple<uint8_t, uint8_t, uint8_t>
+    std::tuple<uint8_t, uint8_t, uint8_t>,
+    std::tuple<uint8_t, uint8_t, uint8_t, uint8_t>
   > data_type;
-  static_assert (sizeof (data_type) == 4, "");
+  static_assert (sizeof (data_type) == 5, "");
   variant_type<1, data_type>::type data { 1, 2, 3 };
   Packet<Format> packet (orig_nonce, box, data_type (data));
   std::cout << "Packet data: ";
   output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
-#if 0
   CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
   auto result = packet.decode (t, box) >>= [&](Nonce nonce, data_type second) {
     EXPECT_EQ (orig_nonce, nonce);
     second.visit<void> () >>= {
-      [](std::tuple<uint8_t, uint8_t> const &a) {
-        EXPECT_EQ (4, std::get<0> (a));
-        EXPECT_EQ (5, std::get<1> (a));
+      [](std::tuple<uint8_t, uint8_t> const &) {
+        EXPECT_TRUE (false);
       },
 
       [](std::tuple<uint8_t, uint8_t, uint8_t> const &a) {
@@ -301,10 +307,73 @@ TEST (Packet, Choice) {
         EXPECT_EQ (2, std::get<1> (a));
         EXPECT_EQ (3, std::get<2> (a));
       },
+
+      [](std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> const &) {
+        EXPECT_TRUE (false);
+      },
     };
     return success ();
   };
 
   EXPECT_TRUE (result.ok ());
-#endif
+}
+
+
+TEST (Packet, PlainChoice) {
+  using Format = PacketFormat<
+    PacketKind::PingResponse,
+    choice<
+      PacketFormatTag<
+        uint8_t,
+        std::integral_constant<uint8_t, 1>,
+        uint8_t
+      >,
+      PacketFormatTag<
+        uint8_t,
+        std::integral_constant<uint8_t, 2>,
+        uint8_t,
+        uint8_t
+      >,
+      PacketFormatTag<
+        uint8_t,
+        std::integral_constant<uint8_t, 3>,
+        uint8_t,
+        uint8_t,
+        uint8_t
+      >
+    >
+  >;
+
+  typedef variant<
+    std::tuple<uint8_t, uint8_t>,
+    std::tuple<uint8_t, uint8_t, uint8_t>,
+    std::tuple<uint8_t, uint8_t, uint8_t, uint8_t>
+  > data_type;
+  static_assert (sizeof (data_type) == 5, "");
+  variant_type<0, data_type>::type data { 4, 5 };
+  Packet<Format> packet { data_type (data) };
+  std::cout << "Packet data: ";
+  output_hex (std::cout, packet.data (), packet.size ());
+  std::cout << "\n";
+
+  CipherText t = CipherText::from_bytes (packet.data (), packet.size ());
+  auto result = packet.decode (t) >>= [&](data_type second) {
+    second.visit<void> () >>= {
+      [](std::tuple<uint8_t, uint8_t> const &a) {
+        EXPECT_EQ (4, std::get<0> (a));
+        EXPECT_EQ (5, std::get<1> (a));
+      },
+
+      [](std::tuple<uint8_t, uint8_t, uint8_t> const &) {
+        EXPECT_TRUE (false);
+      },
+
+      [](std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> const &) {
+        EXPECT_TRUE (false);
+      },
+    };
+    return success ();
+  };
+
+  EXPECT_TRUE (result.ok ());
 }

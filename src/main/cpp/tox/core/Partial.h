@@ -93,6 +93,8 @@ namespace tox
   template<typename Success, typename Traits = partial_traits<Success>>
   struct Partial;
 
+  struct failure;
+
 
   /**
    * The type of partial functions.
@@ -124,7 +126,8 @@ namespace tox
     {
       typedef typename std::result_of<Call>::type type;
 
-      static_assert (is_specialisation_of<type, Partial>::value,
+      static_assert (is_specialisation_of<type, Partial>::value ||
+                     std::is_same<type, failure>::value,
                      "Monadic bind must return Partial<T>");
     };
 

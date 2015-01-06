@@ -143,7 +143,6 @@ namespace tox
     template<typename InputIt>
     void append (InputIt first, InputIt last)
     {
-      printf ("adding %zd\n", last - first);
       return byte_vector::insert (byte_vector::end (), first, last);
     }
   };

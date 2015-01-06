@@ -97,10 +97,14 @@ BitStream<MessageFormat>
 BitStream<MessageFormat>::operator >> (uint8_t &b) const
 {
   assert (position_ % 8 == 0);
+#if 0
   printf ("reading %zd bits at %zd (of %zd)\n", 8, position_, packet_.size () * 8);
+#endif
   assert (position_ / 8 < packet_.size ());
   b = packet_[position_ / 8];
+#if 0
   printf ("byte at %zd: %02x\n", position_, b);
+#endif
   return { position_ + 8, packet_ };
 }
 
@@ -121,7 +125,9 @@ template<typename MessageFormat>
 BitStream<MessageFormat>
 BitStream<MessageFormat>::read (uint8_t &b, std::size_t bit_size) const
 {
+#if 0
   printf ("reading %zd bits at %zd (of %zd)\n", bit_size, position_, packet_.size () * 8);
+#endif
   assert (position_ / 8 < packet_.size ());
   if (position_ % 8 == 0 && bit_size == 1)
     b = packet_[position_ / 8] >> 7;
@@ -132,7 +138,9 @@ BitStream<MessageFormat>::read (uint8_t &b, std::size_t bit_size) const
       printf ("read at %zd, bit_size = %zd\n", position_, bit_size);
       abort ();
     }
+#if 0
   printf ("byte at %zd: %02x\n", position_, b);
+#endif
   return { position_ + bit_size, packet_ };
 }
 
