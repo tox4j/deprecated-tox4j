@@ -8,7 +8,8 @@
 using namespace tox;
 
 
-Nonce Nonce::random ()
+Nonce
+Nonce::random ()
 {
   Nonce nonce;
   randombytes_buf (nonce.data (), nonce.size ());
@@ -29,6 +30,13 @@ Nonce::operator++ ()
 UniqueNonce::UniqueNonce ()
   : next_ ()
 {
+}
+
+
+void
+UniqueNonce::randomise ()
+{
+  next_ = Nonce::random ();
 }
 
 

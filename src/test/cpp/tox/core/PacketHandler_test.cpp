@@ -10,7 +10,7 @@ using namespace tox;
 
 TEST (PacketHandler, Plain) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     uint8_t,
     Nonce,
     encrypted<
@@ -22,11 +22,11 @@ TEST (PacketHandler, Plain) {
   CryptoBox box (key_pair);
   Nonce orig_nonce = Nonce::random ();
 
-  Packet<Format> packet (0x99, orig_nonce, box, 0xaa);
+  Packet<Format> const packet (0x99, orig_nonce, box, 0xaa);
   CipherText data = CipherText::from_bytes (packet.data (), packet.size ());
 
   struct Handler
-    : PacketHandler<Handler, Format>
+    : PacketHandler<Handler, Format, int>
   {
     Nonce orig_nonce_;
 
@@ -34,16 +34,16 @@ TEST (PacketHandler, Plain) {
       : orig_nonce_ (orig_nonce)
     { }
 
-    Partial<void> handle (uint8_t first, Nonce nonce, uint8_t second)
+    Partial<int> handle (uint8_t first, Nonce nonce, uint8_t second)
     {
       EXPECT_EQ (orig_nonce_, nonce);
       EXPECT_EQ (0x99, first);
       EXPECT_EQ (0xaa, second);
-      return success ();
+      return success (3);
     }
   };
 
-  PacketDispatcher dispatcher;
+  PacketDispatcher<int> dispatcher;
   dispatcher.register_handler<Handler> (orig_nonce);
 
   dispatcher.handle (std::move (data), box);

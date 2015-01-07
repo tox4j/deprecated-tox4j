@@ -22,6 +22,7 @@ namespace tox
   {
     UniqueNonce ();
 
+    void randomise ();
     Nonce next ();
 
   private:

@@ -1,6 +1,8 @@
 #include "tox/core/Logging.h"
 #include <gtest/gtest.h>
 
+#include "tox/core/EchoRequest.h"
+#include "tox/core/EchoResponse.h"
 #include "tox/core/NodesRequest.h"
 #include "tox/core/NodesResponse.h"
 #include "tox/core/Nonce.h"
@@ -25,9 +27,122 @@ die (char const *func)
 }
 
 
-struct HandleNodeResponse
-  : PacketHandler<HandleNodeResponse, NodesResponseFormat>
+static PublicKey
+parse_key (char const *str)
 {
+  auto unhex = [] (char c)
+  {
+    if (c >= '0' && c <= '9')
+      return c - '0';
+    if (c >= 'a' && c <= 'z')
+      return c - 'a' + 10;
+    if (c >= 'A' && c <= 'Z')
+      return c - 'A' + 10;
+    assert (false);
+  };
+
+
+  byte key[32];
+  for (size_t i = 0; i < sizeof key; i++)
+    {
+      key[i] = unhex (str[i * 2    ]) << 4
+             | unhex (str[i * 2 + 1]);
+    }
+
+  return PublicKey (key);
+}
+
+
+struct io_callback;
+
+struct HandleEchoRequest
+  : PacketHandler<HandleEchoRequest, EchoRequestFormat>
+{
+  io_callback &cb;
+
+  HandleEchoRequest (io_callback &cb)
+    : cb (cb)
+  { }
+
+  void done ();
+
+  Partial<void> handle (PublicKey const &key,
+                        Nonce const &nonce,
+                        uint64_t ping_id)
+  {
+    LOG (INFO) << "Received EchoRequest packet";
+    LOG (INFO) << "Key: " << key;
+    LOG (INFO) << "Nonce: " << nonce;
+    LOG (INFO) << "Ping ID: " << ping_id;
+    done ();
+    return success ();
+  }
+};
+
+
+struct HandleEchoResponse
+  : PacketHandler<HandleEchoResponse, EchoResponseFormat>
+{
+  io_callback &cb;
+
+  HandleEchoResponse (io_callback &cb)
+    : cb (cb)
+  { }
+
+  void done ();
+
+  Partial<void> handle (PublicKey const &key,
+                        Nonce const &nonce,
+                        uint64_t ping_id)
+  {
+    LOG (INFO) << "Received EchoResponse packet";
+    LOG (INFO) << "Key: " << key;
+    LOG (INFO) << "Nonce: " << nonce;
+    LOG (INFO) << "Ping ID: " << ping_id;
+    done ();
+    return success ();
+  }
+};
+
+
+struct HandleNodesRequest
+  : PacketHandler<HandleNodesRequest, NodesRequestFormat>
+{
+  io_callback &cb;
+
+  HandleNodesRequest (io_callback &cb)
+    : cb (cb)
+  { }
+
+  void done ();
+
+  Partial<void> handle (PublicKey const &key,
+                        Nonce const &nonce,
+                        PublicKey const &requested_id,
+                        uint64_t ping_id)
+  {
+    LOG (INFO) << "Received NodesRequest packet";
+    LOG (INFO) << "Key: " << key;
+    LOG (INFO) << "Nonce: " << nonce;
+    LOG (INFO) << "Requested ID: " << requested_id;
+    LOG (INFO) << "Ping ID: " << ping_id;
+    done ();
+    return success ();
+  }
+};
+
+
+struct HandleNodesResponse
+  : PacketHandler<HandleNodesResponse, NodesResponseFormat>
+{
+  io_callback &cb;
+
+  HandleNodesResponse (io_callback &cb)
+    : cb (cb)
+  { }
+
+  void done ();
+
   Partial<void> handle (PublicKey const &key,
                         Nonce const &nonce,
                         std::vector<
@@ -65,7 +180,7 @@ struct HandleNodeResponse
         LOG (INFO) << "Port: " << port;
         LOG (INFO) << "Client ID: " << client_id;
       }
-    ev::get_default_loop ().break_loop ();
+    done ();
     return success ();
   }
 };
@@ -73,15 +188,35 @@ struct HandleNodeResponse
 
 struct io_callback
 {
-  int sock;
-  CryptoBox const &box;
-  PacketDispatcher dispatcher;
+  enum State
+  {
+    INIT,
+    NODE_REQUEST,
+    NODE_RESPONSE,
+    ECHO_REQUEST,
+    ECHO_RESPONSE,
+  } state;
 
-  explicit io_callback (CryptoBox const &box)
+  PublicKey const requested_id = parse_key ("DA6B2411E6880C6CE25DA59E4163F70C6963108DD61E2C71D725E2F59F4C7B2F");
+
+  int const sock;
+  UniqueNonce nonces;
+  PublicKey const &public_key;
+  CryptoBox const &box;
+  PacketDispatcher<> dispatcher;
+  struct addrinfo *res;
+
+  explicit io_callback (PublicKey const &public_key,
+                        char const *ip, char const *port,
+                        CryptoBox const &box)
     : sock (socket (AF_INET, SOCK_DGRAM, 0))
+    , public_key (public_key)
     , box (box)
   {
-    dispatcher.register_handler<HandleNodeResponse> ();
+    dispatcher.register_handler<HandleNodesRequest> (*this);
+    dispatcher.register_handler<HandleNodesResponse> (*this);
+    dispatcher.register_handler<HandleEchoRequest> (*this);
+    dispatcher.register_handler<HandleEchoResponse> (*this);
 
     if (sock == -1)
       die ("socket");
@@ -94,62 +229,96 @@ struct io_callback
 
     if (bind (sock, (struct sockaddr *) &addr, sizeof addr) != 0)
       die ("bind");
+
+    struct addrinfo hints;
+    memset (&hints, 0, sizeof (hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = 0;
+    hints.ai_flags = AI_ADDRCONFIG;
+
+    if (getaddrinfo (ip, port, &hints, &res) != 0)
+      die ("getaddrinfo");
+    EXPECT_TRUE (res != nullptr);
   }
+
+
+  void send_node_request ()
+  {
+    NodesRequest req (public_key, nonces.next (),
+                      box,
+                      requested_id, 1234);
+
+    if (sendto (sock, req.data (), req.size (), 0, res->ai_addr, res->ai_addrlen) == -1)
+      die ("sendto");
+  }
+
+
+  void send_echo_request ()
+  {
+    EchoRequest req (public_key, nonces.next (),
+                     box,
+                     1234);
+
+    if (sendto (sock, req.data (), req.size (), 0, res->ai_addr, res->ai_addrlen) == -1)
+      die ("sendto");
+  }
+
 
   void operator () (ev::io &w, int revents)
   {
-    switch (revents)
+    if (revents & EV_READ)
       {
-      case EV_READ:
-        {
-          struct sockaddr src_addr;
-          socklen_t addr_len;
+        struct sockaddr src_addr;
+        socklen_t addr_len;
 
-          byte_vector packet_data (65507);
+        byte_vector packet_data (65507);
 
-          ssize_t size = recvfrom (sock, packet_data.data (), packet_data.size (),
-                                   0, &src_addr, &addr_len);
+        ssize_t size = recvfrom (sock, packet_data.data (), packet_data.size (),
+                                 0, &src_addr, &addr_len);
+        assert (size > 0);
 
-          LOG (INFO) << format ("events: EV_READ (%zd) [%02x]", size, packet_data.front ());
+        LOG (INFO) << format ("events: EV_READ (%zd) [%02x]", size, packet_data.front ());
 
-          assert (size > 0);
-          dispatcher.handle (CipherText::from_bytes (packet_data, size), box);
-          break;
-        }
-      case EV_WRITE:
-        printf ("events: EV_WRITE\n");
-        break;
-      case EV_READ | EV_WRITE:
-        printf ("events: EV_READ | EV_WRITE\n");
-        break;
+        auto success = dispatcher.handle (CipherText::from_bytes (packet_data, size), box);
+        if (!success.ok ())
+          LOG (WARNING) << "Unknown packet type: " << int (packet_data.front ());
+      }
+    if (revents & EV_WRITE)
+      {
+        if (state == INIT)
+          {
+            send_node_request ();
+            state = NODE_REQUEST;
+          }
+        if (state == NODE_RESPONSE)
+          {
+            send_echo_request ();
+            state = ECHO_REQUEST;
+          }
+        if (state == ECHO_RESPONSE)
+          w.loop.break_loop ();
       }
   }
 };
 
 
-static PublicKey
-parse_key (char const *str)
+void HandleEchoRequest::done ()
 {
-  auto unhex = [] (char c)
-  {
-    if (c >= '0' && c <= '9')
-      return c - '0';
-    if (c >= 'a' && c <= 'z')
-      return c - 'a' + 10;
-    if (c >= 'A' && c <= 'Z')
-      return c - 'A' + 10;
-    assert (false);
-  };
+}
 
+void HandleEchoResponse::done ()
+{
+  cb.state = io_callback::ECHO_RESPONSE;
+}
 
-  byte key[32];
-  for (size_t i = 0; i < sizeof key; i++)
-    {
-      key[i] = unhex (str[i * 2    ]) << 4
-             | unhex (str[i * 2 + 1]);
-    }
+void HandleNodesRequest::done ()
+{
+}
 
-  return PublicKey (key);
+void HandleNodesResponse::done ()
+{
+  cb.state = io_callback::NODE_RESPONSE;
 }
 
 
@@ -165,41 +334,19 @@ TEST (UDP, NodesRequest) {
   char const *port = "33445";
 #endif
 
-  ev::io io_watcher;
+  ev::io io_watcher (ev::get_default_loop ());
 
   KeyPair self;
-  PublicKey bootstrap_node = parse_key (key);
-  PublicKey client_id      = parse_key ("DA6B2411E6880C6CE25DA59E4163F70C6963108DD61E2C71D725E2F59F4C7B2F");
+  CryptoBox box (parse_key (key), self.secret_key);
 
-  CryptoBox box (bootstrap_node, self.secret_key);
+  io_callback cb (self.public_key, ip, port, box);
 
-  io_callback cb (box);
-
-  io_watcher.set (cb.sock, EV_READ);
+  io_watcher.set (cb.sock, EV_READ | EV_WRITE);
   io_watcher.set (&cb);
   io_watcher.start ();
 
-  UniqueNonce nonces;
-  LOG (INFO) << "First nonce: " << nonces.next ();
-
-  NodesRequest req (self.public_key, nonces.next (),
-                    box,
-                    client_id, 1234);
-
-  struct addrinfo hints;
-  memset (&hints, 0, sizeof (hints));
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_DGRAM;
-  hints.ai_protocol = 0;
-  hints.ai_flags = AI_ADDRCONFIG;
-
-  struct addrinfo *res;
-  if (getaddrinfo (ip, port, &hints, &res) != 0)
-    die ("getaddrinfo");
-  EXPECT_TRUE (res != nullptr);
-
-  if (sendto (cb.sock, req.data (), req.size (), 0, res->ai_addr, res->ai_addrlen) == -1)
-    die ("sendto");
+  cb.nonces.randomise ();
+  LOG (INFO) << "First nonce: " << cb.nonces.next ();
 
   LOG (INFO) << "Starting event loop";
   ev::get_default_loop ().run ();

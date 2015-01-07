@@ -10,7 +10,7 @@ using namespace tox;
 
 TEST (Packet, Plain) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     uint8_t,
     uint8_t
   >;
@@ -33,7 +33,7 @@ TEST (Packet, Plain) {
 
 TEST (Packet, PlainNonceLast) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     uint8_t,
     Nonce
   >;
@@ -58,7 +58,7 @@ TEST (Packet, PlainNonceLast) {
 
 TEST (Packet, PlainNonceFirst) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     Nonce,
     uint8_t
   >;
@@ -83,7 +83,7 @@ TEST (Packet, PlainNonceFirst) {
 
 TEST (Packet, Simple) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     uint8_t,
     Nonce,
     encrypted<
@@ -114,7 +114,7 @@ TEST (Packet, Simple) {
 
 TEST (Packet, NoncePacket) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     uint8_t,
     Nonce,
     encrypted<
@@ -147,7 +147,7 @@ TEST (Packet, NoncePacket) {
 
 TEST (Packet, Bitfield) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     Nonce,
     uint8_t,
     encrypted<
@@ -181,7 +181,7 @@ TEST (Packet, Bitfield) {
 #if 0
 TEST (Packet, Repeated) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     Nonce,
     encrypted<
       repeated<uint8_t, uint8_t>
@@ -212,7 +212,7 @@ TEST (Packet, Repeated) {
 
 TEST (Packet, RepeatedTuple) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     Nonce,
     encrypted<
       repeated<uint8_t, uint8_t, uint8_t>
@@ -244,7 +244,7 @@ TEST (Packet, RepeatedTuple) {
 
 TEST (Packet, Choice) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     Nonce,
     encrypted<
       choice<
@@ -312,7 +312,7 @@ TEST (Packet, Choice) {
 
 TEST (Packet, PlainChoice) {
   using Format = PacketFormat<
-    PacketKind::PingResponse,
+    PacketKind::EchoResponse,
     choice<
       PacketFormatTag<
         uint8_t,

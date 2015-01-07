@@ -11,8 +11,8 @@ namespace tox
   enum class PacketKind
     : byte
   {
-    PingRequest         = 0x00,
-    PingResponse        = 0x01,
+    EchoRequest         = 0x00,
+    EchoResponse        = 0x01,
 
     NodesRequest        = 0x02,
     NodesResponse       = 0x04,
@@ -28,8 +28,11 @@ namespace tox
   };
 
 
-  CipherText &operator << (CipherText &packet, PacketKind kind);
-  BitStream<CipherText> operator >> (BitStream<CipherText> const &packet, PacketKind &kind);
+  template<typename MessageFormat>
+  MessageFormat &operator << (MessageFormat &packet, PacketKind kind);
+
+  template<typename MessageFormat>
+  BitStream<MessageFormat> operator >> (BitStream<MessageFormat> const &packet, PacketKind &kind);
 
 
   template<PacketKind Kind, typename ...Contents>
