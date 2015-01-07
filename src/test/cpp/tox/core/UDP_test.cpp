@@ -325,12 +325,12 @@ void HandleNodesResponse::done ()
 
 
 TEST (UDP, NodesRequest) {
-#if 0
+#if 1
   char const *key = "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F";
   char const *ip = "144.76.60.215";
   char const *port = "33445";
 #endif
-#if 1
+#if 0
   char const *key = "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67";
   char const *ip = "192.210.149.121";
   char const *port = "33445";

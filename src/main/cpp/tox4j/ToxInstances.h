@@ -15,15 +15,6 @@
 #include <functional>
 
 
-void assert_failure(char const *cond, char const *file, int line, char const *func);
-
-#undef assert
-#define assert(cond) do {                                               \
-    if (!(cond)) {                                                      \
-        assert_failure(#cond, __FILE__, __LINE__, __PRETTY_FUNCTION__); \
-    }                                                                   \
-} while (0)
-
 struct scope_guard
 {
     scope_guard(std::function<void()> enter)

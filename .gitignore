@@ -1,4 +1,4 @@
-# SBT compiled build system
+# SBT compiled build system.
 /project/project
 /project/target
 
@@ -8,15 +8,18 @@
 # IDEA output directory.
 /classes
 
-# Local build files for protobuf. Don't put these in git
+# Local build files for protobuf. Don't put these in git.
 /generated
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+# Local user settings for SBT.
+/local.sbt
 
-# IDEA meta files
+# IDEA meta files.
 /.idea
 *.iml
 
-# VIM temporary files
+# VIM temporary files.
 *.swp
+
+# Virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*

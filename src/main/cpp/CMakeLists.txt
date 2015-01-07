@@ -31,7 +31,7 @@ else()
 	endif()
 endif()
 
-# Depending on whether we need jni_md.h or not, define the include directories
+# Depending on whether we need jni_md.h or not, define the include directories.
 include_directories("${JAVA_INCLUDE_PATH}")
 if(DEFINED JAVA_INCLUDE_PATH2)
 	include_directories("${JAVA_INCLUDE_PATH2}")

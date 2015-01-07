@@ -1,0 +1,11 @@
+import Jni.Keys._
+
+val codeRoot = file(System.getenv("HOME")) / "code/git"
+
+// Host build:
+pkgConfigPath += codeRoot / "_install/lib/pkgconfig"
+
+// Android build:
+//val toolchain = codeRoot / "android/arm-linux-androideabi"
+//toolchainPath := Some(toolchain)
+//pkgConfigPath += toolchain / "sysroot/usr/lib/pkgconfig"

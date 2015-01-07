@@ -2,7 +2,19 @@
 
 #include "types.h"
 
-#include <glog/logging.h>
+#ifdef HAVE_GLOG
+#  include <glog/logging.h>
+#else
+#  include <ostream>
+
+struct null_ostream
+  : std::ostream
+{
+};
+
+#define LOG(LEVEL) (null_ostream ())
+#define LOG_ASSERT(cond) assert (cond)
+#endif
 
 namespace tox
 {
