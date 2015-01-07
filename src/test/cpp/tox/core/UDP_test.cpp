@@ -28,8 +28,8 @@ die (char const *func)
 struct HandleNodeResponse
   : PacketHandler<HandleNodeResponse, NodesResponseFormat>
 {
-  Partial<void> handle (PublicKey key,
-                        Nonce nonce,
+  Partial<void> handle (PublicKey const &key,
+                        Nonce const &nonce,
                         std::vector<
                           std::tuple<
                             variant<

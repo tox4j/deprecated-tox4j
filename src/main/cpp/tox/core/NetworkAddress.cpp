@@ -1,4 +1,4 @@
-#include "Network.h"
+#include "NetworkAddress.h"
 #include "Logging.h"
 
 #include <sys/types.h>
