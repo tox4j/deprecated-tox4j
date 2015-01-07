@@ -108,10 +108,10 @@ namespace lwt
     bool ok () const { return this->value_.template is<success_type> (); }
 
 
-    Failure code () const
+    failure_type code () const
     {
       return this->value_.match (
-        [] (success_type const &/*success*/) -> Failure
+        [] (success_type const &/*success*/) -> failure_type
         { assert (!"Requested error code from success value"); },
 
         [] (failure_type const &failure) { return failure; }
@@ -146,11 +146,11 @@ namespace lwt
 
 
     template<typename MapF>
-    partial<typename std::result_of<MapF (success_type)>::type, Failure, Traits>
+    partial<typename std::result_of<MapF (success_type)>::type, failure_type, Traits>
     map (MapF const &func)
     {
       return bind ([&](success_type const &success) {
-        return partial<typename std::result_of<MapF (success_type)>::type, Failure, Traits> (func (success));
+        return partial<typename std::result_of<MapF (success_type)>::type, failure_type, Traits> (func (success));
       });
     }
 
