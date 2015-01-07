@@ -12,11 +12,6 @@
 #include "Partial.h"
 #include "lwt/tuple_util.h"
 
-#if defined(__GNUC__)
-#  define DEPRECATED(message) __attribute__ ((__deprecated__ (message)))
-#else
-#  define DEPRECATED(message)
-#endif
 
 namespace tox
 {
@@ -47,16 +42,16 @@ namespace tox
     bool operator != (crypto_byte_array const &rhs) const
     { return !(*this == rhs); }
 
-    DEPRECATED ("Lexicographical comparison of crypto_byte_array is not supported")
+    [[deprecated ("Lexicographical comparison of crypto_byte_array is not supported")]]
     bool operator <  (crypto_byte_array const &rhs) const;
 
-    DEPRECATED ("Lexicographical comparison of crypto_byte_array is not supported")
+    [[deprecated ("Lexicographical comparison of crypto_byte_array is not supported")]]
     bool operator >  (crypto_byte_array const &rhs) const;
 
-    DEPRECATED ("Lexicographical comparison of crypto_byte_array is not supported")
+    [[deprecated ("Lexicographical comparison of crypto_byte_array is not supported")]]
     bool operator <= (crypto_byte_array const &rhs) const;
 
-    DEPRECATED ("Lexicographical comparison of crypto_byte_array is not supported")
+    [[deprecated ("Lexicographical comparison of crypto_byte_array is not supported")]]
     bool operator >= (crypto_byte_array const &rhs) const;
   };
 
