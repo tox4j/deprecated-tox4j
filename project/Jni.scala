@@ -272,8 +272,8 @@ object Jni extends Plugin {
     ccOptions := Nil,
     ldOptions := Nil,
 
-    // Build with 4 parallel tasks by default.
-    makeFlags := Seq("-j4"),
+    // Build with parallel tasks by default.
+    makeFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
 
     // Shared library flags.
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fPIC")),
