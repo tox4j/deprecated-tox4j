@@ -277,7 +277,6 @@ object Jni extends Plugin {
 
     // Shared library flags.
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fPIC")),
-    ldOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-shared")),
 
     // Check for some C++11 support.
     ccOptions ++= checkCcOptions(nativeCXX.value, "auto f = []{};",
