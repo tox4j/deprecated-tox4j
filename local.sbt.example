@@ -6,6 +6,7 @@ val codeRoot = file(System.getenv("HOME")) / "code/git"
 pkgConfigPath += codeRoot / "_install/lib/pkgconfig"
 
 // Android build:
-//val toolchain = codeRoot / "android/arm-linux-androideabi"
-//toolchainPath := Some(toolchain)
-//pkgConfigPath += toolchain / "sysroot/usr/lib/pkgconfig"
+//toolchainPath := Some(baseDirectory.value / "android/arm-linux-androideabi")
+//pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get
+//jniSourceFiles in Compile += file(System.getenv("HOME")) /
+//  "usr/android-ndk/sources/android/cpufeatures/cpu-features.c"
