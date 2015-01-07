@@ -80,9 +80,23 @@ union variant_storage<Tag, Head, Tail...>
     : tail (value)
   { }
 
+  explicit variant_storage (Head &&head)
+    : head { index, std::move (head) }
+  { }
+
   explicit variant_storage (Head const &head)
     : head { index, head }
   { }
+
+  template<typename T>
+  variant_storage &operator = (T &&value)
+  {
+    // Destroy self.
+    this->~variant_storage ();
+    // Renew self.
+    new (static_cast<void *> (this)) variant_storage (std::move (value));
+    return *this;
+  }
 
   template<typename T>
   variant_storage &operator = (T const &value)
@@ -125,6 +139,15 @@ union variant_storage<Tag, Head, Tail...>
       tail.~tail_type ();
   }
 
+  template<typename T>
+  bool is () const
+  {
+    if (head.tag == index && std::is_same<T, Head>::value)
+      return true;
+    else
+      return tail.template is<T> ();
+  }
+
   bool empty () const
   {
     return head.tag == invalid_index;
@@ -138,9 +161,23 @@ union variant_storage<Tag, Head, Tail...>
 
   template<typename Visitor, typename ...Args>
   typename std::result_of<Visitor (Head, Args...)>::type
+  move (Visitor const &v, Args const &...args)
+  {
+    return dispatch_move<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
+  }
+
+  template<typename Visitor, typename ...Args>
+  typename std::result_of<Visitor (Head, Args...)>::type
+  observe (Visitor const &v, Args const &...args) const
+  {
+    return dispatch_observe<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
+  }
+
+  template<typename Visitor, typename ...Args>
+  typename std::result_of<Visitor (Head, Args...)>::type
   operator () (Visitor const &v, Args const &...args) const
   {
-    return dispatch<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
+    return dispatch_observe<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
   }
 
 private:
@@ -149,7 +186,7 @@ private:
   {
     Result operator >>= (visitor<Result> const &v) const
     {
-      return variant_.dispatch<Result> (v);
+      return variant_.dispatch_observe<Result> (v);
     }
 
     variant_storage const &variant_;
@@ -170,7 +207,7 @@ public:
   template<typename Result>
   Result visit (visitor<Result> const &v) const
   {
-    return dispatch<Result> (v);
+    return dispatch_observe<Result> (v);
   }
 
   void visit (visitor<void> const &v) const
@@ -180,12 +217,21 @@ public:
 
 private:
   template<typename Result, typename Visitor, typename ...Args>
-  Result dispatch (Visitor const &v, Args const &...args) const
+  Result dispatch_move (Visitor const &v, Args const &...args)
+  {
+    if (head.tag == index)
+      return v (std::move (head.value), args...);
+    else
+      return tail.template dispatch_move<Result> (v, args...);
+  }
+
+  template<typename Result, typename Visitor, typename ...Args>
+  Result dispatch_observe (Visitor const &v, Args const &...args) const
   {
     if (head.tag == index)
       return v (head.value, args...);
     else
-      return tail.template dispatch<Result> (v, args...);
+      return tail.template dispatch_observe<Result> (v, args...);
   }
 };
 
@@ -202,8 +248,16 @@ private:
                    "Attempted to instantiate variant with incorrect type"); }
 
   template<typename Result, typename Visitor, typename ...Args>
-  Result dispatch (Visitor const &, Args const &...) const
+  Result dispatch_move (Visitor const &, Args const &...) const
   { assert (!"Attempted to visit empty variant"); }
+
+  template<typename Result, typename Visitor, typename ...Args>
+  Result dispatch_observe (Visitor const &, Args const &...) const
+  { assert (!"Attempted to visit empty variant"); }
+
+  template<typename T>
+  bool is () const
+  { return false; }
 };
 
 

@@ -5,8 +5,7 @@
 #include "tox/core/Message.h"
 #include "tox/core/Nonce.h"
 
-#include "tox/core/tuple_util.h"
-#include "tox/core/variant.h"
+#include "lwt/variant.h"
 
 #include "Format.h"
 #include "arguments.h"

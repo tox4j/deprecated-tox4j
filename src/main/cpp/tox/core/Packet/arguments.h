@@ -1,7 +1,6 @@
 #pragma once
 
-#include "tox/core/tuple_util.h"
-#include "tox/core/variant.h"
+#include "lwt/variant.h"
 #include "Format.h"
 
 #include <tuple>

@@ -6,7 +6,7 @@ using namespace tox;
 
 
 TEST (Partial, String) {
-  Partial<std::string> result = success ("hello");
+  Partial<std::string> result = success (+"hello");
   
   EXPECT_TRUE (result.ok ());
   result ->* [](std::string const &value) {
@@ -17,7 +17,7 @@ TEST (Partial, String) {
 
 
 TEST (Partial, Copy) {
-  Partial<std::string> result1 = success ("hello");
+  Partial<std::string> result1 = success (+"hello");
   Partial<std::string> result2 = result1;
   
   EXPECT_TRUE (result1.ok ());
@@ -35,7 +35,7 @@ TEST (Partial, Copy) {
 
 
 TEST (Partial, Move) {
-  Partial<std::string> result1 = success ("hello");
+  Partial<std::string> result1 = success (+"hello");
   Partial<std::string> result2 = std::move (result1);
   
   EXPECT_TRUE (result1.ok ());

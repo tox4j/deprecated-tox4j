@@ -10,7 +10,7 @@
 #include <type_traits>
 
 #include "Partial.h"
-#include "tuple_util.h"
+#include "lwt/tuple_util.h"
 
 #if defined(__GNUC__)
 #  define DEPRECATED(message) __attribute__ ((__deprecated__ (message)))

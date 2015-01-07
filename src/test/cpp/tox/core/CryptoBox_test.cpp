@@ -36,7 +36,7 @@ TEST (CryptoBox, EmptyString) {
   std::fill (nonce.begin (), nonce.end (), 0);
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText (""), nonce), nonce);
-  EXPECT_EQ (Status::OK, result.code ());
+  EXPECT_TRUE (result.ok ());
   result ->* [&](PlainText text) {
     EXPECT_EQ ("", str (text));
     return success ();
@@ -56,7 +56,7 @@ TEST (CryptoBox, LongString) {
   randombytes_buf (original.data (), original.size ());
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText (original), nonce), nonce);
-  EXPECT_EQ (Status::OK, result.code ());
+  EXPECT_TRUE (result.ok ());
   result ->* [&](PlainText text) {
     EXPECT_EQ (std::string (original.begin (), original.end ()), str (text));
     return success ();
@@ -75,7 +75,7 @@ TEST (CryptoBox, LongString0) {
   byte_vector original (10 * 1024 * 1024);
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText (original), nonce), nonce);
-  EXPECT_EQ (Status::OK, result.code ());
+  EXPECT_TRUE (result.ok ());
   result ->* [&](PlainText text) {
     EXPECT_EQ (std::string (original.begin (), original.end ()), str (text));
     return success ();
@@ -91,7 +91,7 @@ TEST (CryptoBox, EncryptDecrypt) {
   std::fill (nonce.begin (), nonce.end (), 0);
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText ("hello"), nonce), nonce);
-  EXPECT_EQ (Status::OK, result.code ());
+  EXPECT_TRUE (result.ok ());
   result ->* [&](PlainText text) {
     EXPECT_EQ ("hello", str (text));
     return success ();
@@ -107,7 +107,7 @@ TEST (CryptoBox, RandomNonce) {
   std::fill (nonce.begin (), nonce.end (), 0);
 
   Partial<PlainText> result = box.decrypt (box.encrypt (mkPlainText ("hello"), nonce), nonce);
-  EXPECT_EQ (Status::OK, result.code ());
+  EXPECT_TRUE (result.ok ());
   result ->* [&](PlainText text) {
     EXPECT_EQ ("hello", str (text));
     return success ();
