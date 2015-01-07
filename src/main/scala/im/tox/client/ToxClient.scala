@@ -8,13 +8,13 @@ class ToxClient {
 
   private val tox: ToxCore = new ToxCoreImpl(new ToxOptions)
 
-  def getName: String = new String(tox.getName)
-  def setName(name: String) = tox.setName(name.getBytes)
+  def name: String = new String(tox.getName)
+  def name_=(name: String) = tox.setName(name.getBytes)
 
-  def getStatus: ToxStatus = tox.getStatus
-  def setStatus(status: ToxStatus) = tox.setStatus(status)
+  def status: ToxStatus = tox.getStatus
+  def status_=(status: ToxStatus) = tox.setStatus(status)
 
-  def getStatusMessage: String = new String(tox.getStatusMessage)
-  def setStatusMessage(message: String) = tox.setStatusMessage(message.getBytes)
+  def statusMessage: String = new String(tox.getStatusMessage)
+  def statusMessage_=(message: String) = tox.setStatusMessage(message.getBytes)
 
 }
