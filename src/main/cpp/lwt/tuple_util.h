@@ -3,6 +3,11 @@
 #include <tuple>
 
 
+/*******************************************************************************
+ * :: reduce_tuple
+ ******************************************************************************/
+
+
 template<typename T>
 struct reduce_tuple
 {
@@ -14,6 +19,11 @@ struct reduce_tuple<std::tuple<T>>
 {
   typedef T type;
 };
+
+
+/*******************************************************************************
+ * :: make_seq
+ ******************************************************************************/
 
 
 template<std::size_t ...>
@@ -28,6 +38,11 @@ struct make_seq_t<0, S...>
 
 template<std::size_t N>
 using make_seq = typename make_seq_t<N>::type;
+
+
+/*******************************************************************************
+ * :: is_in_tuple
+ ******************************************************************************/
 
 
 template<typename V, typename T>
@@ -49,6 +64,11 @@ struct is_in_tuple<V, std::tuple<>>
 { };
 
 
+/*******************************************************************************
+ * :: tuple_append
+ ******************************************************************************/
+
+
 template<typename Tuple, typename ...Types>
 struct tuple_append;
 
@@ -58,6 +78,11 @@ struct tuple_append<std::tuple<TupleTypes...>, Types...>
   typedef std::tuple<TupleTypes..., Types...> type;
 };
 
+
+
+/*******************************************************************************
+ * :: tuple_types_distinct
+ ******************************************************************************/
 
 
 namespace detail
@@ -103,3 +128,26 @@ template<typename ...Types>
 struct tuple_types_distinct<std::tuple<Types...>>
   : detail::tuple_types_distinct<std::tuple<Types...>, Types...>
 { };
+
+
+/*******************************************************************************
+ * :: common_result_of
+ ******************************************************************************/
+
+
+template<typename Matchers, typename ...Types>
+struct common_result_of;
+
+template<typename ...Matchers, typename ...Types>
+struct common_result_of<std::tuple<Matchers...>, Types...>
+  : std::common_type<
+      typename common_result_of<std::tuple<Matchers>, Types>::type...
+    >
+{
+};
+
+template<typename Matcher, typename Type>
+struct common_result_of<std::tuple<Matcher>, Type>
+  : std::result_of<Matcher (Type)>
+{
+};

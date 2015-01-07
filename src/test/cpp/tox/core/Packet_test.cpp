@@ -288,7 +288,7 @@ TEST (Packet, Choice) {
 
   auto result = packet.decode (box) ->* [&](Nonce nonce, data_type second) {
     EXPECT_EQ (orig_nonce, nonce);
-    second.visit<void> () >>= {
+    second.match (
       [](std::tuple<uint8_t, uint8_t> const &) {
         EXPECT_TRUE (false);
       },
@@ -301,8 +301,8 @@ TEST (Packet, Choice) {
 
       [](std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> const &) {
         EXPECT_TRUE (false);
-      },
-    };
+      }
+    );
     return success ();
   };
 
@@ -348,7 +348,7 @@ TEST (Packet, PlainChoice) {
   std::cout << "\n";
 
   auto result = packet.decode () ->* [&](data_type second) {
-    second.visit<void> () >>= {
+    second.match (
       [](std::tuple<uint8_t, uint8_t> const &a) {
         EXPECT_EQ (4, std::get<0> (a));
         EXPECT_EQ (5, std::get<1> (a));
@@ -360,8 +360,8 @@ TEST (Packet, PlainChoice) {
 
       [](std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> const &) {
         EXPECT_TRUE (false);
-      },
-    };
+      }
+    );
     return success ();
   };
 

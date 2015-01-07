@@ -10,71 +10,38 @@
 #include "tuple_util.h"
 
 
-template<typename Result, typename ...Types>
-struct variant_visitor;
-
-template<typename Result, typename Head, typename ...Tail>
-struct variant_visitor<Result, Head, Tail...>
-  : variant_visitor<Result, Tail...>
-{
-  template<typename HeadFun, typename ...TailFun>
-  variant_visitor (HeadFun const &head_fun, TailFun const &...tail_fun)
-    : variant_visitor<Result, Tail...> (tail_fun...)
-    , head_fun_ (head_fun)
-  {
-  }
-
-  using variant_visitor<Result, Tail...>::operator ();
-  Result operator () (Head const &value) const
-  {
-    return head_fun_ (value);
-  }
-
-private:
-  std::function<Result (Head)> head_fun_;
-};
-
-template<typename Result>
-struct variant_visitor<Result>
-{
-protected:
-  Result operator () () const;
-};
-
-
-template<typename Tag, typename T>
-struct variant_member
-{
-  Tag tag;
-  T value;
-};
-
-template<typename Tag, typename ...Types>
+template<typename TagType, typename ...Types>
 union variant_storage;
 
-template<typename Tag, typename Head, typename ...Tail>
-union variant_storage<Tag, Head, Tail...>
+template<typename TagType, typename Head, typename ...Tail>
+union variant_storage<TagType, Head, Tail...>
 {
+private:
   template<typename, typename ...>
   friend union variant_storage;
 
-  static Tag const index = sizeof... (Tail);
-  static Tag const invalid_index = -1;
+  static TagType const index = sizeof... (Tail);
+  static TagType const invalid_index = -1;
+  static_assert (std::is_unsigned<TagType>::value,
+                 "Tag type must be an unsigned integral type");
   static_assert (static_cast<std::size_t> (index) == sizeof... (Tail) &&
                  index < invalid_index,
                  "Tag type is too small for this variant");
   static_assert (tuple_types_distinct<std::tuple<Head, Tail...>>::value,
                  "Variant members must all be distinct types");
 
-  template<typename Result>
-  using visitor = variant_visitor<Result, Head, Tail...>;
+  struct head_type
+  {
+    TagType tag;
+    Head value;
+  };
 
-  typedef variant_member<Tag, Head> head_type;
-  typedef variant_storage<Tag, Tail...> tail_type;
+  typedef variant_storage<TagType, Tail...> tail_type;
 
   head_type head;
   tail_type tail;
 
+public:
   template<typename T>
   explicit variant_storage (T const &value)
     : tail (value)
@@ -159,100 +126,92 @@ union variant_storage<Tag, Head, Tail...>
     head.tag = invalid_index;
   }
 
-  template<typename Visitor, typename ...Args>
-  typename std::result_of<Visitor (Head, Args...)>::type
-  move (Visitor const &v, Args const &...args)
+  template<typename ...Matchers>
+  typename common_result_of<std::tuple<Matchers...>, Head, Tail...>::type
+  match (Matchers const &...matchers) &&
   {
-    return dispatch_move<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
+    typedef typename common_result_of<std::tuple<Matchers...>, Head, Tail...>::type return_type;
+    return std::move (*this).template dispatch_match<return_type> (matchers...);
+  }
+
+  template<typename ...Matchers>
+  typename common_result_of<std::tuple<Matchers...>, Head, Tail...>::type
+  match (Matchers const &...matchers) const &
+  {
+    typedef typename common_result_of<std::tuple<Matchers...>, Head, Tail...>::type return_type;
+    return dispatch_match<return_type> (matchers...);
   }
 
   template<typename Visitor, typename ...Args>
   typename std::result_of<Visitor (Head, Args...)>::type
-  observe (Visitor const &v, Args const &...args) const
+  visit (Visitor const &v, Args const &...args) &&
   {
-    return dispatch_observe<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
+    return std::move (*this).template dispatch_visit<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
   }
 
   template<typename Visitor, typename ...Args>
   typename std::result_of<Visitor (Head, Args...)>::type
-  operator () (Visitor const &v, Args const &...args) const
+  visit (Visitor const &v, Args const &...args) const &
   {
-    return dispatch_observe<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
+    return dispatch_visit<typename std::result_of<Visitor (Head, Args...)>::type> (v, args...);
   }
 
 private:
-  template<typename Result>
-  struct visitor_accept
+  template<typename Result, typename Matcher, typename ...Matchers>
+  Result dispatch_match (Matcher const &first, Matchers const &...matchers) &&
   {
-    Result operator >>= (visitor<Result> const &v) const
-    {
-      return variant_.dispatch_observe<Result> (v);
-    }
-
-    variant_storage const &variant_;
-  };
-
-public:
-  template<typename Result>
-  visitor_accept<Result> visit () const
-  {
-    return visitor_accept<Result> { *this };
+    if (head.tag == index)
+      return first (std::move (head.value));
+    else
+      return std::move (tail).template dispatch_match<Result> (matchers...);
   }
 
-  visitor_accept<void> visit () const
+  template<typename Result, typename Matcher, typename ...Matchers>
+  Result dispatch_match (Matcher const &first, Matchers const &...matchers) const &
   {
-    return visit<void> ();
+    if (head.tag == index)
+      return first (head.value);
+    else
+      return tail.template dispatch_match<Result> (matchers...);
   }
 
-  template<typename Result>
-  Result visit (visitor<Result> const &v) const
-  {
-    return dispatch_observe<Result> (v);
-  }
-
-  void visit (visitor<void> const &v) const
-  {
-    return visit<void> (v);
-  }
-
-private:
   template<typename Result, typename Visitor, typename ...Args>
-  Result dispatch_move (Visitor const &v, Args const &...args)
+  Result dispatch_visit (Visitor const &v, Args const &...args) &&
   {
     if (head.tag == index)
       return v (std::move (head.value), args...);
     else
-      return tail.template dispatch_move<Result> (v, args...);
+      return tail.template dispatch_visit<Result> (v, args...);
   }
 
   template<typename Result, typename Visitor, typename ...Args>
-  Result dispatch_observe (Visitor const &v, Args const &...args) const
+  Result dispatch_visit (Visitor const &v, Args const &...args) const &
   {
     if (head.tag == index)
       return v (head.value, args...);
     else
-      return tail.template dispatch_observe<Result> (v, args...);
+      return tail.template dispatch_visit<Result> (v, args...);
   }
 };
 
-template<typename Tag>
-union variant_storage<Tag>
+template<typename TagType>
+union variant_storage<TagType>
 {
+private:
   template<typename, typename ...>
   friend union variant_storage;
 
-private:
   template<typename T>
   explicit variant_storage (T const &)
   { static_assert (std::is_void<T>::value,
                    "Attempted to instantiate variant with incorrect type"); }
 
-  template<typename Result, typename Visitor, typename ...Args>
-  Result dispatch_move (Visitor const &, Args const &...) const
-  { assert (!"Attempted to visit empty variant"); }
+  template<typename Result>
+  Result dispatch_match () const
+  { assert (!"Attempted to match on empty variant"); }
 
   template<typename Result, typename Visitor, typename ...Args>
-  Result dispatch_observe (Visitor const &, Args const &...) const
+  Result dispatch_visit (Visitor const &, Args const &...) const
   { assert (!"Attempted to visit empty variant"); }
 
   template<typename T>

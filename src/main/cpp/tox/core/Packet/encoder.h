@@ -156,7 +156,7 @@ namespace tox
       template<typename MessageFormat>
       static void write (Crypto const &...crypto, MessageFormat &packet, variant<Variants...> const &choices, Args const &...args)
       {
-        choices (write_choice<std::tuple<Crypto...>, MessageFormat, choice<Choices...>, Variants...> (packet), crypto...);
+        choices.visit (write_choice<std::tuple<Crypto...>, MessageFormat, choice<Choices...>, Variants...> (packet), crypto...);
         write_packet<std::tuple<Crypto...>, PacketFormatTag<Fmts...>, Args...>::write (crypto..., packet, args...);
       }
     };

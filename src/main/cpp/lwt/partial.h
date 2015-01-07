@@ -52,16 +52,13 @@ namespace lwt
     template<typename RSuccess, typename RFailure>
     static value_type convert (variant<RSuccess, RFailure> &&rhs)
     {
-      struct convert_visitor
-      {
-        value_type operator () (RSuccess &&success) const
-        { return value_type (Traits::convert_success (std::move (success))); }
+      return std::move (rhs).match (
+        [] (RSuccess &&success)
+        { return value_type (Traits::convert_success (std::move (success))); },
 
-        value_type operator () (RFailure failure) const
+        [] (RFailure failure)
         { return value_type (Traits::convert_failure (failure)); }
-      };
-
-      return rhs.move (convert_visitor ());
+      );
     }
 
     partial_t &operator = (partial_t const &rhs) = delete;
@@ -113,16 +110,12 @@ namespace lwt
 
     Failure code () const
     {
-      struct code_visitor
-      {
-        Failure operator () (success_type const &/*success*/) const
-        { assert (!"Requested error code from success value"); }
+      return this->value_.match (
+        [] (success_type const &/*success*/) -> Failure
+        { assert (!"Requested error code from success value"); },
 
-        Failure operator () (failure_type failure) const
-        { return failure; }
-      };
-
-      return this->value_.observe (code_visitor ());
+        [] (failure_type const &failure) { return failure; }
+      );
     }
 
 
@@ -132,18 +125,10 @@ namespace lwt
     {
       typedef typename std::result_of<MapF (success_type)>::type result_type;
 
-      struct bind_visitor
-      {
-        MapF const &func;
-
-        result_type operator () (success_type const &success) const
-        { return func (success); }
-
-        result_type operator () (failure_type failure) const
-        { return result_type (failure); }
-      };
-
-      return this->value_.observe (bind_visitor { func });
+      return this->value_.match (
+        [&] (success_type const &success) { return func (success); },
+        [] (failure_type const &failure) { return result_type (failure); }
+      );
     }
 
 
@@ -153,18 +138,10 @@ namespace lwt
     {
       typedef typename std::result_of<MapF ()>::type result_type;
 
-      struct bind_visitor
-      {
-        MapF const &func;
-
-        result_type operator () (success_type const &/*success*/) const
-        { return func (); }
-
-        result_type operator () (failure_type failure) const
-        { return result_type (failure); }
-      };
-
-      return this->value_.observe (bind_visitor { func });
+      return this->value_.match (
+        [&] (success_type const &/*success*/) { return func (); },
+        [] (failure_type const &failure) { return result_type (failure); }
+      );
     }
 
 

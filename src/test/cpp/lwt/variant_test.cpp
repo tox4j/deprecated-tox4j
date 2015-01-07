@@ -14,7 +14,7 @@ TEST (Variant, Dispatch) {
     char const *operator () (std::string) const { return "std::string"; }
   };
 
-  EXPECT_EQ ("std::string", s1 (v ()));
+  EXPECT_EQ ("std::string", s1.visit (v ()));
 }
 
 
@@ -28,7 +28,7 @@ TEST (Variant, StringValue) {
     std::string operator () (std::string s) const { return s; }
   };
 
-  EXPECT_EQ ("hello", s1 (v ()));
+  EXPECT_EQ ("hello", s1.visit (v ()));
 }
 
 
@@ -44,8 +44,8 @@ TEST (Variant, MoveStringValue) {
     std::string operator () (std::string s) const { return s; }
   };
 
-  EXPECT_EQ ("", s1 (v ()));
-  EXPECT_EQ ("hello", s2 (v ()));
+  EXPECT_EQ ("", s1.visit (v ()));
+  EXPECT_EQ ("hello", s2.visit (v ()));
 }
 
 
@@ -61,8 +61,8 @@ TEST (Variant, Copy) {
     char const *operator () (std::string) const { return "std::string"; }
   };
 
-  EXPECT_EQ ("std::string", s1 (v ()));
-  EXPECT_EQ ("std::string", s2 (v ()));
+  EXPECT_EQ ("std::string", s1.visit (v ()));
+  EXPECT_EQ ("std::string", s2.visit (v ()));
 }
 
 
@@ -78,7 +78,7 @@ TEST (Variant, Move) {
     char const *operator () (std::string) const { return "std::string"; }
   };
 
-  EXPECT_EQ ("std::string", s2 (v ()));
+  EXPECT_EQ ("std::string", s2.visit (v ()));
 }
 
 
@@ -94,18 +94,18 @@ TEST (Variant, MoveInt) {
     char const *operator () (std::string) const { return "std::string"; }
   };
 
-  EXPECT_EQ ("int", s2 (v ()));
+  EXPECT_EQ ("int", s2.visit (v ()));
 }
 
 
 TEST (Variant, Visitor) {
   variant<int, char, std::string> s (3);
 
-  auto result = s.visit<char const *> () >>= {
+  auto result = s.match (
     [] (int) { return "int"; },
     [] (char) { return "char"; },
-    [] (std::string) { return "std::string"; },
-  };
+    [] (std::string) { return "std::string"; }
+  );
 
   EXPECT_EQ ("int", result);
 }
@@ -118,21 +118,21 @@ TEST (Variant, DefaultConstructed) {
 
   s = 3;
 
-  auto result = s.visit<char const *> () >>= {
+  auto result = s.match (
     [] (int) { return "int"; },
     [] (char) { return "char"; },
-    [] (std::string) { return "std::string"; },
-  };
+    [] (std::string) { return "std::string"; }
+  );
 
   EXPECT_EQ ("int", result);
 
   s = std::string ("3");
 
-  result = s.visit<char const *> () >>= {
+  result = s.match (
     [] (int) { return "int"; },
     [] (char) { return "char"; },
-    [] (std::string) { return "std::string"; },
-  };
+    [] (std::string) { return "std::string"; }
+  );
 
   EXPECT_EQ ("std::string", result);
 }

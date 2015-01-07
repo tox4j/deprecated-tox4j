@@ -166,7 +166,7 @@ struct HandleNodesResponse
         auto address   = std::get<0> (node);
         auto port      = std::get<1> (node);
         auto client_id = std::get<2> (node);
-        address.visit () >>= {
+        address.match (
           [](std::tuple<Protocol, IPv4Address> address) {
             LOG (INFO) << "Protocol: " << std::get<0> (address);
             LOG (INFO) << "IPv4: " << std::get<1> (address);
@@ -175,8 +175,8 @@ struct HandleNodesResponse
           [](std::tuple<Protocol, IPv6Address> address) {
             LOG (INFO) << "Protocol: " << std::get<0> (address);
             LOG (INFO) << "IPv6: " << std::get<1> (address);
-          },
-        };
+          }
+        );
         LOG (INFO) << "Port: " << port;
         LOG (INFO) << "Client ID: " << client_id;
       }
