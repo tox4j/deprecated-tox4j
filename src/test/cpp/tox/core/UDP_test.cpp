@@ -195,7 +195,7 @@ struct io_callback
     NODE_RESPONSE,
     ECHO_REQUEST,
     ECHO_RESPONSE,
-  } state;
+  } state = INIT;
 
   PublicKey const requested_id = parse_key ("DA6B2411E6880C6CE25DA59E4163F70C6963108DD61E2C71D725E2F59F4C7B2F");
 
@@ -249,6 +249,7 @@ struct io_callback
                       box,
                       requested_id, 1234);
 
+    LOG (INFO) << "Sending node request";
     if (sendto (sock, req.data (), req.size (), 0, res->ai_addr, res->ai_addrlen) == -1)
       die ("sendto");
   }
@@ -260,6 +261,7 @@ struct io_callback
                      box,
                      1234);
 
+    LOG (INFO) << "Sending echo request";
     if (sendto (sock, req.data (), req.size (), 0, res->ai_addr, res->ai_addrlen) == -1)
       die ("sendto");
   }
