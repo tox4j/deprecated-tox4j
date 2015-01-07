@@ -1,12 +1,35 @@
 import Jni.Keys._
 
-val codeRoot = file(System.getenv("HOME")) / "code/git"
+val dependencyPrefix = file(System.getenv("HOME")) / "code/git/_install"
 
 // Host build:
-pkgConfigPath += codeRoot / "_install/lib/pkgconfig"
+val hostSettings = Seq(
+  pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
+)
 
 // Android build:
-//toolchainPath := Some(baseDirectory.value / "android/arm-linux-androideabi")
-//pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get
-//jniSourceFiles in Compile += file(System.getenv("HOME")) /
-//  "usr/android-ndk/sources/android/cpufeatures/cpu-features.c"
+val androidSettings = Seq(
+  toolchainPath := {
+    val candidates = Seq(
+      baseDirectory.value / "android/arm-linux-androideabi",
+      baseDirectory.value.getParentFile / "android/arm-linux-androideabi"
+    )
+    candidates.find(_.exists)
+  },
+  pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
+  jniSourceFiles in Compile += {
+    println(pkgConfigPath.value)
+    val ndkHome = Option(System.getenv("ANDROID_NDK_HOME"))
+      .map(file)
+      .getOrElse(file(System.getenv("HOME")) / "usr/android-ndk")
+    val cpufeatures = ndkHome / "sources/android/cpufeatures/cpu-features.c"
+    if (!cpufeatures.exists) {
+      sys.error("Could not find cpu-features.c required for Android")
+    }
+    cpufeatures
+  }
+)
+
+// Choose which one to build:
+hostSettings
+//androidSettings
