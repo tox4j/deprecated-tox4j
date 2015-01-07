@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8.7)
 enable_testing()
 
+if (NOT DEFINED CMAKE_MACOSX_RPATH)
+	set(CMAKE_MACOSX_RPATH true)
+endif()
+
 # Non-pkg-config libraries.
 link_libraries(glog)
 

@@ -262,7 +262,7 @@ object Jni extends Plugin {
     ldOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wl,-z,defs")),
 
     // Include directories.
-    ccOptions ++= (includes in jniConfig).value.map("-I" + _),
+    ccOptions ++= (includes in jniConfig).value.map("-I'" + _ + "'"),
     // pkg-config flags.
     ccOptions ++= {
       if (useCMake.value) {
@@ -426,6 +426,32 @@ add_definitions(-DANDROID)""")
               val fileName = nativeTarget.value / "Test.cmake"
               val out = new PrintWriter(fileName)
               try {
+                val gtestDir =
+                  if (file("/usr/src/gtest/src/gtest-all.cc").exists) {
+                    out.println(s"add_library(gtest STATIC /usr/src/gtest/src/gtest-all.cc)")
+                    out.println(s"include_directories(/usr/src/gtest)")
+                    file("/usr/src/gtest")
+                  } else {
+                    val gtestDir = managedNativeSource.value / "gtest"
+                    if (!gtestDir.exists) {
+                      val command = Seq(
+                        "svn", "checkout",
+                        "http://googletest.googlecode.com/svn/trunk/",
+                        gtestDir.getPath
+                      )
+
+                      log.info("Fetching gtest sources")
+                      checkExitCode(command, log)
+                    }
+                    out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
+
+                    gtestDir
+                  }
+
+                out.println(s"include_directories($gtestDir $gtestDir/include)")
+
+                out.println("link_libraries(gtest)")
+
                 out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
                 out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
 

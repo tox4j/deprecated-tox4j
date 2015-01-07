@@ -135,12 +135,30 @@ struct tuple_types_distinct<std::tuple<Types...>>
  ******************************************************************************/
 
 
+template<typename ...Types>
+struct common_type;
+
+template<typename Type1, typename Type2, typename ...Types>
+struct common_type<Type1, Type2, Types...>
+  : common_type<typename common_type<Type1, Type2>::type, Types...>
+{ };
+
+template<typename Type1, typename Type2>
+struct common_type<Type1, Type2>
+  : std::common_type<Type1, Type2>
+{ };
+
+template<>
+struct common_type<void, void>
+{ typedef void type; };
+
+
 template<typename Matchers, typename ...Types>
 struct common_result_of;
 
 template<typename ...Matchers, typename ...Types>
 struct common_result_of<std::tuple<Matchers...>, Types...>
-  : std::common_type<
+  : common_type<
       typename common_result_of<std::tuple<Matchers>, Types>::type...
     >
 {
