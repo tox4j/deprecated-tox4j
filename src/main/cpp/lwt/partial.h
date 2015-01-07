@@ -165,10 +165,10 @@ namespace lwt
 
 
   template<typename Success, typename Failure>
-  partial<typename std::remove_reference<Success>::type, Failure>
+  partial<typename std::decay<Success>::type, Failure>
   success (Success &&v)
   {
-    return partial<typename std::remove_reference<Success>::type, Failure> (std::forward<Success> (v));
+    return partial<typename std::decay<Success>::type, Failure> (std::forward<Success> (v));
   }
 
   template<typename Failure>
@@ -204,25 +204,25 @@ namespace lwt
 }
 
 
-#define DEFINE_PARTIAL_TYPE(Partial, Failure, DefaultFailure)		\
-  template<typename Success>						\
-  using Partial = ::lwt::partial<Success, Failure>;			\
-									\
-  static inline ::lwt::failure_t<Failure>				\
-  failure (Failure v = DefaultFailure)					\
-  {									\
-    return ::lwt::failure_t<Failure> { v };				\
-  }									\
-									\
-  static inline Partial<void>						\
-  success ()								\
-  {									\
-    return ::lwt::success<Failure> ();					\
-  }									\
-									\
-  template<typename Success>						\
-  Partial<typename std::remove_reference<Success>::type>		\
-  success (Success &&v)							\
-  {									\
+#define DEFINE_PARTIAL_TYPE(Partial, Failure, DefaultFailure)           \
+  template<typename Success>                                            \
+  using Partial = ::lwt::partial<Success, Failure>;                     \
+                                                                        \
+  static inline ::lwt::failure_t<Failure>                               \
+  failure (Failure v = DefaultFailure)                                  \
+  {                                                                     \
+    return ::lwt::failure_t<Failure> { v };                             \
+  }                                                                     \
+                                                                        \
+  static inline Partial<void>                                           \
+  success ()                                                            \
+  {                                                                     \
+    return ::lwt::success<Failure> ();                                  \
+  }                                                                     \
+                                                                        \
+  template<typename Success>                                            \
+  Partial<typename std::decay<Success>::type>                           \
+  success (Success &&v)                                                 \
+  {                                                                     \
     return ::lwt::success<Success, Failure> (std::forward<Success> (v));\
   }

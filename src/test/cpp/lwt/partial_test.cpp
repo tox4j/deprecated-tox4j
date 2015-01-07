@@ -32,7 +32,7 @@ TEST (Lwt, Conversion1) {
 
 
 TEST (Lwt, Conversion2) {
-  Partial<std::string> v = success (+"3");
+  Partial<std::string> v = success ("3");
   v ->* [](std::string i) {
     EXPECT_EQ ("3", i);
   };
