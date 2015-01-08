@@ -296,6 +296,9 @@ object Jni extends Plugin {
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wextra")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-pedantic")),
 
+    // Ignore C++14 extension warnings.
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wno-c++1y-extensions")),
+
     // No RTTI and no exceptions.
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-exceptions")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-rtti")),

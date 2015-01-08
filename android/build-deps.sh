@@ -51,7 +51,7 @@ INSTALL() {
   rm -rf $TOOLCHAIN
   "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh"  \
     --ndk-dir="$ANDROID_NDK_HOME"                               \
-    --toolchain=arm-linux-androideabi-4.9                       \
+    --toolchain=arm-linux-androideabi-clang3.4                  \
     --install-dir=$TOOLCHAIN                                    \
     --platform=android-9
 }
