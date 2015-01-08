@@ -9,8 +9,15 @@
 
 namespace lwt
 {
+  template<typename ...Types>
+  struct basic_io;
+
+
   template<typename T>
   using ptr = boost::intrusive_ptr<T>;
+
+  template<typename ...Types>
+  using io = ptr<basic_io<Types...>>;
 
 
   enum class error
@@ -24,6 +31,8 @@ namespace lwt
     friend void intrusive_ptr_add_ref (io_base *io);
     friend void intrusive_ptr_release (io_base *io);
 
+    virtual ptr<io_base> step (bool &done) = 0;
+
   private:
     std::size_t refcount;
   };
@@ -33,11 +42,6 @@ namespace lwt
   struct basic_io
     : io_base
   {
-    template<typename SuccessF, typename FailureF>
-    void eval (SuccessF &&success, FailureF &&failure)
-    {
-    }
-
     template<typename BindF>
     struct bind;
 
@@ -53,7 +57,20 @@ namespace lwt
       : data (values...)
     { }
 
+    template<typename BindF, std::size_t ...S>
+    typename std::result_of<BindF (Types const &...)>::type
+    apply (seq<S...>, BindF const &func) const
+    {
+      return func (std::get<S> (data)...);
+    }
+
   private:
+    ptr<io_base> step (bool &done) override
+    {
+      done = true;
+      return this;
+    }
+
     std::tuple<Types...> data;
   };
 
@@ -62,18 +79,22 @@ namespace lwt
   struct io_waiting
     : basic_io<Types...>
   {
-    io_waiting (BindF &&func, ptr<io_base> const &blocking)
-      : data { func, blocking }
+    io_waiting (BindF const &func, ptr<io_base> const &blocking)
+      : func_ (func)
+      , blocking_ (blocking)
     { }
 
   private:
-    struct waiting
+    ptr<io_base> step (bool &done) override
     {
-      BindF func;
-      ptr<io_base> blocking;
-    };
+      blocking_ = blocking_->step (done);
+      if (done)
+        return func_ (blocking_);
+      return this;
+    }
 
-    waiting data;
+    BindF func_;
+    ptr<io_base> blocking_;
   };
 
 
@@ -85,32 +106,32 @@ namespace lwt
   };
 
 
-  template<typename ...Types>
-  using io = ptr<basic_io<Types...>>;
-
-
   template<typename BindF, typename ...Types>
   typename std::result_of<BindF (Types const &...)>::type
-  operator ->* (io<Types...> const &io, BindF &&func)
+  operator ->* (io<Types...> const &io, BindF const &func)
   {
     typedef typename std::result_of<BindF (Types const &...)>::type::element_type io_type;
-    return ptr<io_type> (new typename io_type::template bind<BindF>::type (std::move (func), io));
+    auto thunk = [io, func] (ptr<io_base> const &result) {
+      return static_cast<io_success<Types...> const &> (*result)
+        .template apply<BindF> (make_seq<sizeof... (Types)> (), func);
+    };
+    return ptr<io_type> (new typename io_type::template bind<decltype (thunk)>::type (thunk, io));
   }
 
 
   template<typename ...Types>
-  io<typename std::remove_reference<Types>::type...>
-  success (Types &&...values)
+  io<Types...>
+  success (Types const &...values)
   {
-    return io<typename std::remove_reference<Types>::type...>
-      (new io_success<typename std::remove_reference<Types>::type...>
-         (std::forward<Types> (values)...));
+    return io<Types...> (new io_success<Types...> (values...));
   }
 
 
-  io<void> unit ();
+  void eval (io<> io);
+
+  io<> unit ();
 
   io<int> open (char const *pathname);
 
-  io<std::vector<uint8_t>> read (int fd, std::size_t count, std::vector<char> &&buffer = std::vector<char> ());
+  io<std::vector<uint8_t>> read (int fd, std::size_t count, std::vector<uint8_t> &&buffer = std::vector<uint8_t> ());
 }
