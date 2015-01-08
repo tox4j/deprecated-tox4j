@@ -24,7 +24,7 @@ TEST (IO, Read) {
     ->* [](std::size_t size) {
       LOG (INFO) << "passed value was " << size;
       EXPECT_EQ (10, size);
-      return lwt::unit ();
+      return lwt::success ();
     };
 
   lwt::eval (result);

@@ -31,13 +31,6 @@ lwt::eval (io<> io)
 }
 
 
-io<>
-lwt::unit ()
-{
-  return new io_success<>;
-}
-
-
 io<int>
 lwt::open (char const *pathname)
 {

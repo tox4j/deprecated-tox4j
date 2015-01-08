@@ -20,7 +20,7 @@ namespace lwt
   using io = ptr<basic_io<Types...>>;
 
 
-  enum class error
+  enum class error_code
   {
     Unknown,
   };
@@ -72,6 +72,25 @@ namespace lwt
     }
 
     std::tuple<Types...> data;
+  };
+
+
+  template<typename ...Types>
+  struct io_failure
+    : basic_io<Types...>
+  {
+    explicit io_failure (error_code error)
+      : data (error)
+    { }
+
+  private:
+    ptr<io_base> step (bool &done) override
+    {
+      done = true;
+      return this;
+    }
+
+    error_code data;
   };
 
 
@@ -128,8 +147,6 @@ namespace lwt
 
 
   void eval (io<> io);
-
-  io<> unit ();
 
   io<int> open (char const *pathname);
 
