@@ -1,4 +1,4 @@
-#include "tox/core/Logging.h"
+#include "lwt/logging.h"
 #include <gtest/gtest.h>
 
 #include "tox/core/EchoRequest.h"

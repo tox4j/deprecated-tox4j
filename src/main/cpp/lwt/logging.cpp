@@ -1,4 +1,4 @@
-#include "Logging.h"
+#include "logging.h"
 
 #include <iostream>
 #include <iomanip>
@@ -8,7 +8,7 @@ using namespace tox;
 
 
 void
-tox::output_hex (std::ostream &os, byte const *data, size_t length)
+tox::output_hex (std::ostream &os, uint8_t const *data, size_t length)
 {
   os << '[';
   for (size_t i = 0; i < length; i++)

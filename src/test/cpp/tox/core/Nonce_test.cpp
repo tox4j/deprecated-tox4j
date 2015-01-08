@@ -1,5 +1,5 @@
 #include "tox/core/Nonce.h"
-#include "tox/core/Logging.h"
+#include "lwt/logging.h"
 #include <gtest/gtest.h>
 
 using namespace tox;

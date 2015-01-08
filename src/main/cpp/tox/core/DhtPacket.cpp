@@ -1,4 +1,4 @@
 #include "DhtPacket.h"
-#include "Logging.h"
+#include "lwt/logging.h"
 
 using namespace tox;

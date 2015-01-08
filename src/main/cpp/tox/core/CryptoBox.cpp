@@ -1,5 +1,5 @@
 #include "CryptoBox.h"
-#include "Logging.h"
+#include "lwt/logging.h"
 
 #include "KeyPair.h"
 #include "Message.h"

@@ -1,5 +1,5 @@
 #include "Message.h"
-#include "Logging.h"
+#include "lwt/logging.h"
 
 #include "IPAddress.h"
 #include "KeyPair.h"

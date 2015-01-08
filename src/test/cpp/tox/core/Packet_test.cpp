@@ -1,5 +1,5 @@
 #include "tox/core/Packet.h"
-#include "tox/core/Logging.h"
+#include "lwt/logging.h"
 #include <gtest/gtest.h>
 
 #include "tox/core/KeyPair.h"

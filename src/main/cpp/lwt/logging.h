@@ -1,6 +1,7 @@
 #pragma once
 
-#include "types.h"
+#include <array>
+#include <vector>
 
 #ifdef HAVE_GLOG
 #  include <glog/logging.h>
@@ -18,12 +19,12 @@ struct null_ostream
 
 namespace tox
 {
-  void output_hex (std::ostream &os, byte const *data, size_t length);
+  void output_hex (std::ostream &os, uint8_t const *data, size_t length);
 
 
   template<std::size_t N>
   std::ostream &
-  operator << (std::ostream &os, byte_array<N> const &array)
+  operator << (std::ostream &os, std::array<uint8_t, N> const &array)
   {
     output_hex (os, array.data (), array.size ());
     return os;
