@@ -3,12 +3,12 @@ import Jni.Keys._
 val dependencyPrefix = file(System.getenv("HOME")) / "code/git/_install"
 
 // Host build:
-val hostSettings = Seq(
+val hostSettings = Seq[Setting[_]](
   pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
 )
 
 // Android build:
-val androidSettings = Seq(
+val androidSettings = Seq[Setting[_]](
   toolchainPath := {
     val candidates = Seq(
       baseDirectory.value / "android/arm-linux-androideabi",
@@ -18,7 +18,6 @@ val androidSettings = Seq(
   },
   pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
   jniSourceFiles in Compile += {
-    println(pkgConfigPath.value)
     val ndkHome = Option(System.getenv("ANDROID_NDK_HOME"))
       .map(file)
       .getOrElse(file(System.getenv("HOME")) / "usr/android-ndk")
