@@ -176,7 +176,7 @@ object Jni extends Plugin {
       }
 
       flags find { flags =>
-        Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath) ++ flags !< nullLog match {
+        Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< nullLog match {
           case 0 => true
           case _ => false
         }
@@ -295,6 +295,7 @@ object Jni extends Plugin {
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wall")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wextra")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-pedantic")),
+    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fcolor-diagnostics")),
 
     // Ignore C++14 extension warnings.
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wno-c++1y-extensions")),
