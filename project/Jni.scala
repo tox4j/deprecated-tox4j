@@ -6,6 +6,12 @@ import java.io.{File, PrintWriter}
 import scala.language.postfixOps
 
 object Jni extends Plugin {
+  object BuildTool {
+    sealed trait T { def command: String }
+    case object Make  extends T { def command = "make"  }
+    case object Ninja extends T { def command = "ninja" }
+  }
+
   object Keys {
 
     // settings
@@ -28,7 +34,9 @@ object Jni extends Plugin {
 
     val ccOptions = settingKey[Seq[String]]("Flags to be passed to the native compiler when compiling")
     val ldOptions = settingKey[Seq[String]]("Flags to be passed to the native compiler when linking")
-    val makeFlags = settingKey[Seq[String]]("Flags to be passed to make(1)")
+
+    val buildTool = settingKey[BuildTool.T]("Build tool to use [make, ninja]")
+    val buildFlags = settingKey[Seq[String]]("Flags to be passed to the build tool")
 
     val jniClasses = settingKey[Seq[String]]("Classes with native methods")
     val jniSourceFiles = settingKey[Seq[File]]("JNI source files")
@@ -273,7 +281,21 @@ object Jni extends Plugin {
     ldOptions := Nil,
 
     // Build with parallel tasks by default.
-    makeFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
+    buildTool := {
+      import BuildTool._
+
+      Seq(Ninja, Make).foldLeft[Option[T]](None) { (found, next) =>
+        found match {
+          case Some(_) => found
+          case None =>
+            Seq(next.command, "--version") !< nullLog match {
+              case 0 => Some(next)
+              case _ => None
+            }
+        }
+      } getOrElse Make
+    },
+    buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
 
     // Shared library flags.
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fPIC")),
@@ -523,7 +545,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
       val cmake = {
         Process(
           Seq(
-            "cmake",
+            "cmake", "-G" + buildTool.value,
             "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
             "-DMAIN_FILE=" + cmakeMainFile.value,
             "-DTEST_FILE=" + cmakeTestFile.value,
@@ -547,7 +569,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
       val buildPath = nativeTarget.value / "_build"
       val mainSources = (jniSourceFiles in Compile).value
 
-      val command = Process(Seq("make") ++ makeFlags.value, buildPath)
+      val command = Process(buildTool.value.command +: buildFlags.value, buildPath)
 
       log.info(s"Compiling ${mainSources.size} C++ sources to ${binPath.value}")
       checkExitCode(command, log)
