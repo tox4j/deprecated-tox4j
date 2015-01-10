@@ -33,15 +33,20 @@ namespace tox
 
   struct formatter
   {
+    formatter &operator = (formatter const &fmt) = delete;
+
+    formatter (formatter &&fmt)
+      : text_ (std::move (fmt.text_))
+    { }
+
     formatter (std::vector<char> &&text)
       : text_ (text)
-    {
-    }
+    { }
 
     friend std::ostream &operator << (std::ostream &os, formatter const &fmt);
 
   private:
-    std::vector<char> text_;
+    std::vector<char> const text_;
   };
 
 
@@ -49,8 +54,7 @@ namespace tox
   formatter
   format (char const (&fmt)[N], Args const &...args)
   {
-    int required = snprintf (nullptr, 0, fmt, args...);
-    std::vector<char> text (required + 1);
+    std::vector<char> text (snprintf (nullptr, 0, fmt, args...) + 1);
     snprintf (text.data (), text.size (), fmt, args...);
 
     return formatter (std::move (text));

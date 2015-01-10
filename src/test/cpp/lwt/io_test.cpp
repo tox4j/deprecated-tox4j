@@ -2,10 +2,12 @@
 #include "lwt/logging.h"
 #include <gtest/gtest.h>
 
-using lwt::io;
+//using lwt::io;
 
 
 TEST (IO, Read) {
+  lwt::io_main ();
+#if 0
   LOG (INFO) << "opening /dev/random";
 
   auto result =
@@ -28,4 +30,5 @@ TEST (IO, Read) {
     };
 
   lwt::eval (result);
+#endif
 }
