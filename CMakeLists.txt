@@ -18,10 +18,14 @@ else()
 	message(STATUS "Did not find glog; logging is disabled")
 endif()
 
+# Global dependencies not from pkg-config.
+link_libraries(ev)
+
 # Include directory for our config.h.
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src/main/cpp)
 
 subdirs(src/main/cpp)
 subdirs(src/test/cpp)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -include cpp14compat.h")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")

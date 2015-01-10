@@ -297,13 +297,10 @@ object Jni extends Plugin {
     },
     buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
 
-    // Shared library flags.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fPIC")),
-
-    // Check for some C++11 support.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "auto f = []{};",
-      Seq("-std=c++11"),
-      Seq("-std=c++0x")
+    // Check for some C++14 support.
+    ccOptions ++= checkCcOptions(nativeCXX.value, "auto f = [](auto i) mutable { return i; };",
+      Seq("-std=c++14"),
+      Seq("-std=c++1y")
     ),
 
     // Debug flags.
