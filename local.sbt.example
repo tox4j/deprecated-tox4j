@@ -3,12 +3,12 @@ import Jni.Keys._
 val dependencyPrefix = file(System.getenv("HOME")) / "code/git/_install"
 
 // Host build:
-val hostSettings = Seq[Setting[_]](
+val hostSettings = Seq(
   pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
 )
 
 // Android build:
-val androidSettings = Seq[Setting[_]](
+val androidSettings = Seq(
   toolchainPath := {
     val candidates = Seq(
       baseDirectory.value / "android/arm-linux-androideabi",
@@ -30,5 +30,9 @@ val androidSettings = Seq[Setting[_]](
 )
 
 // Choose which one to build:
-hostSettings
-//androidSettings
+val ANDROID = false
+
+if (ANDROID)
+  androidSettings
+else
+  hostSettings

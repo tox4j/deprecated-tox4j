@@ -3,5 +3,4 @@
 
 namespace lwt
 {
-  void io_main ();
 }
