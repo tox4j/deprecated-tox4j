@@ -47,11 +47,7 @@ typedef enum TOXAV_ERR_NEW {
   /**
    * Attempted to create a second session for the same Tox instance.
    */
-  TOXAV_ERR_NEW_MULTIPLE,
-  /**
-   * Initialisation of audio or video codecs failed.
-   */
-  TOXAV_ERR_NEW_CODECS
+  TOXAV_ERR_NEW_MULTIPLE
 } TOXAV_ERR_NEW;
 
 /**
