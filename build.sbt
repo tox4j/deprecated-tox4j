@@ -7,11 +7,12 @@ scalaVersion  := "2.11.4"
 // Compile Java code first.
 compileOrder := CompileOrder.JavaThenScala
 
-// Test dependencies
+// Build dependencies
 libraryDependencies ++= Seq(
   "org.json" % "json" % "20131018"
 )
 
+// Test dependencies
 libraryDependencies ++= Seq(
   "com.novocode" % "junit-interface" % "0.11",
   "org.scalatest" %% "scalatest" % "2.2.1",
@@ -19,6 +20,15 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12",
   "org.easetech" % "easytest-core" % "1.3.1"
 ) map (_ % Test)
+
+// IRC bot dependencies
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+  "pircbot" % "pircbot" % "1.5.0",
+  "com.google.guava" % "guava" % "18.0"
+) map (_ % Test)
+
 
 // JNI
 import Jni.Keys._

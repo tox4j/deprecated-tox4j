@@ -583,7 +583,10 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
     ),
 
     // Make shared lib available at runtime. Must be used with forked JVM to work.
-    javaOptions += s"-Djava.library.path=${binPath.value}",
+    javaOptions ++= Seq(
+      s"-Djava.library.path=${binPath.value}",
+      "-Xmx1g"
+    ),
     initialCommands in console := "im.tox.tox4j.JavaLibraryPath.addLibraryPath(\"" + binPath.value + "\")",
     // Required in order to have a separate JVM to set Java options.
     fork := true
