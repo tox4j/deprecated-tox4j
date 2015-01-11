@@ -105,17 +105,17 @@ namespace lwt
   {
 #if 0
     template<typename ...T>
-    static std::string type_name ()
+    static std::string name ()
     {
       char const *func = strchr (__PRETTY_FUNCTION__, '=') + 2;
       return std::string (func, func + strlen (func) - 1);
     }
 #else
     template<typename ...Types>
-    static std::string type_name ()
+    static std::string name ()
     {
       std::string name;
-      lwt::type_name<Types...> (name);
+      type_name<Types...> (name);
       return name;
     }
 #endif
@@ -123,8 +123,7 @@ namespace lwt
     template<typename T>
     static std::size_t make ()
     {
-      names ().push_back (type_name<T> ());
-      names ().push_back (type_name<T> ());
+      names ().push_back (name<T> ());
       return names ().size () - 1;
     }
 

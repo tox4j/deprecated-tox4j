@@ -14,6 +14,21 @@ namespace lwt
   template<typename T>
   struct optional
   {
+    optional ()
+      : initialised_ (false)
+    { }
+
+    optional (optional &&rhs)
+      : initialised_ (rhs.initialised_)
+    {
+      if (initialised_)
+        {
+          new (static_cast<void *> (data_)) T (std::move (rhs.value ()));
+          rhs.value ().~T ();
+          rhs.initialised_ = false;
+        }
+    }
+
     optional &operator = (nullopt_t)
     {
       destroy ();

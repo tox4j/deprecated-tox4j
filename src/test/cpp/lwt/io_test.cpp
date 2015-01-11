@@ -7,6 +7,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -19,8 +20,6 @@
 
 namespace lwt
 {
-
-static std::size_t object_count;
 
 
 template<typename T, typename ...Args>
@@ -43,26 +42,41 @@ enum class io_state
   blocked,
 };
 
+std::ostream &
+operator << (std::ostream &os, io_state state)
+{
+  switch (state)
+    {
+    case io_state::success: return os << "success";
+    case io_state::failure: return os << "failure";
+    case io_state::waiting: return os << "waiting";
+    case io_state::blocked: return os << "blocked";
+    }
+}
+
+struct basic_io_base;
+
 struct basic_io_state
 {
+  static std::size_t object_count;
+
   std::size_t const tag;
-  std::size_t const id;
+  std::size_t const id = object_count++;
 
   typedef boost::intrusive_ptr<basic_io_state> pointer;
+
+  std::string type () const { return types::name (tag); }
 
   basic_io_state (basic_io_state const &) = delete;
   basic_io_state &operator = (basic_io_state const &) = delete;
 
   basic_io_state (std::size_t tag)
     : tag (tag)
-    , id (object_count++)
     , refcount (0)
   { }
 
   virtual ~basic_io_state ()
-  {
-    LOG_ASSERT (blocked.empty ());
-  }
+  { }
 
   friend void intrusive_ptr_add_ref (basic_io_state *p)
   { ++p->refcount; }
@@ -72,17 +86,16 @@ struct basic_io_state
 
   virtual io_state state () const = 0;
 
-  virtual pointer process (int fd) = 0;
+  virtual void process (basic_io_base self, int fd) = 0;
   virtual pointer cancel () = 0;
-  virtual pointer notify (pointer success) = 0;
+  virtual void notify (basic_io_base self, basic_io_base success) = 0;
 
   struct cancelled { };
 
   std::size_t refcount;
-
-  // Actions that are blocked by this IO.
-  std::vector<pointer> blocked;
 };
+
+std::size_t basic_io_state::object_count;
 
 
 namespace states
@@ -93,47 +106,143 @@ namespace states
   template<typename Failure>
   struct failure_t;
 
-  template<typename Failure, typename Callback, typename Success = typename std::result_of<Callback (int)>::type>
+  template<typename Failure, typename Callback,
+           typename Success = typename std::result_of<Callback (int)>::type>
   struct waiting_t;
 
-  template<typename ...Callbacks>
+  template<typename IO, typename ...Callbacks>
   struct blocked_t;
 }
 
 
 struct basic_io_base
 {
+  static std::size_t object_count;
+
   explicit basic_io_base (basic_io_state::pointer io)
-    : io (io)
-  { LOG_ASSERT (io != nullptr); }
+    : state_ (make_ptr<data> (io))
+  {
+    LOG_ASSERT (io != nullptr);
+    LOG (INFO) << *this << "Creating io_base in state " << io->state ();
+  }
+
+  std::size_t id () const { return state_->io->id; }
+  io_state state () const { return state_->io->state (); }
+
+  void add_blocked_by (basic_io_base io)
+  {
+    assert (!is_blocked_by (io));
+    state_->blocked.push_back (io);
+  }
+
+  bool is_blocked () const
+  { return !state_->blocked.empty (); }
+
+  void transition (basic_io_base new_state)
+  {
+    LOG_ASSERT (new_state != *this);
+
+    LOG (INFO) << *this << "Transitioned from "
+               << state () << " [" << id () << "] to " << new_state.state ()
+               << " [" << new_state.id () << "]";
+    state_->io = new_state.state_->io;
+
+    LOG (INFO) << *this << "Moving "
+               << new_state.state_->blocked.size ()
+               << " blocked states to this";
+
+    while (!new_state.state_->blocked.empty ())
+      {
+        state_->blocked.push_back (std::move (new_state.state_->blocked.back ()));
+        new_state.state_->blocked.pop_back ();
+      }
+    LOG (INFO) << *this << "Now contains " << state_->blocked.size () << " blocked states";
+  }
+
 
   void process (int fd)
   {
-    LOG (INFO) << "[" << io->id << "] Processing event on " << fd;
-    io = io->process (fd);
+    LOG (INFO) << *this << "Processing event on " << fd;
+    state_->io->process (*this, fd);
     notify ();
   }
 
   void cancel ()
   {
-    LOG (INFO) << "[" << io->id << "] Cancelled";
-    io = io->cancel ();
+    LOG (INFO) << *this << "Cancelled";
+    //transition (state_->io->cancel ());
     notify ();
+    assert (false);
   }
 
   void notify ()
   {
-    while (!this->io->blocked.empty ())
+    LOG_ASSERT (state () == io_state::success);
+
+    std::size_t const count = state_->blocked.size ();
+    while (!state_->blocked.empty ())
       {
-        LOG (INFO) << "[" << io->id << "] Notifying " << this->io->blocked.size () << " blocked IOs";
-        auto &io = this->io->blocked.back ();
-        io = io->notify (this->io);
-        this->io->blocked.pop_back ();
+        LOG (INFO) << *this << "Notifying "
+                   << (count - state_->blocked.size () + 1) << "/" << count
+                   << " blocked IOs";
+        basic_io_base blocked = state_->blocked.back ();
+        blocked.state_->io->notify (blocked, *this);
+
+        state_->blocked.pop_back ();
       }
+    if (count != 0)
+      LOG (INFO) << *this << "Done notifying";
   }
 
-  basic_io_state::pointer io;
+  basic_io_state::pointer get () const
+  {
+    return state_->io;
+  }
+
+  friend std::ostream &operator << (std::ostream &os, basic_io_base const &io)
+  { return os << "[" << io.state_->id << "/" << io.id () << "] "; }
+
+  friend bool operator == (basic_io_base const &lhs, basic_io_base const &rhs)
+  { return lhs.state_ == rhs.state_; }
+
+  friend bool operator != (basic_io_base const &lhs, basic_io_base const &rhs)
+  { return lhs.state_ != rhs.state_; }
+
+protected:
+  bool is_blocked_by (basic_io_base io)
+  {
+    return std::find (state_->blocked.begin (), state_->blocked.end (), io)
+      == state_->blocked.end ();
+  }
+
+  struct data
+  {
+    explicit data (basic_io_state::pointer io)
+      : io (io)
+    { }
+
+    ~data ()
+    {
+      LOG_ASSERT (blocked.empty ());
+    }
+
+    friend void intrusive_ptr_add_ref (data *p)
+    { ++p->refcount; }
+
+    friend void intrusive_ptr_release (data *p)
+    { if (!--p->refcount) delete p; }
+
+    std::size_t const id = object_count++;
+    std::size_t refcount = 0;
+    basic_io_state::pointer io;
+    // Actions that are blocked by this IO.
+    std::vector<basic_io_base> blocked;
+  };
+
+  boost::intrusive_ptr<data> state_;
 };
+
+std::size_t basic_io_base::object_count;
 
 
 template<typename Failure, typename ...Success>
@@ -154,7 +263,7 @@ struct basic_io
   using waiting_type = states::waiting_t<Failure, Callback>;
 
   template<typename ...Callbacks>
-  using blocked_type = states::blocked_t<Callbacks...>;
+  using blocked_type = states::blocked_t<basic_io, Callbacks...>;
 
 
   basic_io (boost::intrusive_ptr<success_type> p)
@@ -189,6 +298,34 @@ private:
 };
 
 
+#if 0
+template<typename Failure, typename Head, typename ...Tail>
+basic_io<Failure, Head, Tail...>
+aggregate (std::vector<basic_io<Failure, Head, Tail...>> const &results)
+{
+  LOG (FATAL) << "Unimplemented aggregation for " << results.size () << " "
+              << types::name<basic_io<Failure, Head, Tail...>> ();
+}
+
+
+/**
+ * Default aggregation for io<>.
+ */
+template<typename Failure>
+basic_io<Failure>
+aggregate (std::vector<basic_io<Failure>> const &results)
+{
+  for (basic_io<Failure> const &result : results)
+    {
+      LOG_ASSERT (result.state () == io_state::success);
+      LOG_ASSERT (!result.is_blocked ());
+    }
+  return results.back ();
+}
+#endif
+
+
+
 template<bool ...Values>
 struct and_type;
 
@@ -219,37 +356,38 @@ struct states::success_t
 
   io_state state () const final { return io_state::success; }
 
-  static_assert (and_type<std::is_same<typename std::remove_reference<Success>::type, Success>::value...>::value,
+  static_assert (and_type<std::is_same<
+                   typename std::remove_reference<Success>::type,
+                   Success
+                 >::value...>::value,
                  "No references allowed in success_t");
 
   explicit success_t (Success const &...values)
     : basic_io_state (TAG)
     , data_ (values...)
   {
-    LOG (INFO) << "[" << this->id << "] New success_t";
+    LOG (INFO) << "[_/" << this->id << "] New success_t";
   }
 
   ~success_t ()
   {
-    LOG (INFO) << "[" << this->id << "] Deleting success_t";
+    LOG (INFO) << "[_/" << this->id << "] Deleting success_t";
   }
 
-  pointer process (int fd) final
+  void process (basic_io_base self, int fd) final
   {
-    LOG (FATAL) << "[" << this->id << "] Processing event in success value: " << fd;
-    return this;
+    LOG (FATAL) << "[_/" << self.id () << "] Processing event in success value: " << fd;
   }
 
   pointer cancel  () final
   {
-    LOG (FATAL) << "[" << this->id << "] Attempted to cancel a success value";
+    LOG (FATAL) << "[_/" << this->id << "] Attempted to cancel a success value";
     return this;
   }
 
-  pointer notify (pointer success) final
+  void notify (basic_io_base self, basic_io_base success) final
   {
-    LOG (FATAL) << "[" << this->id << "] Notifying success value with [" << success->id << "]";
-    return this;
+    LOG (FATAL) << "[_/" << self.id () << "] Notifying success value with [" << success.id () << "]";
   }
 
   template<typename BindF>
@@ -271,7 +409,8 @@ private:
 };
 
 template<typename ...Success>
-std::size_t const states::success_t<Success...>::TAG = types::make<states::success_t<Success...>> ();
+std::size_t const states::success_t<Success...>::TAG
+    = types::make<states::success_t<Success...>> ();
 
 
 template<typename Failure>
@@ -293,12 +432,12 @@ struct states::failure_t
     : basic_io_state (TAG)
     , data_ (failure)
   {
-    LOG (INFO) << "[" << this->id << "] New failure_t";
+    LOG (INFO) << "[_/" << this->id << "] New failure_t";
   }
 
   ~failure_t ()
   {
-    LOG (INFO) << "[" << this->id << "] Deleting failure_t";
+    LOG (INFO) << "[_/" << this->id << "] Deleting failure_t";
   }
 
   explicit failure_t (cancelled failure)
@@ -306,22 +445,20 @@ struct states::failure_t
     , data_ (failure)
   { }
 
-  pointer process (int fd) final
+  void process (basic_io_base self, int fd) final
   {
-    LOG (FATAL) << "[" << this->id << "] Processing event in failure value: " << fd;
-    return this;
+    LOG (FATAL) << "[_/" << self.id () << "] Processing event in failure value: " << fd;
   }
 
   pointer cancel  () final
   {
-    LOG (FATAL) << "[" << this->id << "] Attempted to cancel a failure value";
+    LOG (FATAL) << "[_/" << this->id << "] Attempted to cancel a failure value";
     return this;
   }
 
-  pointer notify (pointer success) final
+  void notify (basic_io_base self, basic_io_base success) final
   {
-    LOG (FATAL) << "[" << this->id << "] Notifying failure value with [" << success->id << "]";
-    return this;
+    LOG (FATAL) << "[_/" << self.id () << "] Notifying failure value with [" << success.id () << "]";
   }
 
 private:
@@ -329,7 +466,8 @@ private:
 };
 
 template<typename Failure>
-std::size_t const states::failure_t<Failure>::TAG = types::make<states::failure_t<Failure>> ();
+std::size_t const states::failure_t<Failure>::TAG
+    = types::make<states::failure_t<Failure>> ();
 
 
 struct basic_io_blocked_state
@@ -341,14 +479,17 @@ struct basic_io_blocked_state
 };
 
 
-template<typename ...Callbacks>
-struct states::blocked_t
+template<typename Failure, typename ...Success, typename ...Callbacks>
+struct states::blocked_t<basic_io<Failure, Success...>, Callbacks...>
   : basic_io_blocked_state
 {
+  typedef basic_io<Failure, Success...> io_type;
+  typedef std::tuple<Callbacks...> callbacks_type;
+
   friend void type_name (std::string &name, blocked_t const &)
   {
     name += "blocked_t<";
-    type_name<Callbacks...> (name);
+    type_name<io_type, Callbacks...> (name);
     name += ">";
   }
 
@@ -356,86 +497,135 @@ struct states::blocked_t
 
   explicit blocked_t (Callbacks ...callbacks)
     : basic_io_blocked_state (TAG)
-    , data_ (callbacks...)
+    , callbacks_ (callbacks...)
   {
-    LOG (INFO) << "[" << this->id << "] New blocked_t";
+    LOG (INFO) << "[_/" << this->id << "] New blocked_t";
   }
 
   ~blocked_t ()
   {
-    LOG (INFO) << "[" << this->id << "] Deleting blocked_t";
+    LOG (INFO) << "[_/" << this->id << "] Deleting blocked_t";
   }
 
-  pointer process (int fd) final
+  void process (basic_io_base self, int fd) final
   {
-    LOG (FATAL) << "[" << this->id << "] Processing event in blocked state: " << fd;
-    return this;
+    LOG (FATAL) << "[_/" << self.id () << "] Processing event in blocked state: " << fd;
   }
 
   pointer cancel  () final
   {
-    LOG (FATAL) << "[" << this->id << "] Attempted to cancel a blocked state";
+    LOG (FATAL) << "[_/" << this->id << "] Attempted to cancel a blocked state";
     return this;
   }
 
-  pointer notify (pointer success) final
+  void notify (basic_io_base self, basic_io_base success) final
   {
-    LOG (INFO) << "[" << this->id << "] blocked_t became unblocked by [" << success->id
-               << "]; calling " << sizeof... (Callbacks) << " callback(s)";
-    LOG_ASSERT (success->state () == io_state::success);
-    std::vector<basic_io_base> results;
-    invoke_all (make_seq<sizeof... (Callbacks)> (), results, success);
-    for (basic_io_base result : results)
+    LOG_ASSERT (this->id == self.id ());
+
+    LOG (INFO) << "[_/" << this->id << "] blocked_t became unblocked by [" << success.id () << "]";
+    switch (success.state ())
       {
-        if (result.io->state () == io_state::failure)
-          {
-            LOG (INFO) << "[" << this->id << "] One callback returned failure: [" << result.io->id << "]";
-            return result.io;
-          }
-        else if (result.io->state () == io_state::success)
-          result.notify ();
+      case io_state::success:
+        LOG (INFO) << "[_/" << this->id << "] calling " << sizeof... (Callbacks) << " callback(s)";
+        break;
+      case io_state::waiting:
+        LOG (INFO) << "[_/" << this->id << "] but it is waiting; adding self to the blocked list of [" << success.id () << "]";
+        success.add_blocked_by (self);
+        return;
+      default:
+        LOG (FATAL) << "Invalid state in blocked_t::notify: " << success.state ();
+        break;
       }
-    LOG (INFO) << "[" << this->id << "] All callbacks were successful; aggregating results";
-    // TODO: aggregation
-    return results.back ().io;
+
+    auto results = invoke_all<sizeof... (Callbacks), std::tuple<>>::invoke (success, callbacks_);
+
+    LOG (INFO) << "[_/" << this->id << "] Aggregating results";
+
+    io_type result = aggregate_results (make_seq<sizeof... (Callbacks)> (), results);
+    LOG_ASSERT (!result.is_blocked ());
+
+    self.transition (result);
+    if (result.state () == io_state::success)
+      self.notify ();
   }
 
 private:
-  template<std::size_t ...S>
-  void invoke_all (seq<S...>, std::vector<basic_io_base> &results, pointer success)
+  template<std::size_t ...S, typename ...Results>
+  static io_type
+  aggregate_results (seq<S...>, std::tuple<Results...> const &results)
   {
-    invoke_all (results, success, std::get<S> (data_)...);
+    return aggregate_results (std::get<S> (results)...);
   }
 
-  static void invoke_all (std::vector<basic_io_base> &/*results*/, pointer /*success*/)
-  { }
 
-  template<typename Head, typename ...Tail>
-  static void invoke_all (std::vector<basic_io_base> &results, pointer success, Head head, Tail ...tail)
+  static io_type
+  aggregate_results (io_type const &io)
   {
-    results.push_back (invoke_one (&Head::operator (), success, head));
-    invoke_all (results, success, tail...);
+    return io;
   }
 
-  template<typename T, typename Result, typename ...Args>
-  static Result invoke_one_helper (pointer success, T func)
+  template<typename R1, typename R2, typename ...Rest>
+  static io_type
+  aggregate_results (R1 const &r1, R2 const &r2, Rest const &...rest)
   {
-    return type_cast<success_t<typename std::decay<Args>::type...> &> (*success) ->* func;
+    return aggregate_results (aggregate (r1, r2), rest...);
   }
 
-  template<typename T, typename Result, typename ...Args>
-  static Result invoke_one (Result (T::*) (Args...), pointer success, T func)
-  { return invoke_one_helper<T, Result, Args...> (success, func); }
 
-  template<typename T, typename Result, typename ...Args>
-  static Result invoke_one (Result (T::*) (Args...) const, pointer success, T func)
-  { return invoke_one_helper<T, Result, Args...> (success, func); }
+  template<std::size_t N, typename Results>
+  struct invoke_all;
 
-  std::tuple<Callbacks...> data_;
+  template<std::size_t N, typename ...Results>
+  struct invoke_all<N, std::tuple<Results...>>
+  {
+    template<typename T, typename ...Args>
+    static io_type invoke_one_helper (basic_io_base success, T func)
+    {
+      return type_cast<success_t<typename std::decay<Args>::type...> &> (*success.get ())
+        ->* func;
+    }
+
+    template<typename T, typename ...Args>
+    static io_type invoke_one (io_type (T::*) (Args...), basic_io_base success, T func)
+    { return invoke_one_helper<T, Args...> (success, func); }
+
+    template<typename T, typename ...Args>
+    static io_type invoke_one (io_type (T::*) (Args...) const, basic_io_base success, T func)
+    { return invoke_one_helper<T, Args...> (success, func); }
+
+
+    static auto invoke (basic_io_base success,
+                        callbacks_type const &callbacks,
+                        Results &&...results)
+    {
+      auto &head = std::get<N - 1> (callbacks);
+      typedef typename std::tuple_element<N - 1, callbacks_type>::type head_type;
+      return invoke_all<N - 1, std::tuple<Results..., io_type>>::
+        invoke (success, callbacks,
+                std::move (results)...,
+                invoke_one (&head_type::operator (), success, head));
+    }
+  };
+
+  template<typename ...Results>
+  struct invoke_all<0, std::tuple<Results...>>
+  {
+    static auto invoke (basic_io_base /*success*/,
+                        callbacks_type const &/*callbacks*/,
+                        Results &&...results)
+    {
+      static_assert (std::tuple_size<callbacks_type>::value == sizeof... (Results),
+                     "Unexpected result tuple size");
+      return std::tuple<Results...> (std::move (results)...);
+    }
+  };
+
+  callbacks_type callbacks_;
 };
 
-template<typename ...Callbacks>
-std::size_t const states::blocked_t<Callbacks...>::TAG = types::make<states::blocked_t<Callbacks...>> ();
+template<typename Failure, typename ...Success, typename ...Callbacks>
+std::size_t const states::blocked_t<basic_io<Failure, Success...>, Callbacks...>::TAG
+    = types::make<states::blocked_t<basic_io<Failure, Success...>, Callbacks...>> ();
 
 
 template<typename Failure, typename ...Success>
@@ -456,14 +646,11 @@ struct basic_io_waiting_state
   { }
 
   io_state state () const final { return io_state::waiting; }
-
-  template<typename BindF>
-  typename std::result_of<BindF (Success...)>::type
-  operator ->* (BindF func);
 };
 
 template<typename Failure, typename ...Success>
-std::size_t const basic_io_waiting_state<Failure, Success...>::TAG = types::make<basic_io_waiting_state<Failure, Success...>> ();
+std::size_t const basic_io_waiting_state<Failure, Success...>::TAG
+    = types::make<basic_io_waiting_state<Failure, Success...>> ();
 
 
 template<typename Failure, typename Callback, typename ...Success>
@@ -476,23 +663,21 @@ struct states::waiting_t<Failure, Callback, basic_io<Failure, Success...>>
   typedef typename std::result_of<Callback (int)>::type io_type;
 
   explicit waiting_t (Callback callback)
-    : data_ (callback)
+    : callback_ (callback)
   {
-    LOG (INFO) << "[" << this->id << "] New waiting_t";
+    LOG (INFO) << "[_/" << this->id << "] New waiting_t";
   }
 
   ~waiting_t ()
   {
-    LOG (INFO) << "[" << this->id << "] Deleting waiting_t";
+    LOG (INFO) << "[_/" << this->id << "] Deleting waiting_t";
   }
 
-  pointer process (int fd) final
+  void process (basic_io_base self, int fd) final
   {
-    LOG (INFO) << "[" << this->id << "] waiting_t became unblocked for fd " << fd;
-    auto io = data_ (fd).io;
-    io->blocked.insert (io->blocked.end (), this->blocked.begin (), this->blocked.end ());
-    this->blocked.clear ();
-    return io;
+    LOG (INFO) << "[_/" << self.id () << "] waiting_t became unblocked for fd " << fd;
+    auto io = callback_ (fd);
+    self.transition (io);
   }
 
   pointer cancel  () final
@@ -500,14 +685,14 @@ struct states::waiting_t<Failure, Callback, basic_io<Failure, Success...>>
     return pointer (make_ptr<states::failure_t<Failure>> (cancelled ()));
   }
 
-  pointer notify (pointer success) final
+  void notify (basic_io_base self, basic_io_base success) final
   {
-    LOG (FATAL) << "[" << this->id << "] Attempted to notify waiting I/O with [" << success->id << "]";
-    return this;
+    LOG (FATAL) << "[_/" << self.id () << "] Attempted to notify waiting I/O with ["
+                << success.id () << "]";
   }
 
 private:
-  Callback data_;
+  Callback callback_;
 };
 
 
@@ -518,44 +703,28 @@ basic_io<Failure, Success...>::operator ->* (BindF func)
 {
   typedef typename std::result_of<BindF (Success...)>::type result_type;
 
-  switch (io->state ())
+  switch (state ())
     {
     case io_state::success:
-      return type_cast<states::success_t<Success...> &> (*io)
+      LOG (INFO) << "[_/" << this->id () << "] State is success; immediately calling next function";
+      return type_cast<states::success_t<Success...> &> (*state_->io)
         ->* func;
     case io_state::failure:
-      return result_type (&type_cast<states::failure_t<Failure> &> (*io));
+      LOG (INFO) << "[_/" << this->id () << "] State is failure; immediately propagating error";
+      return result_type (&type_cast<states::failure_t<Failure> &> (*state_->io));
     case io_state::waiting:
-      return type_cast<basic_io_waiting_state<Failure, Success...> &> (*io)
-        ->* func;
     case io_state::blocked:
       {
         //auto &waiting = type_cast<basic_io_waiting_state<Failure, Success...> &> (*io);
 
-        auto blocked = make_ptr<blocked_type<BindF>> (func);
+        result_type blocked (make_ptr<typename result_type::template blocked_type<BindF>> (func));
 
-        LOG (INFO) << "[" << this->io->id << "] Adding blocked IO: [" << blocked->id << "]";
-        this->io->blocked.push_back (blocked);
+        LOG (INFO) << "[_/" << this->id () << "] Adding blocked IO: [" << blocked.id () << "]";
+        this->state_->blocked.push_back (blocked);
 
         return result_type (blocked);
       }
     }
-}
-
-
-template<typename Failure, typename ...Success>
-template<typename BindF>
-typename std::result_of<BindF (Success...)>::type
-basic_io_waiting_state<Failure, Success...>::operator ->* (BindF func)
-{
-  typedef typename std::result_of<BindF (Success...)>::type result_type;
-
-  auto blocked = make_ptr<typename basic_io<Failure, Success...>::template blocked_type<BindF>> (func);
-
-  LOG (INFO) << "[" << this->id << "] Adding blocked IO: [" << blocked->id << "]";
-  this->blocked.push_back (blocked);
-
-  return result_type (blocked);
 }
 
 
@@ -576,6 +745,7 @@ failure (Error error)
 
 
 
+#if 0
 template<typename ...Blocking>
 //states::blocked_t<Blocking...>
 boost::intrusive_ptr<states::blocked_t<>>
@@ -584,6 +754,7 @@ combine (Blocking .../*blocking*/)
   //return states::blocked_t<Blocking...> (blocking...);
   return make_ptr<states::blocked_t<>> ();
 }
+#endif
 
 
 template<typename Func, typename ...Args>
@@ -634,41 +805,45 @@ using io_blocked = states::blocked_t<Callbacks...>;
 
 struct io_waiting_ref
 {
-  io_waiting_ref (io_waiting_ref const &) = delete;
   io_waiting_ref &operator = (io_waiting_ref const &) = delete;
 
-  io_waiting_ref (int events, basic_io_state::pointer io)
+  io_waiting_ref (io_waiting_ref &&rhs)
+    : io_ (std::move (rhs.io_))
+  {
+    rhs.processed_ = true;
+  }
+
+  io_waiting_ref (int events, basic_io_base io)
     : events (events)
     , io_ (io)
   { }
 
   ~io_waiting_ref ()
   {
-    if (!invoked)
+    if (!processed_)
       io_.cancel ();
   }
 
-  void invoke (int fd)
+  void process (int fd)
   {
+    LOG_ASSERT (!processed_);
     io_.process (fd);
-    invoked = true;
+    processed_ = true;
   }
 
   int events;
 
 private:
+  bool processed_ = false;
   basic_io_base io_;
-  bool invoked = false;
 };
 
 
 struct event_loop
 {
-  std::size_t const id = object_count++;
-
   struct data_type
   {
-    struct ev_loop *raw_loop = ev_loop_new (EVFLAG_AUTO);
+    struct ev_loop *const raw_loop = ev_loop_new (EVFLAG_AUTO);
     std::vector<ev_io> io_watchers;
     std::vector<optional<io_waiting_ref>> io_waiting;
   };
@@ -676,7 +851,7 @@ struct event_loop
   event_loop ()
     : data (new data_type)
   {
-    LOG (INFO) << "[" << id << "] Creating event loop";
+    LOG (INFO) << "Creating event loop";
   }
 
   ~event_loop ()
@@ -689,26 +864,26 @@ struct event_loop
   {
     (void) loop;
     data_type *data = static_cast<data_type *> (w->data);
-    //LOG (INFO) << "[" << id << "] Received I/O event on " << w->fd << " for " << events;
 
-    if (data->io_waiting.size () <= static_cast<std::size_t> (w->fd))
-      // This fd was never waited on, before.
-      return;
+    // This fd was never waited on, before.
+    LOG_ASSERT (data->io_waiting.size () > static_cast<std::size_t> (w->fd));
 
-    optional<io_waiting_ref> &waiting = data->io_waiting[w->fd];
+    optional<io_waiting_ref> waiting = std::move (data->io_waiting[w->fd]);
     if (waiting && waiting->events & events)
       {
-        waiting->invoke (w->fd);
-        data->io_waiting[w->fd] = nullopt_t ();
+        assert (!data->io_waiting[w->fd]);
+        LOG (INFO) << "Received I/O event on " << w->fd << " for " << events;
+        waiting->process (w->fd);
       }
-    ev_io_stop (data->raw_loop, &data->io_watchers[w->fd]);
+    //ev_io_stop (data->raw_loop, &data->io_watchers[w->fd]);
   }
 
   void add_io (int fd)
   {
-    LOG (INFO) << "[" << id << "] Adding I/O watcher for fd " << fd;
+    LOG (INFO) << "Adding I/O watcher for fd " << fd;
 
-    data->io_watchers.resize (fd + 1);
+    if (data->io_watchers.size () <= static_cast<std::size_t> (fd))
+      data->io_watchers.resize (fd + 1);
     ev_io &io = data->io_watchers[fd];
     io.data = data.get ();
     ev_set_cb (&io, io_callback);
@@ -717,7 +892,7 @@ struct event_loop
 
   void remove_io (int fd)
   {
-    LOG (INFO) << "[" << id << "] Removing I/O watcher for fd " << fd;
+    LOG (INFO) << "Removing I/O watcher for fd " << fd;
 
     LOG_ASSERT (data->io_watchers.size () > static_cast<std::size_t> (fd));
     ev_io_stop (data->raw_loop, &data->io_watchers[fd]);
@@ -732,13 +907,16 @@ struct event_loop
   typename std::result_of<Callback (int)>::type
   wait_io (int fd, int events, Callback cb)
   {
-    auto io = make_ptr<io_waiting<Callback>> (cb);
+    typedef typename std::result_of<Callback (int)>::type result_type;
+
+    LOG_ASSERT (data->io_watchers.size () > static_cast<std::size_t> (fd));
+    result_type io = make_ptr<io_waiting<Callback>> (cb);
 
     if (data->io_waiting.size () <= static_cast<std::size_t> (fd))
       data->io_waiting.resize (fd + 1);
 
     if (data->io_waiting[fd])
-      LOG (FATAL) << "Attempted to wait on the same fd twice";
+      LOG (FATAL) << "Attempted to wait on the same fd (" << fd << ") twice at the same time";
 
     data->io_waiting[fd].emplace (events, io);
     ev_io_start (data->raw_loop, &data->io_watchers[fd]);
@@ -751,6 +929,21 @@ struct event_loop
   {
     (void) program;
     ev_run (data->raw_loop);
+    switch (program.state ())
+      {
+      case io_state::success:
+        LOG (INFO) << "Program terminated with success";
+        break;
+      case io_state::failure:
+        LOG (INFO) << "Program terminated with failure";
+        break;
+      case io_state::waiting:
+        LOG (FATAL) << "Program terminated in waiting state";
+        break;
+      case io_state::blocked:
+        LOG (FATAL) << "Program terminated in blocked state";
+        break;
+      }
   }
 
 private:
@@ -770,7 +963,7 @@ static thread_local event_loop default_loop;
 io<int>
 open (char const *pathname)
 {
-  int fd = ::open (pathname, O_NONBLOCK);
+  int fd = ::open (pathname, 0);
   if (fd == -1)
     return failure (SystemError (errno));
 
@@ -793,18 +986,24 @@ close (int fd)
 
 
 io<std::vector<uint8_t>>
-read (int fd, std::size_t count)
+read (int fd, std::size_t count,
+      std::vector<uint8_t> &&buffer = std::vector<uint8_t> (),
+      std::size_t offset = 0)
 {
+  LOG (INFO) << "Registering I/O wait for read() on fd " << fd;
   return default_loop.wait_io (fd, EV_READ,
-    [count] (int fd) mutable
+    [count, offset, buffer = std::move (buffer)] (int fd) mutable
       -> io<std::vector<uint8_t>>
     {
-      std::vector<uint8_t> buffer (count);
-      int result = ::read (fd, buffer.data (), count);
+      LOG (INFO) << "read() became unblocked; reading " << count << " bytes"
+                 << " at offset " << offset;
+      if (buffer.size () <= count + offset)
+        buffer.resize (count + offset);
+      int result = ::read (fd, buffer.data () + offset, count);
       if (result == -1)
         return failure (SystemError (errno));
       LOG_ASSERT (static_cast<std::size_t> (result) <= count);
-      buffer.resize (result);
+      buffer.resize (result + offset);
       return success (buffer);
     });
 }
@@ -836,7 +1035,7 @@ TEST (IO, Read) {
           return success ();
         }
 
-        ->* deferred (read, fd, 10)
+        ->* deferred (read, fd, 10, byte_vec (), 0)
 
         ->* [=] (byte_vec const &buffer2) -> io<> {
           LOG (INFO) << "got buffer 2: " << buffer2.size ();

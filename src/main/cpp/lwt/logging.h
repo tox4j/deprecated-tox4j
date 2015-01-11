@@ -33,13 +33,11 @@ namespace tox
 
   struct formatter
   {
-    formatter &operator = (formatter const &fmt) = delete;
-
     formatter (formatter &&fmt)
       : text_ (std::move (fmt.text_))
     { }
 
-    formatter (std::vector<char> &&text)
+    explicit formatter (std::vector<char> &&text)
       : text_ (text)
     { }
 

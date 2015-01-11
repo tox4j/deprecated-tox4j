@@ -79,6 +79,47 @@ struct tuple_append<std::tuple<TupleTypes...>, Types...>
 };
 
 
+#if 0
+template<std::size_t ...LhsS, std::size_t ...RhsS, typename ...Lhs, typename ...Rhs>
+std::tuple<Lhs..., Rhs...>
+tuple_cat (seq<LhsS...>, seq<RhsS...>, std::tuple<Lhs...> &&lhs, std::tuple<Rhs...> &&rhs)
+{
+  return std::tuple<Lhs..., Rhs...> (std::move (std::get<LhsS> (lhs))...,
+                                     std::move (std::get<RhsS> (rhs))...);
+}
+
+
+template<std::size_t ...LhsS, typename ...Lhs, typename ...Rhs>
+std::tuple<Lhs..., Rhs...>
+tuple_cat (seq<LhsS...>, std::tuple<Lhs...> &&lhs, Rhs &&...rhs)
+{
+  return std::tuple<Lhs..., Rhs...> (std::move (std::get<LhsS> (lhs))...,
+                                     std::move (rhs)...);
+}
+
+
+template<typename ...Lhs, typename ...Rhs>
+std::tuple<Lhs..., Rhs...>
+operator + (std::tuple<Lhs...> &&lhs, std::tuple<Rhs...> &&rhs)
+{
+  return tuple_cat (make_seq<sizeof... (Lhs)> (),
+                    make_seq<sizeof... (Rhs)> (),
+                    std::move (lhs),
+                    std::move (rhs));
+}
+
+
+template<typename ...Lhs, typename Rhs>
+std::tuple<Lhs..., Rhs>
+operator + (std::tuple<Lhs...> &&lhs, Rhs &&rhs)
+{
+  return tuple_cat (make_seq<sizeof... (Lhs)> (),
+                    std::move (lhs),
+                    std::move (rhs));
+}
+#endif
+
+
 
 /*******************************************************************************
  * :: tuple_types_distinct
