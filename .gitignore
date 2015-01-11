@@ -5,6 +5,9 @@
 # SBT output directory.
 /target
 
+# Generated startup scripts for main classes.
+/bin
+
 # IDEA output directory.
 /classes
 

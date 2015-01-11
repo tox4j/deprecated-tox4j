@@ -9,6 +9,7 @@ compileOrder := CompileOrder.JavaThenScala
 
 // Build dependencies
 libraryDependencies ++= Seq(
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "org.json" % "json" % "20131018"
 )
 
