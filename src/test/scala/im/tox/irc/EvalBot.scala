@@ -23,6 +23,8 @@ object EvalBot extends PircBot {
   private val CHANNELS = Map("irc.freenode.net" -> Seq("#tox4j"))
   private val lastCode = new mutable.HashMap[String, String]
 
+  private var running = true
+
   def main(args: Array[String]) = {
     setName(BOT_NAME)
     setVerbose(true)
@@ -49,8 +51,11 @@ object EvalBot extends PircBot {
       channels foreach joinChannel
     }
 
-  override def onDisconnect(): Unit =
-    while (true) {
+  override def onDisconnect(): Unit = {
+    if (!running) {
+      sys.exit(0)
+    }
+    while (running) {
       try {
         tryConnect()
       } catch {
@@ -59,6 +64,7 @@ object EvalBot extends PircBot {
           Thread.sleep(10000)
       }
     }
+  }
 
 
   override def handleLine(line: String): Unit = {
@@ -147,8 +153,11 @@ object EvalBot extends PircBot {
     message match {
       case Cmd(BOT_MSG :: m :: Nil) if ADMINS contains sender =>
         m match {
-          case "quit" => sys.exit(0)
-          case _ => sendMessage(channel, "unknown command: " + m)
+          case "quit" =>
+            running = false
+            quitServer()
+          case _ =>
+            sendMessage(channel, "unknown command: " + m)
         }
 
       case Cmd("!" :: m :: Nil) =>
