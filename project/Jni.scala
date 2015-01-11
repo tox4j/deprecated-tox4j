@@ -8,8 +8,8 @@ import scala.language.postfixOps
 object Jni extends Plugin {
   object BuildTool {
     sealed trait T { def command: String }
-    case object Make  extends T { def command = "make"  }
     case object Ninja extends T { def command = "ninja" }
+    case object Make  extends T { def command = "make"  }
   }
 
   object Keys {
@@ -43,7 +43,7 @@ object Jni extends Plugin {
 
   }
 
-  import Jni.Keys._
+  import Keys._
 
 
   private val jniConfig = config("native")
@@ -69,7 +69,7 @@ object Jni extends Plugin {
 
   }
 
-  import Jni.PrivateKeys._
+  import PrivateKeys._
 
 
   private object nullLog extends AnyRef with ProcessLogger {
