@@ -310,7 +310,7 @@ new_tox_iteration (new_Tox *tox)
     {
       tox->connected = !tox->connected;
       auto cb = tox->callbacks.connection_status;
-      cb.func (tox, tox->connected ? TOX_CONNECTION_TCP4 : TOX_CONNECTION_NONE, cb.user_data);
+      cb.func (tox, tox->connected ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE, cb.user_data);
     }
   // For all active file transfers that we didn't invoke a file_request_chunk
   // event for, do so now.
@@ -685,7 +685,7 @@ new_tox_friend_get_connection_status (new_Tox const *tox, uint32_t friend_number
   int status = tox_get_friend_connection_status (tox->tox, friend_number);
   assert (status != -1);
   if (error) *error = TOX_ERR_FRIEND_QUERY_OK;
-  return status ? TOX_CONNECTION_TCP4 : TOX_CONNECTION_NONE;
+  return status ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE;
 }
 
 void
