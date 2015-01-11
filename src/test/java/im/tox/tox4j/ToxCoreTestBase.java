@@ -227,7 +227,7 @@ public abstract class ToxCoreTestBase {
         try (Socket socket = new Socket(InetAddress.getByName(node().ipv4), node().port)) {
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
-            assumeTrue("An IPv4 network connection can be established", false);
+            assumeTrue("An IPv4 network connection can't be established: " + e.getMessage(), false);
         }
     }
 
@@ -235,7 +235,7 @@ public abstract class ToxCoreTestBase {
         try (Socket socket = new Socket(InetAddress.getByName(node().ipv6), node().port)) {
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
-            assumeTrue("An IPv6 network connection can be established", false);
+            assumeTrue("An IPv6 network connection can't be established: " + e.getMessage(), false);
         }
     }
 
