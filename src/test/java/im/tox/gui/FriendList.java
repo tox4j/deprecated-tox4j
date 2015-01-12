@@ -5,16 +5,20 @@ import im.tox.tox4j.core.enums.ToxStatus;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FriendList extends AbstractListModel<Friend> {
 
     private final ArrayList<Friend> friends = new ArrayList<>();
 
-    public void add(int friendNumber) {
+    public void add(int friendNumber, byte[] clientId) {
         while (friends.size() <= friendNumber) {
             friends.add(null);
         }
-        friends.set(friendNumber, new Friend());
+        Friend oldFriend = friends.get(friendNumber);
+        if (oldFriend == null || !Arrays.equals(oldFriend.getClientId(), clientId)) {
+            friends.set(friendNumber, new Friend(clientId));
+        }
         fireIntervalAdded(this, friendNumber, friendNumber);
     }
 
@@ -52,4 +56,5 @@ public class FriendList extends AbstractListModel<Friend> {
         friends.get(friendNumber).setTyping(isTyping);
         fireContentsChanged(this, friendNumber, friendNumber);
     }
+
 }

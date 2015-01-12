@@ -12,6 +12,11 @@ public class Friend implements Serializable {
     private transient ToxStatus status;
     private String statusMessage;
     private transient boolean typing;
+    private final byte[] clientId;
+
+    public Friend(byte[] clientId) {
+        this.clientId = clientId;
+    }
 
     @Override
     public String toString() {
@@ -57,5 +62,9 @@ public class Friend implements Serializable {
 
     public boolean isTyping() {
         return typing;
+    }
+
+    public byte[] getClientId() {
+        return clientId;
     }
 }
