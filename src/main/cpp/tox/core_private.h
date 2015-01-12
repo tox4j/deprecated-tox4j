@@ -160,7 +160,7 @@ struct new_Tox
     {
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_connection_status;
-      cb.func (self, friendnumber, status ? TOX_CONNECTION_TCP4 : TOX_CONNECTION_NONE, cb.user_data);
+      cb.func (self, friendnumber, status ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE, cb.user_data);
     }
 
     static void file_send_request (Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)

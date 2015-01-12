@@ -3,6 +3,7 @@ package im.tox.gui;
 import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
@@ -22,6 +23,8 @@ import java.util.Date;
 import static im.tox.tox4j.ToxCoreTestBase.parseClientId;
 
 public class ToxGui extends JFrame {
+    private static final int MAX_MESSAGES = 1000;
+
     private JList<String> messages;
     private JTabbedPane tabbedPane1;
     private JButton connectButton;
@@ -59,12 +62,20 @@ public class ToxGui extends JFrame {
         for (Object arg : args) {
             str.append(String.valueOf(arg));
         }
+        if (messageModel.size() > MAX_MESSAGES) {
+            DefaultListModel<String> newModel = new DefaultListModel<>();
+            for (int i = 0; i < messageModel.size() - MAX_MESSAGES / 10; i++) {
+                newModel.addElement(messageModel.get(i + MAX_MESSAGES / 10));
+            }
+            messageModel = newModel;
+            messages.setModel(messageModel);
+        }
         messageModel.addElement(DATE_FORMAT.format(new Date()) + ' ' + str);
         messages.ensureIndexIsVisible(messageModel.size() - 1);
         save();
     }
 
-    private final ToxEventListener toxEvents = new ToxEventListener() {
+    private final ToxEventListener toxEvents = new InvokeLaterToxEventListener(new ToxEventListener() {
         private void addMessage(String method, Object... args) {
             StringBuilder str = new StringBuilder();
             str.append(method);
@@ -114,6 +125,7 @@ public class ToxGui extends JFrame {
         @Override
         public void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus) {
             addMessage("friendConnectionStatus", friendNumber, connectionStatus);
+            friendListModel.setConnectionStatus(friendNumber, connectionStatus);
         }
 
         @Override
@@ -145,23 +157,26 @@ public class ToxGui extends JFrame {
         @Override
         public void friendStatus(int friendNumber, @NotNull ToxStatus status) {
             addMessage("friendStatus", friendNumber, status);
+            friendListModel.setStatus(friendNumber, status);
         }
 
         @Override
         public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             addMessage("friendStatusMessage", friendNumber, new String(message));
+            friendListModel.setStatusMessage(friendNumber, new String(message));
         }
 
         @Override
         public void friendTyping(int friendNumber, boolean isTyping) {
             addMessage("friendTyping", friendNumber, isTyping);
+            friendListModel.setTyping(friendNumber, isTyping);
         }
 
         @Override
         public void readReceipt(int friendNumber, int messageId) {
             addMessage("readReceipt", friendNumber, messageId);
         }
-    };
+    });
 
     private static final class SaveData implements Serializable {
         public final byte[] toxSave;
@@ -177,22 +192,26 @@ public class ToxGui extends JFrame {
 
     private void save() {
         try (ObjectOutputStream saveFile = new ObjectOutputStream(new FileOutputStream("/tmp/toxgui.tox"))) {
-            SaveData saveData = new SaveData(tox.save(), friendListModel, messageModel);
+            SaveData saveData = new SaveData(tox == null ? null : tox.save(), friendListModel, messageModel);
             saveFile.writeObject(saveData);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private byte[] load() {
+    private @Nullable byte[] load() {
         try (ObjectInputStream saveFile = new ObjectInputStream(new FileInputStream("/tmp/toxgui.tox"))) {
             SaveData saveData = (SaveData) saveFile.readObject();
 
-            friendListModel = saveData.friendList;
-            friendList.setModel(friendListModel);
+            if (saveData.friendList != null) {
+                friendListModel = saveData.friendList;
+                friendList.setModel(friendListModel);
+            }
 
-            messageModel = saveData.messages;
-            messages.setModel(messageModel);
+            if (saveData.messages != null) {
+                messageModel = saveData.messages;
+                messages.setModel(messageModel);
+            }
 
             return saveData.toxSave;
         } catch (IOException e) {
@@ -276,7 +295,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxException e) {
                     addMessage("Error creating Tox instance: " + e.getCode());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e.getMessage());
+                    JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
 
@@ -284,6 +303,7 @@ public class ToxGui extends JFrame {
                 eventLoop.interrupt();
                 try {
                     tox.close();
+                    tox = null;
                     eventLoop.join();
                     setConnectSettingsEnabled(true);
                     connectButton.setText("Connect");
@@ -317,7 +337,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxBootstrapException e) {
                     addMessage("Bootstrap failed: ", e.getCode());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e.getMessage());
+                    JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
         });
@@ -338,7 +358,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxFriendAddException e) {
                     addMessage("Add friend failed: ", e.getCode());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e.getMessage());
+                    JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
         });
@@ -360,7 +380,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxSendMessageException e) {
                     addMessage("Send message failed: ", e.getCode());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e.getMessage());
+                    JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
         });

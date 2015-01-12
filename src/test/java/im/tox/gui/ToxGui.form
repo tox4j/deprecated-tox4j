@@ -271,6 +271,7 @@
                         </constraints>
                         <properties>
                           <editable value="false"/>
+                          <text value="Your client ID will show here"/>
                         </properties>
                       </component>
                       <component id="14492" class="javax.swing.JSeparator">
@@ -350,4 +351,17 @@
       </splitpane>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="proxyType">
+      <member id="d22d"/>
+      <member id="d22d"/>
+      <member id="4232f"/>
+      <member id="38572"/>
+    </group>
+    <group name="messageType">
+      <member id="1caf2"/>
+      <member id="1caf2"/>
+      <member id="174c"/>
+    </group>
+  </buttonGroups>
 </form>

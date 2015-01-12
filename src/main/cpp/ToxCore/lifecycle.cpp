@@ -15,10 +15,10 @@ void add_connectionstatus(Message &msg, TOX_CONNECTION connection_status)
     using proto::Socket;
     switch (connection_status) {
         connection_case(NONE);
-        connection_case(UDP4);
-        connection_case(UDP6);
         connection_case(TCP4);
         connection_case(TCP6);
+        connection_case(UDP4);
+        connection_case(UDP6);
     }
 
 #undef connection_case
