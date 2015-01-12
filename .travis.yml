@@ -7,10 +7,19 @@ script:
 install:
    - pwd > $HOME/.pushd
    # Package dependencies.
-   - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler libgtest-dev libgoogle-glog-dev
+   - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler libboost-dev
    - wget https://dl.bintray.com/sbt/debian/sbt-0.13.7.deb
    - sudo dpkg -i sbt-0.13.7.deb
    - protoc --version || true
+   # google-glog
+   - cd $HOME
+   - svn checkout http://google-glog.googlecode.com/svn/trunk/ google-glog
+   - cd google-glog
+   - mkdir _build
+   - cd _build
+   - ../configure --prefix=/usr
+   - make -j4
+   - sudo make install
    # opus
    - cd $HOME
    - git clone --depth=1 git://git.opus-codec.org/opus.git
