@@ -7,9 +7,9 @@ import scala.language.postfixOps
 
 object Jni extends Plugin {
   object BuildTool {
-    sealed trait T { def command: String }
-    case object Ninja extends T { def command = "ninja" }
-    case object Make  extends T { def command = "make"  }
+    sealed trait T { def name: String; def command: String }
+    case object Ninja extends T { def name = "Ninja"; def command = "ninja" }
+    case object Make  extends T { def name = "Unix Makefiles"; def command = "make"  }
   }
 
   object Keys {
@@ -288,9 +288,11 @@ object Jni extends Plugin {
         found match {
           case Some(_) => found
           case None =>
-            Seq(next.command, "--version") !< nullLog match {
-              case 0 => Some(next)
-              case _ => None
+            try {
+              Seq(next.command, "--version") !< nullLog
+              Some(next)
+            } catch {
+              case _: java.io.IOException => None
             }
         }
       } getOrElse Make
@@ -542,7 +544,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
       val cmake = {
         Process(
           Seq(
-            "cmake", "-G" + buildTool.value,
+            "cmake", "-G" + buildTool.value.name,
             "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
             "-DMAIN_FILE=" + cmakeMainFile.value,
             "-DTEST_FILE=" + cmakeTestFile.value,
