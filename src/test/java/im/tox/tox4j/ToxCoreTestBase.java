@@ -202,9 +202,17 @@ public abstract class ToxCoreTestBase {
         return friendNumber;
     }
 
-    private static byte[] parseClientId(@NotNull String id) {
-        byte[] clientId = new byte[ToxConstants.CLIENT_ID_SIZE];
-        for (int i = 0; i < ToxConstants.CLIENT_ID_SIZE; i++) {
+    public static @NotNull String readableClientId(@NotNull byte[] id) {
+        StringBuilder str = new StringBuilder();
+        for (byte b : id) {
+            str.append(String.format("%02X", b));
+        }
+        return str.toString();
+    }
+
+    public static @NotNull byte[] parseClientId(@NotNull String id) {
+        byte[] clientId = new byte[id.length() / 2];
+        for (int i = 0; i < clientId.length; i++) {
             clientId[i] = (byte) (
                 (fromHexDigit(id.charAt(i * 2)) << 4) +
                     (fromHexDigit(id.charAt(i * 2 + 1)))
