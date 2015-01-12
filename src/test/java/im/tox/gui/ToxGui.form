@@ -260,7 +260,7 @@
                           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="Own Client ID"/>
+                          <text value="Tox Address"/>
                         </properties>
                       </component>
                       <component id="15255" class="javax.swing.JTextField" binding="selfClientId">
@@ -271,7 +271,7 @@
                         </constraints>
                         <properties>
                           <editable value="false"/>
-                          <text value="Your client ID will show here"/>
+                          <text value="Your Tox Address will show here"/>
                         </properties>
                       </component>
                       <component id="14492" class="javax.swing.JSeparator">

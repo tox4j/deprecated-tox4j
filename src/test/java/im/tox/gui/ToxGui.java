@@ -16,11 +16,14 @@ import im.tox.tox4j.exceptions.ToxException;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static im.tox.tox4j.ToxCoreTestBase.parseClientId;
+import static im.tox.tox4j.ToxCoreTestBase.readableClientId;
 
 public class ToxGui extends JFrame {
     private static final int MAX_MESSAGES = 1000;
@@ -130,12 +133,12 @@ public class ToxGui extends JFrame {
 
         @Override
         public void friendLosslessPacket(int friendNumber, @NotNull byte[] data) {
-            addMessage("friendLosslessPacket", friendNumber, data);
+            addMessage("friendLosslessPacket", friendNumber, readableClientId(data));
         }
 
         @Override
         public void friendLossyPacket(int friendNumber, @NotNull byte[] data) {
-            addMessage("friendLossyPacket", friendNumber, data);
+            addMessage("friendLossyPacket", friendNumber, readableClientId(data));
         }
 
         @Override
@@ -151,7 +154,7 @@ public class ToxGui extends JFrame {
 
         @Override
         public void friendRequest(@NotNull byte[] clientId, int timeDelta, @NotNull byte[] message) {
-            addMessage("friendRequest", clientId, timeDelta, new String(message));
+            addMessage("friendRequest", readableClientId(clientId), timeDelta, new String(message));
         }
 
         @Override
@@ -273,7 +276,7 @@ public class ToxGui extends JFrame {
                     } else {
                         tox = new ToxCoreImpl(options);
                     }
-                    selfClientId.setText(ToxCoreImplTestBase.readableClientId(tox.getClientId()));
+                    selfClientId.setText(readableClientId(tox.getAddress()));
                     tox.callback(toxEvents);
                     eventLoop = new Thread(new Runnable() {
                         @Override
@@ -354,6 +357,7 @@ public class ToxGui extends JFrame {
                         friendNumber = tox.addFriend(parseClientId(friendId.getText()), friendRequest.getText().getBytes());
                     }
                     friendListModel.add(friendNumber);
+                    addMessage("Added friend number " + friendNumber);
                     save();
                 } catch (ToxFriendAddException e) {
                     addMessage("Add friend failed: ", e.getCode());
@@ -374,13 +378,26 @@ public class ToxGui extends JFrame {
                     }
                     if (messageRadioButton.isSelected()) {
                         tox.sendMessage(friendNumber, messageText.getText().getBytes());
+                        addMessage("Sent message to ", friendNumber + ": " + messageText.getText());
                     } else if (actionRadioButton.isSelected()) {
                         tox.sendAction(friendNumber, messageText.getText().getBytes());
+                        addMessage("Sent action to ", friendNumber + ": " + messageText.getText());
                     }
+                    messageText.setText("");
                 } catch (ToxSendMessageException e) {
                     addMessage("Send message failed: ", e.getCode());
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(ToxGui.this, e);
+                }
+            }
+        });
+
+
+        messageText.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent event) {
+                if (event.getKeyChar() == '\n') {
+                    sendButton.doClick();
                 }
             }
         });
