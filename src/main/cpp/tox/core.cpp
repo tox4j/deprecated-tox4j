@@ -737,6 +737,11 @@ new_tox_send_something (uint32_t tox_send (Tox *tox, int32_t friendnumber, const
       if (error) *error = TOX_ERR_SEND_MESSAGE_EMPTY;
       return 0;
     }
+  if (length > TOX_MAX_MESSAGE_LENGTH)
+    {
+      if (error) *error = TOX_ERR_SEND_MESSAGE_TOO_LONG;
+      return 0;
+    }
   if (!new_tox_friend_exists (tox, friend_number))
     {
       if (error) *error = TOX_ERR_SEND_MESSAGE_FRIEND_NOT_FOUND;
