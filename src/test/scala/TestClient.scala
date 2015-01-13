@@ -25,6 +25,8 @@ object TestClient extends App {
   private def fromHexDigit(c: Char): Byte = {
     if (c >= '0' && c <= '9') {
       (c - '0').toByte
+    } else if (c >= 'a' && c <= 'f') {
+      (c - 'A' + 10).toByte
     } else if (c >= 'A' && c <= 'F') {
       (c - 'A' + 10).toByte
     } else {
