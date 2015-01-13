@@ -12,10 +12,10 @@ public class NetworkTest extends ToxCoreImplTestBase {
 
     private static final int TOX_COUNT = 10;
 
-    private void testBootstrap(String ipv4, int port, byte[] dhtId) throws Exception {
-        try (ToxCore tox = newTox()) {
+    private void testBootstrap(boolean udpEnabled, String ip, int port, byte[] dhtId) throws Exception {
+        try (ToxCore tox = newTox(true, udpEnabled)) {
             long start = System.currentTimeMillis();
-            tox.bootstrap(ipv4, port, dhtId);
+            tox.bootstrap(ip, port, dhtId);
             ConnectedListener status = new ConnectedListener();
             tox.callbackConnectionStatus(status);
             while (!status.isConnected()) {
@@ -32,15 +32,27 @@ public class NetworkTest extends ToxCoreImplTestBase {
     }
 
     @Test(timeout = TIMEOUT)
-    public void testBootstrap4() throws Exception {
+    public void testBootstrap4_UDP() throws Exception {
         assumeIPv4();
-        testBootstrap(node().ipv4, node().port, node().dhtId);
+        testBootstrap(true, node().ipv4, node().port, node().dhtId);
     }
 
     @Test(timeout = TIMEOUT)
-    public void testBootstrap6() throws Exception {
+    public void testBootstrap6_UDP() throws Exception {
         assumeIPv6();
-        testBootstrap(node().ipv6, node().port, node().dhtId);
+        testBootstrap(true, node().ipv6, node().port, node().dhtId);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap4_TCP() throws Exception {
+        assumeIPv4();
+        testBootstrap(false, node().ipv4, node().port, node().dhtId);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap6_TCP() throws Exception {
+        assumeIPv6();
+        testBootstrap(false, node().ipv6, node().port, node().dhtId);
     }
 
     @Test
