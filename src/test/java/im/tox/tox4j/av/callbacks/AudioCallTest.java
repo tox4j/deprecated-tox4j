@@ -102,7 +102,7 @@ public final class AudioCallTest extends AliceBobAvTest {
 
 
     // Selected audio generator for tests.
-    private static final AudioGenerator AUDIO = MortalKombat;
+    private static final AudioGenerator AUDIO = ItCrowd;
 
 
     private static byte[] serialiseAudioFrame(short[] pcm) {
