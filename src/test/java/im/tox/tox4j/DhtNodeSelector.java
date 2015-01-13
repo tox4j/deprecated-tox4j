@@ -16,7 +16,7 @@ import static org.junit.Assume.assumeNotNull;
 public final class DhtNodeSelector {
 
     private static final Logger logger = LoggerFactory.getLogger(DhtNodeSelector.class);
-    private static DhtNode selectedNode = ToxCoreTestBase.nodeCandidates[2];
+    private static DhtNode selectedNode = ToxCoreTestBase.nodeCandidates[1];
 
     @NotNull
     public synchronized DhtNode node(ToxFactory factory) {
