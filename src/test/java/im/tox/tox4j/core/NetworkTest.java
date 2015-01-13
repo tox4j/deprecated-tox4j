@@ -12,10 +12,13 @@ public class NetworkTest extends ToxCoreImplTestBase {
 
     private static final int TOX_COUNT = 10;
 
-    private void testBootstrap(String ipv4, int port, byte[] dhtId) throws Exception {
-        try (ToxCore tox = newTox()) {
+    private void testBootstrap(boolean ipv6Enabled, boolean udpEnabled, String ip, int port, byte[] dhtId) throws Exception {
+        String action = String.format("bootstrap to remote node on %s with %s%d",
+            ip, udpEnabled ? "UDP" : "TCP", ipv6Enabled ? 6 : 4);
+        try (ToxCore tox = newTox(ipv6Enabled, udpEnabled)) {
+            logger.info("Attempting to {}", action);
             long start = System.currentTimeMillis();
-            tox.bootstrap(ipv4, port, dhtId);
+            tox.bootstrap(ip, port, dhtId);
             ConnectedListener status = new ConnectedListener();
             tox.callbackConnectionStatus(status);
             while (!status.isConnected()) {
@@ -27,20 +30,32 @@ public class NetworkTest extends ToxCoreImplTestBase {
                 }
             }
             long end = System.currentTimeMillis();
-            logger.info("Bootstrap to remote bootstrap node took {} ms", end - start);
+            logger.info("Success: {} took {} ms", action, end - start);
         }
     }
 
     @Test(timeout = TIMEOUT)
-    public void testBootstrap4() throws Exception {
+    public void testBootstrap4_UDP() throws Exception {
         assumeIPv4();
-        testBootstrap(node().ipv4, node().port, node().dhtId);
+        testBootstrap(false, true, node().ipv4, node().port, node().dhtId);
     }
 
     @Test(timeout = TIMEOUT)
-    public void testBootstrap6() throws Exception {
+    public void testBootstrap6_UDP() throws Exception {
         assumeIPv6();
-        testBootstrap(node().ipv6, node().port, node().dhtId);
+        testBootstrap(true, true, node().ipv6, node().port, node().dhtId);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap4_TCP() throws Exception {
+        assumeIPv4();
+        testBootstrap(false, false, node().ipv4, node().port, node().dhtId);
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBootstrap6_TCP() throws Exception {
+        assumeIPv6();
+        testBootstrap(true, false, node().ipv6, node().port, node().dhtId);
     }
 
     @Test
@@ -51,6 +66,9 @@ public class NetworkTest extends ToxCoreImplTestBase {
     @Test(timeout = TIMEOUT)
     public void testLANDiscoveryAll() throws Exception {
         try (ToxList toxes = new ToxList(this, TOX_COUNT)) {
+            String action = String.format(
+                "Connecting all of %d toxes with LAN discovery", toxes.size());
+            logger.info(action);
             long start = System.currentTimeMillis();
             // TODO: Generous timeout required for this; should be made more reliable.
             while (!toxes.isAllConnected()) {
@@ -62,13 +80,16 @@ public class NetworkTest extends ToxCoreImplTestBase {
                 }
             }
             long end = System.currentTimeMillis();
-            logger.info("Connecting all of {} toxes with LAN discovery took {} ms", toxes.size(), end - start);
+            logger.info("{} took {} ms", action, end - start);
         }
     }
 
     @Test(timeout = TIMEOUT)
     public void testLANDiscoveryAny() throws Exception {
         try (ToxList toxes = new ToxList(this, TOX_COUNT)) {
+            String action = String.format(
+                "Connecting one of %d toxes with LAN discovery", toxes.size());
+            logger.info(action);
             long start = System.currentTimeMillis();
             while (!toxes.isAnyConnected()) {
                 toxes.iteration();
@@ -79,7 +100,7 @@ public class NetworkTest extends ToxCoreImplTestBase {
                 }
             }
             long end = System.currentTimeMillis();
-            logger.info("Connecting one of {} toxes with LAN discovery took {} ms", toxes.size(), end - start);
+            logger.info("{} took {} ms", action, end - start);
         }
     }
 

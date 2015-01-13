@@ -215,20 +215,20 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected void assumeIPv4() {
-        try (Socket socket = new Socket(InetAddress.getByName(node().ipv4), node().port)) {
+    protected static void assumeConnection(String ip, int port) {
+        try (Socket socket = new Socket(InetAddress.getByName(ip), port)) {
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
-            assumeTrue("An IPv4 network connection can't be established: " + e.getMessage(), false);
+            assumeTrue("A network connection can't be established to " + ip + ':' + port + ": " + e.getMessage(), false);
         }
     }
 
-    protected void assumeIPv6() {
-        try (Socket socket = new Socket(InetAddress.getByName(node().ipv6), node().port)) {
-            assumeNotNull(socket.getInputStream());
-        } catch (IOException e) {
-            assumeTrue("An IPv6 network connection can't be established: " + e.getMessage(), false);
-        }
+    protected static void assumeIPv4() {
+        assumeConnection("8.8.8.8", 53);
+    }
+
+    protected static void assumeIPv6() {
+        assumeConnection("2001:4860:4860::8888", 53);
     }
 
     @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
