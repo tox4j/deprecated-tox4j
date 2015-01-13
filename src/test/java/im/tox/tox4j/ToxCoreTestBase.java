@@ -26,7 +26,7 @@ public abstract class ToxCoreTestBase {
     protected static final int ITERATIONS = 500;
 
     static final DhtNode[] nodeCandidates = {
-        new DhtNode("192.254.75.98", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
+        new DhtNode("192.254.75.102", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
         new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
         new DhtNode("23.226.230.47", "2604:180:1::3ded:b280", 33445, "A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074"),
         new DhtNode("178.62.125.224", "2a03:b0c0:1:d0::178:6001", 33445, "10B20C49ACBD968D7C80F2E8438F92EA51F189F4E70CFBBB2C2C8C799E97F03E"),
@@ -215,7 +215,7 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected void assumeConnection(String ip, int port) {
+    protected static void assumeConnection(String ip, int port) {
         try (Socket socket = new Socket(InetAddress.getByName(ip), port)) {
             assumeNotNull(socket.getInputStream());
         } catch (IOException e) {
@@ -223,12 +223,12 @@ public abstract class ToxCoreTestBase {
         }
     }
 
-    protected void assumeIPv4() {
-        assumeConnection(node().ipv4, node().port);
+    protected static void assumeIPv4() {
+        assumeConnection("8.8.8.8", 53);
     }
 
-    protected void assumeIPv6() {
-        assumeConnection(node().ipv6, node().port);
+    protected static void assumeIPv6() {
+        assumeConnection("2001:4860:4860::8888", 53);
     }
 
     @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
