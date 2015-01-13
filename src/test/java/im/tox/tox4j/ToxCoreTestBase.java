@@ -1,7 +1,6 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ConnectionStatusCallback;
@@ -10,9 +9,6 @@ import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxBootstrapException;
 import im.tox.tox4j.core.exceptions.ToxFriendAddException;
 import im.tox.tox4j.core.exceptions.ToxNewException;
-import org.easetech.easytest.annotation.Parallel;
-import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.junit.runner.RunWith;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -23,27 +19,11 @@ import java.util.Random;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
-@RunWith(DataDrivenTestRunner.class)
-@Parallel()
 public abstract class ToxCoreTestBase {
 
     public static final int TIMEOUT = 60000;
 
     protected static final int ITERATIONS = 500;
-
-    protected static class DhtNode {
-        public final String ipv4;
-        public final String ipv6;
-        public final int port;
-        public final byte[] dhtId;
-
-        public DhtNode(String ipv4, String ipv6, int port, String dhtId) {
-            this.ipv4 = ipv4;
-            this.ipv6 = ipv6;
-            this.port = port;
-            this.dhtId = parseClientId(dhtId);
-        }
-    }
 
     static final DhtNode[] nodeCandidates = {
         // sonOfRa

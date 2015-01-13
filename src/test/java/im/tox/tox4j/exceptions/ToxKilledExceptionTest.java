@@ -4,8 +4,6 @@ import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.core.ToxCore;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
-
 public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
 
     @Test(expected=ToxKilledException.class)

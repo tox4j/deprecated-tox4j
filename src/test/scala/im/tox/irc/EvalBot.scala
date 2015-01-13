@@ -3,13 +3,11 @@
  */
 package im.tox.irc
 
-import java.net.URL
-
-import org.jibble.pircbot.{NickAlreadyInUseException, PircBot}
-
-import java.io.{PrintStream, ByteArrayOutputStream}
-import com.google.common.cache.{RemovalNotification, RemovalListener, CacheLoader, CacheBuilder}
+import java.io.{ByteArrayOutputStream, PrintStream}
 import java.util.concurrent.TimeUnit
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, RemovalListener, RemovalNotification}
+import org.jibble.pircbot.{NickAlreadyInUseException, PircBot}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -68,9 +66,9 @@ object EvalBot extends PircBot {
 
 
   override def handleLine(line: String): Unit = {
-    import scala.concurrent.{Promise, Future}
-    import scala.util.Success
     import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.{Future, Promise}
+    import scala.util.Success
 
     val timeout = Promise[Boolean]()
     try {

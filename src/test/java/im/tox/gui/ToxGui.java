@@ -1,7 +1,6 @@
 package im.tox.gui;
 
 import im.tox.tox4j.ToxCoreImpl;
-import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.ToxConstants;

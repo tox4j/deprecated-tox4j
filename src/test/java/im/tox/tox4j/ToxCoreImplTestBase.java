@@ -11,7 +11,17 @@ import java.util.Collection;
 
 public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
 
-    private static final DhtNodeSelector dht = new DhtNodeSelector();
+    private static final DhtNode node = new DhtNodeSelector().node(new ToxFactory() {
+        @NotNull
+        @Override
+        public ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
+            ToxOptions options = new ToxOptions();
+            options.setIpv6Enabled(ipv6Enabled);
+            options.setUdpEnabled(udpEnabled);
+            return new ToxCoreImpl(options);
+        }
+    });
+
     private final Collection<ToxCoreImpl> toxes = new ArrayList<>();
 
     @After
@@ -34,7 +44,7 @@ public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
     @NotNull
     @Override
     protected DhtNode node() {
-        return dht.node(this);
+        return node;
     }
 
 }
