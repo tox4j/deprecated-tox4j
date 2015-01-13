@@ -1,0 +1,65 @@
+package im.tox.tox4j.core.callbacks;
+
+import im.tox.tox4j.AliceBobTestBase;
+import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.enums.ToxConnection;
+import im.tox.tox4j.exceptions.ToxException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class ReadReceiptCallbackActionTest extends AliceBobTestBase {
+
+    @NotNull
+    @Override
+    protected ChatClient newAlice() {
+        return new Client();
+    }
+
+
+    private static class Client extends ChatClient {
+
+        private final int[] pendingIds = new int[ITERATIONS];
+        private final Map<Integer, Integer> receipts = new HashMap<>();
+        private int pendingCount = ITERATIONS;
+
+        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
+            if (connection != ToxConnection.NONE) {
+                debug("is now connected to friend " + friendNumber);
+                addTask(new Task() {
+                    @Override
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
+                        debug("Sending " + ITERATIONS + " actions");
+                        for (int i = 0; i < ITERATIONS; i++) {
+                            pendingIds[i] = -1;
+                            int receipt = tox.sendAction(friendNumber, String.valueOf(i).getBytes());
+                            assertNull(receipts.get(receipt));
+                            receipts.put(receipt, i);
+                        }
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void readReceipt(int friendNumber, int messageId) {
+            assertEquals(FRIEND_NUMBER, friendNumber);
+            Integer messageIndex = receipts.get(messageId);
+            assertNotNull(messageIndex);
+            pendingIds[messageIndex] = -1;
+            if (--pendingCount == 0) {
+                int[] expected = new int[ITERATIONS];
+                for (int i = 0; i < ITERATIONS; i++) {
+                    expected[i] = -1;
+                }
+                assertArrayEquals(expected, pendingIds);
+                finish();
+            }
+        }
+
+    }
+
+}

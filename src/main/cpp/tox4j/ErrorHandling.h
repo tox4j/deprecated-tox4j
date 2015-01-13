@@ -4,50 +4,13 @@
 
 #include <sstream>
 
-#include "ToxInstances.h"
-
-
-template<typename T> static inline T default_value() { return T(); }
-template<> inline void default_value<void>() { }
-
 
 void throw_tox_killed_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception(JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string const &message);
-void throw_tox_exception(JNIEnv *env, char const *method, char const *code);
+void throw_tox_exception(JNIEnv *env, char const *module, char const *method, char const *code);
 
-
-template<typename Func>
-typename std::result_of<Func(Tox *, ToxEvents &)>::type
-with_instance(JNIEnv *env, jint instance_number, Func func)
-{
-    typedef typename std::result_of<Func(Tox *, ToxEvents &)>::type return_type;
-
-    if (instance_number == 0) {
-        throw_illegal_state_exception(env, instance_number, "Function called on incomplete object");
-        return default_value<return_type>();
-    }
-
-    std::unique_lock<std::mutex> lock(InstanceManager::self.mutex);
-    if (!InstanceManager::self.isValid(instance_number)) {
-        throw_tox_killed_exception(env, instance_number, "Tox function invoked on invalid tox instance");
-        return default_value<return_type>();
-    }
-
-    ToxInstance const &instance = InstanceManager::self[instance_number];
-
-    if (!instance.isLive()) {
-        throw_tox_killed_exception(env, instance_number, "Tox function invoked on killed tox instance");
-        return default_value<return_type>();
-    }
-
-    std::lock_guard<std::mutex> ilock(*instance.mutex);
-    Tox *tox = instance.tox.get();
-    ToxEvents &events = *instance.events;
-    lock.unlock();
-
-    return func(tox, events);
-}
+#include "ToxInstances.h"
 
 
 struct ErrorHandling
@@ -81,14 +44,17 @@ unhandled()
     return ErrorHandling { ErrorHandling::UNHANDLED, nullptr };
 }
 
-
-#define success_case(METHOD)          \
-    case TOX_ERR_##METHOD##_OK:       \
+#define success_case(METHOD)                        \
+    case CAT(SUBSYSTEM, _ERR_##METHOD##_OK):        \
         return success()
 
-#define failure_case(METHOD, ERROR)   \
-    case TOX_ERR_##METHOD##_##ERROR:  \
+#define failure_case(METHOD, ERROR)                 \
+    case CAT(SUBSYSTEM, _ERR_##METHOD##_##ERROR):   \
         return failure(#ERROR)
+
+
+template<typename T> static inline T default_value() { return T(); }
+template<> inline void default_value<void>() { }
 
 
 template<typename FuncT>
@@ -113,34 +79,42 @@ template<typename SuccessFunc, typename ToxFunc, typename... Args>
 using tox_success_t = typename std::result_of<SuccessFunc(typename std::result_of<ToxFunc(Args..., tox_error_t<ToxFunc> *)>::type)>::type;
 
 
-template<typename ErrorFunc, typename SuccessFunc, typename ToxFunc, typename... Args>
-tox_success_t<SuccessFunc, ToxFunc, Args...>
-with_error_handling(JNIEnv *env, char const *method, ErrorFunc error_func, SuccessFunc success_func, ToxFunc tox_func, Args ...args)
-{
-    tox_error_t<ToxFunc> error;
-    auto value = tox_func(args..., &error);
-    ErrorHandling result = error_func(error);
-    switch (result.result) {
-        case ErrorHandling::SUCCESS:
-            return success_func(value);
-        case ErrorHandling::FAILURE:
-            throw_tox_exception(env, method, result.error);
-            break;
-        case ErrorHandling::UNHANDLED:
-            throw_illegal_state_exception(env, error, "Unknown error code");
-            break;
-    }
+namespace av {
+    namespace proto = im::tox::tox4j::av::proto;
+    using Events = proto::AvEvents;
 
-    return default_value<tox_success_t<SuccessFunc, ToxFunc, Args...>>();
+    struct Deleter {
+        void operator()(ToxAV *av) {
+            toxav_kill(av);
+        }
+    };
+
+    struct tox_traits {
+        typedef ToxAV subsystem;
+        typedef Events events;
+        typedef Deleter deleter;
+
+        static char const *const module;
+    };
+#include "with_instance.h"
 }
 
+namespace core {
+    namespace proto = im::tox::tox4j::core::proto;
+    using Events = proto::CoreEvents;
 
-template<typename ErrorFunc, typename SuccessFunc, typename ToxFunc, typename... Args>
-tox_success_t<SuccessFunc, ToxFunc, Tox *, Args...>
-with_instance(JNIEnv *env, jint instanceNumber, char const *method, ErrorFunc error_func, SuccessFunc success_func, ToxFunc tox_func, Args ...args)
-{
-    return with_instance(env, instanceNumber, [=](Tox *tox, ToxEvents &events) {
-        (void)events;
-        return with_error_handling(env, method, error_func, success_func, tox_func, tox, args...);
-    });
+    struct Deleter {
+        void operator()(Tox *tox) {
+            tox_kill(tox);
+        }
+    };
+
+    struct tox_traits {
+        typedef Tox subsystem;
+        typedef Events events;
+        typedef Deleter deleter;
+
+        static char const *const module;
+    };
+#include "with_instance.h"
 }
