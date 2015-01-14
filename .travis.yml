@@ -4,7 +4,12 @@ script:
    - sbt compile
    - sbt test || true
 
+before_install:
+   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+   - sudo apt-get update -qq
+
 install:
+   - sudo apt-get install libstdc++-4.8-dev
    - pwd > $HOME/.pushd
    # Package dependencies.
    - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler libboost-dev libev-dev
