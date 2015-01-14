@@ -5,6 +5,8 @@
 
 #include "core_private.h"
 
+#include <cstdio>
+
 
 struct av_call
 {
@@ -331,7 +333,7 @@ new_toxav_call (new_ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, 
   int call_index;
   if (int result = toxav_call (av->av, &call_index, friend_number, &settings, 0x7fffffff))
     {
-      printf ("%d\n", result);
+      std::printf ("%d\n", result);
       assert (false);
     }
 

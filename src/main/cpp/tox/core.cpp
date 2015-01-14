@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 
 #include <algorithm>
@@ -177,14 +178,14 @@ new_tox_new (struct new_Tox_Options const *options, uint8_t const *data, size_t 
       if (error)
         {
           // Try to allocate 1KB.
-          void *ptr = malloc (1024);
+          void *ptr = std::malloc (1024);
           if (ptr == nullptr)
             // Failed due to OOM.
             *error = TOX_ERR_NEW_MALLOC;
           else
             // Failed due to port allocation.
             *error = TOX_ERR_NEW_PORT_ALLOC;
-          free (ptr);
+          std::free (ptr);
         }
 
       return nullptr;

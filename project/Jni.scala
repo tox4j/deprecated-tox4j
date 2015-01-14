@@ -318,8 +318,8 @@ object Jni extends Plugin {
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-pedantic")),
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fcolor-diagnostics")),
 
-    // Ignore C++14 extension warnings.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wno-c++1y-extensions")),
+    // Use libc++ if available.
+    //ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-stdlib=libc++")),
 
     // No RTTI and no exceptions.
     ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-exceptions")),
