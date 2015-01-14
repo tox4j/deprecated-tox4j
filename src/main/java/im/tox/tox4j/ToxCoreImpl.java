@@ -129,9 +129,9 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
 
     private static native void toxBootstrap(int instanceNumber, @NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
+    private static native void toxAddTcpRelay(int instanceNumber, @NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
 
-    @Override
-    public void bootstrap(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException {
+    private static void checkBootstrapArguments(int port, byte[] public_key) {
         if (port < 0) {
             throw new IllegalArgumentException("Ports cannot be negative");
         }
@@ -148,7 +148,18 @@ public final class ToxCoreImpl extends AbstractToxCore {
                 throw new IllegalArgumentException("Key too long, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
             }
         }
+    }
+
+    @Override
+    public void bootstrap(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException {
+        checkBootstrapArguments(port, public_key);
         toxBootstrap(instanceNumber, address, port, public_key);
+    }
+
+    @Override
+    public void addTcpRelay(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException {
+        checkBootstrapArguments(port, public_key);
+        toxAddTcpRelay(instanceNumber, address, port, public_key);
     }
 
 

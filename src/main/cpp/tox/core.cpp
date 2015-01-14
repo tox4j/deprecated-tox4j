@@ -241,7 +241,8 @@ new_tox_save (new_Tox const *tox, uint8_t *data)
 }
 
 bool
-new_tox_bootstrap (new_Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error)
+bootstrap_like (int func (Tox *tox, char const *address, uint16_t port, uint8_t const *public_key),
+                new_Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error)
 {
   if (!address || !public_key)
     {
@@ -253,13 +254,25 @@ new_tox_bootstrap (new_Tox *tox, char const *address, uint16_t port, uint8_t con
       if (error) *error = TOX_ERR_BOOTSTRAP_BAD_PORT;
       return false;
     }
-  if (!tox_bootstrap_from_address (tox->tox, address, port, public_key))
+  if (!func (tox->tox, address, port, public_key))
     {
       if (error) *error = TOX_ERR_BOOTSTRAP_BAD_ADDRESS;
       return false;
     }
   if (error) *error = TOX_ERR_BOOTSTRAP_OK;
   return true;
+}
+
+bool
+new_tox_bootstrap (new_Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error)
+{
+  return bootstrap_like (tox_bootstrap_from_address, tox, address, port, public_key, error);
+}
+
+bool
+new_tox_add_tcp_relay (new_Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error)
+{
+  return bootstrap_like (tox_add_tcp_relay, tox, address, port, public_key, error);
 }
 
 bool

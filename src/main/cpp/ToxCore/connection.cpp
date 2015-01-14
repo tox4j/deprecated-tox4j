@@ -1,13 +1,9 @@
 #include "ToxCore.h"
 
 
-/*
- * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxBootstrap
- * Signature: (ILjava/lang/String;I[B)V
- */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
-  (JNIEnv *env, jclass, jint instanceNumber, jstring address, jint port, jbyteArray publicKey)
+static void toxBootstrapLike
+  (bool function(Tox *tox, char const *host, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error),
+   JNIEnv *env, jclass, jint instanceNumber, jstring address, jint port, jbyteArray publicKey)
 {
     assert(port >= 0);
     assert(port <= 65535);
@@ -24,7 +20,30 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
         }
         return unhandled();
     }, [](bool) {
-    }, tox_bootstrap, UTFChars(env, address).data(), port, public_key.data());
+    }, function, UTFChars(env, address).data(), port, public_key.data());
+}
+
+
+/*
+ * Class:     im_tox_tox4jToxCoreImpl
+ * Method:    toxBootstrap
+ * Signature: (ILjava/lang/String;I[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxBootstrap
+  (JNIEnv *env, jclass klass, jint instanceNumber, jstring address, jint port, jbyteArray publicKey)
+{
+    return toxBootstrapLike(tox_bootstrap, env, klass, instanceNumber, address, port, publicKey);
+}
+
+/*
+ * Class:     im_tox_tox4jToxCoreImpl
+ * Method:    toxAddTcpRelay
+ * Signature: (ILjava/lang/String;I[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxAddTcpRelay
+  (JNIEnv *env, jclass klass, jint instanceNumber, jstring address, jint port, jbyteArray publicKey)
+{
+    return toxBootstrapLike(tox_add_tcp_relay, env, klass, instanceNumber, address, port, publicKey);
 }
 
 /*

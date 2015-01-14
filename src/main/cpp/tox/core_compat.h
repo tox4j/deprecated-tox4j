@@ -10,6 +10,7 @@
 #define tox_save new_tox_save
 #define tox_load new_tox_load
 #define tox_bootstrap new_tox_bootstrap
+#define tox_add_tcp_relay new_tox_add_tcp_relay
 #define tox_get_connection_status new_tox_get_connection_status
 #define tox_callback_connection_status new_tox_callback_connection_status
 #define tox_iteration_interval new_tox_iteration_interval

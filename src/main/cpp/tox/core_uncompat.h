@@ -10,6 +10,7 @@
 #undef tox_save
 #undef tox_load
 #undef tox_bootstrap
+#undef tox_add_tcp_relay
 #undef tox_get_connection_status
 #undef tox_callback_connection_status
 #undef tox_iteration_interval

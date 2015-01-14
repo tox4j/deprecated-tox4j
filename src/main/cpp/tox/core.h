@@ -517,6 +517,22 @@ typedef enum TOX_ERR_BOOTSTRAP {
 bool tox_bootstrap(Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error);
 
 
+/**
+ * Adds additional host:port pair as TCP relay.
+ *
+ * This function can be used to initiate TCP connections to different ports on
+ * the same bootstrap node, or to add TCP relays without using them as
+ * bootstrap nodes.
+ *
+ * @param address The hostname or IP address (IPv4 or IPv6) of the TCP relay.
+ * @param port The port on the host on which the TCP relay is listening.
+ * @param public_key The long term public key of the TCP relay
+ *   (TOX_CLIENT_ID_SIZE bytes).
+ * @return true on success.
+ */
+bool tox_add_tcp_relay(Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error);
+
+
 typedef enum TOX_CONNECTION {
   /**
    * There is no connection. This instance, or the friend the state change is

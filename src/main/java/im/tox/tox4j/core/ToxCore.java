@@ -51,6 +51,18 @@ public interface ToxCore extends Closeable {
     void bootstrap(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
 
     /**
+     * Add another TCP relay in addition to the one passed to bootstrap.
+     * <p>
+     * Can also be used to add the same node the instance was bootstrapped with, but with a different port.
+     *
+     * @param address    the hostname, or an IPv4/IPv6 address of the node.
+     * @param port       the TCP port the node is running a relay on.
+     * @param public_key the public key of the node.
+     * @throws ToxBootstrapException if an error occurred.
+     */
+    void addTcpRelay(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
+
+    /**
      * Sets the callback for connection status changes.
      *
      * @param callback the callback.
