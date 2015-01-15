@@ -836,6 +836,8 @@ uint32_t tox_friend_add(Tox *tox, uint8_t const *address, uint8_t const *message
  *
  * @param client_id A byte array of length TOX_CLIENT_ID_SIZE containing the
  *   Client ID (not the Address) of the friend to add.
+ *
+ * @return the friend number.
  * @see tox_friend_add for a more detailed description of friend numbers.
  */
 uint32_t tox_friend_add_norequest(Tox *tox, uint8_t const *client_id, TOX_ERR_FRIEND_ADD *error);
