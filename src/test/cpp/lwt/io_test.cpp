@@ -141,7 +141,7 @@ struct basic_io_base
 {
   static std::size_t object_count;
 
-  explicit basic_io_base (basic_io_state::pointer io)
+  explicit basic_io_base (basic_io_state::pointer const &io)
     : state_ (make_ptr<data> (io))
   {
     SCOPE;
@@ -149,19 +149,18 @@ struct basic_io_base
     LOG (INFO) << *this << "Creating io_base in state " << io->state ();
   }
 
+  basic_io_base (basic_io_base &&rhs)
+    : state_ (rhs.state_)
+  { rhs.state_ = nullptr; }
+
+  basic_io_base (basic_io_base const &rhs)
+    : state_ (rhs.state_)
+  { }
+
   std::size_t id () const { return state_->io->id; }
   io_state state () const { return state_->io->state (); }
 
-  void add_blocked_by (basic_io_base io)
-  {
-    assert (!is_blocked_by (io));
-    state_->blocked.push_back (io);
-  }
-
-  bool is_blocked () const
-  { return !state_->blocked.empty (); }
-
-  void transition (basic_io_base new_state)
+  void transition (basic_io_base const &new_state)
   {
     SCOPE;
     LOG_ASSERT (new_state != *this);
@@ -173,7 +172,7 @@ struct basic_io_base
 
     LOG (INFO) << *this << "Moving "
                << new_state.state_->blocked.size ()
-               << " blocked states to this";
+               << " blocked states from [" << new_state.state_->id << "/_]";
 
     while (!new_state.state_->blocked.empty ())
       {
@@ -200,7 +199,13 @@ struct basic_io_base
     assert (false);
   }
 
-  basic_io_state::pointer get () const
+  void print_blocked () const
+  {
+    for (basic_io_base const &blocked : state_->blocked)
+      LOG (INFO) << *this << " is blocking " << blocked;
+  }
+
+  basic_io_state::pointer const &get () const
   {
     return state_->io;
   }
@@ -215,29 +220,35 @@ struct basic_io_base
   { return lhs.state_ != rhs.state_; }
 
 protected:
-  bool is_blocked_by (basic_io_base io)
-  {
-    return std::find (state_->blocked.begin (), state_->blocked.end (), io)
-      == state_->blocked.end ();
-  }
-
   struct data
   {
-    explicit data (basic_io_state::pointer io)
+    explicit data (basic_io_state::pointer const &io)
       : io (io)
     { }
 
     ~data ()
     {
       SCOPE;
-      LOG_ASSERT (blocked.empty ());
+      if (!blocked.empty ())
+        LOG (FATAL) << "[" << id << "] Deleting IO with blocked states";
     }
 
     friend void intrusive_ptr_add_ref (data *p)
-    { ++p->refcount; }
+    {
+      ++p->refcount;
+      //printf ("[%zu] refcount = %zu\n", p->id, p->refcount);
+    }
 
     friend void intrusive_ptr_release (data *p)
-    { if (!--p->refcount) delete p; }
+    {
+      --p->refcount;
+      //printf ("[%zu] refcount = %zu\n", p->id, p->refcount);
+      if (!p->refcount)
+        {
+          printf ("Deleting [%zu]\n", p->id);
+          //delete p;
+        }
+    }
 
     std::size_t const id = object_count++;
     std::size_t refcount = 0;
@@ -270,16 +281,16 @@ struct basic_io
   using waiting_type = states::waiting_t<Failure, Callback>;
 
 
-  basic_io (boost::intrusive_ptr<success_type> p)
+  basic_io (boost::intrusive_ptr<success_type> const &p)
     : basic_io_base (p)
   { check (); }
 
-  basic_io (boost::intrusive_ptr<failure_type> p)
+  basic_io (boost::intrusive_ptr<failure_type> const &p)
     : basic_io_base (p)
   { check (); }
 
   template<typename Callback>
-  basic_io (boost::intrusive_ptr<waiting_type<Callback>> p)
+  basic_io (boost::intrusive_ptr<waiting_type<Callback>> const &p)
     : basic_io_base (p)
   { check (); }
 
@@ -287,6 +298,18 @@ struct basic_io
   template<typename BindF>
   typename std::result_of<BindF (Success...)>::type
   operator ->* (BindF func) const;
+
+
+  void aggregate_wait () { }
+
+  template<typename ...Tail>
+  void aggregate_wait (basic_io head, Tail const &...tail)
+  {
+    SCOPE;
+    LOG (INFO) << "[" << head.id () << "] Adding blocked IO [" << id () << "]";
+    head.state_->blocked.push_back (*this);
+    return aggregate_wait (tail...);
+  }
 
 private:
   static void check ()
@@ -647,15 +670,44 @@ failure (Error error)
 }
 
 
+static void
+aggregate_call (basic_io_state const &/*result*/)
+{ }
+
+template<typename Head, typename ...Tail>
+void
+aggregate_call (basic_io_state const &result, Head head, Tail const &...tail)
+{
+  head.notify (result);
+  return aggregate_call (result, tail...);
+}
+
 
 template<typename Failure, typename ...Blocking>
 //states::blocked_t<Blocking...>
 basic_io<Failure>
-combine (basic_io<Failure> io, Blocking ...blocking)
+combine (Blocking &&...blocking)
 {
-  LOG_ASSERT (sizeof... (blocking) > 0);
+  SCOPE;
+  LOG_ASSERT (sizeof... (Blocking) > 1);
+  LOG (INFO) << "Combining " << sizeof... (Blocking) << " IOs";
   //return states::blocked_t<Blocking...> (blocking...);
-  return io;
+  auto callback = [=] () mutable -> basic_io<Failure> {
+    LOG (INFO) << "Dispatching result over " << sizeof... (Blocking) << " IOs";
+    if (false) {
+    states::success_t<> result;
+    aggregate_call (result, blocking...);
+    }
+    return success ();
+  };
+  LOG (INFO) << "Lambda created";
+
+  basic_io<Failure> waiting =
+    make_ptr<states::waiting_t<Failure, decltype (callback)>> (std::move (callback));
+
+  waiting.aggregate_wait (blocking...);
+
+  return waiting;
 }
 
 
@@ -740,6 +792,32 @@ private:
 };
 
 
+struct print_ev_events
+{
+  explicit print_ev_events (int events)
+    : events_ (events)
+  { }
+
+  friend std::ostream &operator << (std::ostream &os, print_ev_events e)
+  {
+    switch (e.events_)
+      {
+      case EV_READ:
+        return os << "EV_READ";
+      case EV_WRITE:
+        return os << "EV_WRITE";
+      case EV_READ | EV_WRITE:
+        return os << "EV_READ | EV_WRITE";
+      default:
+        return os << "<unknown events>";
+      }
+  }
+
+private:
+  int events_;
+};
+
+
 struct event_loop
 {
   struct data_type
@@ -775,7 +853,8 @@ struct event_loop
     if (waiting && waiting->events & events)
       {
         assert (!data->io_waiting[w->fd]);
-        LOG (INFO) << "Received I/O event on " << w->fd << " for " << events;
+        LOG (INFO) << "Received I/O event on " << w->fd << " for "
+                   << print_ev_events (events);
         waiting->notify (w->fd);
       }
     //ev_io_stop (data->raw_loop, &data->io_watchers[w->fd]);
@@ -958,7 +1037,7 @@ TEST (IO, Read) {
         ->* [=] (byte_vec const &buffer2) -> io<> {
           SCOPE;
           LOG (INFO) << "got buffer 2 again: " << buffer2.size ();
-          return close (fd);
+          return success ();
         };
 
 
@@ -970,7 +1049,9 @@ TEST (IO, Read) {
           return success ();
         };
 
-      return combine (waiting2_1, waiting2_2, waiting1_2);
+      return combine<SystemError> (std::move (waiting2_1),
+                                   std::move (waiting2_2),
+                                   std::move (waiting1_2));
     };
 
   default_loop.run (program);
