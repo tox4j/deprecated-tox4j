@@ -17,4 +17,6 @@ public abstract class FileTransfer implements Closeable {
     public abstract byte[] read(long position, int length) throws IOException;
 
     public abstract void close() throws IOException;
+
+    public abstract void write(long position, byte[] data) throws IOException;
 }

@@ -10,35 +10,6 @@
 #include <map>
 #include <vector>
 
-#if 0
-static int
-id (void *p)
-{
-  static int counter = 0;
-  static std::map<void *, int> ids;
-  auto found = ids.find (p);
-  if (found != ids.end ())
-    return found->second;
-  ids[p] = ++counter;
-  return counter;
-}
-
-
-static char const *
-string_of_control_type (uint8_t type)
-{
-  switch (type)
-    {
-    case TOX_FILECONTROL_ACCEPT       : return "TOX_FILECONTROL_ACCEPT";
-    case TOX_FILECONTROL_PAUSE        : return "TOX_FILECONTROL_PAUSE";
-    case TOX_FILECONTROL_KILL         : return "TOX_FILECONTROL_KILL";
-    case TOX_FILECONTROL_FINISHED     : return "TOX_FILECONTROL_FINISHED";
-    case TOX_FILECONTROL_RESUME_BROKEN: return "TOX_FILECONTROL_RESUME_BROKEN";
-    default: return "<unknown control>";
-    }
-}
-#endif
-
 
 uint32_t
 tox_version_major ()

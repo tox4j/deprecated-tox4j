@@ -1,5 +1,7 @@
 package im.tox.gui;
 
+import im.tox.tox4j.core.enums.ToxFileKind;
+
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,7 @@ public class FileTransferModel extends AbstractListModel<FileTransfer> {
         throw new NoSuchElementException(String.valueOf(index));
     }
 
-    public void addIncoming(int friendNumber, File file, int fileNumber) {
+    private ArrayList<FileTransfer> ensureFileNumber(int friendNumber, int fileNumber) {
         while (transfers.size() <= friendNumber) {
             transfers.add(new ArrayList<FileTransfer>());
         }
@@ -39,6 +41,16 @@ public class FileTransferModel extends AbstractListModel<FileTransfer> {
         while (list.size() <= fileNumber) {
             list.add(null);
         }
+        return list;
+    }
+
+    public void addOutgoing(int friendNumber, File file, int fileNumber) {
+        ArrayList<FileTransfer> list = ensureFileNumber(friendNumber, fileNumber);
+        list.set(fileNumber, new FileTransferOutgoing(file));
+    }
+
+    public void addIncoming(int friendNumber, int fileNumber, ToxFileKind kind, long fileSize, File file) {
+        ArrayList<FileTransfer> list = ensureFileNumber(friendNumber, fileNumber);
         list.set(fileNumber, new FileTransferIncoming(file));
     }
 
@@ -49,4 +61,5 @@ public class FileTransferModel extends AbstractListModel<FileTransfer> {
     public void remove(int friendNumber, int fileNumber) throws IOException {
         get(friendNumber, fileNumber).close();
     }
+
 }

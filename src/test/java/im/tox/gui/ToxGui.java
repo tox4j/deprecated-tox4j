@@ -127,18 +127,37 @@ public class ToxGui extends JFrame {
                         throw new UnsupportedOperationException("PAUSE");
                 }
             } catch (Throwable e) {
-                JOptionPane.showMessageDialog(ToxGui.this, e);
+                JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
             }
         }
 
         @Override
         public void fileReceive(int friendNumber, int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
             addMessage("fileReceive", friendNumber, fileNumber, kind, fileSize, new String(filename));
+            try {
+                if (JOptionPane.showConfirmDialog(ToxGui.this, "Incoming file transfer: " + new String(filename)) == JOptionPane.OK_OPTION) {
+                    JFileChooser chooser = new JFileChooser();
+                    int returnVal = chooser.showOpenDialog(ToxGui.this);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        fileModel.addIncoming(friendNumber, fileNumber, kind, fileSize, chooser.getSelectedFile());
+                        tox.fileControl(friendNumber, fileNumber, ToxFileControl.RESUME);
+                        return;
+                    }
+                }
+                tox.fileControl(friendNumber, fileNumber, ToxFileControl.CANCEL);
+            } catch (Throwable e) {
+                JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+            }
         }
 
         @Override
         public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
-            addMessage("fileReceiveChunk", friendNumber, fileNumber, position, data);
+            addMessage("fileReceiveChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
+            try {
+                fileModel.get(friendNumber, fileNumber).write(position, data);
+            } catch (Throwable e) {
+                JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+            }
         }
 
         @Override
@@ -151,7 +170,7 @@ public class ToxGui extends JFrame {
                     tox.fileSendChunk(friendNumber, fileNumber, fileModel.get(friendNumber, fileNumber).read(position, length));
                 }
             } catch (Throwable e) {
-                JOptionPane.showMessageDialog(ToxGui.this, e);
+                JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
             }
         }
 
@@ -339,7 +358,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxException e) {
                     addMessage("Error creating Tox instance: " + e.getCode());
                 } catch (Throwable e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e);
+                    JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
                 }
             }
 
@@ -381,7 +400,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxBootstrapException e) {
                     addMessage("Bootstrap failed: ", e.getCode());
                 } catch (Throwable e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e);
+                    JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
                 }
             }
         });
@@ -404,7 +423,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxFriendAddException e) {
                     addMessage("Add friend failed: ", e.getCode());
                 } catch (Throwable e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e);
+                    JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
                 }
             }
         });
@@ -429,7 +448,7 @@ public class ToxGui extends JFrame {
                 } catch (ToxSendMessageException e) {
                     addMessage("Send message failed: ", e.getCode());
                 } catch (Throwable e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e);
+                    JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
                 }
             }
         });
@@ -458,15 +477,24 @@ public class ToxGui extends JFrame {
                         JOptionPane.showMessageDialog(ToxGui.this, "File does not exist: " + file);
                         return;
                     }
-                    fileModel.addIncoming(friendNumber, file,
+                    fileModel.addOutgoing(friendNumber, file,
                         tox.fileSend(friendNumber, ToxFileKind.DATA, file.length(), file.getName().getBytes()));
                 } catch (ToxFileSendException e) {
                     addMessage("Send file failed: ", e.getCode());
                 } catch (Throwable e) {
-                    JOptionPane.showMessageDialog(ToxGui.this, e);
+                    JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
                 }
             }
         });
+    }
+
+    private String printExn(Throwable e) {
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            e.printStackTrace(new PrintStream(output));
+            return output.toString();
+        } catch (IOException e1) {
+            return e.toString();
+        }
     }
 
 }

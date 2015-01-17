@@ -17,18 +17,9 @@ struct null_ostream
 #define LOG_ASSERT(cond) assert (cond)
 #endif
 
-namespace tox
+namespace lwt
 {
   void output_hex (std::ostream &os, uint8_t const *data, size_t length);
-
-
-  template<std::size_t N>
-  std::ostream &
-  operator << (std::ostream &os, std::array<uint8_t, N> const &array)
-  {
-    output_hex (os, array.data (), array.size ());
-    return os;
-  }
 
 
   struct formatter
@@ -57,4 +48,13 @@ namespace tox
 
     return formatter (std::move (text));
   }
+}
+
+
+template<std::size_t N>
+std::ostream &
+operator << (std::ostream &os, std::array<uint8_t, N> const &array)
+{
+  lwt::output_hex (os, array.data (), array.size ());
+  return os;
 }

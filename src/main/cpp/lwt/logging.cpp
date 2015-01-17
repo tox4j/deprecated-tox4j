@@ -4,11 +4,11 @@
 #include <iomanip>
 #include <iterator>
 
-using namespace tox;
+using namespace lwt;
 
 
 void
-tox::output_hex (std::ostream &os, uint8_t const *data, size_t length)
+lwt::output_hex (std::ostream &os, uint8_t const *data, size_t length)
 {
   os << '[';
   for (size_t i = 0; i < length; i++)
@@ -18,7 +18,7 @@ tox::output_hex (std::ostream &os, uint8_t const *data, size_t length)
 
 
 std::ostream &
-tox::operator << (std::ostream &os, formatter const &fmt)
+lwt::operator << (std::ostream &os, formatter const &fmt)
 {
   std::copy (fmt.text_.cbegin (), fmt.text_.cend (), std::ostream_iterator<char> (os));
   return os;

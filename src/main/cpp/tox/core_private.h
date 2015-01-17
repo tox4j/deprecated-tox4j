@@ -3,13 +3,68 @@
 
 #include <tox/tox.h>
 
+#include <lwt/logging.h>
+
 #include <cassert>
 
 #include <algorithm>
+#include <fstream>
 #include <map>
 #include <vector>
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+
+#define DEBUG_CALLBACKS 1
+
+
+#if DEBUG_CALLBACKS
+struct log_stream
+{
+  log_stream ()
+  {
+    out.open ("tox.log", std::ofstream::out | std::ofstream::app);
+  }
+
+  ~log_stream ()
+  {
+    out << "\n";
+  }
+
+  std::ofstream out;
+};
+
+#undef LOG
+#define LOG(severity) log_stream ().out
+
+
+static int
+id (void *p)
+{
+  static int counter = 0;
+  static std::map<void *, int> ids;
+  auto found = ids.find (p);
+  if (found != ids.end ())
+    return found->second;
+  ids[p] = ++counter;
+  return counter;
+}
+
+
+static char const *
+string_of_control_type (uint8_t type)
+{
+  switch (type)
+    {
+    case TOX_FILECONTROL_ACCEPT       : return "TOX_FILECONTROL_ACCEPT";
+    case TOX_FILECONTROL_PAUSE        : return "TOX_FILECONTROL_PAUSE";
+    case TOX_FILECONTROL_KILL         : return "TOX_FILECONTROL_KILL";
+    case TOX_FILECONTROL_FINISHED     : return "TOX_FILECONTROL_FINISHED";
+    case TOX_FILECONTROL_RESUME_BROKEN: return "TOX_FILECONTROL_RESUME_BROKEN";
+    default: return "<unknown control>";
+    }
+}
+#endif
+
 
 template<typename FuncT>
 struct callback
@@ -96,6 +151,9 @@ struct new_Tox
   {
     static void friend_request (Tox *tox, const uint8_t *public_key, const uint8_t *data, uint16_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB friend_request (#%d, %p, %p, %d)", id (tox), public_key, data, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_request;
       cb.func (self, public_key, data, length, cb.user_data);
@@ -103,6 +161,9 @@ struct new_Tox
 
     static void friend_message (Tox *tox, int32_t friendnumber, const uint8_t * message, uint16_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB friend_message (#%d, %d, %p, %d)", id (tox), friendnumber, message, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_message;
       cb.func (self, friendnumber, message, length, cb.user_data);
@@ -110,6 +171,9 @@ struct new_Tox
 
     static void friend_action (Tox *tox, int32_t friendnumber, const uint8_t * action, uint16_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB friend_action (#%d, %d, %p, %d)", id (tox), friendnumber, action, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_action;
       cb.func (self, friendnumber, action, length, cb.user_data);
@@ -117,6 +181,9 @@ struct new_Tox
 
     static void name_change (Tox *tox, int32_t friendnumber, const uint8_t *newname, uint16_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB name_change (#%d, %d, %p, %d)", id (tox), friendnumber, newname, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_name;
       if (length == 1 && newname[0] == '\0')
@@ -127,6 +194,9 @@ struct new_Tox
 
     static void status_message (Tox *tox, int32_t friendnumber, const uint8_t *newstatus, uint16_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB status_message (#%d, %d, %p, %d)", id (tox), friendnumber, newstatus, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_status_message;
       if (length == 1 && newstatus[0] == '\0')
@@ -137,6 +207,9 @@ struct new_Tox
 
     static void user_status (Tox *tox, int32_t friendnumber, uint8_t TOX_USERSTATUS, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB user_status (#%d, %d, %d)", id (tox), friendnumber, TOX_USERSTATUS);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_status;
       cb.func (self, friendnumber, (TOX_STATUS) TOX_USERSTATUS, cb.user_data);
@@ -144,6 +217,9 @@ struct new_Tox
 
     static void typing_change (Tox *tox, int32_t friendnumber, uint8_t is_typing, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB typing_change (#%d, %d, %d)", id (tox), friendnumber, is_typing);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_typing;
       cb.func (self, friendnumber, is_typing, cb.user_data);
@@ -151,6 +227,9 @@ struct new_Tox
 
     static void read_receipt (Tox *tox, int32_t friendnumber, uint32_t receipt, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB read_receipt (#%d, %d, %d)", id (tox), friendnumber, receipt);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.read_receipt;
       cb.func (self, friendnumber, receipt, cb.user_data);
@@ -158,6 +237,9 @@ struct new_Tox
 
     static void connection_status (Tox *tox, int32_t friendnumber, uint8_t status, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB connection_status (#%d, %d, %d)", id (tox), friendnumber, status);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_connection_status;
       cb.func (self, friendnumber, status ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE, cb.user_data);
@@ -165,8 +247,8 @@ struct new_Tox
 
     static void file_send_request (Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)
     {
-#if 0
-      printf ("CB file_send_request (%d, %d, %d, %ld, %p, %d)\n", id (tox), friendnumber, filenumber, filesize, filename, filename_length);
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB file_send_request (#%d, %d, %d, %ld, %p, %d)", id (tox), friendnumber, filenumber, filesize, filename, filename_length);
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.file_receive;
@@ -182,8 +264,8 @@ struct new_Tox
 
     static void file_control (Tox *tox, int32_t friendnumber, uint8_t receive_send, uint8_t filenumber, uint8_t control_type, const uint8_t *data, uint16_t length, void *userdata)
     {
-#if 0
-      printf ("CB file_control (%d, %d, %d, %d, %s, %p, %d)\n", id (tox), friendnumber, receive_send, filenumber, string_of_control_type (control_type), data, length);
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB file_control (#%d, %d, %d, %d, %s, %p, %d)", id (tox), friendnumber, receive_send, filenumber, string_of_control_type (control_type), data, length);
 #endif
       auto self = static_cast<new_Tox *> (userdata);
 
@@ -243,8 +325,8 @@ struct new_Tox
 
     static void file_data (Tox *tox, int32_t friendnumber, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata)
     {
-#if 0
-      printf ("CB file_data (%d, %d, %d, %p, %d)\n", id (tox), friendnumber, filenumber, data, length);
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB file_data (#%d, %d, %d, %p, %d)", id (tox), friendnumber, filenumber, data, length);
 #endif
       auto self = static_cast<new_Tox *> (userdata);
 
@@ -265,6 +347,9 @@ struct new_Tox
 
     static int lossy_packet (Tox *tox, int32_t friendnumber, const uint8_t *data, uint32_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB lossy_packet (#%d, %d, %p, %d)", id (tox), friendnumber, data, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_lossy_packet;
       cb.func (self, friendnumber, data, length, cb.user_data);
@@ -273,6 +358,9 @@ struct new_Tox
 
     static int lossless_packet (Tox *tox, int32_t friendnumber, const uint8_t *data, uint32_t length, void *userdata)
     {
+#if DEBUG_CALLBACKS
+      LOG (INFO) << lwt::format ("CB lossless_packet (#%d, %d, %p, %d)", id (tox), friendnumber, data, length);
+#endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_lossless_packet;
       cb.func (self, friendnumber, data, length, cb.user_data);

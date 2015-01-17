@@ -280,7 +280,7 @@ struct io_callback
                                  0, &src_addr, &addr_len);
         assert (size > 0);
 
-        LOG (INFO) << format ("events: EV_READ (%zd) [%02x]", size, packet_data.front ());
+        LOG (INFO) << lwt::format ("events: EV_READ (%zd) [%02x]", size, packet_data.front ());
 
         auto success = dispatcher.handle (CipherText::from_bytes (packet_data, size), box);
         if (!success.ok ())

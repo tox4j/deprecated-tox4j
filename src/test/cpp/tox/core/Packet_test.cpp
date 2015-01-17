@@ -17,7 +17,7 @@ TEST (Packet, Plain) {
 
   Packet<Format> packet (0x99, 0xaa);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   Partial<int> result = packet.decode () ->* [&](uint8_t &&first, uint8_t second) {
@@ -42,7 +42,7 @@ TEST (Packet, PlainNonceLast) {
 
   Packet<Format> packet (0x99, orig_nonce);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   Partial<int> result = packet.decode () ->* [&](uint8_t first, Nonce nonce) {
@@ -67,7 +67,7 @@ TEST (Packet, PlainNonceFirst) {
 
   Packet<Format> packet (orig_nonce, 0x99);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   Partial<int> result = packet.decode () ->* [&](Nonce nonce, uint8_t second) {
@@ -97,7 +97,7 @@ TEST (Packet, Simple) {
 
   Packet<Format> packet (0x99, orig_nonce, box, 0xaa);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   Partial<int> result = packet.decode (box) ->* [&](uint8_t &&first, Nonce nonce, uint8_t second) {
@@ -129,7 +129,7 @@ TEST (Packet, NoncePacket) {
 
   Packet<Format> packet (0x99, orig_nonce, box, orig_nonce, 0xaa);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   Partial<int> result = packet.decode (box) ->* [&](uint8_t &&first, Nonce nonce, Nonce &&encrypted_nonce, uint8_t second) {
@@ -164,7 +164,7 @@ TEST (Packet, Bitfield) {
 
   Packet<Format> packet (orig_nonce, 0x99, box, 1);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   auto result = packet.decode (box) ->* [&](Nonce nonce, uint8_t &&first, uint8_t second) {
@@ -196,7 +196,7 @@ TEST (Packet, Repeated) {
 
   Packet<Format> packet (orig_nonce, box, data);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   auto result = packet.decode (box) ->* [&](Nonce nonce, std::vector<uint8_t> &&first) {
@@ -229,7 +229,7 @@ TEST (Packet, RepeatedTuple) {
   };
   Packet<Format> packet (orig_nonce, box, data);
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   auto result = packet.decode (box) ->* [&](Nonce nonce, std::vector<std::tuple<uint8_t, uint8_t>> second) {
@@ -283,7 +283,7 @@ TEST (Packet, Choice) {
   variant_type<1, data_type>::type data { 1, 2, 3 };
   Packet<Format> packet (orig_nonce, box, data_type (data));
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   auto result = packet.decode (box) ->* [&](Nonce nonce, data_type second) {
@@ -344,7 +344,7 @@ TEST (Packet, PlainChoice) {
   variant_type<0, data_type>::type data { 4, 5 };
   Packet<Format> packet { data_type (data) };
   std::cout << "Packet data: ";
-  output_hex (std::cout, packet.data (), packet.size ());
+  lwt::output_hex (std::cout, packet.data (), packet.size ());
   std::cout << "\n";
 
   auto result = packet.decode () ->* [&](data_type second) {
