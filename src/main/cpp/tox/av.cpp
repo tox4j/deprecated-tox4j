@@ -69,8 +69,30 @@ struct new_ToxAV
       self->call_to_friend[call_idx] = peer_id;
       self->friend_to_call.insert (std::make_pair (peer_id, av_call (call_idx)));
 
+      av_call &call = self->get_call (peer_id);
+
+      bool audio_enabled;
+      bool video_enabled;
+      switch (int (call.settings.call_type))
+        {
+        case 0:
+          audio_enabled = false;
+          video_enabled = false;
+          break;
+        case av_TypeAudio:
+          audio_enabled = true;
+          video_enabled = false;
+          break;
+        case av_TypeVideo:
+          audio_enabled = true;
+          video_enabled = true;
+          break;
+        default:
+          assert (false);
+        }
+
       auto cb = self->callbacks.call;
-      cb.func (self, peer_id, cb.user_data);
+      cb.func (self, peer_id, audio_enabled, video_enabled, cb.user_data);
     }
 
     static void callstate_OnRinging (void *agent, int32_t call_idx, void *userdata)
@@ -96,7 +118,7 @@ struct new_ToxAV
       switch (int (call.settings.call_type))
         {
         case 0:
-          state = TOXAV_CALL_STATE_NOT_SENDING;
+          state = TOXAV_CALL_STATE_SENDING_NONE;
           break;
         case av_TypeAudio:
           state = TOXAV_CALL_STATE_SENDING_A;

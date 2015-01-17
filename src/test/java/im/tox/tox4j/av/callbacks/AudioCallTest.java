@@ -209,7 +209,7 @@ public final class AudioCallTest extends AliceBobAvTest {
         }
 
         @Override
-        public void call(final int friendNumber) {
+        public void call(final int friendNumber, boolean audioEnabled, boolean videoEnabled) {
             assertEquals(FRIEND_NUMBER, friendNumber);
             debug("received call from " + getFriendName());
             addTask(new Task() {

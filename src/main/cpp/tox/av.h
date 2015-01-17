@@ -146,7 +146,7 @@ bool toxav_call(ToxAV *av, uint32_t friend_number, uint32_t audio_bit_rate, uint
 /**
  * The function type for the `call` callback.
  */
-typedef void toxav_call_cb(ToxAV *av, uint32_t friend_number, void *user_data);
+typedef void toxav_call_cb(ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, void *user_data);
 
 /**
  * Set the callback for the `call` event. Pass NULL to unset.
@@ -214,7 +214,7 @@ typedef enum TOXAV_CALL_STATE {
    * If both sides are in this state, the call is effectively on hold, but not
    * in the PAUSED state.
    */
-  TOXAV_CALL_STATE_NOT_SENDING,
+  TOXAV_CALL_STATE_SENDING_NONE,
   /**
    * Sending audio only. Either the friend requested that this client stops
    * sending video, or the client turned off video by setting the video bit rate

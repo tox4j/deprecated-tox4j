@@ -47,7 +47,7 @@ public class CallCallbackTest extends AliceBobAvTest {
         }
 
         @Override
-        public void call(int friendNumber) {
+        public void call(int friendNumber, boolean audioEnabled, boolean videoEnabled) {
             debug("received call from " + friendNumber);
             assertEquals(FRIEND_NUMBER, friendNumber);
             finish();

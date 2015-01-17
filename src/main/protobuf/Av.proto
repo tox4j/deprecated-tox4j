@@ -5,18 +5,20 @@ option optimize_for = LITE_RUNTIME;
 
 message Call {
     required int32  friendNumber     = 1;
+    required bool   audioEnabled     = 2;
+    required bool   videoEnabled     = 3;
 }
 
 message CallState {
     enum Kind {
-        RINGING     = 1;
-        NOT_SENDING = 2;
-        SENDING_A   = 3;
-        SENDING_V   = 4;
-        SENDING_AV  = 5;
-        PAUSED      = 6;
-        END         = 7;
-        ERROR       = 8;
+        RINGING      = 1;
+        SENDING_NONE = 2;
+        SENDING_A    = 3;
+        SENDING_V    = 4;
+        SENDING_AV   = 5;
+        PAUSED       = 6;
+        END          = 7;
+        ERROR        = 8;
     }
 
     required uint32  friendNumber     = 1;

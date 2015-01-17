@@ -75,7 +75,7 @@ public final class ToxAvImpl implements ToxAv {
     private static ToxCallState convert(Av.CallState.Kind kind) {
         switch (kind) {
             case RINGING: return ToxCallState.RINGING;
-            case NOT_SENDING: return ToxCallState.NOT_SENDING;
+            case SENDING_NONE: return ToxCallState.SENDING_NONE;
             case SENDING_A: return ToxCallState.SENDING_A;
             case SENDING_V: return ToxCallState.SENDING_V;
             case SENDING_AV: return ToxCallState.SENDING_AV;
@@ -101,7 +101,7 @@ public final class ToxAvImpl implements ToxAv {
 
         if (callCallback != null) {
             for (Av.Call call : toxEvents.getCallList()) {
-                callCallback.call(call.getFriendNumber());
+                callCallback.call(call.getFriendNumber(), call.getAudioEnabled(), call.getVideoEnabled());
             }
         }
         if (callStateCallback != null) {

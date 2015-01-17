@@ -4,12 +4,14 @@ using AvInstanceManager = instance_manager<tox_traits>;
 using AvInstance = tox_instance<tox_traits>;
 
 
-static void tox4j_call_cb(ToxAV *av, uint32_t friend_number, void *user_data)
+static void tox4j_call_cb(ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, void *user_data)
 {
     unused(av);
     Events &events = *static_cast<Events *>(user_data);
     auto msg = events.add_call();
     msg->set_friendnumber(friend_number);
+    msg->set_audioenabled(audio_enabled);
+    msg->set_videoenabled(video_enabled);
 }
 
 static void tox4j_call_state_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_STATE state, void *user_data)
@@ -26,7 +28,7 @@ static void tox4j_call_state_cb(ToxAV *av, uint32_t friend_number, TOXAV_CALL_ST
             msg->set_state(CallState::STATE);   \
             break
         call_state_case(RINGING);
-        call_state_case(NOT_SENDING);
+        call_state_case(SENDING_NONE);
         call_state_case(SENDING_A);
         call_state_case(SENDING_V);
         call_state_case(SENDING_AV);
