@@ -9,9 +9,12 @@ import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
 import im.tox.tox4j.core.exceptions.ToxBootstrapException;
+import im.tox.tox4j.core.exceptions.ToxFileSendException;
 import im.tox.tox4j.core.exceptions.ToxFriendAddException;
 import im.tox.tox4j.core.exceptions.ToxSendMessageException;
 import im.tox.tox4j.exceptions.ToxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -27,6 +30,9 @@ import static im.tox.tox4j.ToxCoreTestBase.parseClientId;
 import static im.tox.tox4j.ToxCoreTestBase.readableClientId;
 
 public class ToxGui extends JFrame {
+
+    private static final Logger logger = LoggerFactory.getLogger(ToxGui.class);
+
     private static final int MAX_MESSAGES = 1000;
 
     private JList<String> messages;
@@ -53,12 +59,16 @@ public class ToxGui extends JFrame {
     private JRadioButton actionRadioButton;
     private JButton sendButton;
     private JTextField selfClientId;
+    private JTextField fileName;
+    private JProgressBar fileProgress;
+    private JButton sendFileButton;
 
     private ToxCore tox;
     private Thread eventLoop;
 
     private DefaultListModel<String> messageModel = new DefaultListModel<>();
     private FriendList friendListModel = new FriendList();
+    private FileTransferModel fileModel = new FileTransferModel();
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]");
 
     private void addMessage(Object... args) {
@@ -74,7 +84,9 @@ public class ToxGui extends JFrame {
             messageModel = newModel;
             messages.setModel(messageModel);
         }
-        messageModel.addElement(DATE_FORMAT.format(new Date()) + ' ' + str);
+        String message = DATE_FORMAT.format(new Date()) + ' ' + str;
+        messageModel.addElement(message);
+        logger.info(message);
         messages.ensureIndexIsVisible(messageModel.size() - 1);
         save();
     }
@@ -104,6 +116,19 @@ public class ToxGui extends JFrame {
         @Override
         public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
             addMessage("fileControl", friendNumber, fileNumber, control);
+            try {
+                switch (control) {
+                    case RESUME:
+                        fileModel.get(friendNumber, fileNumber).resume();
+                        break;
+                    case CANCEL:
+                        throw new UnsupportedOperationException("CANCEL");
+                    case PAUSE:
+                        throw new UnsupportedOperationException("PAUSE");
+                }
+            } catch (Throwable e) {
+                JOptionPane.showMessageDialog(ToxGui.this, e);
+            }
         }
 
         @Override
@@ -119,6 +144,15 @@ public class ToxGui extends JFrame {
         @Override
         public void fileRequestChunk(int friendNumber, int fileNumber, long position, int length) {
             addMessage("fileRequestChunk", friendNumber, fileNumber, position, length);
+            try {
+                if (length == 0) {
+                    fileModel.remove(friendNumber, fileNumber);
+                } else {
+                    tox.fileSendChunk(friendNumber, fileNumber, fileModel.get(friendNumber, fileNumber).read(position, length));
+                }
+            } catch (Throwable e) {
+                JOptionPane.showMessageDialog(ToxGui.this, e);
+            }
         }
 
         @Override
@@ -304,7 +338,7 @@ public class ToxGui extends JFrame {
                     addMessage("Created Tox instance; started event loop");
                 } catch (ToxException e) {
                     addMessage("Error creating Tox instance: " + e.getCode());
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
@@ -346,7 +380,7 @@ public class ToxGui extends JFrame {
                         parseClientId(bootstrapKey.getText().trim()));
                 } catch (ToxBootstrapException e) {
                     addMessage("Bootstrap failed: ", e.getCode());
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
@@ -369,7 +403,7 @@ public class ToxGui extends JFrame {
                     save();
                 } catch (ToxFriendAddException e) {
                     addMessage("Add friend failed: ", e.getCode());
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
@@ -394,7 +428,7 @@ public class ToxGui extends JFrame {
                     messageText.setText("");
                 } catch (ToxSendMessageException e) {
                     addMessage("Send message failed: ", e.getCode());
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
@@ -406,6 +440,30 @@ public class ToxGui extends JFrame {
             public void keyPressed(KeyEvent event) {
                 if (event.getKeyChar() == '\n') {
                     sendButton.doClick();
+                }
+            }
+        });
+
+
+        sendFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    int friendNumber = friendList.getSelectedIndex();
+                    if (friendNumber == -1) {
+                        JOptionPane.showMessageDialog(ToxGui.this, "Select a friend to send a message to");
+                    }
+                    File file = new File(fileName.getText());
+                    if (!file.exists()) {
+                        JOptionPane.showMessageDialog(ToxGui.this, "File does not exist: " + file);
+                        return;
+                    }
+                    fileModel.addIncoming(friendNumber, file,
+                        tox.fileSend(friendNumber, ToxFileKind.DATA, file.length(), file.getName().getBytes()));
+                } catch (ToxFileSendException e) {
+                    addMessage("Send file failed: ", e.getCode());
+                } catch (Throwable e) {
+                    JOptionPane.showMessageDialog(ToxGui.this, e);
                 }
             }
         });

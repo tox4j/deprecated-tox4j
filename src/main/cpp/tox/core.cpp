@@ -988,7 +988,8 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
       return false;
     }
 
-  if (tox_file_send_data (tox->tox, friend_number, file_transfer::old_file_number (file_number), data, length) == -1)
+  if (tox_file_send_data (tox->tox, friend_number, file_transfer::old_file_number (file_number),
+                          data, length) == -1)
     {
 #if 0
       printf ("tox_file_send_data (%d, %d, %d, %p, %zd) = -1\n",
@@ -1004,6 +1005,15 @@ new_tox_file_send_chunk (new_Tox *tox, uint32_t friend_number, uint32_t file_num
 
   transfer->position += length;
   transfer->event_pending = false;
+
+  if (transfer->position == transfer->file_size)
+    if (tox_file_send_control (tox->tox, friend_number,
+                               file_transfer::send_receive (file_number),
+                               file_transfer::old_file_number (file_number),
+                               TOX_FILECONTROL_FINISHED, nullptr, 0) != 0)
+      {
+        assert (false);
+      }
 
   if (error) *error = TOX_ERR_FILE_SEND_CHUNK_OK;
   return true;
