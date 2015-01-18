@@ -202,23 +202,25 @@ public interface ToxCore extends Closeable {
     ToxStatus getStatus();
 
     /**
-     * Adds a new friend
+     * Adds a new friend by Friend Address.
      *
-     * @param address the address to add as a friend.
+     * @param address the address to add as a friend ({@link ToxConstants#ADDRESS_SIZE} bytes).
      * @param message the message to send with the friend request (must not be empty).
      * @return the new friend's friend number.
      * @throws im.tox.tox4j.core.exceptions.ToxFriendAddException if an error occurred.
+     * @throws java.lang.IllegalArgumentException if the Friend Address was not the right length.
      */
     int addFriend(@NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException;
 
     /**
-     * Add the specified Client ID without sending a friend request.
+     * Add the specified Client ID as friend without sending a friend request.
      * <p>
      * This is mostly used for confirming incoming friend requests.
      *
-     * @param clientId the Client ID to add as a friend.
+     * @param clientId the Client ID to add as a friend ({@link ToxConstants#CLIENT_ID_SIZE} bytes).
      * @return the new friend's friend number.
      * @throws im.tox.tox4j.core.exceptions.ToxFriendAddException if an error occurred.
+     * @throws java.lang.IllegalArgumentException if the Client ID was not the right length.
      */
     int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException;
 

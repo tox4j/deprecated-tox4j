@@ -450,6 +450,15 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException {
+        //noinspection ConstantConditions
+        if (clientId != null) {
+            if (clientId.length < ToxConstants.CLIENT_ID_SIZE) {
+                throw new IllegalArgumentException("Client ID too short, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
+            }
+            if (clientId.length > ToxConstants.CLIENT_ID_SIZE) {
+                throw new IllegalArgumentException("Client ID too long, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
+            }
+        }
         return toxFriendAddNorequest(instanceNumber, clientId);
     }
 
