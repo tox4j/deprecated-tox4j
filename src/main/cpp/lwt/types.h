@@ -32,32 +32,14 @@ namespace lwt
   }
 
 
-  static inline void type_name_args (std::string &) { }
-
-  template<typename Head>
-  void
-  type_name_args (std::string &name, Head &)
-  {
-    type_name<Head> (name);
-  }
-
-  template<typename Head, typename Next, typename ...Tail>
-  void
-  type_name_args (std::string &name, Head &, Next &next, Tail &...tail)
-  {
-    type_name<Head> (name);
-    name += ", ";
-    type_name_args (name, next, tail...);
-  }
-
   template<typename T, typename Result, typename ...Args>
   void
   type_name (std::string &name, Result (T::* const &) (Args...))
   {
     type_name<Result> (name);
-    name += "($_0::*)";
+    //name += "($_0::*)";
     name += "(";
-    type_name_args (name, type_name_declval<Args> ()...);
+    type_name<Args...> (name);
     name += ")";
   }
 
@@ -66,9 +48,9 @@ namespace lwt
   type_name (std::string &name, Result (T::* const &) (Args...) const)
   {
     type_name<Result> (name);
-    name += "($_0::*)";
+    //name += "($_0::*)";
     name += "(";
-    type_name_args (name, type_name_declval<Args> ()...);
+    type_name<Args...> (name);
     name += ") const";
   }
 
@@ -87,6 +69,8 @@ namespace lwt
   type_name_rec (std::string &name, Head &head, Tail &...tail)
   {
     type_name (name, head);
+    if (sizeof... (tail) > 0)
+      name += ", ";
     type_name_rec (name, tail...);
   }
 
