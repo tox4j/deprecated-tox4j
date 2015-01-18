@@ -119,12 +119,9 @@ struct basic_io_state
 
   virtual io_state state () const = 0;
 
-  virtual basic_io_base notify (basic_io_state const &result) = 0;
+  virtual basic_io_base notify (basic_io_state::pointer const &result) = 0;
   virtual void notify (std::vector<basic_io_base> &blocked) = 0;
   virtual pointer cancel () = 0;
-#if 0
-  virtual void notify (basic_io_base self, basic_io_base success) = 0;
-#endif
 
   struct cancelled { };
 
@@ -218,10 +215,10 @@ struct basic_io_base
   }
 
 
-  void notify (basic_io_state const &result)
+  void notify (basic_io_state::pointer const &result)
   {
     SCOPE;
-    LOG (INFO) << *this << "Received notification from [" << result.id << "]";
+    LOG (INFO) << *this << "Received notification from [" << result->id << "]";
     basic_io_base const &new_state = state_->io->notify (result);
     if (transition (new_state))
       {
@@ -470,10 +467,10 @@ struct states::success_t
     LOG (INFO) << "[_/" << this->id << "] Deleting success_t";
   }
 
-  basic_io_base notify (basic_io_state const &result) final
+  basic_io_base notify (basic_io_state::pointer const &result) final
   {
     SCOPE;
-    LOG (FATAL) << "[_/" << this->id << "] Processing event in success value: " << result.state ();
+    LOG (FATAL) << "[_/" << this->id << "] Processing event in success value: " << result->state ();
   }
 
   void notify (std::vector<basic_io_base> &blocked) final
@@ -484,23 +481,16 @@ struct states::success_t
       {
         basic_io_base io = std::move (blocked.back ());
         blocked.pop_back ();
-        io.notify (*this);
+        io.notify (this);
       }
   }
 
-  pointer cancel  () final
+  pointer cancel () final
   {
     SCOPE;
     LOG (FATAL) << "[_/" << this->id << "] Attempted to cancel a success value";
     return this;
   }
-
-#if 0
-  void notify (basic_io_base self, basic_io_base success) final
-  {
-    LOG (FATAL) << "[_/" << self.id () << "] Notifying success value with [" << success.id () << "]";
-  }
-#endif
 
   template<typename BindF>
   typename std::result_of<BindF (Success...)>::type
@@ -517,7 +507,7 @@ private:
     return func (std::get<S> (data_)...);
   }
 
-  std::tuple<Success...> data_;
+  std::tuple<Success...> const data_;
 };
 
 template<typename ...Success>
@@ -542,7 +532,7 @@ struct states::failure_t
 
   explicit failure_t (Failure failure)
     : basic_io_state (TAG)
-    , data_ (failure)
+    , data (failure)
   {
     SCOPE;
     LOG (INFO) << "[_/" << this->id << "] New failure_t";
@@ -556,38 +546,35 @@ struct states::failure_t
 
   explicit failure_t (cancelled failure)
     : basic_io_state (TAG)
-    , data_ (failure)
+    , data (failure)
   { }
 
-  basic_io_base notify (basic_io_state const &result) final
+  basic_io_base notify (basic_io_state::pointer const &result) final
   {
     SCOPE;
-    LOG (FATAL) << "[_/" << this->id << "] Processing event in failure value: " << result.state ();
+    LOG (FATAL) << "[_/" << this->id << "] Processing event in failure value: " << result->state ();
   }
 
   void notify (std::vector<basic_io_base> &blocked) final
   {
     SCOPE;
-    LOG (FATAL) << "[_/" << this->id << "] Notifying " << blocked.size ()
-                << " states in failure value has no effect";
+    LOG (INFO) << "[_/" << this->id << "] Notifying " << blocked.size () << " states of failure";
+    while (!blocked.empty ())
+      {
+        basic_io_base io = std::move (blocked.back ());
+        blocked.pop_back ();
+        io.notify (this);
+      }
   }
 
-  pointer cancel  () final
+  pointer cancel () final
   {
     SCOPE;
     LOG (FATAL) << "[_/" << this->id << "] Attempted to cancel a failure value";
     return this;
   }
 
-#if 0
-  void notify (basic_io_base self, basic_io_base success) final
-  {
-    LOG (FATAL) << "[_/" << self.id () << "] Notifying failure value with [" << success.id () << "]";
-  }
-#endif
-
-private:
-  variant<Failure, cancelled> data_;
+  variant<Failure, cancelled> const data;
 };
 
 template<typename Failure>
@@ -631,7 +618,7 @@ struct states::waiting_t
     LOG (INFO) << "[_/" << this->id << "] Deleting waiting_t";
   }
 
-  basic_io_base notify (basic_io_state const &result) final
+  basic_io_base notify (basic_io_state::pointer const &result) final
   {
     SCOPE;
     LOG (INFO) << "[_/" << this->id << "] waiting_t became unblocked";
@@ -645,43 +632,36 @@ struct states::waiting_t
                << " states in waiting state has no effect";
   }
 
-  pointer cancel  () final
+  pointer cancel () final
   {
     return pointer (make_ptr<states::failure_t<Failure>> (cancelled ()));
   }
 
-#if 0
-  void notify (basic_io_base self, basic_io_base success) final
-  {
-    LOG (FATAL) << "[_/" << self.id () << "] Attempted to notify waiting I/O with ["
-                << success.id () << "]";
-  }
-#endif
-
 private:
   template<typename T, typename IO, typename ...Args>
-  static IO invoke_one_helper (T func, basic_io_state const &result)
+  static IO invoke_one_helper (T func, basic_io_state::pointer const &result)
   {
-    switch (result.state ())
+    switch (result->state ())
       {
       case io_state::success:
-        return type_cast<success_t<typename std::decay<Args>::type...> const &> (result)
+        return type_cast<success_t<typename std::decay<Args>::type...> const &> (*result)
           ->* func;
       case io_state::failure:
+        return IO (&type_cast<failure_t<Failure> &> (*result));
       case io_state::waiting:
         assert (false);
       }
   }
 
   template<typename T, typename IO, typename ...Args>
-  static IO invoke_one (IO (T::*) (Args...), T func, basic_io_state const &result)
+  static IO invoke_one (IO (T::*) (Args...), T func, basic_io_state::pointer const &result)
   { return invoke_one_helper<T, IO, Args...> (func, result); }
 
   template<typename T, typename IO, typename ...Args>
-  static IO invoke_one (IO (T::*) (Args...) const, T func, basic_io_state const &result)
+  static IO invoke_one (IO (T::*) (Args...) const, T func, basic_io_state::pointer const &result)
   { return invoke_one_helper<T, IO, Args...> (func, result); }
 
-  Callback callback_;
+  Callback const callback_;
 };
 
 template<typename Failure, typename Callback>
@@ -863,41 +843,83 @@ using io_waiting = states::waiting_t<SystemError, Callback>;
  *****************************************************************************/
 
 
+struct file_descriptor
+{
+  file_descriptor (file_descriptor const &rhs) = delete;
+
+  explicit file_descriptor (int fd);
+  ~file_descriptor ();
+
+  unsigned const fd;
+
+private:
+  unsigned refcount = 0;
+
+  friend void intrusive_ptr_add_ref (file_descriptor *p)
+  { ++p->refcount; }
+
+  friend void intrusive_ptr_release (file_descriptor *p)
+  { if (!--p->refcount) delete p; }
+};
+
+
+typedef boost::intrusive_ptr<file_descriptor> shared_fd;
+
+
+void type_name (std::string &name, shared_fd const &)
+{ name += "shared_fd"; }
+
+
+std::ostream &
+operator << (std::ostream &os, shared_fd const &fd)
+{
+  return os << fd->fd;
+}
+
+
 struct io_waiting_ref
 {
   io_waiting_ref &operator = (io_waiting_ref const &) = delete;
 
   io_waiting_ref (io_waiting_ref &&rhs)
-    : io_ (std::move (rhs.io_))
+    : events (rhs.events)
+    , io_ (std::move (rhs.io_))
+    , fd_ (std::move (rhs.fd_))
   {
-    rhs.processed_ = true;
+    // XXX: only with working move constructor for intrusive_ptr.
+    //LOG_ASSERT (rhs.fd_ == nullptr);
+    rhs.fd_ = nullptr;
   }
 
-  io_waiting_ref (int events, basic_io_base io)
+  io_waiting_ref (int events, basic_io_base io, shared_fd fd)
     : events (events)
     , io_ (io)
+    , fd_ (fd)
   { }
 
   ~io_waiting_ref ()
   {
-    if (!processed_)
+    if (fd_)
       io_.cancel ();
   }
 
   void notify (int fd)
   {
     SCOPE;
-    LOG_ASSERT (!processed_);
-    io_success<int> success { fd };
-    io_.notify (success);
-    processed_ = true;
+    LOG_ASSERT (fd_ != nullptr);
+    LOG_ASSERT (static_cast<unsigned> (fd) == fd_->fd);
+
+    io_.notify (make_ptr<io_success<shared_fd>> (std::move (fd_)));
+    // XXX: only with working move constructor for intrusive_ptr.
+    //LOG_ASSERT (fd_ == nullptr);
+    fd_ = nullptr;
   }
 
   int events;
 
-private:
-  bool processed_ = false;
+//private:
   basic_io_base io_;
+  shared_fd fd_;
 };
 
 
@@ -959,6 +981,7 @@ struct event_loop
     LOG_ASSERT (data->io_waiting.size () > static_cast<std::size_t> (w->fd));
 
     optional<io_waiting_ref> waiting = std::move (data->io_waiting[w->fd]);
+    //LOG_ASSERT (!data->io_waiting[w->fd]);
     if (waiting && waiting->events & events)
       {
         assert (!data->io_waiting[w->fd]);
@@ -966,7 +989,6 @@ struct event_loop
                    << print_ev_events (events);
         waiting->notify (w->fd);
       }
-    //ev_io_stop (data->raw_loop, &data->io_watchers[w->fd]);
   }
 
   void add_io (int fd)
@@ -979,7 +1001,6 @@ struct event_loop
     ev_io &io = data->io_watchers[fd];
     io.data = data.get ();
     ev_set_cb (&io, io_callback);
-    ev_io_set (&io, fd, EV_READ | EV_WRITE);
   }
 
   void remove_io (int fd)
@@ -989,6 +1010,7 @@ struct event_loop
 
     LOG_ASSERT (data->io_watchers.size () > static_cast<std::size_t> (fd));
     ev_io_stop (data->raw_loop, &data->io_watchers[fd]);
+    data->io_watchers[fd].data = nullptr;
 
     // Remove waiting IOs, instantly setting it to an error state.
     if (data->io_waiting.size () > static_cast<std::size_t> (fd))
@@ -997,23 +1019,27 @@ struct event_loop
 
 
   template<typename Callback>
-  typename std::result_of<Callback (int)>::type
-  wait_io (int fd, int events, Callback cb)
+  typename std::result_of<Callback (shared_fd)>::type
+  wait_io (shared_fd fd, int events, Callback cb)
   {
     SCOPE;
-    typedef typename std::result_of<Callback (int)>::type result_type;
+    typedef typename std::result_of<Callback (shared_fd)>::type result_type;
 
-    LOG_ASSERT (data->io_watchers.size () > static_cast<std::size_t> (fd));
+    LOG_ASSERT (data->io_watchers.size () > fd->fd);
     result_type io = make_ptr<io_waiting<Callback>> (cb);
 
-    if (data->io_waiting.size () <= static_cast<std::size_t> (fd))
-      data->io_waiting.resize (fd + 1);
+    if (data->io_waiting.size () <= fd->fd)
+      data->io_waiting.resize (fd->fd + 1);
 
-    if (data->io_waiting[fd])
+    if (data->io_waiting[fd->fd])
       LOG (FATAL) << "Attempted to wait on the same fd (" << fd << ") twice at the same time";
 
-    data->io_waiting[fd].emplace (events, io);
-    ev_io_start (data->raw_loop, &data->io_watchers[fd]);
+    data->io_waiting[fd->fd].emplace (events, io, fd);
+
+    ev_io &watcher = data->io_watchers[fd->fd];
+    ev_io_stop  (data->raw_loop, &watcher);
+    ev_io_set (&watcher, fd->fd, events);
+    ev_io_start (data->raw_loop, &watcher);
 
     return std::move (io);
   }
@@ -1030,12 +1056,28 @@ struct event_loop
         LOG (INFO) << "Program terminated with success";
         break;
       case io_state::failure:
-        LOG (INFO) << "Program terminated with failure";
+        LOG (INFO) << "Program terminated with failure: "
+                   << type_cast<io_failure &> (*program.get ()).data.match (
+                        [](SystemError const &err) {
+                          return strerror (err.code);
+                        },
+                        [](basic_io_state::cancelled const &) {
+                          return "cancelled";
+                        }
+                      );
         break;
       case io_state::waiting:
         LOG (FATAL) << "Program terminated in waiting state";
         break;
       }
+
+    for (optional<io_waiting_ref> const &waiting : data->io_waiting)
+      if (waiting)
+        LOG (FATAL) << "Still waiting for " << waiting->fd_;
+
+    for (ev_io const &watcher : data->io_watchers)
+      if (watcher.data)
+        LOG (FATAL) << "Still have a watcher for " << watcher.fd;
   }
 
 private:
@@ -1051,54 +1093,53 @@ private:
 
 static thread_local event_loop default_loop;
 
-
-io<int>
-open (char const *pathname)
+file_descriptor::file_descriptor (int fd)
+  : fd (fd)
 {
-  int fd = ::open (pathname, 0);
-  if (fd == -1)
-    return failure (SystemError (errno));
-
+  LOG_ASSERT (fd >= 0);
   default_loop.add_io (fd);
+}
 
-  return success (fd);
+file_descriptor::~file_descriptor ()
+{
+  default_loop.remove_io (fd);
+
+  if (::close (fd) < 0)
+    LOG (FATAL) << "Failed to close fd " << fd << ": " << strerror (errno);
 }
 
 
-io<>
-close (int fd)
+io<shared_fd>
+open (char const *pathname)
 {
-  if (::close (fd) == -1)
+  //return success (make_ptr<file_descriptor> (STDIN_FILENO));
+
+  int fd = ::open (pathname, 0);
+  if (fd < 0)
     return failure (SystemError (errno));
 
-  default_loop.remove_io (fd);
-
-  return success ();
+  return success (make_ptr<file_descriptor> (fd));
 }
 
 
 io<std::vector<uint8_t>>
-read (int fd, std::size_t count,
-      std::vector<uint8_t> &&buffer = std::vector<uint8_t> (),
-      std::size_t offset = 0)
+read (shared_fd fd, std::size_t count)
 {
   SCOPE;
   LOG (INFO) << "Registering I/O wait for read() on fd " << fd;
   return default_loop.wait_io (fd, EV_READ,
-    [count, offset, buffer = std::move (buffer)] (int fd) mutable
-      -> io<std::vector<uint8_t>>
+    [count] (shared_fd fd) -> io<std::vector<uint8_t>>
     {
       SCOPE;
-      LOG (INFO) << "read() became unblocked; reading " << count << " bytes"
-                 << " at offset " << offset;
-      if (buffer.size () <= count + offset)
-        buffer.resize (count + offset);
-      int result = ::read (fd, buffer.data () + offset, count);
-      if (result == -1)
+      LOG (INFO) << "read() became unblocked; reading " << count << " bytes";
+
+      std::vector<uint8_t> buffer (count);
+      int result = ::read (fd->fd, buffer.data (), count);
+      if (result < 0)
         return failure (SystemError (errno));
       LOG_ASSERT (static_cast<std::size_t> (result) <= count);
-      buffer.resize (result + offset);
-      return success (buffer);
+      buffer.resize (result);
+      return success (std::move (buffer));
     });
 }
 
@@ -1116,9 +1157,10 @@ namespace lwt
 
 
 TEST (IO, OpenClose) {
-  io<> program = open ("/dev/random")
-    ->* [] (int fd) -> io<> {
-      return close (fd);
+  io<> program = open ("/dev/stdin")
+    ->* [] (shared_fd fd) -> io<> {
+      LOG_ASSERT (fd->fd >= 0);
+      return success ();
     };
 
   default_loop.run (program);
@@ -1128,32 +1170,92 @@ TEST (IO, OpenClose) {
 TEST (IO, Read) {
   typedef std::vector<uint8_t> byte_vec;
 
-  io<> program = open ("/dev/random")
-    ->* [] (int fd) -> io<> {
+  io<> program = open ("/dev/stdin")
+
+    ->* [] (shared_fd fd) -> io<byte_vec> {
+      return read (fd, 10);
+    }
+
+    ->* [] (byte_vec const &data) -> io<> {
+      LOG_ASSERT (data.size () == 10);
+      return success ();
+    };
+
+  default_loop.run (program);
+}
+
+
+TEST (IO, DirectFailure) {
+  typedef std::vector<uint8_t> byte_vec;
+
+  io<> program = open ("/dev/stdin")
+
+    ->* [] (shared_fd fd) -> io<byte_vec> {
+      LOG_ASSERT (fd->fd >= 0);
+      return failure (SystemError (0));
+    }
+
+    ->* [] (byte_vec const &data) -> io<> {
+      LOG_ASSERT (data.size () == 10);
+      return success ();
+    };
+
+  default_loop.run (program);
+}
+
+
+TEST (IO, WaitingFailure) {
+  typedef std::vector<uint8_t> byte_vec;
+
+  io<> program = open ("/dev/stdin")
+
+    ->* [] (shared_fd fd) -> io<byte_vec> {
+      return read (fd, 10)
+        ->* [] (byte_vec const &data) -> io<byte_vec> {
+          LOG (INFO) << "Got " << data.size () << " bytes";
+          LOG_ASSERT (data.size () == 10);
+          return failure (SystemError (0));
+        };
+    }
+
+    ->* [] (byte_vec const &data) -> io<> {
+      LOG_ASSERT (data.size () == 10);
+      return success ();
+    };
+
+  default_loop.run (program);
+}
+
+
+TEST (IO, ReadMultiplex) {
+  typedef std::vector<uint8_t> byte_vec;
+
+  io<> program = open ("/dev/stdin")
+    ->* [] (shared_fd fd) -> io<> {
       io<byte_vec> waiting_read = read (fd, 10);
 
       // First waiting operation on first read.
       io<byte_vec> waiting1_1 = waiting_read
-        ->* [=] (byte_vec const &buffer1) -> io<> {
+        ->* [] (byte_vec const &buffer1) -> io<> {
           SCOPE;
           LOG (INFO) << "got buffer 1: " << buffer1.size ();
           return success ();
         }
 
-        ->* deferred (read, fd, 10, byte_vec (), 0);
+        ->* deferred (read, fd, 10);
 
       // First waiting operation on second read.
       io<> waiting2_1 = waiting1_1
-        ->* [=] (byte_vec const &buffer2) -> io<> {
+        ->* [] (byte_vec const &buffer2) -> io<> {
           SCOPE;
           LOG (INFO) << "got buffer 2: " << buffer2.size ();
-          return close (fd);
+          return success ();
         };
 
 
       // Second waiting operation on second read.
       io<> waiting2_2 = waiting1_1
-        ->* [=] (byte_vec const &buffer2) -> io<> {
+        ->* [] (byte_vec const &buffer2) -> io<> {
           SCOPE;
           LOG (INFO) << "got buffer 2 again: " << buffer2.size ();
           return success ();
@@ -1162,7 +1264,7 @@ TEST (IO, Read) {
 
       // Second waiting operation on first read.
       io<> waiting1_2 = waiting_read
-        ->* [=] (byte_vec const &buffer1) -> io<> {
+        ->* [] (byte_vec const &buffer1) -> io<> {
           SCOPE;
           LOG (INFO) << "got buffer 1 again: " << buffer1.size ();
           return success ();
