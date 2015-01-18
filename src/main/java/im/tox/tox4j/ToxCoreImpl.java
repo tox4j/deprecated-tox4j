@@ -429,19 +429,23 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
+    private static void checkLength(@NotNull String name, @NotNull byte[] bytes, int expectedSize) {
+        //noinspection ConstantConditions
+        if (bytes != null) {
+            if (bytes.length < expectedSize) {
+                throw new IllegalArgumentException(name + " too short, must be " + expectedSize + " bytes");
+            }
+            if (bytes.length > expectedSize) {
+                throw new IllegalArgumentException(name + " too long, must be " + expectedSize + " bytes");
+            }
+        }
+    }
+
     private static native int toxFriendAdd(int instanceNumber, @NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException;
 
     @Override
     public int addFriend(@NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException {
-        //noinspection ConstantConditions
-        if (address != null) {
-            if (address.length < ToxConstants.ADDRESS_SIZE) {
-                throw new IllegalArgumentException("Address too short, must be " + ToxConstants.ADDRESS_SIZE + " bytes");
-            }
-            if (address.length > ToxConstants.ADDRESS_SIZE) {
-                throw new IllegalArgumentException("Address too long, must be " + ToxConstants.ADDRESS_SIZE + " bytes");
-            }
-        }
+        checkLength("Friend Address", address, ToxConstants.ADDRESS_SIZE);
         return toxFriendAdd(instanceNumber, address, message);
     }
 
@@ -450,15 +454,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException {
-        //noinspection ConstantConditions
-        if (clientId != null) {
-            if (clientId.length < ToxConstants.CLIENT_ID_SIZE) {
-                throw new IllegalArgumentException("Client ID too short, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
-            }
-            if (clientId.length > ToxConstants.CLIENT_ID_SIZE) {
-                throw new IllegalArgumentException("Client ID too long, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
-            }
-        }
+        checkLength("Client ID", clientId, ToxConstants.CLIENT_ID_SIZE);
         return toxFriendAddNorequest(instanceNumber, clientId);
     }
 
