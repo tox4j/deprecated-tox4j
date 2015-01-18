@@ -66,6 +66,16 @@ enum class io_state
   waiting,
 };
 
+io_state
+operator || (io_state lhs, io_state rhs)
+{
+  if (lhs == io_state::waiting || rhs == io_state::waiting)
+    return io_state::waiting;
+  if (lhs == io_state::failure || rhs == io_state::failure)
+    return io_state::failure;
+  return io_state::success;
+}
+
 std::ostream &
 operator << (std::ostream &os, io_state state)
 {
@@ -137,6 +147,11 @@ namespace states
 }
 
 
+struct basic_io_base;
+void dump_ios ();
+void register_io (basic_io_base const &io);
+
+
 struct basic_io_base
 {
   static std::size_t object_count;
@@ -147,23 +162,40 @@ struct basic_io_base
     SCOPE;
     LOG_ASSERT (io != nullptr);
     LOG (INFO) << *this << "Creating io_base in state " << io->state ();
+    //register_io (*this);
+  }
+
+  basic_io_base &operator = (basic_io_base &&rhs)
+  {
+    state_->io = std::move (rhs.state_->io);
+    state_->blocked = std::move (rhs.state_->blocked);
+    rhs.reset ();
+    return *this;
   }
 
   basic_io_base (basic_io_base &&rhs)
     : state_ (rhs.state_)
-  { rhs.state_ = nullptr; }
+  { rhs.reset (); }
 
   basic_io_base (basic_io_base const &rhs)
     : state_ (rhs.state_)
   { }
 
+  void reset ()
+  { state_ = nullptr; }
+
   std::size_t id () const { return state_->io->id; }
   io_state state () const { return state_->io->state (); }
+  std::string type () const { return state_->io->type (); }
 
-  void transition (basic_io_base const &new_state)
+  bool transition (basic_io_base const &new_state)
   {
     SCOPE;
-    LOG_ASSERT (new_state != *this);
+    if (new_state == *this)
+      {
+        LOG (INFO) << *this << "Not transitioning";
+        return false;
+      }
 
     LOG (INFO) << *this << "Transitioned from "
                << state () << " [" << id () << "] to " << new_state.state ()
@@ -180,6 +212,9 @@ struct basic_io_base
         new_state.state_->blocked.pop_back ();
       }
     LOG (INFO) << *this << "Now contains " << state_->blocked.size () << " blocked states";
+    //dump_ios ();
+
+    return true;
   }
 
 
@@ -187,8 +222,16 @@ struct basic_io_base
   {
     SCOPE;
     LOG (INFO) << *this << "Received notification from [" << result.id << "]";
-    transition (state_->io->notify (result));
-    state_->io->notify (state_->blocked);
+    basic_io_base const &new_state = state_->io->notify (result);
+    if (transition (new_state))
+      {
+        state_->io->notify (state_->blocked);
+        while (!state_->blocked.empty ())
+          {
+            new_state.state_->blocked.push_back (std::move (state_->blocked.back ()));
+            state_->blocked.pop_back ();
+          }
+      }
   }
 
   void cancel ()
@@ -234,21 +277,10 @@ protected:
     }
 
     friend void intrusive_ptr_add_ref (data *p)
-    {
-      ++p->refcount;
-      //printf ("[%zu] refcount = %zu\n", p->id, p->refcount);
-    }
+    { ++p->refcount; }
 
     friend void intrusive_ptr_release (data *p)
-    {
-      --p->refcount;
-      //printf ("[%zu] refcount = %zu\n", p->id, p->refcount);
-      if (!p->refcount)
-        {
-          printf ("Deleting [%zu]\n", p->id);
-          //delete p;
-        }
-    }
+    { if (!--p->refcount) delete p; }
 
     std::size_t const id = object_count++;
     std::size_t refcount = 0;
@@ -258,9 +290,49 @@ protected:
   };
 
   boost::intrusive_ptr<data> state_;
+
+  friend struct io_registry;
 };
 
 std::size_t basic_io_base::object_count;
+
+
+static std::ostream &
+operator << (std::ostream &os, std::vector<basic_io_base> const &vec)
+{
+  os << "{";
+  for (basic_io_base const &io : vec)
+    os << io;
+  os << "}";
+  return os;
+}
+
+static struct io_registry
+{
+  void dump ()
+  {
+    SCOPE;
+    LOG (INFO) << "Live IOs:";
+    for (basic_io_base const &io : ios)
+      if (io.state_->refcount > 1)
+        LOG (INFO) << "- " << io << io.type () << "; blocked = " << io.state_->blocked;
+  }
+
+  std::vector<basic_io_base> ios;
+} ios;
+
+void
+dump_ios ()
+{
+  ios.dump ();
+}
+
+void
+register_io (basic_io_base const &io)
+{
+  ios.ios.push_back (io);
+  dump_ios ();
+}
 
 
 template<typename Failure, typename ...Success>
@@ -300,15 +372,15 @@ struct basic_io
   operator ->* (BindF func) const;
 
 
-  void aggregate_wait () { }
+  void add_blocked () { }
 
   template<typename ...Tail>
-  void aggregate_wait (basic_io head, Tail const &...tail)
+  void add_blocked (basic_io head, Tail const &...tail)
   {
     SCOPE;
     LOG (INFO) << "[" << head.id () << "] Adding blocked IO [" << id () << "]";
     head.state_->blocked.push_back (*this);
-    return aggregate_wait (tail...);
+    return add_blocked (tail...);
   }
 
 private:
@@ -524,10 +596,13 @@ std::size_t const states::failure_t<Failure>::TAG
 
 
 template<typename Failure, typename Callback>
-struct basic_io_waiting_state
+struct states::waiting_t
   : basic_io_state
 {
-  friend void type_name (std::string &name, basic_io_waiting_state const &)
+  typedef typename waiting_t::pointer pointer;
+  typedef typename waiting_t::cancelled cancelled;
+
+  friend void type_name (std::string &name, waiting_t const &)
   {
     name += "waiting_t<";
     type_name<Failure, Callback> (name);
@@ -536,27 +611,15 @@ struct basic_io_waiting_state
 
   static std::size_t const TAG;
 
-  basic_io_waiting_state ()
+  io_state state () const final { return io_state::waiting; }
+
+  waiting_t ()
     : basic_io_state (TAG)
   { }
 
-  io_state state () const final { return io_state::waiting; }
-};
-
-template<typename Failure, typename Callback>
-std::size_t const basic_io_waiting_state<Failure, Callback>::TAG
-    = types::make<basic_io_waiting_state<Failure, Callback>> ();
-
-
-template<typename Failure, typename Callback>
-struct states::waiting_t
-  : basic_io_waiting_state<Failure, Callback>
-{
-  typedef typename waiting_t::pointer pointer;
-  typedef typename waiting_t::cancelled cancelled;
-
   explicit waiting_t (Callback callback)
-    : callback_ (callback)
+    : basic_io_state (TAG)
+    , callback_ (callback)
   {
     SCOPE;
     LOG (INFO) << "[_/" << this->id << "] New waiting_t";
@@ -621,6 +684,10 @@ private:
   Callback callback_;
 };
 
+template<typename Failure, typename Callback>
+std::size_t const states::waiting_t<Failure, Callback>::TAG
+    = types::make<states::waiting_t<Failure, Callback>> ();
+
 
 template<typename Failure, typename ...Success>
 template<typename BindF>
@@ -641,14 +708,12 @@ basic_io<Failure, Success...>::operator ->* (BindF func) const
       return result_type (&type_cast<states::failure_t<Failure> &> (*state_->io));
     case io_state::waiting:
       {
-        //auto &waiting = type_cast<basic_io_waiting_state<Failure, Success...> &> (*io);
-
         result_type blocked (make_ptr<states::waiting_t<Failure, BindF>> (func));
 
         LOG (INFO) << "[_/" << this->id () << "] Adding blocked IO: [" << blocked.id () << "]";
         this->state_->blocked.push_back (blocked);
 
-        return blocked;
+        return std::move (blocked);
       }
     }
 }
@@ -670,42 +735,86 @@ failure (Error error)
 }
 
 
-static void
-aggregate_call (basic_io_state const &/*result*/)
-{ }
+static io_state
+aggregate_states ()
+{
+  return io_state::success;
+}
 
 template<typename Head, typename ...Tail>
-void
-aggregate_call (basic_io_state const &result, Head head, Tail const &...tail)
+io_state
+aggregate_states (Head head, Tail const &...tail)
 {
-  head.notify (result);
-  return aggregate_call (result, tail...);
+  return head.state () || aggregate_states (tail...);
+}
+
+
+template<typename Failure, typename ...Success>
+static basic_io<Failure, Success...>
+aggregate_success ()
+{
+  return success ();
+}
+
+template<typename Failure, typename ...Success, typename ...Tail>
+static basic_io<Failure, Success...>
+aggregate_success (basic_io<Failure, Success...> const &head, Tail const &...tail)
+{
+  // TODO: aggregate
+  (void) head;
+  return aggregate_success<Failure, Success...> (tail...);
+}
+
+
+template<typename Failure, typename ...Success>
+static basic_io<Failure, Success...>
+aggregate_failure ()
+{
+  LOG (FATAL) << "Failed to aggregate failure: no failures found";
+}
+
+template<typename Failure, typename ...Success, typename ...Tail>
+static basic_io<Failure, Success...>
+aggregate_failure (basic_io<Failure, Success...> const &head, Tail const &...tail)
+{
+  if (head.state () == io_state::failure)
+    return head;
+  return aggregate_failure<Failure, Success...> (tail...);
 }
 
 
 template<typename Failure, typename ...Blocking>
 //states::blocked_t<Blocking...>
 basic_io<Failure>
-combine (Blocking &&...blocking)
+combine (Blocking const &...blocking)
 {
   SCOPE;
   LOG_ASSERT (sizeof... (Blocking) > 1);
   LOG (INFO) << "Combining " << sizeof... (Blocking) << " IOs";
-  //return states::blocked_t<Blocking...> (blocking...);
+
+  basic_io<Failure> waiting (make_ptr<states::success_t<>> ());
+
   auto callback = [=] () mutable -> basic_io<Failure> {
-    LOG (INFO) << "Dispatching result over " << sizeof... (Blocking) << " IOs";
-    if (false) {
-    states::success_t<> result;
-    aggregate_call (result, blocking...);
-    }
-    return success ();
+    switch (aggregate_states (blocking...))
+      {
+      case io_state::success:
+        LOG (INFO) << "All states were successful; aggregating results";
+        waiting.reset ();
+        return aggregate_success (blocking...);
+      case io_state::failure:
+        LOG (INFO) << "At least one state failed; returning first failure";
+        waiting.reset ();
+        return aggregate_failure (blocking...);
+      case io_state::waiting:
+        LOG (INFO) << "At least one state is still waiting; returning self";
+        return waiting;
+      }
   };
-  LOG (INFO) << "Lambda created";
 
-  basic_io<Failure> waiting =
-    make_ptr<states::waiting_t<Failure, decltype (callback)>> (std::move (callback));
+  waiting = basic_io<Failure>
+    (make_ptr<states::waiting_t<Failure, decltype (callback)>> (std::move (callback)));
 
-  waiting.aggregate_wait (blocking...);
+  waiting.add_blocked (blocking...);
 
   return waiting;
 }
@@ -882,8 +991,8 @@ struct event_loop
     ev_io_stop (data->raw_loop, &data->io_watchers[fd]);
 
     // Remove waiting IOs, instantly setting it to an error state.
-    LOG_ASSERT (data->io_waiting.size () > static_cast<std::size_t> (fd));
-    data->io_waiting[fd] = nullopt_t ();
+    if (data->io_waiting.size () > static_cast<std::size_t> (fd))
+      data->io_waiting[fd] = nullopt_t ();
   }
 
 
@@ -906,7 +1015,7 @@ struct event_loop
     data->io_waiting[fd].emplace (events, io);
     ev_io_start (data->raw_loop, &data->io_watchers[fd]);
 
-    return io;
+    return std::move (io);
   }
 
 
@@ -1006,6 +1115,16 @@ namespace lwt
 {
 
 
+TEST (IO, OpenClose) {
+  io<> program = open ("/dev/random")
+    ->* [] (int fd) -> io<> {
+      return close (fd);
+    };
+
+  default_loop.run (program);
+}
+
+
 TEST (IO, Read) {
   typedef std::vector<uint8_t> byte_vec;
 
@@ -1049,9 +1168,7 @@ TEST (IO, Read) {
           return success ();
         };
 
-      return combine<SystemError> (std::move (waiting2_1),
-                                   std::move (waiting2_2),
-                                   std::move (waiting1_2));
+      return combine<SystemError> (waiting2_1, waiting2_2, waiting1_2);
     };
 
   default_loop.run (program);
