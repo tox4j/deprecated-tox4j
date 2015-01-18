@@ -193,8 +193,8 @@ bool tox_version_is_compatible(uint32_t major, uint32_t minor, uint32_t patch);
  * [Client ID (TOX_CLIENT_ID_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
  *
  * The checksum is computed over the Client ID and the nospam value. The first
- * byte is an XOR of all the odd bytes, the second byte is an XOR of all the
- * even bytes of the Client ID and nospam.
+ * byte is an XOR of all the even bytes (0, 2, 4, ...), the second byte is an
+ * XOR of all the odd bytes (1, 3, 5, ...) of the Client ID and nospam.
  */
 #define TOX_ADDRESS_SIZE		(TOX_CLIENT_ID_SIZE + sizeof(uint32_t) + sizeof(uint16_t))
 
