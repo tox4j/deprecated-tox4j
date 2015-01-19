@@ -24,10 +24,12 @@ namespace lwt
       if (initialised_)
         {
           new (static_cast<void *> (data_)) T (std::move (rhs.value ()));
-          rhs.value ().~T ();
-          rhs.initialised_ = false;
+          rhs.destroy ();
         }
     }
+
+    ~optional ()
+    { destroy (); }
 
     optional &operator = (nullopt_t)
     {
