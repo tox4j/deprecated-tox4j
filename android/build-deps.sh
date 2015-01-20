@@ -51,10 +51,17 @@ INSTALL() {
   rm -rf $TOOLCHAIN
   "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh"  \
     --ndk-dir="$ANDROID_NDK_HOME"                               \
-    --toolchain=arm-linux-androideabi-clang3.4                  \
+    --toolchain=arm-linux-androideabi-clang3.5                  \
     --install-dir=$TOOLCHAIN                                    \
     --platform=android-9
 }
+# libev
+(
+  rm -rf libev
+  cvs -z3 -d :pserver:anonymous@cvs.schmorp.de/schmorpforge co libev
+  cd libev
+  INSTALL libev CFLAGS=-DEV_USE_SELECT=0
+)
 # libsodium
 (
   CLONE https://github.com/jedisct1 libsodium --depth=1

@@ -7,6 +7,17 @@
 using namespace lwt;
 
 
+std::size_t scope_counter::scope;
+
+std::ostream &
+scope_indent (std::ostream &os, int line)
+{
+  for (std::size_t i = 0; i < scope_counter::scope - (line >= 1000); i++)
+    os << ' ';
+  return os;
+}
+
+
 void
 lwt::output_hex (std::ostream &os, uint8_t const *data, size_t length)
 {

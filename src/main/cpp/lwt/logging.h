@@ -1,20 +1,40 @@
 #pragma once
 
 #include <array>
+#include <ostream>
 #include <vector>
+
+
+struct scope_counter
+{
+  static std::size_t scope;
+
+  scope_counter ()
+  { scope++; }
+
+  ~scope_counter ()
+  { scope--; }
+
+  scope_counter (scope_counter const &rhs) = delete;
+};
+
+std::ostream &scope_indent (std::ostream &os, int line);
+
+#define SCOPE scope_counter const _scope
+
 
 #ifdef HAVE_GLOG
 #  include <glog/logging.h>
+#  undef LOG
+#  define LOG(KIND) scope_indent (COMPACT_GOOGLE_LOG_##KIND.stream(), __LINE__)
 #else
-#  include <ostream>
-
 struct null_ostream
   : std::ostream
 {
 };
 
-#define LOG(LEVEL) (null_ostream ())
-#define LOG_ASSERT(cond) assert (cond)
+#  define LOG(LEVEL) (null_ostream ())
+#  define LOG_ASSERT(cond) assert (cond)
 #endif
 
 namespace lwt
