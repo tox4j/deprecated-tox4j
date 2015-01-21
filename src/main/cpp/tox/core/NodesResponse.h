@@ -10,7 +10,7 @@ namespace tox
   using IPv4Format = PacketFormatTag<
     bitfield::type<
       bitfield::member<Protocol, 1>,
-      bitfield::member<std::integral_constant<uint8_t, __extension__ 0b0000010>, 7>
+      bitfield::member<std::integral_constant<uint8_t, 0b0000010>, 7>
     >,
     IPv4Address
   >;
@@ -18,7 +18,7 @@ namespace tox
   using IPv6Format = PacketFormatTag<
     bitfield::type<
       bitfield::member<Protocol, 1>,
-      bitfield::member<std::integral_constant<uint8_t, __extension__ 0b0001010>, 7>
+      bitfield::member<std::integral_constant<uint8_t, 0b0001010>, 7>
     >,
     IPv6Address
   >;
