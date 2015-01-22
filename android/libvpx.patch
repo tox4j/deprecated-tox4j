@@ -1,0 +1,13 @@
+diff --git a/build/make/Makefile b/build/make/Makefile
+index da5721a..5a701eb 100644
+--- a/build/make/Makefile
++++ b/build/make/Makefile
+@@ -124,6 +124,8 @@ else
+ STACKREALIGN=
+ endif
+ 
++$(BUILD_PFX)%_neon.c.d: CFLAGS += -mfloat-abi=softfp -mfpu=neon
++$(BUILD_PFX)%_neon.c.o: CFLAGS += -mfloat-abi=softfp -mfpu=neon
+ $(BUILD_PFX)%_mmx.c.d: CFLAGS += -mmmx
+ $(BUILD_PFX)%_mmx.c.o: CFLAGS += -mmmx
+ $(BUILD_PFX)%_sse2.c.d: CFLAGS += -msse2 $(STACKREALIGN)

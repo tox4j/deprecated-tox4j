@@ -36,31 +36,54 @@ throw_illegal_state_exception(JNIEnv *env, jint instance_number, std::string con
 
 
 void
-throw_tox_exception(JNIEnv *env, char const *method, char const *code)
+throw_tox_exception(JNIEnv *env, char const *module, char const *method, char const *code)
 {
-    std::string className = "im/tox/tox4j/exceptions/Tox";
+    std::string className = "im/tox/tox4j/";
+    className += module;
+    className += "/exceptions/Tox";
     className += method;
     className += "Exception";
     jclass exClass = env->FindClass(className.c_str());
-    assert(exClass);
+    if (!exClass) {
+        throw_exception(env, 0, "java/lang/NoClassDefFoundError", className.c_str());
+        return;
+    }
 
     std::string enumName = className + "$Code";
     jclass enumClass = env->FindClass(enumName.c_str());
-    assert(enumClass);
+    if (!enumClass) {
+        throw_exception(env, 0, "java/lang/NoClassDefFoundError", enumName.c_str());
+        return;
+    }
 
     std::string valueOfSig = "(Ljava/lang/String;)L" + enumName + ";";
     jmethodID valueOf = env->GetStaticMethodID(enumClass, "valueOf", valueOfSig.c_str());
-    assert(valueOf);
+    if (!valueOf) {
+        throw_exception(env, 0, "java/lang/NoSuchMethodException", ("valueOf" + valueOfSig).c_str());
+        return;
+    }
+
+    std::string constructorSig = "(L" + enumName + ";)V";
+    jmethodID constructor = env->GetMethodID(exClass, "<init>", constructorSig.c_str());
+    if (!constructor) {
+        throw_exception(env, 0, "java/lang/NoSuchMethodException", ("<init>" + constructorSig).c_str());
+        return;
+    }
 
     jobject enumCode = env->CallStaticObjectMethod(enumClass, valueOf, env->NewStringUTF(code));
     assert(enumCode);
-
-    std::string constructorName = "(L" + enumName + ";)V";
-    jmethodID constructor = env->GetMethodID(exClass, "<init>", constructorName.c_str());
-    assert(constructor);
 
     jobject exception = env->NewObject(exClass, constructor, enumCode);
     assert(exception);
 
     env->Throw((jthrowable) exception);
+}
+
+
+namespace av {
+    char const *const tox_traits::module = "av";
+}
+
+namespace core {
+    char const *const tox_traits::module = "core";
 }

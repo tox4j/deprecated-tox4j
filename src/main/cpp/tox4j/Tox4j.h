@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ErrorHandling.h"
-#include "ToxInstances.h"
 
 #include <algorithm>
 #include <sstream>
@@ -28,11 +27,3 @@ static inline void tox4j_assert(bool condition, JNIEnv *env, char const *message
 
 
 template<typename T> static inline void unused(T const &) { }
-
-
-template<typename T>
-std::string to_string(T const &v) {
-    std::ostringstream out;
-    out << v;
-    return out.str();
-}

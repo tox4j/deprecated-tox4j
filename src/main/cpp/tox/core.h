@@ -1,8 +1,10 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+#pragma once
 
-#include <tox/compat.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include <tox/core_compat.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -103,9 +105,83 @@ typedef struct Tox Tox;
 
 /*******************************************************************************
  *
+ * :: API version
+ *
+ ******************************************************************************/
+
+
+/**
+ * The major version number. Incremented when the API or ABI changes in an
+ * incompatible way.
+ */
+#define TOX_VERSION_MAJOR		0u
+/**
+ * The minor version number. Incremented when functionality is added without
+ * breaking the API or ABI. Set to 0 when the major version number is
+ * incremented.
+ */
+#define TOX_VERSION_MINOR		0u
+/**
+ * The patch or revision number. Incremented when bugfixes are applied without
+ * changing any functionality or API or ABI.
+ */
+#define TOX_VERSION_PATCH		0u
+
+/**
+ * A macro to check at preprocessing time whether the client code is compatible
+ * with the installed version of Tox.
+ */
+#define TOX_VERSION_IS_API_COMPATIBLE(MAJOR, MINOR, PATCH)	\
+  (TOX_VERSION_MAJOR == MAJOR &&				\
+   (TOX_VERSION_MINOR > MINOR ||				\
+    (TOX_VERSION_MINOR == MINOR &&				\
+     TOX_VERSION_PATCH >= PATCH)))
+
+/**
+ * A macro to make compilation fail if the client code is not compatible with
+ * the installed version of Tox.
+ */
+#define TOX_VERSION_REQUIRE(MAJOR, MINOR, PATCH)		\
+  typedef char tox_required_version[TOX_IS_COMPATIBLE(MAJOR, MINOR, PATCH) ? 1 : -1]
+
+
+/**
+ * Return the major version number of the library. Can be used to display the
+ * Tox library version or to check whether the client is compatible with the
+ * dynamically linked version of Tox.
+ */
+uint32_t tox_version_major(void);
+
+/**
+ * Return the minor version number of the library.
+ */
+uint32_t tox_version_minor(void);
+
+/**
+ * Return the patch number of the library.
+ */
+uint32_t tox_version_patch(void);
+
+/**
+ * Return whether the compiled library version is compatible with the passed
+ * version numbers.
+ */
+bool tox_version_is_compatible(uint32_t major, uint32_t minor, uint32_t patch);
+
+/**
+ * A convenience macro to call tox_version_is_compatible with the currently
+ * compiling API version.
+ */
+#define TOX_VERSION_IS_ABI_COMPATIBLE()				\
+  tox_version_is_compatible(TOX_VERSION_MAJOR, TOX_VERSION_MINOR, TOX_VERSION_PATCH)
+
+
+/*******************************************************************************
+ *
  * :: Numeric constants
  *
  ******************************************************************************/
+
 
 /**
  * The size of a Tox Client ID in bytes.
@@ -117,8 +193,8 @@ typedef struct Tox Tox;
  * [Client ID (TOX_CLIENT_ID_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
  *
  * The checksum is computed over the Client ID and the nospam value. The first
- * byte is an XOR of all the odd bytes, the second byte is an XOR of all the
- * even bytes of the Client ID and nospam.
+ * byte is an XOR of all the even bytes (0, 2, 4, ...), the second byte is an
+ * XOR of all the odd bytes (1, 3, 5, ...) of the Client ID and nospam.
  */
 #define TOX_ADDRESS_SIZE		(TOX_CLIENT_ID_SIZE + sizeof(uint32_t) + sizeof(uint16_t))
 
@@ -331,8 +407,21 @@ typedef enum TOX_ERR_NEW {
   /**
    * The proxy address passed could not be resolved.
    */
-  TOX_ERR_NEW_PROXY_NOT_FOUND
+  TOX_ERR_NEW_PROXY_NOT_FOUND,
+  /**
+   * The byte array to be loaded contained an encrypted save.
+   */
+  TOX_ERR_NEW_LOAD_ENCRYPTED,
+  /**
+   * The data format was invalid. This can happen when loading data that was
+   * saved by an older version of Tox, or when the data has been corrupted.
+   * When loading from badly formatted data, some data may have been loaded,
+   * and the rest is discarded. Passing an invalid length parameter also
+   * causes this error.
+   */
+  TOX_ERR_NEW_LOAD_BAD_FORMAT
 } TOX_ERR_NEW;
+
 
 /**
  * @brief Creates and initialises a new Tox instance with the options passed.
@@ -340,12 +429,21 @@ typedef enum TOX_ERR_NEW {
  * This function will bring the instance into a valid state. Running the event
  * loop with a new instance will operate correctly.
  *
+ * If the data parameter is not NULL, this function will load the Tox instance
+ * from a byte array previously filled by tox_save.
+ *
+ * If loading failed or succeeded only partially, the new or partially loaded
+ * instance is returned and an error code is set.
+ *
  * @param options An options object as described above. If this parameter is
  *   NULL, the default options are used.
+ * @param data A byte array containing data previously stored by tox_save.
+ * @param length The length of the byte array data. If this parameter is 0, the
+ *   data parameter is ignored.
  *
  * @see tox_iteration for the event loop.
  */
-Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error);
+Tox *tox_new(struct Tox_Options const *options, uint8_t const *data, size_t length, TOX_ERR_NEW *error);
 
 
 /**
@@ -356,13 +454,6 @@ Tox *tox_new(struct Tox_Options const *options, TOX_ERR_NEW *error);
  * functions can be called, and the pointer value can no longer be read.
  */
 void tox_kill(Tox *tox);
-
-
-/*******************************************************************************
- *
- * :: Loading and saving
- *
- ******************************************************************************/
 
 
 /**
@@ -381,33 +472,6 @@ size_t tox_save_size(Tox const *tox);
  *   is NULL, this function has no effect.
  */
 void tox_save(Tox const *tox, uint8_t *data);
-
-
-typedef enum TOX_ERR_LOAD {
-  TOX_ERR_LOAD_OK,
-  TOX_ERR_LOAD_NULL,
-  /**
-   * The byte array contained an encrypted save.
-   */
-  TOX_ERR_LOAD_ENCRYPTED,
-  /**
-   * The data format was invalid. This can happen when loading data that was
-   * saved by an older version of Tox, or when the data has been corrupted.
-   * When loading from badly formatted data, some data may have been loaded,
-   * and the rest is discarded. Passing an invalid length parameter also
-   * causes this error.
-   */
-  TOX_ERR_LOAD_BAD_FORMAT
-} TOX_ERR_LOAD;
-
-/**
- * Load the Tox instance data from a byte array.
- *
- * @param data A byte array containing data previously stored by tox_save.
- * @param length The length of the byte array data.
- * @return true iff the whole data was read successfully.
- */
-bool tox_load(Tox *tox, uint8_t const *data, size_t length, TOX_ERR_LOAD *error);
 
 
 /*******************************************************************************
@@ -454,18 +518,58 @@ bool tox_bootstrap(Tox *tox, char const *address, uint16_t port, uint8_t const *
 
 
 /**
+ * Adds additional host:port pair as TCP relay.
+ *
+ * This function can be used to initiate TCP connections to different ports on
+ * the same bootstrap node, or to add TCP relays without using them as
+ * bootstrap nodes.
+ *
+ * @param address The hostname or IP address (IPv4 or IPv6) of the TCP relay.
+ * @param port The port on the host on which the TCP relay is listening.
+ * @param public_key The long term public key of the TCP relay
+ *   (TOX_CLIENT_ID_SIZE bytes).
+ * @return true on success.
+ */
+bool tox_add_tcp_relay(Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error);
+
+
+typedef enum TOX_CONNECTION {
+  /**
+   * There is no connection. This instance, or the friend the state change is
+   * about, is now offline.
+   */
+  TOX_CONNECTION_NONE,
+  /**
+   * A TCP connection has been established. For the own instance, this means it
+   * is connected through a TCP relay, only. For a friend, this means that the
+   * connection to that particular friend goes through a TCP relay.
+   */
+  TOX_CONNECTION_TCP4,
+  TOX_CONNECTION_TCP6,
+  /**
+   * A UDP connection has been established. For the own instance, this means it
+   * is able to send UDP packets to DHT nodes, but may still be connected to
+   * a TCP relay. For a friend, this means that the connection to that
+   * particular friend was built using direct UDP packets.
+   */
+  TOX_CONNECTION_UDP4,
+  TOX_CONNECTION_UDP6
+} TOX_CONNECTION;
+
+
+/**
  * Return whether we are connected to the DHT. The return value is equal to the
  * last value received through the `connection_status` callback.
  */
-bool tox_get_connection_status(Tox const *tox);
+TOX_CONNECTION tox_get_connection_status(Tox const *tox);
 
 /**
  * The function type for the `connection_status` callback.
  *
- * @param is_connected A boolean value equal to the return value of
+ * @param connection_status Equal to the return value of
  *   tox_get_connection_status.
  */
-typedef void tox_connection_status_cb(Tox *tox, bool is_connected, void *user_data);
+typedef void tox_connection_status_cb(Tox *tox, TOX_CONNECTION connection_status, void *user_data);
 
 /**
  * Set the callback for the `connection_status` event. Pass NULL to unset.
@@ -732,6 +836,8 @@ uint32_t tox_friend_add(Tox *tox, uint8_t const *address, uint8_t const *message
  *
  * @param client_id A byte array of length TOX_CLIENT_ID_SIZE containing the
  *   Client ID (not the Address) of the friend to add.
+ *
+ * @return the friend number.
  * @see tox_friend_add for a more detailed description of friend numbers.
  */
 uint32_t tox_friend_add_norequest(Tox *tox, uint8_t const *client_id, TOX_ERR_FRIEND_ADD *error);
@@ -913,6 +1019,9 @@ size_t tox_friend_get_status_message_size(Tox const *tox, uint32_t friend_number
  * Call tox_friend_get_name_size to determine the allocation size for the `name`
  * parameter.
  *
+ * The data written to `message` is equal to the data received by the last
+ * `friend_status_message` callback.
+ *
  * @param name A valid memory region large enough to store the friend's name.
  */
 bool tox_friend_get_status_message(Tox const *tox, uint32_t friend_number, uint8_t *message, TOX_ERR_FRIEND_QUERY *error);
@@ -940,6 +1049,9 @@ void tox_callback_friend_status_message(Tox *tox, tox_friend_status_message_cb *
 /**
  * Return the friend's user status (away/busy/...). If the friend number is
  * invalid, the return value is unspecified.
+ *
+ * The status returned is equal to the last status received through the
+ * `friend_status` callback.
  */
 TOX_STATUS tox_friend_get_status(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
 
@@ -964,29 +1076,29 @@ void tox_callback_friend_status(Tox *tox, tox_friend_status_cb *function, void *
  * Check whether a friend is currently connected to this client.
  *
  * The result of this function is equal to the last value received by the
- * `friend_connected` callback.
+ * `friend_connection_status` callback.
  *
  * @param friend_number The friend number for which to query the connection
  *   status.
  *
- * @return true if the friend is connected.
- * @return false if the friend is not connected, or the friend number was
- *   invalid. Inspect the error code to determine which case it is.
+ * @return the friend's connection status as it was received through the
+ *   `friend_connection_status` event.
  */
-bool tox_friend_get_connected(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
+TOX_CONNECTION tox_friend_get_connection_status(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
 
 /**
- * The function type for the `friend_connected` callback.
+ * The function type for the `friend_connection_status` callback.
  *
  * @param friend_number The friend number of the friend whose connection status
  *   changed.
- * @param is_connected The result of calling tox_friend_get_connected on
- *   the passed friend_number.
+ * @param connection_status The result of calling
+ *   tox_friend_get_connection_status on the passed friend_number.
  */
-typedef void tox_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_connected, void *user_data);
+typedef void tox_friend_connection_status_cb(Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status, void *user_data);
 
 /**
- * Set the callback for the `friend_connected` event. Pass NULL to unset.
+ * Set the callback for the `friend_connection_status` event. Pass NULL to
+ * unset.
  *
  * This event is triggered when a friend goes offline after having been online,
  * or when a friend goes online.
@@ -994,7 +1106,7 @@ typedef void tox_friend_connected_cb(Tox *tox, uint32_t friend_number, bool is_c
  * This callback is not called when adding friends. It is assumed that when
  * adding friends, their connection status is offline.
  */
-void tox_callback_friend_connected(Tox *tox, tox_friend_connected_cb *function, void *user_data);
+void tox_callback_friend_connection_status(Tox *tox, tox_friend_connection_status_cb *function, void *user_data);
 
 
 /**
@@ -1009,7 +1121,7 @@ void tox_callback_friend_connected(Tox *tox, tox_friend_connected_cb *function, 
 bool tox_friend_get_typing(Tox const *tox, uint32_t friend_number, TOX_ERR_FRIEND_QUERY *error);
 
 /**
- * The function type for the `friend_connected` callback.
+ * The function type for the `friend_typing` callback.
  *
  * @param friend_number The friend number of the friend who started or stopped
  *   typing.
@@ -1363,11 +1475,11 @@ typedef enum TOX_ERR_FILE_SEND {
    */
   TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED,
   /**
-   * Filename length was 0. Not relevant for TOX_FILE_KIND_AVATAR.
+   * Filename length was 0.
    */
   TOX_ERR_FILE_SEND_NAME_EMPTY,
   /**
-   * Filename length exceeded 255 bytes. Not relevant for TOX_FILE_KIND_AVATAR.
+   * Filename length exceeded 255 bytes.
    */
   TOX_ERR_FILE_SEND_NAME_TOO_LONG,
   /**
@@ -1426,8 +1538,8 @@ typedef enum TOX_ERR_FILE_SEND {
  * @param file_size Size in bytes of the file the client wants to send, 0 if
  *   unknown or streaming.
  * @param filename Name of the file. Does not need to be the actual name. This
- *   name will be sent along with the file send request. Ignored for avatars.
- * @param filename_length Size in bytes of the filename. Ignored for avatars.
+ *   name will be sent along with the file send request.
+ * @param filename_length Size in bytes of the filename.
  *
  * @return A file number used as an identifier in subsequent callbacks. This
  *   number is per friend. File numbers are reused after a transfer terminates.
@@ -1606,6 +1718,7 @@ typedef enum TOX_ERR_SEND_CUSTOM_PACKET {
   TOX_ERR_SEND_CUSTOM_PACKET_FRIEND_NOT_CONNECTED,
   /**
    * The first byte of data was not in the specified range for the packet type.
+   * This range is 200-254 for lossy, and 160-191 for lossless packets.
    */
   TOX_ERR_SEND_CUSTOM_PACKET_INVALID,
   /**
@@ -1705,7 +1818,7 @@ void tox_callback_friend_lossless_packet(Tox *tox, tox_friend_lossless_packet_cb
  * Writes the temporary DHT public key of this instance to a byte array.
  *
  * This can be used in combination with an externally accessible IP address and
- * the bound port (from tox_get_port) to run a temporary bootstrap node.
+ * the bound port (from tox_get_udp_port) to run a temporary bootstrap node.
  *
  * Be aware that every time a new instance is created, the DHT public key
  * changes, meaning this cannot be used to run a permanent bootstrap node.
@@ -1725,10 +1838,15 @@ typedef enum TOX_ERR_GET_PORT {
 } TOX_ERR_GET_PORT;
 
 /**
- * Return the port this Tox instance is bound to.
- * Return 0 on failure.
+ * Return the UDP port this Tox instance is bound to.
  */
-uint16_t tox_get_port(Tox const *tox, TOX_ERR_GET_PORT *error);
+uint16_t tox_get_udp_port(Tox const *tox, TOX_ERR_GET_PORT *error);
+
+/**
+ * Return the TCP port this Tox instance is bound to. This is only relevant if
+ * the instance is acting as a TCP relay.
+ */
+uint16_t tox_get_tcp_port(Tox const *tox, TOX_ERR_GET_PORT *error);
 
 
 #ifdef __cplusplus
