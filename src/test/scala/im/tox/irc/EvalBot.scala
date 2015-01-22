@@ -17,7 +17,7 @@ object EvalBot extends PircBot {
   private val BOT_NAME = "tox4j"
   private val BOT_MSG = BOT_NAME + ":"
   private val MAX_LINES = 10
-  private val ADMINS = Seq("pippijn")
+  private val ADMINS = Seq("sonOfRa")
   private val CHANNELS = Map("irc.freenode.net" -> Seq("#tox4j"))
   private val lastCode = new mutable.HashMap[String, String]
 
