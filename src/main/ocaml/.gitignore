@@ -1,0 +1,8 @@
+/toxcore
+*.annot
+*.cmt
+*.cmti
+*.cmo
+*.cmi
+*.cmx
+*.o
