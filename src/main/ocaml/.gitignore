@@ -6,3 +6,5 @@
 *.cmi
 *.cmx
 *.o
+*.byte
+*.native

@@ -2,30 +2,36 @@ type ('a, 'b) choice =
   | A of 'a
   | B of 'b
 
-type (_, _) packet =
+type (_, _, _) packet =
   (* Constants *)
   | Constant
-    :  ('c -> Output.t -> unit) * ('c -> Input.t -> 'c * Input.t) * ('c, 'b) packet
-    -> ('c, 'b) packet
+    :  ('enctx -> Output.t -> 'enctx) *
+       ('dectx -> Input.t -> 'dectx * Input.t) *
+       ('enctx, 'dectx, 'a) packet
+    -> ('enctx, 'dectx, 'a) packet
 
   (* Data *)
   | Data
-    : ('c -> Output.t -> 'a -> unit) * ('c -> Input.t -> 'c * Input.t * 'a)
-    -> ('c, 'a) packet
+    :  ('enctx -> Output.t -> 'a -> 'enctx) *
+       ('dectx -> Input.t -> 'dectx * Input.t * 'a)
+    -> ('enctx, 'dectx, 'a) packet
 
   (* List of packet formats *)
   | Cons
-    : ('c, 'a) packet * ('c, 'b) packet
-    -> ('c, 'a * 'b) packet
+    :  ('enctx, 'dectx, 'a) packet *
+       ('enctx, 'dectx, 'b) packet
+    -> ('enctx, 'dectx, 'a * 'b) packet
 
   (* Other operators *)
   | Repeated
-    : ('c, int) packet * ('c, 'b) packet
-    -> ('c, 'b list) packet
+    :  ('enctx, 'dectx, int) packet *
+       ('enctx, 'dectx, 'b) packet
+    -> ('enctx, 'dectx, 'b list) packet
 
   | Choice
-    : ('c, 'a) packet * ('c, 'b) packet
-    -> ('c, ('a, 'b) choice) packet
+    :  ('enctx, 'dectx, 'a) packet *
+       ('enctx, 'dectx, 'b) packet
+    -> ('enctx, 'dectx, ('a, 'b) choice) packet
 
 
 let ( @:: ) a b = Cons (a, b)

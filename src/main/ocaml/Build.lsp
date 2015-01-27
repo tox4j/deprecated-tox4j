@@ -7,4 +7,5 @@
 
  (OCamlRequires
    ("sodium"
-    "lwt.unix")))
+    "async",
+    "async_unix")))

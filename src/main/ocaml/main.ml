@@ -1,10 +1,8 @@
-open DhtPacket
+open Core.Std
+open Async.Std
+
 open PacketType
 open Sodium
-
-
-let (>>=) = Lwt.bind
-let return = Lwt.return
 
 
 let string_of_key key =
@@ -12,14 +10,12 @@ let string_of_key key =
   let buf = Buffer.create 64 in
   Bytes.iter
     (fun b ->
-       Printf.bprintf buf "%02x" (Char.code b))
+       Printf.bprintf buf "%02x" (Char.to_int b))
     key;
   Buffer.contents buf
 
 
-module StringMap = Map.Make(String)
-
-
+(*
 let rec io_loop sock ip port key channel_keys =
   let target = Printf.sprintf "%s:%d" ip port in
   (*Printf.printf "Sending NodesRequest to %s %s\n" target (string_of_key key);*)
@@ -30,7 +26,7 @@ let rec io_loop sock ip port key channel_keys =
   let ping_id = 0x8765432101234567L in
 
   let channel_key = Box.precompute sk key in
-  channel_keys := StringMap.add target (key, channel_key) !channel_keys;
+  channel_keys := StringMap.add !channel_keys ~key:target ~data:(key, channel_key);
 
   let out = Output.create 1500 in
   Packet.encode (channel_key, nonce) out nodes_request (
@@ -40,11 +36,11 @@ let rec io_loop sock ip port key channel_keys =
     ping_id
   );
 
-  let packet = Output.to_bytes out in
+  let packet = Output.to_bytes out |> Bytes.to_string in
 
-  let addr = Unix.(ADDR_INET (inet_addr_of_string ip, port)) in
+  let addr = Unix.(ADDR_INET (Inet_addr.of_string ip, port)) in
 
-  Lwt_unix.sendto sock packet 0 (Bytes.length packet) [] addr >>= fun res ->
+  Unix.sendto sock packet 0 (String.length packet) [] addr >>= fun res ->
   (*Printf.printf "sendto: %d\n" res;*)
 
   let packet_data = Bytes.create 1500 in
@@ -148,3 +144,91 @@ let () =
   in
 
   Lwt_main.run (io_loop sock ip port key (ref StringMap.empty))
+*)
+
+
+let main =
+  let dht = ref (Dht.create ()) in
+
+  let { Dht.Node_addr.ip; port; key } = Dht.Node_addr.sonOfRa in
+
+  dht := Dht.bootstrap !dht Dht.Node_addr.sonOfRa;
+
+  let sendto =
+    match Udp.sendto () with
+    | Error error ->
+        Error.raise error
+    | Ok sendto ->
+        sendto
+  in
+
+  Udp.bind (Socket.Address.Inet.create Unix.Inet_addr.bind_any ~port:33445) >>=
+  fun sock ->
+
+  let sent =
+    match Dht.pack_nodes_request !dht key with
+    | None -> return ()
+    | Some packet ->
+        sendto (Socket.fd sock) (Iobuf.of_string packet)
+          (Socket.Address.Inet.create (Unix.Inet_addr.of_string ip) ~port)
+  in
+
+  sent >>= fun () ->
+  Udp.recvfrom_loop (Socket.fd sock)
+    (fun buf from ->
+       match Iobuf.Peek.uint8 ~pos:0 buf with
+       | 0x00 ->
+           print_endline @@ "Got EchoRequest from " ^
+                            Socket.Address.Inet.to_string from;
+           print_endline @@ Iobuf.to_string_hum ~bounds:`Window buf;
+       | 0x01 ->
+           print_endline @@ "Got EchoResponse from " ^
+                            Socket.Address.Inet.to_string from;
+           print_endline @@ Iobuf.to_string_hum ~bounds:`Window buf;
+       | 0x02 ->
+           print_endline @@ "Got NodesRequest from " ^
+                            Socket.Address.Inet.to_string from;
+           print_endline @@ Iobuf.to_string_hum ~bounds:`Window buf;
+       | 0x04 ->
+           print_endline @@ "Got NodesResponse from " ^
+                            Socket.Address.Inet.to_string from;
+
+           let packet = Input.of_string (Iobuf.to_string buf) in
+           let decoded = Dht.unpack_nodes_response !dht packet in
+
+           let next =
+             match decoded with
+             | pk', (nonce', (nodes, ping_id')) ->
+                 assert (Box.equal_public_keys pk' key);
+                 assert (ping_id' = 0x8765432101234567L);
+                 List.fold_left
+                   nodes
+                   ~init:[]
+                   ~f:(fun acc -> function
+                       | (A (proto, ipv4), (port, dht_key)) ->
+                           assert (String.length ipv4 = 4);
+                           let ip =
+                             Printf.sprintf "%d.%d.%d.%d"
+                               (Char.to_int @@ String.get ipv4 0)
+                               (Char.to_int @@ String.get ipv4 1)
+                               (Char.to_int @@ String.get ipv4 2)
+                               (Char.to_int @@ String.get ipv4 3)
+                           in
+                           print_endline ip;
+                           (ip, port, dht_key) :: acc
+                       | (B (proto, ipv6), (port, dht_key)) ->
+                           assert (String.length ipv6 = 16);
+                           print_endline "yoy";
+                           acc
+                     )
+           in
+
+           ()
+       | code ->
+           failwith @@ Printf.sprintf "Unhandled packet type: 0x%02x" code
+    )
+
+
+let () =
+  let () = main >>> fun () -> shutdown 0 in
+  never_returns (Scheduler.go ())

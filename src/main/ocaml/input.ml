@@ -8,6 +8,10 @@ let of_bytes data =
   { data; bitpos = 0 }
 
 
+let of_string data =
+  of_bytes (Bytes.of_string data)
+
+
 let read self =
   (*print_endline "> read";*)
   if self.bitpos mod 8 == 0 then (
@@ -94,7 +98,7 @@ let read_uint64 self =
   )
 
 
-let read_string self length =
+let read_bytes self length =
   if self.bitpos mod 8 == 0 then (
     let bytes = Bytes.create length in
     Bytes.blit self.data (self.bitpos / 8) bytes 0 length;
@@ -102,3 +106,8 @@ let read_string self length =
   ) else (
     assert false
   )
+
+
+let read_string self length =
+  let self, bytes = read_bytes self length in
+  self, Bytes.unsafe_to_string bytes

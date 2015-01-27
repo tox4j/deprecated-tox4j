@@ -1,7 +1,8 @@
 open PacketType
 
 
-let rec decode : type a. 'c -> Input.t -> ('c, a) packet -> 'c * Input.t * a =
+let rec decode : type enctx dectx a.
+  dectx -> Input.t -> (enctx, dectx, a) packet -> dectx * Input.t * a =
 fun ctx packet fmt ->
   match fmt with
   | Constant (encoder, decoder, fmt) ->
@@ -40,25 +41,28 @@ fun ctx packet fmt ->
         ctx, packet, B value
 
 
-let rec encode : type a. 'c -> Output.t -> ('c, a) packet -> a -> unit =
+let rec encode : type enctx dectx a.
+  enctx -> Output.t -> (enctx, dectx, a) packet -> a -> enctx =
 fun ctx packet fmt value ->
   match fmt with
   | Constant (encoder, decoder, fmt) ->
-      encoder ctx packet;
+      let ctx = encoder ctx packet in
       encode ctx packet fmt value
 
   | Data (encoder, decoder) ->
       encoder ctx packet value
 
   | Cons (a, b) ->
-      encode ctx packet a (fst value);
-      encode ctx packet b (snd value);
+      let ctx = encode ctx packet a (fst value) in
+      let ctx = encode ctx packet b (snd value) in
+      ctx
 
   | Repeated (length_fmt, fmt) ->
-      encode ctx packet length_fmt (List.length value);
-      List.iter
-        (fun elt ->
+      let ctx = encode ctx packet length_fmt (List.length value) in
+      List.fold_left
+        (fun ctx elt ->
            encode ctx packet fmt elt)
+        ctx
         value
 
   | Choice (a, b) ->
@@ -70,7 +74,9 @@ fun ctx packet fmt value ->
 module Constant = struct
   let uint7 value rest =
     Constant (
-      (fun ctx packet -> Output.add_uint7 packet value),
+      (fun ctx packet ->
+         Output.add_uint7 packet value;
+         ctx),
       (fun ctx packet ->
          let packet, read = Input.read_uint7 packet in
          if read <> value then
@@ -84,7 +90,9 @@ module Constant = struct
 
   let uint8 value rest =
     Constant (
-      (fun ctx packet -> Output.add_uint8 packet value),
+      (fun ctx packet ->
+         Output.add_uint8 packet value;
+         ctx),
       (fun ctx packet ->
          let packet, read = Input.read_uint8 packet in
          if read <> value then
@@ -101,46 +109,51 @@ end
 let (+:) a (b, c) = (a, b, c)
 
 
-let uint1 : ('c, int) packet = 
+let uint1 : ('enctx, 'dectx, int) packet =
   Data (
     (fun ctx packet value ->
-       Output.add_uint1 packet value),
+       Output.add_uint1 packet value;
+       ctx),
     (fun ctx packet ->
        ctx +: Input.read_uint1 packet)
   )
 
 
-let uint8 : ('c, int) packet = 
+let uint8 : ('enctx, 'dectx, int) packet =
   Data (
     (fun ctx packet value ->
-       Output.add_uint8 packet value),
+       Output.add_uint8 packet value;
+       ctx),
     (fun ctx packet ->
        ctx +: Input.read_uint8 packet)
   )
 
 
-let uint16 : ('c, int) packet = 
+let uint16 : ('enctx, 'dectx, int) packet =
   Data (
     (fun ctx packet value ->
-       Output.add_uint16 packet value),
+       Output.add_uint16 packet value;
+       ctx),
     (fun ctx packet ->
        ctx +: Input.read_uint16 packet)
   )
 
 
-let uint32 : ('c, int32) packet = 
+let uint32 : ('enctx, 'dectx, int32) packet =
   Data (
     (fun ctx packet value ->
-       Output.add_uint32 packet value),
+       Output.add_uint32 packet value;
+       ctx),
     (fun ctx packet ->
        ctx +: Input.read_uint32 packet)
   )
 
 
-let uint64 : ('c, int64) packet = 
+let uint64 : ('enctx, 'dectx, int64) packet =
   Data (
     (fun ctx packet value ->
-       Output.add_uint64 packet value),
+       Output.add_uint64 packet value;
+       ctx),
     (fun ctx packet ->
        ctx +: Input.read_uint64 packet)
   )
@@ -149,7 +162,8 @@ let uint64 : ('c, int64) packet =
 let bytes length =
   Data (
     (fun ctx packet data ->
-       Output.add_string packet data length),
+       Output.add_string packet data length;
+       ctx),
     (fun ctx packet ->
        (*print_endline "reading bytes";*)
        ctx +: Input.read_string packet length)
