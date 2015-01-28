@@ -7,5 +7,5 @@
 
  (OCamlRequires
    ("sodium"
-    "async",
+    "async"
     "async_unix")))
