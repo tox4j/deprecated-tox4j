@@ -24,3 +24,25 @@ let add_node dht node =
         ~key:node.n_key
         ~data:dht_node
   }
+
+
+let channel_key dht node =
+  match PublicKeyMap.find dht.dht_nodes node.n_key with
+  | Some dht_node ->
+      dht, dht_node.cn_ckey
+  | None ->
+      let dht_node = {
+        cn_node = node;
+        cn_ckey = Crypto.precompute dht.dht_sk node.n_key;
+      } in
+
+      let dht =
+        { dht with
+          dht_nodes =
+            PublicKeyMap.add dht.dht_nodes
+              ~key:node.n_key
+              ~data:dht_node
+        }
+      in
+
+      dht, dht_node.cn_ckey

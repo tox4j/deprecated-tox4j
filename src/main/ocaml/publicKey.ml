@@ -8,6 +8,16 @@ type t = Box.public_key
 let compare = Box.compare_public_keys
 
 
+let to_string_hum key =
+  let key = Box.Bytes.of_public_key key in
+  let buf = Buffer.create 64 in
+  Bytes.iter
+    (fun b ->
+       Printf.bprintf buf "%02x" (Char.to_int b))
+    key;
+  Buffer.contents buf
+
+
 let of_string s =
   Bytes.unsafe_of_string s
   |> Box.Bytes.to_public_key
