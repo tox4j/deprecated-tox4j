@@ -1,4 +1,3 @@
-let fl () = flush stdout
 open Core.Std
 open Async.Std
 
@@ -50,6 +49,16 @@ let handle_packet ~dht ~recv_write buf from =
                        Socket.Address.Inet.to_string from;
       print_endline @@ Iobuf.to_string_hum ~bounds:`Window buf;
   | 0x04 ->
+      (*
+      Gc.compact ();
+      let s = Unix.gettimeofday () in
+      for i = 0 to 1000000 do
+        ignore (NodesResponse.unpack dht (Iobuf.sub buf))
+      done;
+      let e = Unix.gettimeofday () in
+      Printf.printf "time: %f\n" (e -. s);
+      *)
+
       begin match NodesResponse.unpack dht buf with
         | None -> failwith "Format error in NodesResponse"
         | Some (node, decoded) ->
@@ -91,8 +100,8 @@ let send_loop ~sock ~send_read =
 
 
 let network_loop ~dht_ref ~recv_write ~send_read =
-  Udp.bind (Socket.Address.Inet.create Unix.Inet_addr.bind_any ~port:33445) >>=
-  fun sock ->
+  Udp.bind (Socket.Address.Inet.create Unix.Inet_addr.bind_any ~port:33445)
+  >>= fun sock ->
 
   Deferred.all_ignore [
     recv_loop ~dht_ref ~sock ~recv_write;
@@ -114,10 +123,8 @@ let handle_network_event ~dht_ref ~send_write (from, packet) =
       *)
       (* Form an EchoResponse. *)
       let response =
-        Option.value_exn (
-          EchoResponse.(
-            make ~dht:!dht_ref ~node:from.cn_node { ping_id }
-          )
+        EchoResponse.(
+          make ~dht:!dht_ref ~node:from { ping_id }
         )
       in
 
@@ -155,7 +162,7 @@ let handle_network_event ~dht_ref ~send_write (from, packet) =
                                    string_of_int (Port.to_int node.n_port);
                   *)
                   (* Get or create new channel key. *)
-                  let dht, channel_key =
+                  let dht, node =
                     Dht.channel_key !dht_ref node
                   in
 
@@ -164,17 +171,15 @@ let handle_network_event ~dht_ref ~send_write (from, packet) =
 
                   (* Form a NodesRequest. *)
                   let request =
-                    Option.value_exn (
-                      NodesRequest.(
-                        make ~dht ~node {
-                          key = dht.dht_pk;
-                          ping_id = 0x8765432101234567L;
-                        }
-                      )
+                    NodesRequest.(
+                      make ~dht ~node {
+                        key = dht.dht_pk;
+                        ping_id = 0x8765432101234567L;
+                      }
                     )
                   in
 
-                  Pipe.write send_write (node, request)
+                  Pipe.write send_write (node.cn_node, request)
           )
       )
 
@@ -185,30 +190,31 @@ let event_loop ~dht_ref ~recv_read ~send_write =
     | `Eof ->
         return ()
     | `Ok decoded ->
-        handle_network_event ~dht_ref ~send_write decoded >>= recv_read_loop
+        handle_network_event ~dht_ref ~send_write decoded
+        >>= recv_read_loop
   in
 
   recv_read_loop ()
 
 
 let main =
-  let dht_ref = ref (Dht.create ()) in
-
-  dht_ref := Dht.add_node !dht_ref sonOfRa;
-
   let recv_read, recv_write = Pipe.create () in
   let send_read, send_write = Pipe.create () in
 
+  let dht = Dht.create () in
+
+  let dht, node = Dht.channel_key dht sonOfRa in
+
   let request =
-    Option.value_exn (
-      NodesRequest.(
-        make ~dht:!dht_ref ~node:sonOfRa {
-          key = !dht_ref.dht_pk;
-          ping_id = 0x8765432101234567L;
-        }
-      )
+    NodesRequest.(
+      make ~dht ~node {
+        key = dht.dht_pk;
+        ping_id = 0x8765432101234567L;
+      }
     )
   in
+
+  let dht_ref = ref dht in
 
   Deferred.all_ignore [
     Pipe.write send_write (sonOfRa, request);

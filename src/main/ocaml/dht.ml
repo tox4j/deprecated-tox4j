@@ -29,7 +29,7 @@ let add_node dht node =
 let channel_key dht node =
   match PublicKeyMap.find dht.dht_nodes node.n_key with
   | Some dht_node ->
-      dht, dht_node.cn_ckey
+      dht, dht_node
   | None ->
       let dht_node = {
         cn_node = node;
@@ -45,4 +45,4 @@ let channel_key dht node =
         }
       in
 
-      dht, dht_node.cn_ckey
+      dht, dht_node

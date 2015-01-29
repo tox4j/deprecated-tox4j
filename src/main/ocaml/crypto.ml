@@ -33,11 +33,9 @@ let encrypt ~channel_key ~nonce ~f packet =
 
 
 let pack_dht_packet ~dht ~node ~kind ~f =
-  let open Option in
-  PublicKeyMap.find dht.dht_nodes node.n_key >>| fun dht_node ->
   let packet = Iobuf.create Async.Std.Udp.default_capacity in
 
-  let channel_key = dht_node.cn_ckey in
+  let channel_key = node.cn_ckey in
   let nonce = Nonce.random () in
 
   Iobuf.Fill.uint8 packet kind;
