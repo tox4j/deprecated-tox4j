@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxFriendByClientIdException extends ToxException {
+public final class ToxFriendByPublicKeyException extends ToxException {
 
     public static enum Code {
         NULL,
@@ -12,7 +12,7 @@ public final class ToxFriendByClientIdException extends ToxException {
 
     private final @NotNull Code code;
 
-    public ToxFriendByClientIdException(@NotNull Code code) {
+    public ToxFriendByPublicKeyException(@NotNull Code code) {
         this.code = code;
     }
 

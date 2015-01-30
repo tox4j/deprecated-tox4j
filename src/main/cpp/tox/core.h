@@ -184,19 +184,24 @@ bool tox_version_is_compatible(uint32_t major, uint32_t minor, uint32_t patch);
 
 
 /**
- * The size of a Tox Client ID in bytes.
+ * The size of a Tox Public Key in bytes.
  */
-#define TOX_CLIENT_ID_SIZE		32
+#define TOX_PUBLIC_KEY_SIZE		32
+
+/**
+ * The size of a Tox Secret Key in bytes.
+ */
+#define TOX_SECRET_KEY_SIZE		32
 
 /**
  * The size of a Tox address in bytes. Tox addresses are in the format
- * [Client ID (TOX_CLIENT_ID_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
+ * [Public Key (TOX_PUBLIC_KEY_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
  *
- * The checksum is computed over the Client ID and the nospam value. The first
+ * The checksum is computed over the Public Key and the nospam value. The first
  * byte is an XOR of all the even bytes (0, 2, 4, ...), the second byte is an
- * XOR of all the odd bytes (1, 3, 5, ...) of the Client ID and nospam.
+ * XOR of all the odd bytes (1, 3, 5, ...) of the Public Key and nospam.
  */
-#define TOX_ADDRESS_SIZE		(TOX_CLIENT_ID_SIZE + sizeof(uint32_t) + sizeof(uint16_t))
+#define TOX_ADDRESS_SIZE		(TOX_PUBLIC_KEY_SIZE + sizeof(uint32_t) + sizeof(uint16_t))
 
 /**
  * Maximum length of a nickname in bytes.
@@ -511,7 +516,7 @@ typedef enum TOX_ERR_BOOTSTRAP {
  * @param port The port on the host on which the bootstrap Tox instance is
  *   listening.
  * @param public_key The long term public key of the bootstrap node
- *   (TOX_CLIENT_ID_SIZE bytes).
+ *   (TOX_PUBLIC_KEY_SIZE bytes).
  * @return true on success.
  */
 bool tox_bootstrap(Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error);
@@ -527,7 +532,7 @@ bool tox_bootstrap(Tox *tox, char const *address, uint16_t port, uint8_t const *
  * @param address The hostname or IP address (IPv4 or IPv6) of the TCP relay.
  * @param port The port on the host on which the TCP relay is listening.
  * @param public_key The long term public key of the TCP relay
- *   (TOX_CLIENT_ID_SIZE bytes).
+ *   (TOX_PUBLIC_KEY_SIZE bytes).
  * @return true on success.
  */
 bool tox_add_tcp_relay(Tox *tox, char const *address, uint16_t port, uint8_t const *public_key, TOX_ERR_BOOTSTRAP *error);
@@ -631,20 +636,20 @@ void tox_self_set_nospam(Tox *tox, uint32_t nospam);
 uint32_t tox_self_get_nospam(Tox const *tox);
 
 /**
- * Copy the Tox Client ID (long term public key) from the Tox object.
+ * Copy the Tox Public Key (long term) from the Tox object.
  *
- * @param client_id A memory region of at least TOX_CLIENT_ID_SIZE bytes. If
+ * @param public_key A memory region of at least TOX_PUBLIC_KEY_SIZE bytes. If
  *   this parameter is NULL, this function has no effect.
  */
-void tox_self_get_client_id(Tox const *tox, uint8_t *client_id);
+void tox_self_get_public_key(Tox const *tox, uint8_t *public_key);
 
 /**
- * Copy the private key from the Tox object.
+ * Copy the secret key from the Tox object.
  *
- * @param private_key A memory region of at least TOX_CLIENT_ID_SIZE bytes. If
+ * @param secret_key A memory region of at least TOX_SECRET_KEY_SIZE bytes. If
  *   this parameter is NULL, this function has no effect.
  */
-void tox_self_get_private_key(Tox const *tox, uint8_t *private_key);
+void tox_self_get_secret_key(Tox const *tox, uint8_t *secret_key);
 
 
 /*******************************************************************************
@@ -834,13 +839,13 @@ uint32_t tox_friend_add(Tox *tox, uint8_t const *address, uint8_t const *message
  * controlled by the same entity, so that this entity can perform the mutual
  * friend adding. In this case, there is no need for a friend request, either.
  *
- * @param client_id A byte array of length TOX_CLIENT_ID_SIZE containing the
- *   Client ID (not the Address) of the friend to add.
+ * @param public_key A byte array of length TOX_PUBLIC_KEY_SIZE containing the
+ *   Public Key (not the Address) of the friend to add.
  *
  * @return the friend number.
  * @see tox_friend_add for a more detailed description of friend numbers.
  */
-uint32_t tox_friend_add_norequest(Tox *tox, uint8_t const *client_id, TOX_ERR_FRIEND_ADD *error);
+uint32_t tox_friend_add_norequest(Tox *tox, uint8_t const *public_key, TOX_ERR_FRIEND_ADD *error);
 
 
 typedef enum TOX_ERR_FRIEND_DELETE {
@@ -872,41 +877,41 @@ bool tox_friend_delete(Tox *tox, uint32_t friend_number, TOX_ERR_FRIEND_DELETE *
  ******************************************************************************/
 
 
-typedef enum TOX_ERR_FRIEND_BY_CLIENT_ID {
-  TOX_ERR_FRIEND_BY_CLIENT_ID_OK,
-  TOX_ERR_FRIEND_BY_CLIENT_ID_NULL,
+typedef enum TOX_ERR_FRIEND_BY_PUBLIC_KEY {
+  TOX_ERR_FRIEND_BY_PUBLIC_KEY_OK,
+  TOX_ERR_FRIEND_BY_PUBLIC_KEY_NULL,
   /**
-   * No friend with the given Client ID exists on the friend list.
+   * No friend with the given Public Key exists on the friend list.
    */
-  TOX_ERR_FRIEND_BY_CLIENT_ID_NOT_FOUND
-} TOX_ERR_FRIEND_BY_CLIENT_ID;
+  TOX_ERR_FRIEND_BY_PUBLIC_KEY_NOT_FOUND
+} TOX_ERR_FRIEND_BY_PUBLIC_KEY;
 
 /**
- * Return the friend number associated with that Client ID.
+ * Return the friend number associated with that Public Key.
  *
- * @param client_id A byte array containing the Client ID.
+ * @param public_key A byte array containing the Public Key.
  */
-uint32_t tox_friend_by_client_id(Tox const *tox, uint8_t const *client_id, TOX_ERR_FRIEND_BY_CLIENT_ID *error);
+uint32_t tox_friend_by_public_key(Tox const *tox, uint8_t const *public_key, TOX_ERR_FRIEND_BY_PUBLIC_KEY *error);
 
 
-typedef enum TOX_ERR_GET_CLIENT_ID {
-  TOX_ERR_FRIEND_GET_CLIENT_ID_OK,
+typedef enum TOX_ERR_GET_PUBLIC_KEY {
+  TOX_ERR_FRIEND_GET_PUBLIC_KEY_OK,
   /**
    * No friend with the given number exists on the friend list.
    */
-  TOX_ERR_FRIEND_GET_CLIENT_ID_FRIEND_NOT_FOUND
-} TOX_ERR_FRIEND_GET_CLIENT_ID;
+  TOX_ERR_FRIEND_GET_PUBLIC_KEY_FRIEND_NOT_FOUND
+} TOX_ERR_FRIEND_GET_PUBLIC_KEY;
 
 /**
- * Copies the Client ID associated with a given friend number to a byte array.
+ * Copies the Public Key associated with a given friend number to a byte array.
  *
- * @param friend_number The friend number you want the Client ID of.
- * @param client_id A memory region of at least TOX_CLIENT_ID_SIZE bytes. If
+ * @param friend_number The friend number you want the Public Key of.
+ * @param public_key A memory region of at least TOX_PUBLIC_KEY_SIZE bytes. If
  *   this parameter is NULL, this function has no effect.
  *
  * @return true on success.
  */
-bool tox_friend_get_client_id(Tox const *tox, uint32_t friend_number, uint8_t *client_id, TOX_ERR_GET_CLIENT_ID *error);
+bool tox_friend_get_public_key(Tox const *tox, uint32_t friend_number, uint8_t *public_key, TOX_ERR_GET_PUBLIC_KEY *error);
 
 
 /**
@@ -1256,7 +1261,7 @@ void tox_callback_read_receipt(Tox *tox, tox_read_receipt_cb *function, void *us
 /**
  * The function type for the `friend_request` callback.
  *
- * @param client_id The Client ID of the user who sent the friend request.
+ * @param public_key The Public Key of the user who sent the friend request.
  * @param time_delta A delta in seconds between when the message was composed
  *   and when it is being transmitted. For messages that are sent immediately,
  *   it will be 0. If a message was written and couldn't be sent immediately
@@ -1265,7 +1270,7 @@ void tox_callback_read_receipt(Tox *tox, tox_read_receipt_cb *function, void *us
  * @param message The message they sent along with the request.
  * @param length The size of the message byte array.
  */
-typedef void tox_friend_request_cb(Tox *tox, uint8_t const *client_id, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data);
+typedef void tox_friend_request_cb(Tox *tox, uint8_t const *public_key, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data);
 
 /**
  * Set the callback for the `friend_request` event. Pass NULL to unset.
@@ -1504,7 +1509,7 @@ typedef enum TOX_ERR_FILE_SEND {
  *
  * File numbers are stable across tox_save/tox_load cycles, so that file
  * transfers can be resumed when a client restarts. The client needs to
- * associate (friend Client ID, file number) with the local path of the file and
+ * associate (friend Public Key, file number) with the local path of the file and
  * persist this information to support resuming of transfers across restarts.
  *
  * If the file contents change during a transfer, the behaviour is unspecified
@@ -1823,7 +1828,7 @@ void tox_callback_friend_lossless_packet(Tox *tox, tox_friend_lossless_packet_cb
  * Be aware that every time a new instance is created, the DHT public key
  * changes, meaning this cannot be used to run a permanent bootstrap node.
  *
- * @param dht_id A memory region of at least TOX_CLIENT_ID_SIZE bytes. If this
+ * @param dht_id A memory region of at least TOX_PUBLIC_KEY_SIZE bytes. If this
  *   parameter is NULL, this function has no effect.
  */
 void tox_get_dht_id(Tox const *tox, uint8_t *dht_id);

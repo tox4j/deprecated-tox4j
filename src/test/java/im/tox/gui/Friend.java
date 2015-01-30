@@ -12,10 +12,10 @@ public class Friend implements Serializable {
     private transient ToxStatus status;
     private String statusMessage;
     private transient boolean typing;
-    private final byte[] clientId;
+    private final byte[] publicKey;
 
-    public Friend(byte[] clientId) {
-        this.clientId = clientId;
+    public Friend(byte[] publicKey) {
+        this.publicKey = publicKey;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class Friend implements Serializable {
         return typing;
     }
 
-    public byte[] getClientId() {
-        return clientId;
+    public byte[] getPublicKey() {
+        return publicKey;
     }
 }

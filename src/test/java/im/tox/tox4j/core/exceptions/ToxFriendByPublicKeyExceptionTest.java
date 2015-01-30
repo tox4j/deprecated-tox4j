@@ -7,25 +7,25 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ToxFriendByClientIdExceptionTest extends ToxCoreImplTestBase {
+public class ToxFriendByPublicKeyExceptionTest extends ToxCoreImplTestBase {
 
     @Test
     public void testNULL() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.getFriendByClientId(null);
+            tox.getFriendByPublicKey(null);
             fail();
-        } catch (ToxFriendByClientIdException e) {
-            assertEquals(ToxFriendByClientIdException.Code.NULL, e.getCode());
+        } catch (ToxFriendByPublicKeyException e) {
+            assertEquals(ToxFriendByPublicKeyException.Code.NULL, e.getCode());
         }
     }
 
     @Test
     public void testNOT_FOUND() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.getFriendByClientId(tox.getClientId());
+            tox.getFriendByPublicKey(tox.getPublicKey());
             fail();
-        } catch (ToxFriendByClientIdException e) {
-            assertEquals(ToxFriendByClientIdException.Code.NOT_FOUND, e.getCode());
+        } catch (ToxFriendByPublicKeyException e) {
+            assertEquals(ToxFriendByPublicKeyException.Code.NOT_FOUND, e.getCode());
         }
     }
 

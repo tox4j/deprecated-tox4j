@@ -108,12 +108,12 @@ public interface ToxCore extends Closeable {
     void iteration();
 
     /**
-     * Gets our own Client ID (public key).
+     * Gets our own public key.
      *
-     * @return our own Client ID.
+     * @return our own public key.
      */
     @NotNull
-    byte[] getClientId();
+    byte[] getPublicKey();
 
     /**
      * Gets our own secret key.
@@ -121,7 +121,7 @@ public interface ToxCore extends Closeable {
      * @return our own secret key.
      */
     @NotNull
-    byte[] getPrivateKey();
+    byte[] getSecretKey();
 
     /**
      * Set the nospam number for our address.
@@ -142,7 +142,7 @@ public interface ToxCore extends Closeable {
     /**
      * Get our current tox address to give to friends.
      * <p>
-     * The format is the following: [Client ID (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
+     * The format is the following: [Public Key (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
      * {@link #setNospam(int)}, the old address can no longer be used to send friend requests to this instance.
      *
      * @return our current tox address.
@@ -213,16 +213,16 @@ public interface ToxCore extends Closeable {
     int addFriend(@NotNull byte[] address, @NotNull byte[] message) throws ToxFriendAddException;
 
     /**
-     * Add the specified Client ID as friend without sending a friend request.
+     * Add the specified Public Key as friend without sending a friend request.
      * <p>
      * This is mostly used for confirming incoming friend requests.
      *
-     * @param clientId the Client ID to add as a friend ({@link ToxConstants#CLIENT_ID_SIZE} bytes).
+     * @param publicKey the Public Key to add as a friend ({@link ToxConstants#PUBLIC_KEY_SIZE} bytes).
      * @return the new friend's friend number.
      * @throws im.tox.tox4j.core.exceptions.ToxFriendAddException if an error occurred.
-     * @throws java.lang.IllegalArgumentException if the Client ID was not the right length.
+     * @throws java.lang.IllegalArgumentException if the Public Key was not the right length.
      */
-    int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException;
+    int addFriendNoRequest(@NotNull byte[] publicKey) throws ToxFriendAddException;
 
     /**
      * Deletes the specified friend.
@@ -233,23 +233,23 @@ public interface ToxCore extends Closeable {
     void deleteFriend(int friendNumber) throws ToxFriendDeleteException;
 
     /**
-     * Gets the friend number for the specified Client ID.
+     * Gets the friend number for the specified Public Key.
      *
-     * @param clientId the Client ID.
-     * @return the friend number that is associated with the Client ID.
-     * @throws im.tox.tox4j.core.exceptions.ToxFriendByClientIdException if an error occurs.
+     * @param publicKey the Public Key.
+     * @return the friend number that is associated with the Public Key.
+     * @throws im.tox.tox4j.core.exceptions.ToxFriendByPublicKeyException if an error occurs.
      */
-    int getFriendByClientId(@NotNull byte[] clientId) throws ToxFriendByClientIdException;
+    int getFriendByPublicKey(@NotNull byte[] publicKey) throws ToxFriendByPublicKeyException;
 
     /**
-     * Gets the Client ID for the specified friend number.
+     * Gets the Public Key for the specified friend number.
      *
      * @param friendNumber the friend number.
-     * @return the Client ID associated with the friend number.
-     * @throws im.tox.tox4j.core.exceptions.ToxFriendGetClientIdException if an error occurs.
+     * @return the Public Key associated with the friend number.
+     * @throws im.tox.tox4j.core.exceptions.ToxFriendGetPublicKeyException if an error occurs.
      */
     @NotNull
-    byte[] getClientId(int friendNumber) throws ToxFriendGetClientIdException;
+    byte[] getPublicKey(int friendNumber) throws ToxFriendGetPublicKeyException;
 
     /**
      * Checks whether a friend with the specified friend number exists.

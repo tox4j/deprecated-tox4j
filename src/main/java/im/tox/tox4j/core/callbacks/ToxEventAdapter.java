@@ -16,7 +16,7 @@ public class ToxEventAdapter implements ToxEventListener {
     @Override public void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus) { }
     @Override public void friendMessage(int friendNumber, int timeDelta, @NotNull byte[] message) { }
     @Override public void friendName(int friendNumber, @NotNull byte[] name) { }
-    @Override public void friendRequest(@NotNull byte[] clientId, int timeDelta, @NotNull byte[] message) { }
+    @Override public void friendRequest(@NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message) { }
     @Override public void friendStatus(int friendNumber, @NotNull ToxStatus status) { }
     @Override public void friendStatusMessage(int friendNumber, @NotNull byte[] message) { }
     @Override public void friendTyping(int friendNumber, boolean isTyping) { }

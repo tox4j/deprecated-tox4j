@@ -18,8 +18,8 @@
 #define tox_self_get_address new_tox_self_get_address
 #define tox_self_set_nospam new_tox_self_set_nospam
 #define tox_self_get_nospam new_tox_self_get_nospam
-#define tox_self_get_client_id new_tox_self_get_client_id
-#define tox_self_get_private_key new_tox_self_get_private_key
+#define tox_self_get_public_key new_tox_self_get_public_key
+#define tox_self_get_secret_key new_tox_self_get_secret_key
 #define tox_self_set_name new_tox_self_set_name
 #define tox_self_get_name_size new_tox_self_get_name_size
 #define tox_self_get_name new_tox_self_get_name
@@ -31,8 +31,8 @@
 #define tox_friend_add new_tox_friend_add
 #define tox_friend_add_norequest new_tox_friend_add_norequest
 #define tox_friend_delete new_tox_friend_delete
-#define tox_friend_by_client_id new_tox_friend_by_client_id
-#define tox_friend_get_client_id new_tox_friend_get_client_id
+#define tox_friend_by_public_key new_tox_friend_by_public_key
+#define tox_friend_get_public_key new_tox_friend_get_public_key
 #define tox_friend_exists new_tox_friend_exists
 #define tox_friend_list_size new_tox_friend_list_size
 #define tox_friend_list new_tox_friend_list

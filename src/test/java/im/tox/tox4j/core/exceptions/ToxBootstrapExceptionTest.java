@@ -13,7 +13,7 @@ public class ToxBootstrapExceptionTest extends ToxCoreImplTestBase {
     @Test
     public void testBootstrapBadPort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 0, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap("192.254.75.98", 0, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
             fail();
         } catch (ToxBootstrapException e) {
             assertEquals(ToxBootstrapException.Code.BAD_PORT, e.getCode());
@@ -23,21 +23,21 @@ public class ToxBootstrapExceptionTest extends ToxCoreImplTestBase {
     @Test(expected = IllegalArgumentException.class)
     public void testBootstrapBadPort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", -10, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap("192.254.75.98", -10, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
         }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBootstrapBadPort3() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 65536, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap("192.254.75.98", 65536, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBadHost() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(".", 33445, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(".", 33445, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
             fail();
         } catch (ToxBootstrapException e) {
             assertEquals(ToxBootstrapException.Code.BAD_ADDRESS, e.getCode());
@@ -47,7 +47,7 @@ public class ToxBootstrapExceptionTest extends ToxCoreImplTestBase {
     @Test
     public void testBootstrapNullHost() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(null, 33445, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(null, 33445, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
             fail();
         } catch (ToxBootstrapException e) {
             assertEquals(ToxBootstrapException.Code.NULL, e.getCode());
@@ -67,14 +67,14 @@ public class ToxBootstrapExceptionTest extends ToxCoreImplTestBase {
     @Test(expected = IllegalArgumentException.class)
     public void testBootstrapKeyTooShort() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE - 1]);
+            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.PUBLIC_KEY_SIZE - 1]);
         }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBootstrapKeyTooLong() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.CLIENT_ID_SIZE + 1]);
+            tox.bootstrap("192.254.75.98", 33445, new byte[ToxConstants.PUBLIC_KEY_SIZE + 1]);
         }
     }
 

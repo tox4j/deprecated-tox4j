@@ -11,9 +11,9 @@ public class ToxFriendGetClientIdExceptionTest extends ToxCoreImplTestBase {
     @Test
     public void testFRIEND_NOT_FOUND() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.getClientId(0);
-        } catch (ToxFriendGetClientIdException e) {
-            assertEquals(ToxFriendGetClientIdException.Code.FRIEND_NOT_FOUND, e.getCode());
+            tox.getPublicKey(0);
+        } catch (ToxFriendGetPublicKeyException e) {
+            assertEquals(ToxFriendGetPublicKeyException.Code.FRIEND_NOT_FOUND, e.getCode());
         }
     }
 

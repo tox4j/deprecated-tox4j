@@ -94,8 +94,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             return friendAddress;
         }
 
-        public byte[] getFriendClientID() {
-            return Arrays.copyOf(friendAddress, ToxConstants.CLIENT_ID_SIZE);
+        public byte[] getFriendPublicKey() {
+            return Arrays.copyOf(friendAddress, ToxConstants.PUBLIC_KEY_SIZE);
         }
 
         public void setup(ToxCore tox) throws ToxException {
@@ -189,8 +189,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                 addFriends(alice, ChatClient.FRIEND_NUMBER);
                 addFriends(bob, ChatClient.FRIEND_NUMBER);
 
-                alice.addFriendNoRequest(bob.getClientId());
-                bob.addFriendNoRequest(alice.getClientId());
+                alice.addFriendNoRequest(bob.getPublicKey());
+                bob.addFriendNoRequest(alice.getPublicKey());
 
                 aliceChat.friendAddress = bob.getAddress();
                 bobChat.friendAddress = alice.getAddress();

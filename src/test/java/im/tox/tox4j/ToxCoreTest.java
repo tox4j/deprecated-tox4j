@@ -101,14 +101,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(node().ipv4, 1, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(node().ipv4, 1, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBorderlinePort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(node().ipv4, 65535, new byte[ToxConstants.CLIENT_ID_SIZE]);
+            tox.bootstrap(node().ipv4, 65535, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
         }
     }
 
@@ -141,20 +141,20 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     }
 
     @Test
-    public void testGetClientId() throws Exception {
+    public void testGetPublicKey() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] id = tox.getClientId();
-            assertEquals(ToxConstants.CLIENT_ID_SIZE, id.length);
-            assertArrayEquals(id, tox.getClientId());
+            byte[] id = tox.getPublicKey();
+            assertEquals(ToxConstants.PUBLIC_KEY_SIZE, id.length);
+            assertArrayEquals(id, tox.getPublicKey());
         }
     }
 
     @Test
-    public void testGetPrivateKey() throws Exception {
+    public void testGetSecretKey() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] key = tox.getPrivateKey();
-            assertEquals(ToxConstants.CLIENT_ID_SIZE, key.length);
-            assertArrayEquals(key, tox.getPrivateKey());
+            byte[] key = tox.getSecretKey();
+            assertEquals(ToxConstants.SECRET_KEY_SIZE, key.length);
+            assertArrayEquals(key, tox.getSecretKey());
         }
     }
 
@@ -162,18 +162,18 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testPublicKeyEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getClientId());
+                double e = entropy(tox.getPublicKey());
                 assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }
     }
 
     @Test
-    public void testPrivateKeyEntropy() throws Exception {
+    public void testSecretKeyEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getPrivateKey());
-                assertTrue("Entropy of private key should be >= 0.5, but was " + e, e >= 0.5);
+                double e = entropy(tox.getSecretKey());
+                assertTrue("Entropy of secret key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }
     }
@@ -210,8 +210,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
                 };
                 byte[] nospam = Arrays.copyOfRange(
                     tox.getAddress(),
-                    ToxConstants.CLIENT_ID_SIZE,
-                    ToxConstants.CLIENT_ID_SIZE + 4
+                    ToxConstants.PUBLIC_KEY_SIZE,
+                    ToxConstants.PUBLIC_KEY_SIZE + 4
                 );
                 assertArrayEquals(check, nospam);
             }
@@ -368,7 +368,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         try (ToxCore tox = newTox()) {
             for (int i = 0; i < ITERATIONS; i++) {
                 try (ToxCore friend = newTox()) {
-                    int friendNumber = tox.addFriendNoRequest(friend.getClientId());
+                    int friendNumber = tox.addFriendNoRequest(friend.getPublicKey());
                     assertEquals(i, friendNumber);
                 }
             }
@@ -435,22 +435,22 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     }
 
     @Test
-    public void testGetFriendClientId() throws Exception {
+    public void testGetFriendPublicKey() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 1);
-            assertEquals(ToxConstants.CLIENT_ID_SIZE, tox.getClientId(0).length);
-            assertArrayEquals(tox.getClientId(0), tox.getClientId(0));
-            double e = entropy(tox.getClientId(0));
-            assertTrue("Entropy of friend's client ID should be >= 0.5, but was " + e, e >= 0.5);
+            assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getPublicKey(0).length);
+            assertArrayEquals(tox.getPublicKey(0), tox.getPublicKey(0));
+            double e = entropy(tox.getPublicKey(0));
+            assertTrue("Entropy of friend's public key should be >= 0.5, but was " + e, e >= 0.5);
         }
     }
 
     @Test
-    public void testGetFriendByClientId() throws Exception {
+    public void testGetFriendByPublicKey() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 10);
             for (int i = 0; i < 10; i++) {
-                assertEquals(i, tox.getFriendByClientId(tox.getClientId(i)));
+                assertEquals(i, tox.getFriendByPublicKey(tox.getPublicKey(i)));
             }
         }
     }
@@ -490,7 +490,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testGetDhtId() throws Exception {
         try (ToxCore tox = newTox()) {
             byte[] key = tox.getDhtId();
-            assertEquals(ToxConstants.CLIENT_ID_SIZE, key.length);
+            assertEquals(ToxConstants.PUBLIC_KEY_SIZE, key.length);
             assertArrayEquals(key, tox.getDhtId());
         }
     }
