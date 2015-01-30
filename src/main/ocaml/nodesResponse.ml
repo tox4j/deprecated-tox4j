@@ -2,26 +2,37 @@ open Core.Std
 open Types
 
 
-type t = {
+let kind = Packet.Kind.NodesResponse
+type t = Packet.Data.nodes_response = {
   nodes   : node list;
   ping_id : int64;
 }
 
 
-let unpack dht packet =
+let wrap decoded =
+  Packet.Data.NodesResponse decoded
+
+
+let unpack ~dht ~buf =
   let open Or_error in
 
-  let packet_id = Iobuf.Consume.uint8 packet in
-  assert (packet_id = 0x04);
-
-  DhtPacket.unpack dht packet
+  DhtPacket.unpack ~dht ~buf
     ~f:(
-      fun packet ->
-        Packet.unpack_repeated packet ~size:Iobuf.Consume.uint8 ~f:Node.unpack
+      fun ~buf ->
+        Packet.unpack_repeated ~buf ~size:Iobuf.Consume.uint8 ~f:Node.unpack
         >>| fun nodes ->
-        let ping_id = Iobuf.Consume.int64_t_be packet in
+        let ping_id = Iobuf.Consume.int64_t_be buf in
         {
           nodes;
           ping_id;
         }
     )
+
+
+let pack ~dht ~buf ~node ~packet =
+  DhtPacket.pack ~dht ~buf ~node ~kind ~f:(
+    fun ~buf ->
+      Packet.pack_repeated
+        ~buf ~size:Iobuf.Fill.uint8 packet.nodes ~f:Node.pack;
+      Iobuf.Fill.int64_t_be buf packet.ping_id;
+  )

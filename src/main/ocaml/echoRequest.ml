@@ -2,17 +2,26 @@ open Core.Std
 open Types
 
 
-type t = {
+let kind = Packet.Kind.EchoRequest
+type t = Packet.Data.echo_request = {
   ping_id : int64;
 }
 
 
-let unpack dht packet =
-  let packet_id = Iobuf.Consume.uint8 packet in
-  assert (packet_id = 0x00);
+let wrap decoded =
+  Packet.Data.EchoRequest decoded
 
-  DhtPacket.unpack dht packet
+
+let unpack ~dht ~buf =
+  DhtPacket.unpack ~dht ~buf
     ~f:(
-      fun packet ->
-        Or_error.return { ping_id = Iobuf.Consume.int64_t_be packet }
+      fun ~buf ->
+        Or_error.return { ping_id = Iobuf.Consume.int64_t_be buf }
     )
+
+
+let pack ~dht ~buf ~node ~packet =
+  DhtPacket.pack ~dht ~buf ~node ~kind ~f:(
+    fun ~buf ->
+      Iobuf.Fill.int64_t_be buf packet.ping_id
+  )

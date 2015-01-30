@@ -35,14 +35,14 @@ let t_of_sexp sx =
   of_string @@ string_of_sexp sx
 
 
-let pack packet public_key =
+let pack ~buf public_key =
   Box.Bytes.of_public_key public_key
   |> Bytes.unsafe_to_string
-  |> Iobuf.Fill.string packet
+  |> Iobuf.Fill.string buf
 
 
-let unpack packet =
-  Iobuf.Consume.string packet ~len:Box.public_key_size
+let unpack ~buf =
+  Iobuf.Consume.string buf ~len:Box.public_key_size
   |> of_string
 
 
