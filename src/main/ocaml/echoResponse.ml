@@ -10,7 +10,7 @@ type t = {
 
 
 let make ~dht ~node request =
-  Crypto.pack_dht_packet ~dht ~node ~kind ~f:(
+  DhtPacket.pack ~dht ~node ~kind ~f:(
     fun packet ->
       Iobuf.Fill.int64_t_be packet request.ping_id;
   )

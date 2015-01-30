@@ -5,9 +5,21 @@ open Types
 open Sodium
 
 
+let wanted_key dht =
+  if true then
+    dht.dht_pk
+  else
+    PublicKey.of_string (
+      "\xF3\x2A\x31\x79\x72\xA6\x6F\x2C" ^
+      "\x3B\x8B\x6F\x90\x9C\x90\x66\x31" ^
+      "\xA8\x8A\xE0\xB4\x85\xA7\x2B\x45" ^
+      "\x61\xA5\xD1\x11\x38\x71\x25\x04"
+    )
+
+
 let sonOfRa = {
-  (*n_addr = "144.76.60.215";*)
   n_proto = Protocol.UDP;
+  (*n_addr = "144.76.60.215";*)
   n_addr = InetAddr.IPv4 (Option.value_exn (InetAddr.ipv4_of_string
                                               "\x90\x4c\x3c\xd7"));
   n_port = Option.value_exn (Port.of_int 33445);
@@ -34,8 +46,12 @@ let handle_packet ~dht ~recv_write buf from =
   match Iobuf.Peek.uint8 ~pos:0 buf with
   | 0x00 ->
       begin match EchoRequest.unpack dht buf with
-        | None -> failwith "Format error in EchoRequest"
-        | Some (node, decoded) ->
+        | Result.Error exn ->
+            print_endline (
+              "From " ^ Socket.Address.Inet.to_string from ^
+              ": error in EchoRequest: " ^ Error.to_string_hum exn
+            )
+        | Result.Ok (node, decoded) ->
             Pipe.write_without_pushback recv_write
               (node, EchoRequest decoded)
       end
@@ -60,11 +76,19 @@ let handle_packet ~dht ~recv_write buf from =
       *)
 
       begin match NodesResponse.unpack dht buf with
-        | None -> failwith "Format error in NodesResponse"
-        | Some (node, decoded) ->
+        | Result.Error exn ->
+            print_endline (
+              "Error in NodesResponse: " ^ Error.to_string_hum exn
+            )
+        | Result.Ok (node, decoded) ->
             Pipe.write_without_pushback recv_write
               (node, NodesResponse decoded)
       end
+
+  | 0x21 ->
+      print_endline @@ "Got 0x21 from " ^
+                       Socket.Address.Inet.to_string from;
+      print_endline @@ Iobuf.to_string_hum ~bounds:`Window buf;
  
   | code ->
       failwith @@ Printf.sprintf "Unhandled packet type: 0x%02x" code
@@ -100,7 +124,7 @@ let send_loop ~sock ~send_read =
 
 
 let network_loop ~dht_ref ~recv_write ~send_read =
-  Udp.bind (Socket.Address.Inet.create Unix.Inet_addr.bind_any ~port:33445)
+  Udp.bind (Socket.Address.Inet.create Unix.Inet_addr.bind_any ~port:23445)
   >>= fun sock ->
 
   Deferred.all_ignore [
@@ -161,10 +185,19 @@ let handle_network_event ~dht_ref ~send_write (from, packet) =
                                    InetAddr.to_string node.n_addr ^ ":" ^
                                    string_of_int (Port.to_int node.n_port);
                   *)
-                  (* Get or create new channel key. *)
-                  let dht, node =
-                    Dht.channel_key !dht_ref node
+                  (* Create new channel key or update IP information. *)
+                  let dht = Dht.add_node !dht_ref node in
+
+                  let node =
+                    Or_error.ok_exn (Dht.node_by_key dht node.n_key)
                   in
+
+                  print_endline @@ "dist(wanted_key) = " ^
+                                   PublicKey.to_string_hum (
+                                     PublicKey.distance
+                                       (wanted_key dht) node.cn_node.n_key
+                                     |> PublicKey.of_string
+                                   );
 
                   (* Update DHT reference. *)
                   dht_ref := dht;
@@ -173,7 +206,7 @@ let handle_network_event ~dht_ref ~send_write (from, packet) =
                   let request =
                     NodesRequest.(
                       make ~dht ~node {
-                        key = dht.dht_pk;
+                        key = wanted_key dht;
                         ping_id = 0x8765432101234567L;
                       }
                     )
@@ -203,12 +236,14 @@ let main =
 
   let dht = Dht.create () in
 
-  let dht, node = Dht.channel_key dht sonOfRa in
+  let dht = Dht.add_node dht sonOfRa in
+
+  let node = Or_error.ok_exn (Dht.node_by_key dht sonOfRa.n_key) in
 
   let request =
     NodesRequest.(
       make ~dht ~node {
-        key = dht.dht_pk;
+        key = wanted_key dht;
         ping_id = 0x8765432101234567L;
       }
     )

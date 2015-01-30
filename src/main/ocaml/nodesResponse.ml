@@ -9,12 +9,12 @@ type t = {
 
 
 let unpack dht packet =
-  let open Option in
+  let open Or_error in
 
   let packet_id = Iobuf.Consume.uint8 packet in
   assert (packet_id = 0x04);
 
-  Crypto.unpack_dht_packet dht packet
+  DhtPacket.unpack dht packet
     ~f:(
       fun packet ->
         Packet.unpack_repeated packet ~size:Iobuf.Consume.uint8 ~f:Node.unpack

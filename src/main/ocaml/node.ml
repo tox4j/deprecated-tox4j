@@ -2,17 +2,19 @@ open Core.Std
 
 
 let unpack_after_proto packet n_proto n_addr =
-  let open Option in
-  Port.of_int (Iobuf.Consume.uint16_be packet) >>| fun n_port ->
+  match Port.of_int (Iobuf.Consume.uint16_be packet) with
+  | None ->
+      Or_error.of_exn Packet.Format_error
+  | Some n_port ->
+      let n_key = PublicKey.unpack packet in
 
-  let n_key = PublicKey.unpack packet in
-
-  Types.({
-    n_proto;
-    n_addr;
-    n_port;
-    n_key;
-  })
+      Or_error.return
+        Types.({
+          n_proto;
+          n_addr;
+          n_port;
+          n_key;
+        })
 
 
 let unpack packet =
@@ -32,4 +34,5 @@ let unpack packet =
   | 0b1010 ->
       unpack_after_proto packet n_proto
         (InetAddr.IPv6 (InetAddr.read_ipv6 packet))
-  | _ -> None
+  | _ ->
+      Or_error.of_exn Packet.Format_error

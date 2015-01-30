@@ -1,8 +1,10 @@
 open Core.Std
 
+exception Format_error
+
 
 let unpack_repeated packet ~size ~f =
-  let open Option in
+  let open Or_error in
   let rec loop acc = function
     | 0 ->
         return (List.rev acc)
