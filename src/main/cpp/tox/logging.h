@@ -37,37 +37,34 @@ struct null_ostream
 #  define LOG_ASSERT(cond) assert (cond)
 #endif
 
-namespace lwt
+void output_hex (std::ostream &os, uint8_t const *data, size_t length);
+
+
+struct formatter
 {
-  void output_hex (std::ostream &os, uint8_t const *data, size_t length);
+  formatter (formatter &&fmt)
+    : text_ (std::move (fmt.text_))
+  { }
+
+  explicit formatter (std::vector<char> &&text)
+    : text_ (text)
+  { }
+
+  friend std::ostream &operator << (std::ostream &os, formatter const &fmt);
+
+private:
+  std::vector<char> const text_;
+};
 
 
-  struct formatter
-  {
-    formatter (formatter &&fmt)
-      : text_ (std::move (fmt.text_))
-    { }
+template<size_t N, typename ...Args>
+formatter
+format (char const (&fmt)[N], Args const &...args)
+{
+  std::vector<char> text (snprintf (nullptr, 0, fmt, args...) + 1);
+  snprintf (text.data (), text.size (), fmt, args...);
 
-    explicit formatter (std::vector<char> &&text)
-      : text_ (text)
-    { }
-
-    friend std::ostream &operator << (std::ostream &os, formatter const &fmt);
-
-  private:
-    std::vector<char> const text_;
-  };
-
-
-  template<size_t N, typename ...Args>
-  formatter
-  format (char const (&fmt)[N], Args const &...args)
-  {
-    std::vector<char> text (snprintf (nullptr, 0, fmt, args...) + 1);
-    snprintf (text.data (), text.size (), fmt, args...);
-
-    return formatter (std::move (text));
-  }
+  return formatter (std::move (text));
 }
 
 
@@ -75,6 +72,6 @@ template<std::size_t N>
 std::ostream &
 operator << (std::ostream &os, std::array<uint8_t, N> const &array)
 {
-  lwt::output_hex (os, array.data (), array.size ());
+  output_hex (os, array.data (), array.size ());
   return os;
 }

@@ -14,7 +14,8 @@ val androidSettings = Seq(
       baseDirectory.value / "android/arm-linux-androideabi",
       baseDirectory.value.getParentFile / "android/arm-linux-androideabi"
     )
-    candidates.find(_.exists)
+    // Try $TOOLCHAIN first, then try some other possible candidate paths.
+    Option(System.getenv("TOOLCHAIN")).map(file).orElse(candidates.find(_.exists))
   },
   pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
   jniSourceFiles in Compile += {

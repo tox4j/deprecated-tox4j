@@ -4,8 +4,6 @@
 #include <iomanip>
 #include <iterator>
 
-using namespace lwt;
-
 
 std::size_t scope_counter::scope;
 
@@ -19,7 +17,7 @@ scope_indent (std::ostream &os, int line)
 
 
 void
-lwt::output_hex (std::ostream &os, uint8_t const *data, size_t length)
+output_hex (std::ostream &os, uint8_t const *data, size_t length)
 {
   os << '[';
   for (size_t i = 0; i < length; i++)
@@ -29,7 +27,7 @@ lwt::output_hex (std::ostream &os, uint8_t const *data, size_t length)
 
 
 std::ostream &
-lwt::operator << (std::ostream &os, formatter const &fmt)
+operator << (std::ostream &os, formatter const &fmt)
 {
   std::copy (fmt.text_.cbegin (), fmt.text_.cend (), std::ostream_iterator<char> (os));
   return os;
