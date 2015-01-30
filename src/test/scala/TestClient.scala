@@ -9,6 +9,13 @@ object TestClient extends App {
 
   private val logger = Logger(LoggerFactory.getLogger(TestClient.getClass))
 
+  private def readableClientId(id: Array[Byte]): String = {
+    val str: StringBuilder = new StringBuilder
+    for (b <- id) {
+      str.append(f"$b%02X")
+    }
+    str.toString()
+  }
 
   private def parseClientId(id: String): Array[Byte] = {
     val clientId = Array.ofDim[Byte](ToxConstants.CLIENT_ID_SIZE)
@@ -58,6 +65,7 @@ object TestClient extends App {
         })
 
         tox.callback(new TestEventListener(id))
+        logger.info(s"[$id] Key: ${readableClientId(tox.getClientId)}")
 
         bootstrap match {
           case Some((host, port, key)) =>
