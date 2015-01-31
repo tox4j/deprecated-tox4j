@@ -72,12 +72,16 @@ let tox_distance dist a b =
   done
 
 
+let use_kad_distance = false
+
 let distance a b =
   let a = to_string a in
   let b = to_string b in
   let dist = Bytes.create Box.public_key_size in
 
-  (*kad_distance dist a b;*)
-  tox_distance dist a b;
+  if use_kad_distance then
+    kad_distance dist a b
+  else
+    tox_distance dist a b;
 
   Bytes.unsafe_to_string dist
