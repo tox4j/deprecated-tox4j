@@ -10,6 +10,7 @@ type control_event =
 let recv_loop ~dht_ref ~sock ~recv_write =
   Udp.recvfrom_loop (Socket.fd sock)
     (fun buf from ->
+       let buf = Message.of_iobuf buf in
        match NetworkPacket.unpack ~dht:!dht_ref ~buf with
        | Result.Ok handled ->
            Pipe.write_without_pushback recv_write handled
@@ -37,7 +38,7 @@ let send_loop ~dht_ref ~sock ~send_read =
         let buf = NetworkPacket.pack ~dht:!dht_ref ~node ~packet in
 
         let ip = InetAddr.to_string node.cn_node.n_addr in
-        sendto (Socket.fd sock) buf
+        sendto (Socket.fd sock) (Message.to_iobuf buf)
           (Socket.Address.Inet.create
              (Unix.Inet_addr.of_string ip)
              ~port:(Port.to_int node.cn_node.n_port))

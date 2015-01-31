@@ -19,9 +19,9 @@ let unpack ~dht ~buf =
   DhtPacket.unpack ~dht ~buf
     ~f:(
       fun ~buf ->
-        Packet.unpack_repeated ~buf ~size:Iobuf.Consume.uint8 ~f:Node.unpack
+        Packet.unpack_repeated ~buf ~size:Message.Consume.uint8 ~f:Node.unpack
         >>| fun nodes ->
-        let ping_id = Iobuf.Consume.int64_t_be buf in
+        let ping_id = Message.Consume.int64_t_be buf in
         {
           nodes;
           ping_id;
@@ -33,6 +33,6 @@ let pack ~dht ~buf ~node ~packet =
   DhtPacket.pack ~dht ~buf ~node ~kind ~f:(
     fun ~buf ->
       Packet.pack_repeated
-        ~buf ~size:Iobuf.Fill.uint8 packet.nodes ~f:Node.pack;
-      Iobuf.Fill.int64_t_be buf packet.ping_id;
+        ~buf ~size:Message.Fill.uint8 packet.nodes ~f:Node.pack;
+      Message.Fill.int64_t_be buf packet.ping_id;
   )

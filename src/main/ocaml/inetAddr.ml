@@ -30,17 +30,17 @@ let ipv6_of_string s =
 
 
 let read_ipv4 buf =
-  Iobuf.Consume.string buf ~len:ipv4_size
+  Message.Consume.string ~len:ipv4_size buf
 
 let read_ipv6 buf =
-  Iobuf.Consume.string buf ~len:ipv6_size
+  Message.Consume.string ~len:ipv6_size buf
 
 
 let write_ipv4 buf ip =
-  Iobuf.Fill.string buf ip
+  Message.Fill.string buf ip
 
 let write_ipv6 buf ip =
-  Iobuf.Fill.string buf ip
+  Message.Fill.string buf ip
 
 
 let ipv4_to_string ip =

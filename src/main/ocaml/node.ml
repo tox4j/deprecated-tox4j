@@ -2,23 +2,21 @@ open Core.Std
 
 
 let unpack_after_proto ~buf n_proto n_addr =
-  match Port.of_int (Iobuf.Consume.uint16_be buf) with
-  | None ->
-      Or_error.of_exn (Packet.Format_error "Node:port")
-  | Some n_port ->
-      let n_key = PublicKey.unpack ~buf in
+  let open Or_error in
+  Port.unpack buf >>= fun n_port ->
+  let n_key = PublicKey.unpack ~buf in
 
-      Or_error.return
-        Types.({
-          n_proto;
-          n_addr;
-          n_port;
-          n_key;
-        })
+  return
+    Types.({
+        n_proto;
+        n_addr;
+        n_port;
+        n_key;
+      })
 
 
 let unpack ~buf =
-  let protocol = Iobuf.Consume.uint8 buf in
+  let protocol = Message.Consume.uint8 buf in
 
   let n_proto =
     match protocol lsr 7 with

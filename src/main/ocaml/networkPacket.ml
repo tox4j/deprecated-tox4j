@@ -18,8 +18,6 @@ let unpack_and_wrap ~dht ~buf kind =
 
 let unpack ~dht ~buf =
   let open Or_error in
-  let buf = Iobuf.read_only buf in
-
   Packet.Kind.unpack ~buf >>= (unpack_and_wrap ~dht ~buf)
 
 
@@ -33,8 +31,8 @@ let pack ~dht ~node ~packet =
     | NodesResponse packet -> NodesResponse.pack ~packet
   in
 
-  let buf = Iobuf.create Async.Std.Udp.default_capacity in
+  let buf = Message.cipher () in
   packer ~dht ~buf ~node;
-  Iobuf.flip_lo buf;
+  Message.flip_lo buf;
 
   buf

@@ -22,33 +22,36 @@ let to_string_hum key =
   Buffer.contents buf
 
 
-let of_string s =
-  Bytes.unsafe_of_string s
-  |> Box.Bytes.to_public_key
+let (%%) = Fn.compose
 
 
-let sexp_of_t pk =
-  sexp_of_string @@ Bytes.to_string @@ Box.Bytes.of_public_key pk
+let to_string =
+  Bytes.unsafe_to_string %% Box.Bytes.of_public_key
 
 
-let t_of_sexp sx =
-  of_string @@ string_of_sexp sx
+let of_string =
+  Box.Bytes.to_public_key %% Bytes.unsafe_of_string
 
 
-let pack ~buf public_key =
-  Box.Bytes.of_public_key public_key
-  |> Bytes.unsafe_to_string
-  |> Iobuf.Fill.string buf
+let sexp_of_t =
+  sexp_of_string %% Bytes.to_string %% Box.Bytes.of_public_key
+
+
+let t_of_sexp =
+  of_string %% string_of_sexp
+
+
+let pack ~buf =
+  Message.Fill.string buf %% Bytes.unsafe_to_string %% Box.Bytes.of_public_key
 
 
 let unpack ~buf =
-  Iobuf.Consume.string buf ~len:Box.public_key_size
-  |> of_string
+  of_string (Message.Consume.string ~len:Box.public_key_size buf)
 
 
 let distance a b =
-  let a = Box.Bytes.of_public_key a |> Bytes.unsafe_to_string in
-  let b = Box.Bytes.of_public_key b |> Bytes.unsafe_to_string in
+  let a = to_string a in
+  let b = to_string b in
   let dist = Bytes.create Box.public_key_size in
 
   for i = 0 to Box.public_key_size - 1 do

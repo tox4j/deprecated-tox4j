@@ -20,7 +20,7 @@ module Kind = struct
 
   let unpack ~buf =
     let open Or_error in
-    match Iobuf.Consume.uint8 buf with
+    match Message.Consume.uint8 buf with
     | 0x00 -> return EchoRequest
     | 0x01 -> return EchoResponse
     | 0x02 -> return NodesRequest
@@ -36,7 +36,7 @@ module Kind = struct
 
 
   let pack ~buf kind =
-    Iobuf.Fill.uint8 buf (to_int kind)
+    Message.Fill.uint8 buf (to_int kind)
 end
 
 
@@ -80,7 +80,7 @@ module type S = sig
 
   val unpack :
     dht:Dht.t
-    -> buf:('access, Iobuf.seek) Iobuf.t
+    -> buf:(Message.cipher, read_only, Iobuf.seek) Message.t
     -> (Types.connected_node * t) Or_error.t
 
   val wrap : t -> Data.t

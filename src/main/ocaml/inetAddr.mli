@@ -16,11 +16,11 @@ val ipv6_size : int
 val ipv4_of_string : string -> ipv4 address option
 val ipv6_of_string : string -> ipv6 address option
 
-val read_ipv4 : ('access, Iobuf.seek) Iobuf.t -> ipv4 address
-val read_ipv6 : ('access, Iobuf.seek) Iobuf.t -> ipv6 address
+val read_ipv4 : (Message.plain, ipv4 address) Message.Consume.t
+val read_ipv6 : (Message.plain, ipv6 address) Message.Consume.t
 
-val write_ipv4 : (read_write, Iobuf.seek) Iobuf.t -> ipv4 address -> unit
-val write_ipv6 : (read_write, Iobuf.seek) Iobuf.t -> ipv6 address -> unit
+val write_ipv4 : (Message.plain, ipv4 address) Message.Fill.t
+val write_ipv6 : (Message.plain, ipv6 address) Message.Fill.t
 
 val ipv4_to_string : ipv4 address -> string
 val ipv6_to_string : ipv6 address -> string
