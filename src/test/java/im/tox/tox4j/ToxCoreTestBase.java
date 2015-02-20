@@ -186,7 +186,7 @@ public abstract class ToxCoreTestBase {
         return friendNumber;
     }
 
-    public static @NotNull String readableClientId(@NotNull byte[] id) {
+    public static @NotNull String readablePublicKey(@NotNull byte[] id) {
         StringBuilder str = new StringBuilder();
         for (byte b : id) {
             str.append(String.format("%02X", b));
@@ -194,15 +194,15 @@ public abstract class ToxCoreTestBase {
         return str.toString();
     }
 
-    public static @NotNull byte[] parseClientId(@NotNull String id) {
-        byte[] clientId = new byte[id.length() / 2];
-        for (int i = 0; i < clientId.length; i++) {
-            clientId[i] = (byte) (
+    public static @NotNull byte[] parsePublicKey(@NotNull String id) {
+        byte[] publicKey = new byte[id.length() / 2];
+        for (int i = 0; i < publicKey.length; i++) {
+            publicKey[i] = (byte) (
                 (fromHexDigit(id.charAt(i * 2)) << 4) +
                     (fromHexDigit(id.charAt(i * 2 + 1)))
             );
         }
-        return clientId;
+        return publicKey;
     }
 
     private static byte fromHexDigit(char c) {

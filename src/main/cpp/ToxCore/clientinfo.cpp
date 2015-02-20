@@ -3,33 +3,33 @@
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSelfGetClientId
+ * Method:    toxSelfGetPublicKey
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetClientId
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPublicKey
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
-        std::vector<uint8_t> client_id(TOX_CLIENT_ID_SIZE);
-        tox_self_get_client_id(tox, client_id.data());
-        return toJavaArray(env, client_id);
+        std::vector<uint8_t> public_key(TOX_PUBLIC_KEY_SIZE);
+        tox_self_get_public_key(tox, public_key.data());
+        return toJavaArray(env, public_key);
     });
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSelfGetPrivateKey
+ * Method:    toxSelfGetSecretKey
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPrivateKey
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetSecretKey
   (JNIEnv *env, jclass, jint instanceNumber)
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
-        std::vector<uint8_t> private_key(TOX_CLIENT_ID_SIZE);
-        tox_self_get_private_key(tox, private_key.data());
-        return toJavaArray(env, private_key);
+        std::vector<uint8_t> secret_key(TOX_SECRET_KEY_SIZE);
+        tox_self_get_secret_key(tox, secret_key.data());
+        return toJavaArray(env, secret_key);
     });
 }
 

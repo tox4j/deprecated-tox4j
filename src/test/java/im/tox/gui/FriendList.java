@@ -11,13 +11,13 @@ public class FriendList extends AbstractListModel<Friend> {
 
     private final ArrayList<Friend> friends = new ArrayList<>();
 
-    public void add(int friendNumber, byte[] clientId) {
+    public void add(int friendNumber, byte[] publicKey) {
         while (friends.size() <= friendNumber) {
             friends.add(null);
         }
         Friend oldFriend = friends.get(friendNumber);
-        if (oldFriend == null || !Arrays.equals(oldFriend.getClientId(), clientId)) {
-            friends.set(friendNumber, new Friend(clientId));
+        if (oldFriend == null || !Arrays.equals(oldFriend.getPublicKey(), publicKey)) {
+            friends.set(friendNumber, new Friend(publicKey));
         }
         fireIntervalAdded(this, friendNumber, friendNumber);
     }

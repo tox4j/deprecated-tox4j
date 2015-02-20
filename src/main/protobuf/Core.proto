@@ -77,7 +77,7 @@ message FriendName {
 }
 
 message FriendRequest {
-    required bytes  clientId        = 1;
+    required bytes  publicKey       = 1;
     required uint32 timeDelta       = 2;
     required bytes  message         = 3;
 }

@@ -3,8 +3,6 @@
 
 #include <tox/tox.h>
 
-#include <lwt/logging.h>
-
 #include <cassert>
 
 #include <algorithm>
@@ -12,9 +10,11 @@
 #include <map>
 #include <vector>
 
+#include "logging.h"
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-#define DEBUG_CALLBACKS 1
+#define DEBUG_CALLBACKS 0
 
 
 #if DEBUG_CALLBACKS

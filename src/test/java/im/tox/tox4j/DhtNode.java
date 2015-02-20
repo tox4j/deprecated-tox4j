@@ -10,6 +10,6 @@ public class DhtNode {
         this.ipv4 = ipv4;
         this.ipv6 = ipv6;
         this.port = port;
-        this.dhtId = ToxCoreTestBase.parseClientId(dhtId);
+        this.dhtId = ToxCoreTestBase.parsePublicKey(dhtId);
     }
 }

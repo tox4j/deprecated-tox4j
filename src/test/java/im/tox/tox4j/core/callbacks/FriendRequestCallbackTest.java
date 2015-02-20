@@ -38,16 +38,16 @@ public class FriendRequestCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendRequest(@NotNull final byte[] clientId, int timeDelta, @NotNull byte[] message) {
+        public void friendRequest(@NotNull final byte[] publicKey, int timeDelta, @NotNull byte[] message) {
             debug("got friend request: " + new String(message));
             assertTrue("Alice shouldn't get a friend request", isBob());
-            assertArrayEquals(getFriendClientID(), clientId);
+            assertArrayEquals(getFriendPublicKey(), publicKey);
             assertTrue(timeDelta >= 0);
             assertEquals("Hey this is " + getFriendName(), new String(message));
             addTask(new Task() {
                 @Override
                 public void perform(@NotNull ToxCore tox) throws ToxException {
-                    tox.addFriendNoRequest(clientId);
+                    tox.addFriendNoRequest(publicKey);
                 }
             });
         }

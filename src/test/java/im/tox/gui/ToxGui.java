@@ -26,8 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import static im.tox.tox4j.ToxCoreTestBase.parseClientId;
-import static im.tox.tox4j.ToxCoreTestBase.readableClientId;
+import static im.tox.tox4j.ToxCoreTestBase.parsePublicKey;
+import static im.tox.tox4j.ToxCoreTestBase.readablePublicKey;
 
 public class ToxGui extends JFrame {
 
@@ -58,7 +58,7 @@ public class ToxGui extends JFrame {
     private JRadioButton messageRadioButton;
     private JRadioButton actionRadioButton;
     private JButton sendButton;
-    private JTextField selfClientId;
+    private JTextField selfPublicKey;
     private JTextField fileName;
     private JProgressBar fileProgress;
     private JButton sendFileButton;
@@ -187,12 +187,12 @@ public class ToxGui extends JFrame {
 
         @Override
         public void friendLosslessPacket(int friendNumber, @NotNull byte[] data) {
-            addMessage("friendLosslessPacket", friendNumber, readableClientId(data));
+            addMessage("friendLosslessPacket", friendNumber, readablePublicKey(data));
         }
 
         @Override
         public void friendLossyPacket(int friendNumber, @NotNull byte[] data) {
-            addMessage("friendLossyPacket", friendNumber, readableClientId(data));
+            addMessage("friendLossyPacket", friendNumber, readablePublicKey(data));
         }
 
         @Override
@@ -207,8 +207,8 @@ public class ToxGui extends JFrame {
         }
 
         @Override
-        public void friendRequest(@NotNull byte[] clientId, int timeDelta, @NotNull byte[] message) {
-            addMessage("friendRequest", readableClientId(clientId), timeDelta, new String(message));
+        public void friendRequest(@NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message) {
+            addMessage("friendRequest", readablePublicKey(publicKey), timeDelta, new String(message));
         }
 
         @Override
@@ -331,12 +331,12 @@ public class ToxGui extends JFrame {
                     if (toxSave != null) {
                         tox = new ToxCoreImpl(options, toxSave);
                         for (int friendNumber : tox.getFriendList()) {
-                            friendListModel.add(friendNumber, tox.getClientId(friendNumber));
+                            friendListModel.add(friendNumber, tox.getPublicKey(friendNumber));
                         }
                     } else {
                         tox = new ToxCoreImpl(options);
                     }
-                    selfClientId.setText(readableClientId(tox.getAddress()));
+                    selfPublicKey.setText(readablePublicKey(tox.getAddress()));
                     tox.callback(toxEvents);
                     eventLoop = new Thread(new Runnable() {
                         @Override
@@ -396,7 +396,7 @@ public class ToxGui extends JFrame {
             public void actionPerformed(ActionEvent event) {
                 try {
                     tox.bootstrap(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
-                        parseClientId(bootstrapKey.getText().trim()));
+                        parsePublicKey(bootstrapKey.getText().trim()));
                 } catch (ToxBootstrapException e) {
                     addMessage("Bootstrap failed: ", e.getCode());
                 } catch (Throwable e) {
@@ -410,14 +410,14 @@ public class ToxGui extends JFrame {
             @Override
             public void actionPerformed(ActionEvent event) {
                 try {
-                    byte[] clientId = parseClientId(friendId.getText());
+                    byte[] publicKey = parsePublicKey(friendId.getText());
                     int friendNumber;
                     if (friendRequest.getText().isEmpty()) {
-                        friendNumber = tox.addFriendNoRequest(clientId);
+                        friendNumber = tox.addFriendNoRequest(publicKey);
                     } else {
-                        friendNumber = tox.addFriend(clientId, friendRequest.getText().getBytes());
+                        friendNumber = tox.addFriend(publicKey, friendRequest.getText().getBytes());
                     }
-                    friendListModel.add(friendNumber, Arrays.copyOf(clientId, ToxConstants.CLIENT_ID_SIZE));
+                    friendListModel.add(friendNumber, Arrays.copyOf(publicKey, ToxConstants.PUBLIC_KEY_SIZE));
                     addMessage("Added friend number " + friendNumber);
                     save();
                 } catch (ToxFriendAddException e) {

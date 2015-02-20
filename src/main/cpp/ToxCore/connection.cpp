@@ -9,7 +9,7 @@ static void toxBootstrapLike
     assert(port <= 65535);
 
     ByteArray public_key(env, publicKey);
-    assert(!publicKey || public_key.size() == TOX_CLIENT_ID_SIZE);
+    assert(!publicKey || public_key.size() == TOX_PUBLIC_KEY_SIZE);
 
     return with_instance(env, instanceNumber, "Bootstrap", [](TOX_ERR_BOOTSTRAP error) {
         switch (error) {
@@ -94,7 +94,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetDhtId
 {
     return with_instance(env, instanceNumber, [=](Tox *tox, Events &events) {
         unused(events);
-        std::vector<uint8_t> dht_id(TOX_CLIENT_ID_SIZE);
+        std::vector<uint8_t> dht_id(TOX_PUBLIC_KEY_SIZE);
         tox_get_dht_id(tox, dht_id.data());
         return toJavaArray(env, dht_id);
     });

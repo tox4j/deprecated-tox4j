@@ -1,2 +1,3 @@
 PKG sodium
-PKG lwt.unix
+PKG async
+PKG async_unix

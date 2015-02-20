@@ -18,8 +18,8 @@
 #undef tox_self_get_address
 #undef tox_self_set_nospam
 #undef tox_self_get_nospam
-#undef tox_self_get_client_id
-#undef tox_self_get_private_key
+#undef tox_self_get_public_key
+#undef tox_self_get_secret_key
 #undef tox_self_set_name
 #undef tox_self_get_name_size
 #undef tox_self_get_name
@@ -31,8 +31,8 @@
 #undef tox_friend_add
 #undef tox_friend_add_norequest
 #undef tox_friend_delete
-#undef tox_friend_by_client_id
-#undef tox_friend_get_client_id
+#undef tox_friend_by_public_key
+#undef tox_friend_get_public_key
 #undef tox_friend_exists
 #undef tox_friend_list_size
 #undef tox_friend_list

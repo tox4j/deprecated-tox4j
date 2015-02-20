@@ -141,11 +141,11 @@ public final class ToxCoreImpl extends AbstractToxCore {
         // Failing when it's null is toxBootstrap's job.
         //noinspection ConstantConditions
         if (public_key != null) {
-            if (public_key.length < ToxConstants.CLIENT_ID_SIZE) {
-                throw new IllegalArgumentException("Key too short, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
+            if (public_key.length < ToxConstants.PUBLIC_KEY_SIZE) {
+                throw new IllegalArgumentException("Key too short, must be " + ToxConstants.PUBLIC_KEY_SIZE + " bytes");
             }
-            if (public_key.length > ToxConstants.CLIENT_ID_SIZE) {
-                throw new IllegalArgumentException("Key too long, must be " + ToxConstants.CLIENT_ID_SIZE + " bytes");
+            if (public_key.length > ToxConstants.PUBLIC_KEY_SIZE) {
+                throw new IllegalArgumentException("Key too long, must be " + ToxConstants.PUBLIC_KEY_SIZE + " bytes");
             }
         }
     }
@@ -289,7 +289,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 		}
         if (friendRequestCallback != null) {
 			for (Core.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
-				friendRequestCallback.friendRequest(friendRequest.getClientId().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
+				friendRequestCallback.friendRequest(friendRequest.getPublicKey().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
 			}
 		}
         if (friendMessageCallback != null) {
@@ -335,21 +335,21 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native @NotNull byte[] toxSelfGetClientId(int instanceNumber);
+    private static native @NotNull byte[] toxSelfGetPublicKey(int instanceNumber);
 
     @NotNull
     @Override
-    public byte[] getClientId() {
-        return toxSelfGetClientId(instanceNumber);
+    public byte[] getPublicKey() {
+        return toxSelfGetPublicKey(instanceNumber);
     }
 
 
-    private static native @NotNull byte[] toxSelfGetPrivateKey(int instanceNumber);
+    private static native @NotNull byte[] toxSelfGetSecretKey(int instanceNumber);
 
     @NotNull
     @Override
-    public byte[] getPrivateKey() {
-        return toxSelfGetPrivateKey(instanceNumber);
+    public byte[] getSecretKey() {
+        return toxSelfGetSecretKey(instanceNumber);
     }
 
 
@@ -450,12 +450,12 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native int toxFriendAddNorequest(int instanceNumber, @NotNull byte[] clientId) throws ToxFriendAddException;
+    private static native int toxFriendAddNorequest(int instanceNumber, @NotNull byte[] publicKey) throws ToxFriendAddException;
 
     @Override
-    public int addFriendNoRequest(@NotNull byte[] clientId) throws ToxFriendAddException {
-        checkLength("Client ID", clientId, ToxConstants.CLIENT_ID_SIZE);
-        return toxFriendAddNorequest(instanceNumber, clientId);
+    public int addFriendNoRequest(@NotNull byte[] publicKey) throws ToxFriendAddException {
+        checkLength("Public Key", publicKey, ToxConstants.PUBLIC_KEY_SIZE);
+        return toxFriendAddNorequest(instanceNumber, publicKey);
     }
 
 
@@ -467,20 +467,20 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native int toxFriendByClientId(int instanceNumber, @NotNull byte[] clientId) throws ToxFriendByClientIdException;
+    private static native int toxFriendByPublicKey(int instanceNumber, @NotNull byte[] publicKey) throws ToxFriendByPublicKeyException;
 
     @Override
-    public int getFriendByClientId(@NotNull byte[] clientId) throws ToxFriendByClientIdException {
-        return toxFriendByClientId(instanceNumber, clientId);
+    public int getFriendByPublicKey(@NotNull byte[] publicKey) throws ToxFriendByPublicKeyException {
+        return toxFriendByPublicKey(instanceNumber, publicKey);
     }
 
 
-    private static native @NotNull byte[] toxFriendGetClientId(int instanceNumber, int friendNumber) throws ToxFriendGetClientIdException;
+    private static native @NotNull byte[] toxFriendGetPublicKey(int instanceNumber, int friendNumber) throws ToxFriendGetPublicKeyException;
 
     @NotNull
     @Override
-    public byte[] getClientId(int friendNumber) throws ToxFriendGetClientIdException {
-        return toxFriendGetClientId(instanceNumber, friendNumber);
+    public byte[] getPublicKey(int friendNumber) throws ToxFriendGetPublicKeyException {
+        return toxFriendGetPublicKey(instanceNumber, friendNumber);
     }
 
 

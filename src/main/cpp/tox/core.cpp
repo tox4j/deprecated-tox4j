@@ -278,7 +278,7 @@ void
 new_tox_get_dht_id (new_Tox const *tox, uint8_t *dht_id)
 {
   // XXX: wrong, but we can't know for now.
-  new_tox_self_get_client_id (tox, dht_id);
+  new_tox_self_get_public_key (tox, dht_id);
 }
 
 uint32_t
@@ -342,15 +342,15 @@ new_tox_self_get_nospam (new_Tox const *tox)
 }
 
 void
-new_tox_self_get_client_id (new_Tox const *tox, uint8_t *client_id)
+new_tox_self_get_public_key (new_Tox const *tox, uint8_t *public_key)
 {
-  tox_get_keys (tox->tox, client_id, nullptr);
+  tox_get_keys (tox->tox, public_key, nullptr);
 }
 
 void
-new_tox_self_get_private_key (new_Tox const *tox, uint8_t *private_key)
+new_tox_self_get_secret_key (new_Tox const *tox, uint8_t *secret_key)
 {
-  tox_get_keys (tox->tox, nullptr, private_key);
+  tox_get_keys (tox->tox, nullptr, secret_key);
 }
 
 bool
@@ -492,9 +492,9 @@ new_tox_friend_add (new_Tox *tox, uint8_t const *address, uint8_t const *message
 }
 
 uint32_t
-new_tox_friend_add_norequest (new_Tox *tox, uint8_t const *client_id, TOX_ERR_FRIEND_ADD *error)
+new_tox_friend_add_norequest (new_Tox *tox, uint8_t const *public_key, TOX_ERR_FRIEND_ADD *error)
 {
-  int32_t friend_number = tox_add_friend_norequest (tox->tox, client_id);
+  int32_t friend_number = tox_add_friend_norequest (tox->tox, public_key);
   switch (friend_number)
     {
     case TOX_FAERR_OWNKEY      : if (error) *error = TOX_ERR_FRIEND_ADD_OWN_KEY;        return 0;
@@ -542,40 +542,40 @@ new_tox_friend_delete (new_Tox *tox, uint32_t friend_number, TOX_ERR_FRIEND_DELE
 }
 
 uint32_t
-new_tox_friend_by_client_id (new_Tox const *tox, uint8_t const *client_id, TOX_ERR_FRIEND_BY_CLIENT_ID *error)
+new_tox_friend_by_public_key (new_Tox const *tox, uint8_t const *public_key, TOX_ERR_FRIEND_BY_PUBLIC_KEY *error)
 {
-  if (client_id == nullptr)
+  if (public_key == nullptr)
     {
-      if (error) *error = TOX_ERR_FRIEND_BY_CLIENT_ID_NULL;
+      if (error) *error = TOX_ERR_FRIEND_BY_PUBLIC_KEY_NULL;
       return 0;
     }
-  switch (int32_t friend_number = tox_get_friend_number (tox->tox, client_id))
+  switch (int32_t friend_number = tox_get_friend_number (tox->tox, public_key))
     {
     case -1:
-      if (error) *error = TOX_ERR_FRIEND_BY_CLIENT_ID_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_BY_PUBLIC_KEY_NOT_FOUND;
       return 0;
     default:
-      if (error) *error = TOX_ERR_FRIEND_BY_CLIENT_ID_OK;
+      if (error) *error = TOX_ERR_FRIEND_BY_PUBLIC_KEY_OK;
       return friend_number;
     }
   assert (false);
 }
 
 bool
-new_tox_friend_get_client_id (new_Tox const *tox, uint32_t friend_number, uint8_t *client_id, TOX_ERR_FRIEND_GET_CLIENT_ID *error)
+new_tox_friend_get_public_key (new_Tox const *tox, uint32_t friend_number, uint8_t *public_key, TOX_ERR_FRIEND_GET_PUBLIC_KEY *error)
 {
-  if (client_id == nullptr)
+  if (public_key == nullptr)
     {
-      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_OK;
+      if (error) *error = TOX_ERR_FRIEND_GET_PUBLIC_KEY_OK;
       return true;
     }
-  switch (tox_get_client_id (tox->tox, friend_number, client_id))
+  switch (tox_get_client_id (tox->tox, friend_number, public_key))
     {
     case -1:
-      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_FRIEND_NOT_FOUND;
+      if (error) *error = TOX_ERR_FRIEND_GET_PUBLIC_KEY_FRIEND_NOT_FOUND;
       return false;
     case 0:
-      if (error) *error = TOX_ERR_FRIEND_GET_CLIENT_ID_OK;
+      if (error) *error = TOX_ERR_FRIEND_GET_PUBLIC_KEY_OK;
       return true;
     }
   assert (false);

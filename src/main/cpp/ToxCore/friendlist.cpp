@@ -41,13 +41,13 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAdd
  * Signature: (I[B)I
  */
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
-  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
+  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray publicKey)
 {
-    ByteArray client_id(env, clientId);
-    assert(!clientId || client_id.size() == TOX_CLIENT_ID_SIZE);
+    ByteArray public_key(env, publicKey);
+    assert(!publicKey || public_key.size() == TOX_PUBLIC_KEY_SIZE);
     return with_instance(env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [](uint32_t friend_number) {
         return friend_number;
-    }, tox_friend_add_norequest, client_id.data());
+    }, tox_friend_add_norequest, public_key.data());
 }
 
 /*
@@ -70,44 +70,44 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendDelete
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxFriendByClientId
+ * Method:    toxFriendByPublicKey
  * Signature: (I[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendByClientId
-  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray clientId)
+JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendByPublicKey
+  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray publicKey)
 {
-    ByteArray client_id(env, clientId);
-    assert(!clientId || client_id.size() == TOX_CLIENT_ID_SIZE);
-    return with_instance(env, instanceNumber, "FriendByClientId", [](TOX_ERR_FRIEND_BY_CLIENT_ID error) {
+    ByteArray public_key(env, publicKey);
+    assert(!publicKey || public_key.size() == TOX_PUBLIC_KEY_SIZE);
+    return with_instance(env, instanceNumber, "FriendByPublicKey", [](TOX_ERR_FRIEND_BY_PUBLIC_KEY error) {
         switch (error) {
-            success_case(FRIEND_BY_CLIENT_ID);
-            failure_case(FRIEND_BY_CLIENT_ID, NULL);
-            failure_case(FRIEND_BY_CLIENT_ID, NOT_FOUND);
+            success_case(FRIEND_BY_PUBLIC_KEY);
+            failure_case(FRIEND_BY_PUBLIC_KEY, NULL);
+            failure_case(FRIEND_BY_PUBLIC_KEY, NOT_FOUND);
         }
         return unhandled();
     }, [](uint32_t friend_number) {
         return friend_number;
-    }, tox_friend_by_client_id, client_id.data());
+    }, tox_friend_by_public_key, public_key.data());
 }
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxFriendGetClientId
+ * Method:    toxFriendGetPublicKey
  * Signature: (II)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetClientId
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetPublicKey
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
-    std::vector<uint8_t> buffer(TOX_CLIENT_ID_SIZE);
-    return with_instance(env, instanceNumber, "FriendGetClientId", [](TOX_ERR_FRIEND_GET_CLIENT_ID error) {
+    std::vector<uint8_t> buffer(TOX_PUBLIC_KEY_SIZE);
+    return with_instance(env, instanceNumber, "FriendGetPublicKey", [](TOX_ERR_FRIEND_GET_PUBLIC_KEY error) {
         switch (error) {
-            success_case(FRIEND_GET_CLIENT_ID);
-            failure_case(FRIEND_GET_CLIENT_ID, FRIEND_NOT_FOUND);
+            success_case(FRIEND_GET_PUBLIC_KEY);
+            failure_case(FRIEND_GET_PUBLIC_KEY, FRIEND_NOT_FOUND);
         }
         return unhandled();
     }, [&](bool) {
         return toJavaArray(env, buffer);
-    }, tox_friend_get_client_id, friendNumber, buffer.data());
+    }, tox_friend_get_public_key, friendNumber, buffer.data());
 }
 
 /*

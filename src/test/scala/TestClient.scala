@@ -9,17 +9,24 @@ object TestClient extends App {
 
   private val logger = Logger(LoggerFactory.getLogger(TestClient.getClass))
 
+  private def readablePublicKey(id: Array[Byte]): String = {
+    val str: StringBuilder = new StringBuilder
+    for (b <- id) {
+      str.append(f"$b%02X")
+    }
+    str.toString()
+  }
 
-  private def parseClientId(id: String): Array[Byte] = {
-    val clientId = Array.ofDim[Byte](ToxConstants.CLIENT_ID_SIZE)
+  private def parsePublicKey(id: String): Array[Byte] = {
+    val publicKey = Array.ofDim[Byte](ToxConstants.PUBLIC_KEY_SIZE)
 
-    for (i <- 0 until ToxConstants.CLIENT_ID_SIZE) {
-      clientId(i) = (
+    for (i <- 0 until ToxConstants.PUBLIC_KEY_SIZE) {
+      publicKey(i) = (
         (fromHexDigit(id.charAt(i * 2)) << 4) +
           fromHexDigit(id.charAt(i * 2 + 1))
         ).toByte
     }
-    clientId
+    publicKey
   }
 
   private def fromHexDigit(c: Char): Byte = {
@@ -58,11 +65,12 @@ object TestClient extends App {
         })
 
         tox.callback(new TestEventListener(id))
+        logger.info(s"[$id] Key: ${readablePublicKey(tox.getPublicKey)}")
 
         bootstrap match {
           case Some((host, port, key)) =>
             logger.info(s"[$id] Bootstrapping to $host:$port")
-            tox.bootstrap(host, port, parseClientId(key))
+            tox.bootstrap(host, port, parsePublicKey(key))
           case None =>
         }
         tox
@@ -109,8 +117,8 @@ object TestClient extends App {
       logger.info(s"[$id] fileReceive($friendNumber, $fileNumber, $kind, $fileSize, ${new String(filename)}})")
     }
 
-    override def friendRequest(clientId: Array[Byte], timeDelta: Int, message: Array[Byte]): Unit = {
-      logger.info(s"[$id] friendRequest($clientId, $timeDelta, ${new String(message)})")
+    override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte]): Unit = {
+      logger.info(s"[$id] friendRequest($publicKey, $timeDelta, ${new String(message)})")
     }
 
     override def fileRequestChunk(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit = {

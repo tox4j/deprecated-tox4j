@@ -98,12 +98,12 @@ static void tox4j_read_receipt_cb(Tox *tox, uint32_t friend_number, uint32_t mes
     msg->set_messageid(message_id);
 }
 
-static void tox4j_friend_request_cb(Tox *tox, uint8_t const *client_id, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data)
+static void tox4j_friend_request_cb(Tox *tox, uint8_t const *public_key, /*uint32_t time_delta, */uint8_t const *message, size_t length, void *user_data)
 {
     unused(tox);
     Events &events = *static_cast<Events *>(user_data);
     auto msg = events.add_friendrequest();
-    msg->set_clientid(client_id, TOX_CLIENT_ID_SIZE);
+    msg->set_publickey(public_key, TOX_PUBLIC_KEY_SIZE);
     msg->set_timedelta(0);
     msg->set_message(message, length);
 }

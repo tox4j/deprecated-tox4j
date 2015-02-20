@@ -3,19 +3,24 @@ package im.tox.tox4j.core;
 public interface ToxConstants {
 
     /**
-     * The size of a Tox Client ID in bytes.
+     * The size of a Tox Public Key in bytes.
      */
-    int CLIENT_ID_SIZE              = 32;
+    int PUBLIC_KEY_SIZE              = 32;
+
+    /**
+     * The size of a Tox Secret Key in bytes.
+     */
+    int SECRET_KEY_SIZE              = 32;
 
     /**
      * The size of a Tox address in bytes. Tox addresses are in the format
-     * [Client ID (TOX_CLIENT_ID_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
+     * [Public Key (TOX_PUBLIC_KEY_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
      *
-     * The checksum is computed over the Client ID and the nospam value. The first
+     * The checksum is computed over the Public Key and the nospam value. The first
      * byte is an XOR of all the odd bytes, the second byte is an XOR of all the
-     * even bytes of the Client ID and nospam.
+     * even bytes of the Public Key and nospam.
      */
-    int ADDRESS_SIZE                = CLIENT_ID_SIZE + 4 + 2;
+    int ADDRESS_SIZE                = PUBLIC_KEY_SIZE + 4 + 2;
 
     /**
      * Maximum length of a nickname in bytes.

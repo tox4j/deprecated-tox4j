@@ -121,11 +121,11 @@ public class InvokeLaterToxEventListener implements ToxEventListener {
     }
 
     @Override
-    public void friendRequest(@NotNull final byte[] clientId, final int timeDelta, @NotNull final byte[] message) {
+    public void friendRequest(@NotNull final byte[] publicKey, final int timeDelta, @NotNull final byte[] message) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                underlying.friendRequest(clientId, timeDelta, message);
+                underlying.friendRequest(publicKey, timeDelta, message);
             }
         });
     }
