@@ -19,3 +19,5 @@ New and improved java wrapper for Tox
 
 ##Building
 Build and install toxcore and toxav. Run the sbt console with ```sbt```, and then use ```compile``` to build, ```test``` to run unit tests (these are a lot of tests with high timeouts, might take 40minutes or longer), and ```package``` to create a jar and the needed native library.
+
+Do webhooks work?
