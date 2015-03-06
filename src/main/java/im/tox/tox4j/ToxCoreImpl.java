@@ -174,7 +174,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @NotNull byte[] toxGetDhtId(int instanceNumber);
 
-    @NotNull @Override public byte[] getDhtId() {
+    @Override
+    public @NotNull byte[] getDhtId() {
         return toxGetDhtId(instanceNumber);
     }
 
