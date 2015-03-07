@@ -32,4 +32,24 @@ public class ToxSetInfoExceptionTest extends ToxCoreImplTestBase {
         }
     }
 
+    @Test
+    public void testSetStatusMessageNull() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.setStatusMessage(null);
+            fail();
+        } catch (ToxSetInfoException e) {
+            assertEquals(ToxSetInfoException.Code.NULL, e.getCode());
+        }
+    }
+
+    @Test
+    public void testSetNameNull() throws Exception {
+        try (ToxCore tox = newTox()) {
+            tox.setName(null);
+            fail();
+        } catch (ToxSetInfoException e) {
+            assertEquals(ToxSetInfoException.Code.NULL, e.getCode());
+        }
+    }
+
 }

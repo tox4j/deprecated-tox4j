@@ -22,6 +22,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
+    @NotNull
     private static byte[] notNull(byte[] bytes) {
         if (bytes == null) {
             bytes = EMPTY_BYTE_ARRAY;
@@ -378,10 +379,10 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxSelfSetName(int instanceNumber, byte[] name) throws ToxSetInfoException;
+    private static native void toxSelfSetName(int instanceNumber, @NotNull byte[] name) throws ToxSetInfoException;
 
     @Override
-    public void setName(byte[] name) throws ToxSetInfoException {
+    public void setName(@NotNull byte[] name) throws ToxSetInfoException {
         toxSelfSetName(instanceNumber, name);
     }
 

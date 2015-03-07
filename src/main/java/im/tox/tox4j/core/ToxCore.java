@@ -158,7 +158,7 @@ public interface ToxCore extends Closeable {
      * @param name our name.
      * @throws ToxSetInfoException if an error occurs.
      */
-    void setName(@Nullable byte[] name) throws ToxSetInfoException;
+    void setName(@NotNull byte[] name) throws ToxSetInfoException;
 
     /**
      * Get our own nickname. May be null if the nickname was empty.
@@ -176,7 +176,7 @@ public interface ToxCore extends Closeable {
      * @param message the status message to set.
      * @throws ToxSetInfoException if an error occurs.
      */
-    void setStatusMessage(@Nullable byte[] message) throws ToxSetInfoException;
+    void setStatusMessage(@NotNull byte[] message) throws ToxSetInfoException;
 
     /**
      * Gets our own status message. May be null if the status message was empty.

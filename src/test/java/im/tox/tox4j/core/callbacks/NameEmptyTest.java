@@ -8,7 +8,7 @@ import im.tox.tox4j.exceptions.ToxException;
 
 import static org.junit.Assert.assertEquals;
 
-public class NameNullTest extends AliceBobTestBase {
+public class NameEmptyTest extends AliceBobTestBase {
 
     @NotNull @Override protected ChatClient newAlice() {
         return new Alice();
@@ -37,7 +37,7 @@ public class NameNullTest extends AliceBobTestBase {
                 addTask(new Task() {
                     @Override
                     public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setName(null);
+                        tox.setName(new byte[]{});
                     }
                 });
             } else {
