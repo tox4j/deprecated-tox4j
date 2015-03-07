@@ -167,10 +167,13 @@ object Jni extends Plugin {
     } getOrElse "false"
   }
 
-  private def findCc(toolchainPath: Option[File]) = findTool(toolchainPath, "clang", "gcc", "cc")
-  private def findCxx(toolchainPath: Option[File]) = findTool(toolchainPath, "clang++", "g++", "c++")
+  private def findCc(toolchainPath: Option[File]) = findTool(toolchainPath,
+    "clang-3.5", "gcc-4.9", "clang", "gcc", "cc")
+  private def findCxx(toolchainPath: Option[File]) = findTool(toolchainPath,
+    "clang++-3.5", "g++-4.9", "clang++", "g++", "c++")
 
-  private def checkCcOptions(compiler: String, code: String, flags: Seq[String]*) = {
+
+  private def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
     val sourceFile = File.createTempFile("configtest", cppExtensions(0))
     val targetFile = File.createTempFile("configtest", ".out")
 
@@ -188,12 +191,21 @@ object Jni extends Plugin {
           case 0 => true
           case _ => false
         }
-      } getOrElse Nil
+      } match {
+        case Some(flags) => flags
+        case None =>
+          if (required) {
+            sys.error(s"No valid flags found; tried ${flags}")
+          } else {
+            Nil
+          }
+      }
     } finally {
       targetFile.delete()
       sourceFile.delete()
     }
   }
+
 
   private def checkExitCode(command: ProcessBuilder, log: Logger) = {
     command ! log match {
@@ -300,35 +312,47 @@ object Jni extends Plugin {
     buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
 
     // Check for some C++14 support.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "auto f = [](auto i) mutable { return i; };",
+    ccOptions ++= checkCcOptions(nativeCXX.value, true,
+      """
+      auto f = [](auto i) mutable { return i; };
+
+      template<typename... Args>
+      int bar (Args ...args) { return sizeof... (Args); }
+
+      template<typename... Args>
+      auto foo (Args ...args) {
+        return [&] { return bar (args...); };
+      }
+      """
+    )(
       Seq("-std=c++14"),
       Seq("-std=c++1y")
     ),
 
     // Debug flags.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "",
+    ccOptions ++= checkCcOptions(nativeCXX.value)(
       Seq("-ggdb3"),
       Seq("-g3"),
       Seq("-g")
     ),
 
     // Warning flags.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wall")),
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wextra")),
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-pedantic")),
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fcolor-diagnostics")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-Wall")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-Wextra")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-pedantic")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-fcolor-diagnostics")),
 
     // Use libc++ if available.
-    //ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-stdlib=libc++")),
+    //ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-stdlib=libc++")),
 
     // No RTTI and no exceptions.
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-exceptions")),
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-fno-rtti")),
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
-    ccOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-DGTEST_HAS_RTTI=0")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-fno-exceptions")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-fno-rtti")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-DGTEST_HAS_RTTI=0")),
 
     // Error on undefined references in shared object.
-    ldOptions ++= checkCcOptions(nativeCXX.value, "", Seq("-Wl,-z,defs")),
+    ldOptions ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
 
     jniSourceFiles in Compile := filterNativeSources(((nativeSource in Compile).value ** "*").get),
     jniSourceFiles in Test := filterNativeSources(((nativeSource in Test).value ** "*").get),
