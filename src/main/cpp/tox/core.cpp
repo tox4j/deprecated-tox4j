@@ -361,7 +361,7 @@ new_tox_self_set_name (new_Tox *tox, uint8_t const *name, size_t length, TOX_ERR
       if (error) *error = TOX_ERR_SET_INFO_TOO_LONG;
       return false;
     }
-  if (name == nullptr)
+  if (length > 0 && name == nullptr)
     {
       if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;
@@ -409,7 +409,7 @@ new_tox_self_set_status_message (new_Tox *tox, uint8_t const *status, size_t len
       if (error) *error = TOX_ERR_SET_INFO_TOO_LONG;
       return false;
     }
-  if (status == nullptr)
+  if (length > 0 && status == nullptr)
     {
       if (error) *error = TOX_ERR_SET_INFO_NULL;
       return false;

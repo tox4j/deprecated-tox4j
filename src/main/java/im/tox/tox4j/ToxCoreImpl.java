@@ -23,11 +23,17 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     @NotNull
-    private static byte[] notNull(byte[] bytes) {
+    private static byte[] notNull(@Nullable byte[] bytes) {
         if (bytes == null) {
             bytes = EMPTY_BYTE_ARRAY;
         }
         return bytes;
+    }
+
+    private static void checkInfoNotNull(byte[] info) throws ToxSetInfoException {
+        if (info == null) {
+            throw new ToxSetInfoException(ToxSetInfoException.Code.NULL);
+        }
     }
 
     /**
@@ -383,6 +389,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public void setName(@NotNull byte[] name) throws ToxSetInfoException {
+        checkInfoNotNull(name);
         toxSelfSetName(instanceNumber, name);
     }
 
@@ -400,6 +407,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     @Override
     public void setStatusMessage(byte[] message) throws ToxSetInfoException {
+        checkInfoNotNull(message);
         toxSelfSetStatusMessage(instanceNumber, message);
     }
 
