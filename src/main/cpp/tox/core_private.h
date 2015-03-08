@@ -67,10 +67,24 @@ string_of_control_type (uint8_t type)
 
 
 template<typename FuncT>
-struct callback
+class callback
 {
   FuncT *func;
   void *user_data;
+
+public:
+  callback () = default;
+
+  callback (FuncT *func, void *user_data)
+    : func (func)
+    , user_data (user_data)
+  { }
+
+  template<typename ...Args>
+  void operator () (Args const &...args)
+  {
+    return func (args..., user_data);
+  }
 };
 
 
@@ -156,7 +170,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_request;
-      cb.func (self, public_key, data, length, cb.user_data);
+      cb (self, public_key, data, length);
     }
 
     static void friend_message (Tox *tox, int32_t friendnumber, const uint8_t * message, uint16_t length, void *userdata)
@@ -166,7 +180,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_message;
-      cb.func (self, friendnumber, message, length, cb.user_data);
+      cb (self, friendnumber, message, length);
     }
 
     static void friend_action (Tox *tox, int32_t friendnumber, const uint8_t * action, uint16_t length, void *userdata)
@@ -176,7 +190,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_action;
-      cb.func (self, friendnumber, action, length, cb.user_data);
+      cb (self, friendnumber, action, length);
     }
 
     static void name_change (Tox *tox, int32_t friendnumber, const uint8_t *newname, uint16_t length, void *userdata)
@@ -187,9 +201,9 @@ struct new_Tox
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_name;
       if (length == 1 && newname[0] == '\0')
-        cb.func (self, friendnumber, nullptr, 0, cb.user_data);
+        cb (self, friendnumber, nullptr, 0);
       else
-        cb.func (self, friendnumber, newname, length, cb.user_data);
+        cb (self, friendnumber, newname, length);
     }
 
     static void status_message (Tox *tox, int32_t friendnumber, const uint8_t *newstatus, uint16_t length, void *userdata)
@@ -200,9 +214,9 @@ struct new_Tox
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_status_message;
       if (length == 1 && newstatus[0] == '\0')
-        cb.func (self, friendnumber, nullptr, 0, cb.user_data);
+        cb (self, friendnumber, nullptr, 0);
       else
-        cb.func (self, friendnumber, newstatus, length, cb.user_data);
+        cb (self, friendnumber, newstatus, length);
     }
 
     static void user_status (Tox *tox, int32_t friendnumber, uint8_t TOX_USERSTATUS, void *userdata)
@@ -212,7 +226,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_status;
-      cb.func (self, friendnumber, (TOX_STATUS) TOX_USERSTATUS, cb.user_data);
+      cb (self, friendnumber, (TOX_STATUS) TOX_USERSTATUS);
     }
 
     static void typing_change (Tox *tox, int32_t friendnumber, uint8_t is_typing, void *userdata)
@@ -222,7 +236,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_typing;
-      cb.func (self, friendnumber, is_typing, cb.user_data);
+      cb (self, friendnumber, is_typing);
     }
 
     static void read_receipt (Tox *tox, int32_t friendnumber, uint32_t receipt, void *userdata)
@@ -232,7 +246,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.read_receipt;
-      cb.func (self, friendnumber, receipt, cb.user_data);
+      cb (self, friendnumber, receipt);
     }
 
     static void connection_status (Tox *tox, int32_t friendnumber, uint8_t status, void *userdata)
@@ -242,7 +256,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_connection_status;
-      cb.func (self, friendnumber, status ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE, cb.user_data);
+      cb (self, friendnumber, status ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE);
     }
 
     static void file_send_request (Tox *tox, int32_t friendnumber, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)
@@ -259,7 +273,7 @@ struct new_Tox
       // the filesize bits, but then we would no longer be able to send to old
       // clients (receiving would work). Also, toxcore might not like it (I
       // don't know whether it interprets filesize).
-      cb.func (self, friendnumber, filenumber | 0x100, TOX_FILE_KIND_DATA, filesize, filename, filename_length, cb.user_data);
+      cb (self, friendnumber, filenumber | 0x100, TOX_FILE_KIND_DATA, filesize, filename, filename_length);
     }
 
     static void file_control (Tox *tox, int32_t friendnumber, uint8_t receive_send, uint8_t filenumber, uint8_t control_type, const uint8_t *data, uint16_t length, void *userdata)
@@ -291,8 +305,7 @@ struct new_Tox
           {
             // We're done, send a request for 0 bytes to let the client know.
             auto cb = self->callbacks.file_request_chunk;
-            cb.func (self, friendnumber, file_number, transfer->position,
-                     0, cb.user_data);
+            cb (self, friendnumber, file_number, transfer->position, 0);
             // Then delete the transfer state.
             self->remove_transfer (friendnumber, file_number);
             // Nothing more to do.
@@ -320,7 +333,7 @@ struct new_Tox
         }
 
       auto cb = self->callbacks.file_control;
-      cb.func (self, friendnumber, file_number, control, cb.user_data);
+      cb (self, friendnumber, file_number, control);
     }
 
     static void file_data (Tox *tox, int32_t friendnumber, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata)
@@ -334,7 +347,7 @@ struct new_Tox
       assert (transfer != nullptr);
 
       auto cb = self->callbacks.file_receive_chunk;
-      cb.func (self, friendnumber, filenumber | 0x100, transfer->position, data, length, cb.user_data);
+      cb (self, friendnumber, filenumber | 0x100, transfer->position, data, length);
 
       transfer->position += length;
 
@@ -352,7 +365,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_lossy_packet;
-      cb.func (self, friendnumber, data, length, cb.user_data);
+      cb (self, friendnumber, data, length);
       return 0;
     }
 
@@ -363,7 +376,7 @@ struct new_Tox
 #endif
       auto self = static_cast<new_Tox *> (userdata);
       auto cb = self->callbacks.friend_lossless_packet;
-      cb.func (self, friendnumber, data, length, cb.user_data);
+      cb (self, friendnumber, data, length);
       return 0;
     }
   };
