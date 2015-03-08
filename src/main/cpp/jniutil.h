@@ -4,14 +4,19 @@
 #include <type_traits>
 
 
+/*****************************************************************************
+ * UTF-8 encoded Java string as C++ char array.
+ */
+
 struct UTFChars
 {
+  typedef std::vector<char> utf8_vec;
+
   UTFChars (JNIEnv *env, jstring string)
     : env (env)
     , string (string)
     , chars (string ? env->GetStringUTFChars (string, 0) : nullptr)
-  {
-  }
+  { }
 
   UTFChars (UTFChars const &) = delete;
   ~UTFChars () { if (string) env->ReleaseStringUTFChars (string, chars); }
@@ -20,8 +25,7 @@ struct UTFChars
 
   size_t size () const { return (size_t)string ? env->GetStringUTFLength (string) : 0; }
 
-  operator char const * () const { return data (); }
-  operator std::vector<char> () const { return std::vector<char> (data (), data () + size ()); }
+  operator utf8_vec () const { return utf8_vec (data (), data () + size ()); }
 
 private:
   JNIEnv *env;
@@ -30,59 +34,66 @@ private:
 };
 
 
-struct ByteArray
+/*****************************************************************************
+ * Java arrays as C++ arrays.
+ */
+
+template<
+  typename JType,
+  typename CType,
+  typename JavaArray,
+  JType *(JNIEnv::*GetArrayElements) (JavaArray, jboolean *),
+  void (JNIEnv::*ReleaseArrayElements) (JavaArray, JType *, jint)
+>
+struct make_c_array
 {
-  ByteArray (JNIEnv *env, jbyteArray byteArray)
-    : env (env)
-    , byteArray (byteArray)
-    , bytes (byteArray ? env->GetByteArrayElements (byteArray, 0) : nullptr)
-  {
-  }
+  static_assert (sizeof (JType) == sizeof (CType),
+                 "Size requirements for Java array not met");
 
-  ByteArray (ByteArray const &) = delete;
-  ~ByteArray () { if (byteArray) env->ReleaseByteArrayElements (byteArray, bytes, JNI_ABORT); }
+  typedef std::vector<CType> vector_type;
 
-  uint8_t const *data () const { return (uint8_t *)bytes; }
-
-  size_t size () const { return (size_t)(byteArray ? env->GetArrayLength (byteArray) : 0); }
-
-  bool empty () const { return size () == 0; }
-
-  operator uint8_t const * () const { return data (); }
-  operator std::vector<uint8_t> () const { return std::vector<uint8_t> (data (), data () + size ()); }
-
-private:
-  JNIEnv *env;
-  jbyteArray byteArray;
-  jbyte *bytes;
-};
-
-
-struct ShortArray
-{
-  ShortArray (JNIEnv *env, jshortArray jArray)
+  make_c_array (JNIEnv *env, JavaArray jArray)
     : env (env)
     , jArray (jArray && env->GetArrayLength (jArray) != 0 ? jArray : nullptr)
-    , cArray (this->jArray ? env->GetShortArrayElements (jArray, 0) : nullptr)
+    , cArray (this->jArray ? (env->*GetArrayElements) (jArray, nullptr) : nullptr)
   {
   }
 
-  ShortArray (ShortArray const &) = delete;
-  ~ShortArray () { if (jArray) env->ReleaseShortArrayElements (jArray, cArray, JNI_ABORT); }
+  make_c_array (make_c_array const &) = delete;
+  ~make_c_array () { if (jArray) (env->*ReleaseArrayElements) (jArray, cArray, JNI_ABORT); }
 
-  int16_t const *data () const { return (int16_t *)cArray; }
-  size_t size () const { return (size_t)(jArray ? env->GetArrayLength (jArray) : 0); }
+  CType const *data () const { return reinterpret_cast<CType const *> (cArray); }
 
-  operator std::vector<int16_t> () const { return std::vector<int16_t> (data (), data () + size ()); }
+  size_t size () const { return jArray ? env->GetArrayLength (jArray) : 0; }
+  bool empty () const { return size () == 0; }
+
+  operator vector_type () const { return vector_type (data (), data () + size ()); }
 
 private:
   JNIEnv *env;
-  jshortArray jArray;
-  jshort *cArray;
+  JavaArray jArray;
+  JType *cArray;
 };
 
+using BooleanArray = make_c_array<jboolean, bool   , jbooleanArray, &JNIEnv::GetBooleanArrayElements, &JNIEnv::ReleaseBooleanArrayElements>;
+using ByteArray    = make_c_array<jbyte   , uint8_t, jbyteArray   , &JNIEnv::GetByteArrayElements   , &JNIEnv::ReleaseByteArrayElements   >;
+using ShortArray   = make_c_array<jshort  , int16_t, jshortArray  , &JNIEnv::GetShortArrayElements  , &JNIEnv::ReleaseShortArrayElements  >;
+using IntArray     = make_c_array<jint    , int32_t, jintArray    , &JNIEnv::GetIntArrayElements    , &JNIEnv::ReleaseIntArrayElements    >;
+using LongArray    = make_c_array<jlong   , int64_t, jlongArray   , &JNIEnv::GetLongArrayElements   , &JNIEnv::ReleaseLongArrayElements   >;
+using FloatArray   = make_c_array<jfloat  , float  , jfloatArray  , &JNIEnv::GetFloatArrayElements  , &JNIEnv::ReleaseFloatArrayElements  >;
+using DoubleArray  = make_c_array<jdouble , double , jdoubleArray , &JNIEnv::GetDoubleArrayElements , &JNIEnv::ReleaseDoubleArrayElements >;
 
-template<typename JType, typename JavaArray, JavaArray (JNIEnv::*New) (jsize size), void (JNIEnv::*Set) (JavaArray, jsize, jsize, JType const *)>
+
+/*****************************************************************************
+ * C++ arrays as Java arrays.
+ */
+
+template<
+  typename JType,
+  typename JavaArray,
+  JavaArray (JNIEnv::*New) (jsize size),
+  void (JNIEnv::*Set) (JavaArray, jsize, jsize, JType const *)
+>
 struct make_java_array
 {
   typedef JType java_type;
@@ -92,7 +103,7 @@ struct make_java_array
   {
     JavaArray array = (env->*New)(size);
 
-    (env->*Set)(array, 0, size, data);
+    (env->*Set) (array, 0, size, data);
     return array;
   }
 };
