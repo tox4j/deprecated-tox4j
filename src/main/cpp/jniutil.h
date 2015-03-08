@@ -75,13 +75,14 @@ private:
   JType *cArray;
 };
 
-using BooleanArray = make_c_array<jboolean, bool   , jbooleanArray, &JNIEnv::GetBooleanArrayElements, &JNIEnv::ReleaseBooleanArrayElements>;
-using ByteArray    = make_c_array<jbyte   , uint8_t, jbyteArray   , &JNIEnv::GetByteArrayElements   , &JNIEnv::ReleaseByteArrayElements   >;
-using ShortArray   = make_c_array<jshort  , int16_t, jshortArray  , &JNIEnv::GetShortArrayElements  , &JNIEnv::ReleaseShortArrayElements  >;
-using IntArray     = make_c_array<jint    , int32_t, jintArray    , &JNIEnv::GetIntArrayElements    , &JNIEnv::ReleaseIntArrayElements    >;
-using LongArray    = make_c_array<jlong   , int64_t, jlongArray   , &JNIEnv::GetLongArrayElements   , &JNIEnv::ReleaseLongArrayElements   >;
-using FloatArray   = make_c_array<jfloat  , float  , jfloatArray  , &JNIEnv::GetFloatArrayElements  , &JNIEnv::ReleaseFloatArrayElements  >;
-using DoubleArray  = make_c_array<jdouble , double , jdoubleArray , &JNIEnv::GetDoubleArrayElements , &JNIEnv::ReleaseDoubleArrayElements >;
+using BooleanArray = make_c_array<jboolean, bool    , jbooleanArray, &JNIEnv::GetBooleanArrayElements, &JNIEnv::ReleaseBooleanArrayElements>;
+using ByteArray    = make_c_array<jbyte   , uint8_t , jbyteArray   , &JNIEnv::GetByteArrayElements   , &JNIEnv::ReleaseByteArrayElements   >;
+using CharArray    = make_c_array<jchar   , uint16_t, jcharArray   , &JNIEnv::GetCharArrayElements   , &JNIEnv::ReleaseCharArrayElements   >;
+using ShortArray   = make_c_array<jshort  , int16_t , jshortArray  , &JNIEnv::GetShortArrayElements  , &JNIEnv::ReleaseShortArrayElements  >;
+using IntArray     = make_c_array<jint    , int32_t , jintArray    , &JNIEnv::GetIntArrayElements    , &JNIEnv::ReleaseIntArrayElements    >;
+using LongArray    = make_c_array<jlong   , int64_t , jlongArray   , &JNIEnv::GetLongArrayElements   , &JNIEnv::ReleaseLongArrayElements   >;
+using FloatArray   = make_c_array<jfloat  , float   , jfloatArray  , &JNIEnv::GetFloatArrayElements  , &JNIEnv::ReleaseFloatArrayElements  >;
+using DoubleArray  = make_c_array<jdouble , double  , jdoubleArray , &JNIEnv::GetDoubleArrayElements , &JNIEnv::ReleaseDoubleArrayElements >;
 
 
 /*****************************************************************************
@@ -113,6 +114,7 @@ struct java_array;
 
 template<> struct java_array<jboolean> { typedef make_java_array<jboolean, jbooleanArray, &JNIEnv::NewBooleanArray, &JNIEnv::SetBooleanArrayRegion> type; };
 template<> struct java_array<jbyte   > { typedef make_java_array<jbyte   , jbyteArray   , &JNIEnv::NewByteArray   , &JNIEnv::SetByteArrayRegion   > type; };
+template<> struct java_array<jchar   > { typedef make_java_array<jchar   , jcharArray   , &JNIEnv::NewCharArray   , &JNIEnv::SetCharArrayRegion   > type; };
 template<> struct java_array<jshort  > { typedef make_java_array<jshort  , jshortArray  , &JNIEnv::NewShortArray  , &JNIEnv::SetShortArrayRegion  > type; };
 template<> struct java_array<jint    > { typedef make_java_array<jint    , jintArray    , &JNIEnv::NewIntArray    , &JNIEnv::SetIntArrayRegion    > type; };
 template<> struct java_array<jlong   > { typedef make_java_array<jlong   , jlongArray   , &JNIEnv::NewLongArray   , &JNIEnv::SetLongArrayRegion   > type; };
