@@ -295,7 +295,7 @@ new_tox_iteration (new_Tox *tox)
     {
       tox->connected = !tox->connected;
       auto cb = tox->callbacks.connection_status;
-      cb.func (tox, tox->connected ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE, cb.user_data);
+      cb (tox, tox->connected ? TOX_CONNECTION_UDP4 : TOX_CONNECTION_NONE);
     }
   // For all active file transfers that we didn't invoke a file_request_chunk
   // event for, do so now.
@@ -316,8 +316,7 @@ new_tox_iteration (new_Tox *tox)
                                               transfer.file_size - transfer.position);
 
           auto cb = tox->callbacks.file_request_chunk;
-          cb.func (tox, friend_number, file_number, transfer.position,
-                   transfer.size_requested, cb.user_data);
+          cb (tox, friend_number, file_number, transfer.position, transfer.size_requested);
           transfer.event_pending = true;
         }
     }

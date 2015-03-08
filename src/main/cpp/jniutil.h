@@ -3,81 +3,110 @@
 
 #include <type_traits>
 
-struct UTFChars {
-    UTFChars(JNIEnv *env, jstring string)
-    : env(env)
-    , string(string)
-    , chars(string ? env->GetStringUTFChars(string, 0) : nullptr) { }
 
-    UTFChars(UTFChars const &) = delete;
-    ~UTFChars() { if (string) env->ReleaseStringUTFChars(string, chars); }
+/*****************************************************************************
+ * UTF-8 encoded Java string as C++ char array.
+ */
 
-    char const *data() const { return chars; }
-    size_t size() const { return (size_t) string ? env->GetStringUTFLength(string) : 0; }
+struct UTFChars
+{
+  typedef std::vector<char> utf8_vec;
 
-    operator char const *() const { return data(); }
-    operator std::vector<char>() const { return std::vector<char>(data(), data() + size()); }
+  UTFChars (JNIEnv *env, jstring string)
+    : env (env)
+    , string (string)
+    , chars (string ? env->GetStringUTFChars (string, 0) : nullptr)
+  { }
 
-private:
-    JNIEnv *env;
-    jstring string;
-    char const *chars;
-};
+  UTFChars (UTFChars const &) = delete;
+  ~UTFChars () { if (string) env->ReleaseStringUTFChars (string, chars); }
 
-struct ByteArray {
-    ByteArray(JNIEnv *env, jbyteArray byteArray)
-    : env(env)
-    , byteArray(byteArray)
-    , bytes(byteArray ? env->GetByteArrayElements(byteArray, 0) : nullptr) { }
+  char const *data () const { return chars; }
 
-    ByteArray(ByteArray const &) = delete;
-    ~ByteArray() { if (byteArray) env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT); }
+  size_t size () const { return (size_t)string ? env->GetStringUTFLength (string) : 0; }
 
-    uint8_t const *data() const { return (uint8_t *) bytes; }
-    size_t size() const { return (size_t) (byteArray ? env->GetArrayLength(byteArray) : 0); }
-    bool empty() const { return size() == 0; }
-
-    operator uint8_t const *() const { return data(); }
-    operator std::vector<uint8_t>() const { return std::vector<uint8_t>(data(), data() + size()); }
+  operator utf8_vec () const { return utf8_vec (data (), data () + size ()); }
 
 private:
-    JNIEnv *env;
-    jbyteArray byteArray;
-    jbyte *bytes;
-};
-
-struct ShortArray {
-    ShortArray(JNIEnv *env, jshortArray jArray)
-    : env(env)
-    , jArray(jArray && env->GetArrayLength(jArray) != 0 ? jArray : nullptr)
-    , cArray(this->jArray ? env->GetShortArrayElements(jArray, 0) : nullptr) { }
-
-    ShortArray(ShortArray const &) = delete;
-    ~ShortArray() { if (jArray) env->ReleaseShortArrayElements(jArray, cArray, JNI_ABORT); }
-
-    int16_t const *data() const { return (int16_t *) cArray; }
-    size_t size() const { return (size_t) (jArray ? env->GetArrayLength(jArray) : 0); }
-
-    operator std::vector<int16_t>() const { return std::vector<int16_t>(data(), data() + size()); }
-
-private:
-    JNIEnv *env;
-    jshortArray jArray;
-    jshort *cArray;
+  JNIEnv *env;
+  jstring string;
+  char const *chars;
 };
 
 
-template<typename JType, typename JavaArray, JavaArray (JNIEnv::*New)(jsize size), void (JNIEnv::*Set)(JavaArray, jsize, jsize, JType const *)>
+/*****************************************************************************
+ * Java arrays as C++ arrays.
+ */
+
+template<
+  typename JType,
+  typename CType,
+  typename JavaArray,
+  JType *(JNIEnv::*GetArrayElements) (JavaArray, jboolean *),
+  void (JNIEnv::*ReleaseArrayElements) (JavaArray, JType *, jint)
+>
+struct make_c_array
+{
+  static_assert (sizeof (JType) == sizeof (CType),
+                 "Size requirements for Java array not met");
+
+  typedef std::vector<CType> vector_type;
+
+  make_c_array (JNIEnv *env, JavaArray jArray)
+    : env (env)
+    , jArray (jArray && env->GetArrayLength (jArray) != 0 ? jArray : nullptr)
+    , cArray (this->jArray ? (env->*GetArrayElements) (jArray, nullptr) : nullptr)
+  {
+  }
+
+  make_c_array (make_c_array const &) = delete;
+  ~make_c_array () { if (jArray) (env->*ReleaseArrayElements) (jArray, cArray, JNI_ABORT); }
+
+  CType const *data () const { return reinterpret_cast<CType const *> (cArray); }
+
+  size_t size () const { return jArray ? env->GetArrayLength (jArray) : 0; }
+  bool empty () const { return size () == 0; }
+
+  operator vector_type () const { return vector_type (data (), data () + size ()); }
+
+private:
+  JNIEnv *env;
+  JavaArray jArray;
+  JType *cArray;
+};
+
+using BooleanArray = make_c_array<jboolean, bool    , jbooleanArray, &JNIEnv::GetBooleanArrayElements, &JNIEnv::ReleaseBooleanArrayElements>;
+using ByteArray    = make_c_array<jbyte   , uint8_t , jbyteArray   , &JNIEnv::GetByteArrayElements   , &JNIEnv::ReleaseByteArrayElements   >;
+using CharArray    = make_c_array<jchar   , uint16_t, jcharArray   , &JNIEnv::GetCharArrayElements   , &JNIEnv::ReleaseCharArrayElements   >;
+using ShortArray   = make_c_array<jshort  , int16_t , jshortArray  , &JNIEnv::GetShortArrayElements  , &JNIEnv::ReleaseShortArrayElements  >;
+using IntArray     = make_c_array<jint    , int32_t , jintArray    , &JNIEnv::GetIntArrayElements    , &JNIEnv::ReleaseIntArrayElements    >;
+using LongArray    = make_c_array<jlong   , int64_t , jlongArray   , &JNIEnv::GetLongArrayElements   , &JNIEnv::ReleaseLongArrayElements   >;
+using FloatArray   = make_c_array<jfloat  , float   , jfloatArray  , &JNIEnv::GetFloatArrayElements  , &JNIEnv::ReleaseFloatArrayElements  >;
+using DoubleArray  = make_c_array<jdouble , double  , jdoubleArray , &JNIEnv::GetDoubleArrayElements , &JNIEnv::ReleaseDoubleArrayElements >;
+
+
+/*****************************************************************************
+ * C++ arrays as Java arrays.
+ */
+
+template<
+  typename JType,
+  typename JavaArray,
+  JavaArray (JNIEnv::*New) (jsize size),
+  void (JNIEnv::*Set) (JavaArray, jsize, jsize, JType const *)
+>
 struct make_java_array
 {
-    typedef JType java_type;
-    typedef JavaArray array_type;
+  typedef JType java_type;
+  typedef JavaArray array_type;
 
-    static JavaArray make(JNIEnv *env, jsize size, JType const *data) {
-        JavaArray array = (env->*New)(size);
-        (env->*Set)(array, 0, size, data);
-        return array;
-    }
+  static JavaArray make (JNIEnv *env, jsize size, JType const *data)
+  {
+    JavaArray array = (env->*New)(size);
+
+    (env->*Set) (array, 0, size, data);
+    return array;
+  }
 };
 
 template<typename JType>
@@ -85,6 +114,7 @@ struct java_array;
 
 template<> struct java_array<jboolean> { typedef make_java_array<jboolean, jbooleanArray, &JNIEnv::NewBooleanArray, &JNIEnv::SetBooleanArrayRegion> type; };
 template<> struct java_array<jbyte   > { typedef make_java_array<jbyte   , jbyteArray   , &JNIEnv::NewByteArray   , &JNIEnv::SetByteArrayRegion   > type; };
+template<> struct java_array<jchar   > { typedef make_java_array<jchar   , jcharArray   , &JNIEnv::NewCharArray   , &JNIEnv::SetCharArrayRegion   > type; };
 template<> struct java_array<jshort  > { typedef make_java_array<jshort  , jshortArray  , &JNIEnv::NewShortArray  , &JNIEnv::SetShortArrayRegion  > type; };
 template<> struct java_array<jint    > { typedef make_java_array<jint    , jintArray    , &JNIEnv::NewIntArray    , &JNIEnv::SetIntArrayRegion    > type; };
 template<> struct java_array<jlong   > { typedef make_java_array<jlong   , jlongArray   , &JNIEnv::NewLongArray   , &JNIEnv::SetLongArrayRegion   > type; };
@@ -97,10 +127,13 @@ using java_array_t = typename java_array<typename std::make_signed<CType>::type>
 
 template<typename T>
 typename java_array_t<T>::array_type
-toJavaArray(JNIEnv *env, std::vector<T> const &data) {
-    typedef typename java_array_t<T>::java_type java_type;
-    static_assert(sizeof(T) == sizeof(java_type), "Size requirements for Java array not met");
-    return java_array_t<T>::make(env, data.size(), reinterpret_cast<java_type const *>(data.data()));
+toJavaArray (JNIEnv *env, std::vector<T> const &data)
+{
+  typedef typename java_array_t<T>::java_type java_type;
+  static_assert (sizeof (T) == sizeof (java_type),
+                 "Size requirements for Java array not met");
+  return java_array_t<T>::make (env, data.size (),
+                                reinterpret_cast<java_type const *> (data.data ()));
 }
 
 #endif /* JNIUTIL_H */

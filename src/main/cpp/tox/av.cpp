@@ -92,7 +92,7 @@ struct new_ToxAV
         }
 
       auto cb = self->callbacks.call;
-      cb.func (self, peer_id, audio_enabled, video_enabled, cb.user_data);
+      cb (self, peer_id, audio_enabled, video_enabled);
     }
 
     static void callstate_OnRinging (void *agent, int32_t call_idx, void *userdata)
@@ -104,7 +104,7 @@ struct new_ToxAV
       call.state = TOXAV_CALL_STATE_RINGING;
 
       auto cb = self->callbacks.call_state;
-      cb.func (self, friend_number, call.state, cb.user_data);
+      cb (self, friend_number, call.state);
     }
 
     static void callstate_OnStart (void *agent, int32_t call_idx, void *userdata)
@@ -137,7 +137,7 @@ struct new_ToxAV
       toxav_prepare_transmission (self->av, call_idx, 1);
 
       auto cb = self->callbacks.call_state;
-      cb.func (self, friend_number, call.state, cb.user_data);
+      cb (self, friend_number, call.state);
     }
 
     static void callstate_OnCancel (void *agent, int32_t call_idx, void *userdata)
@@ -201,7 +201,7 @@ struct new_ToxAV
       size_t sample_count = settings.audio_channels * settings.audio_sample_rate * call.settings.audio_frame_duration / 1000;
 
       auto cb = self->callbacks.receive_audio_frame;
-      cb.func (self, friend_number, pcm, sample_count, settings.audio_channels, settings.audio_sample_rate, cb.user_data);
+      cb (self, friend_number, pcm, sample_count, settings.audio_channels, settings.audio_sample_rate);
     }
 
     static void video (void *agent, int32_t call_idx, vpx_image_t const *img, void *userdata)
@@ -301,7 +301,7 @@ new_toxav_iteration (new_ToxAV *av)
           if (!call.video_event_pending)
             {
               auto cb = av->callbacks.request_video_frame;
-              cb.func (av, friend_number, cb.user_data);
+              cb (av, friend_number);
               call.video_event_pending = true;
               if (call.state == TOXAV_CALL_STATE_SENDING_V)
                 break;
@@ -310,7 +310,7 @@ new_toxav_iteration (new_ToxAV *av)
           if (!call.audio_event_pending)
             {
               auto cb = av->callbacks.request_audio_frame;
-              cb.func (av, friend_number, cb.user_data);
+              cb (av, friend_number);
               call.audio_event_pending = true;
               break;
             }
