@@ -63,7 +63,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCall
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_call, friendNumber, audioBitRate, videoBitRate
   );
 }
@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvAnswer
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_answer, friendNumber, audioBitRate, videoBitRate
   );
 }
@@ -116,7 +116,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCallControl
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_call_control, friendNumber, (TOXAV_CALL_CONTROL) control
   );
 }
@@ -139,7 +139,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetAudioBitRate
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_set_audio_bit_rate, friendNumber, audioBitRate
   );
 }
@@ -162,7 +162,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetVideoBitRate
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_set_video_bit_rate, friendNumber, videoBitRate
   );
 }
@@ -204,7 +204,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_send_video_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data (), aData.data ()
   );
 }
@@ -243,7 +243,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendAudioFrame
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     toxav_send_audio_frame, friendNumber, pcmData.data (), sampleCount, channels, samplingRate
   );
 }

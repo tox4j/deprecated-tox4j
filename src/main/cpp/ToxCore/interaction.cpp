@@ -18,7 +18,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetTyping
         }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     tox_self_set_typing, friendNumber, isTyping
   );
 }
@@ -52,7 +52,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendMessage
   ByteArray message_array (env, message);
   return with_instance (env, instanceNumber, "SendMessage",
     handle_send_message_error,
-    identity<uint32_t>,
+    identity,
     tox_send_message, friendNumber, message_array.data (), message_array.size ()
   );
 }
@@ -68,7 +68,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendAction
   ByteArray action_array (env, action);
   return with_instance (env, instanceNumber, "SendMessage",
     handle_send_message_error,
-    identity<uint32_t>,
+    identity,
     tox_send_action, friendNumber, action_array.data (), action_array.size ()
   );
 }

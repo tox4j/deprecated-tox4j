@@ -29,7 +29,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLossyPacket
   ByteArray packetData (env, packet);
   return with_instance (env, instanceNumber, "SendCustomPacket",
     handle_send_custom_packet_error,
-    ignore<bool>,
+    ignore,
     tox_send_lossy_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }
@@ -45,7 +45,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLosslessPacket
   ByteArray packetData (env, packet);
   return with_instance (env, instanceNumber, "SendCustomPacket",
     handle_send_custom_packet_error,
-    ignore<bool>,
+    ignore,
     tox_send_lossless_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }

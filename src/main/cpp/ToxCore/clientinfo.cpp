@@ -117,7 +117,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetName
   ByteArray name_array (env, name);
   return with_instance (env, instanceNumber, "SetInfo",
     handle_set_info_error, 
-    ignore<bool>, tox_self_set_name, name_array.data (), name_array.size ());
+    ignore,
+    tox_self_set_name, name_array.data (), name_array.size ());
 }
 
 /*
@@ -154,7 +155,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatusMessage
   ByteArray status_message_array (env, statusMessage);
   return with_instance (env, instanceNumber, "SetInfo",
     handle_set_info_error,
-    ignore<bool>,
+    ignore,
     tox_self_set_status_message, status_message_array.data (), status_message_array.size ());
 }
 

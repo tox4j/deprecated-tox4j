@@ -25,7 +25,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     tox_file_control, friendNumber, fileNumber, (TOX_FILE_CONTROL)control // TODO: check valid values for control?
   );
  
@@ -55,7 +55,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSend
           }
         return unhandled ();
       },
-    identity<uint32_t>,
+    identity,
     tox_file_send, friendNumber, (TOX_FILE_KIND)kind, fileSize, filenameData.data (), filenameData.size () // TODO: check valid values for kind?
   );
 }
@@ -85,7 +85,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     tox_file_send_chunk, friendNumber, fileNumber, chunkData.data (), chunkData.size ()
   );
 }

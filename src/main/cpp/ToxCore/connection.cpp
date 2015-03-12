@@ -32,7 +32,7 @@ toxBootstrapLike (bool function (Tox *tox,
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     function, UTFChars (env, address).data (), port, public_key.data ()
   );
 }
@@ -78,7 +78,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetUdpPort
           }
         return unhandled ();
       },
-    identity<uint16_t>,
+    identity,
     tox_get_udp_port
   );
 }
@@ -101,7 +101,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetTcpPort
           }
         return unhandled ();
       },
-    identity<uint16_t>,
+    identity,
     tox_get_tcp_port
   );
 }

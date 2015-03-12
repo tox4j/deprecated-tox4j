@@ -33,7 +33,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAdd
   assert (!address || addressData.size () == TOX_ADDRESS_SIZE);
   return with_instance (env, instanceNumber, "FriendAdd",
     handle_tox_friend_add_result,
-    identity<uint32_t>,
+    identity,
     tox_friend_add, addressData.data (), messageData.data (), messageData.size ()
   );
 }
@@ -50,7 +50,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
   assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
   return with_instance (env, instanceNumber, "FriendAdd",
     handle_tox_friend_add_result,
-    identity<uint32_t>,
+    identity,
     tox_friend_add_norequest, public_key.data ()
   );
 }
@@ -73,7 +73,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendDelete
           }
         return unhandled ();
       },
-    ignore<bool>,
+    ignore,
     tox_friend_delete, friendNumber
   );
 }
@@ -99,7 +99,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendByPublicKey
           }
         return unhandled ();
       },
-    identity<uint32_t>,
+    identity,
     tox_friend_by_public_key, public_key.data ()
   );
 }
