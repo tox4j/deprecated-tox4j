@@ -122,7 +122,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetPublicKey
           failure_case (FRIEND_GET_PUBLIC_KEY, FRIEND_NOT_FOUND);
 
           case TOX_ERR_FRIEND_GET_PUBLIC_KEY_NULL:
-            cosmic_ray_error ("tox_new");
+            cosmic_ray_error ("tox_friend_get_public_key");
             break;
           }
         return unhandled ();
