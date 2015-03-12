@@ -5,21 +5,20 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxSetInfoException extends ToxException {
 
-    public static enum Code {
-        NULL,
-        TOO_LONG,
-    }
+  public static enum Code {
+    NULL,
+    TOO_LONG,
+  }
 
-    private final @NotNull Code code;
+  private final @NotNull Code code;
 
-    public ToxSetInfoException(@NotNull Code code) {
-        this.code = code;
-    }
+  public ToxSetInfoException(@NotNull Code code) {
+    this.code = code;
+  }
 
-    @NotNull
-    @Override
-    public Code getCode() {
-        return code;
-    }
+  @Override
+  public @NotNull Code getCode() {
+    return code;
+  }
 
 }

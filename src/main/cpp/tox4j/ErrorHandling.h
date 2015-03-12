@@ -5,6 +5,8 @@
 #include <sstream>
 
 
+void cosmic_ray_error (char const *function);
+
 void throw_tox_killed_exception (JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception (JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception (JNIEnv *env, jint instance_number, std::string const &message);
@@ -79,6 +81,7 @@ template<typename SuccessFunc, typename ToxFunc, typename... Args>
 using tox_success_t = typename std::result_of<SuccessFunc (typename std::result_of<ToxFunc (Args..., tox_error_t<ToxFunc> *)>::type)>::type;
 
 
+#ifdef HAVE_TOXAV
 namespace av
 {
   namespace proto = im::tox::tox4j::av::proto;
@@ -102,6 +105,7 @@ namespace av
   };
 #include "with_instance.h"
 }
+#endif
 
 
 namespace core

@@ -257,18 +257,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     }
 
     @Test
-    public void testUnsetName1() throws Exception {
-        try (ToxCore tox = newTox()) {
-            assertArrayEquals(new byte[0], tox.getName());
-            tox.setName("myname".getBytes());
-            assertNotNull(tox.getName());
-            tox.setName(null);
-            assertArrayEquals(new byte[0], tox.getName());
-        }
-    }
-
-    @Test
-    public void testUnsetName2() throws Exception {
+    public void testUnsetName() throws Exception {
         try (ToxCore tox = newTox()) {
             assertArrayEquals(new byte[0], tox.getName());
             tox.setName("myname".getBytes());
@@ -317,18 +306,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     }
 
     @Test
-    public void testUnsetStatusMessage1() throws Exception {
-        try (ToxCore tox = newTox()) {
-            assertArrayEquals(new byte[0], tox.getStatusMessage());
-            tox.setStatusMessage("message".getBytes());
-            assertNotNull(tox.getStatusMessage());
-            tox.setStatusMessage(null);
-            assertArrayEquals(new byte[0], tox.getStatusMessage());
-        }
-    }
-
-    @Test
-    public void testUnsetStatusMessage2() throws Exception {
+    public void testUnsetStatusMessage() throws Exception {
         try (ToxCore tox = newTox()) {
             assertArrayEquals(new byte[0], tox.getStatusMessage());
             tox.setStatusMessage("message".getBytes());

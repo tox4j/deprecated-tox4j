@@ -212,10 +212,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static @NotNull ToxConnection convert(@NotNull Core.Socket status) {
         switch (status) {
             case NONE: return ToxConnection.NONE;
-            case TCP4: return ToxConnection.TCP4;
-            case TCP6: return ToxConnection.TCP6;
-            case UDP4: return ToxConnection.UDP4;
-            case UDP6: return ToxConnection.UDP6;
+            case TCP: return ToxConnection.TCP;
+            case UDP: return ToxConnection.UDP;
         }
         throw new IllegalStateException("Bad enumerator: " + status);
     }

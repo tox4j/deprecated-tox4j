@@ -4,7 +4,8 @@
 static ErrorHandling
 handle_tox_friend_add_result (TOX_ERR_FRIEND_ADD error)
 {
-  switch (error) {
+  switch (error)
+    {
     success_case (FRIEND_ADD);
     failure_case (FRIEND_ADD, NULL);
     failure_case (FRIEND_ADD, TOO_LONG);
@@ -14,7 +15,7 @@ handle_tox_friend_add_result (TOX_ERR_FRIEND_ADD error)
     failure_case (FRIEND_ADD, BAD_CHECKSUM);
     failure_case (FRIEND_ADD, SET_NEW_NOSPAM);
     failure_case (FRIEND_ADD, MALLOC);
-  }
+    }
 
   return unhandled ();
 }
@@ -30,9 +31,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAdd
   ByteArray messageData (env, message);
   ByteArray addressData (env, address);
   assert (!address || addressData.size () == TOX_ADDRESS_SIZE);
-  return with_instance (env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [] (uint32_t friend_number) {
-    return friend_number;
-  }, tox_friend_add, addressData.data (), messageData.data (), messageData.size ());
+  return with_instance (env, instanceNumber, "FriendAdd", handle_tox_friend_add_result,
+    identity<uint32_t>,
+    tox_friend_add, addressData.data (), messageData.data (), messageData.size ()
+  );
 }
 
 /*
@@ -45,9 +47,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
 {
   ByteArray public_key (env, publicKey);
   assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendAdd", handle_tox_friend_add_result, [] (uint32_t friend_number) {
-    return friend_number;
-  }, tox_friend_add_norequest, public_key.data ());
+  return with_instance (env, instanceNumber, "FriendAdd", handle_tox_friend_add_result,
+    identity<uint32_t>,
+    tox_friend_add_norequest, public_key.data ()
+  );
 }
 
 /*
@@ -58,14 +61,19 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendDelete
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
-  return with_instance (env, instanceNumber, "FriendDelete", [] (TOX_ERR_FRIEND_DELETE error) {
-    switch (error) {
-      success_case (FRIEND_DELETE);
-      failure_case (FRIEND_DELETE, FRIEND_NOT_FOUND);
-    }
-    return unhandled ();
-  }, [] (bool) {
-  }, tox_friend_delete, friendNumber);
+  return with_instance (env, instanceNumber, "FriendDelete",
+    [] (TOX_ERR_FRIEND_DELETE error)
+      {
+        switch (error)
+          {
+          success_case (FRIEND_DELETE);
+          failure_case (FRIEND_DELETE, FRIEND_NOT_FOUND);
+          }
+        return unhandled ();
+      },
+    ignore<bool>,
+    tox_friend_delete, friendNumber
+  );
 }
 
 /*
@@ -78,16 +86,20 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendByPublicKey
 {
   ByteArray public_key (env, publicKey);
   assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendByPublicKey", [] (TOX_ERR_FRIEND_BY_PUBLIC_KEY error) {
-    switch (error) {
-        success_case (FRIEND_BY_PUBLIC_KEY);
-        failure_case (FRIEND_BY_PUBLIC_KEY, NULL);
-        failure_case (FRIEND_BY_PUBLIC_KEY, NOT_FOUND);
-    }
-    return unhandled ();
-  }, [] (uint32_t friend_number) {
-    return friend_number;
-  }, tox_friend_by_public_key, public_key.data ());
+  return with_instance (env, instanceNumber, "FriendByPublicKey",
+    [] (TOX_ERR_FRIEND_BY_PUBLIC_KEY error)
+      {
+        switch (error)
+          {
+          success_case (FRIEND_BY_PUBLIC_KEY);
+          failure_case (FRIEND_BY_PUBLIC_KEY, NULL);
+          failure_case (FRIEND_BY_PUBLIC_KEY, NOT_FOUND);
+          }
+        return unhandled ();
+      },
+    identity<uint32_t>,
+    tox_friend_by_public_key, public_key.data ()
+  );
 }
 
 /*
@@ -99,15 +111,26 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetPublicKey
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
   std::vector<uint8_t> buffer (TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendGetPublicKey", [] (TOX_ERR_FRIEND_GET_PUBLIC_KEY error) {
-    switch (error) {
-      success_case (FRIEND_GET_PUBLIC_KEY);
-      failure_case (FRIEND_GET_PUBLIC_KEY, FRIEND_NOT_FOUND);
-    }
-    return unhandled ();
-  }, [&] (bool) {
-    return toJavaArray (env, buffer);
-  }, tox_friend_get_public_key, friendNumber, buffer.data ());
+  return with_instance (env, instanceNumber, "FriendGetPublicKey",
+    [] (TOX_ERR_FRIEND_GET_PUBLIC_KEY error)
+      {
+        switch (error)
+          {
+          success_case (FRIEND_GET_PUBLIC_KEY);
+          failure_case (FRIEND_GET_PUBLIC_KEY, FRIEND_NOT_FOUND);
+
+          case TOX_ERR_FRIEND_GET_PUBLIC_KEY_NULL:
+            cosmic_ray_error ("tox_new");
+            break;
+          }
+        return unhandled ();
+      },
+    [&] (bool)
+      {
+        return toJavaArray (env, buffer);
+      },
+    tox_friend_get_public_key, friendNumber, buffer.data ()
+  );
 }
 
 /*
@@ -118,10 +141,13 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendGetPublicKey
 JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendExists
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber)
 {
-  return with_instance (env, instanceNumber, [=] (Tox *tox, Events &events) {
-    unused (events);
-    return tox_friend_exists (tox, friendNumber);
-  });
+  return with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        unused (events);
+        return tox_friend_exists (tox, friendNumber);
+      }
+  );
 }
 
 /*
@@ -132,10 +158,13 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendExists
 JNIEXPORT jintArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendList
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, [=] (Tox *tox, Events &events) {
-    unused (events);
-    std::vector<uint32_t> list (tox_friend_list_size (tox));
-    tox_friend_list (tox, list.data ());
-    return toJavaArray (env, list);
-  });
+  return with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        unused (events);
+        std::vector<uint32_t> list (tox_friend_list_size (tox));
+        tox_friend_list (tox, list.data ());
+        return toJavaArray (env, list);
+      }
+  );
 }

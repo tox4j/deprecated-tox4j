@@ -1,3 +1,4 @@
+#ifdef HAVE_TOXAV
 #include "ToxAv.h"
 
 
@@ -205,3 +206,4 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendAudioFrame
   }, [] (bool) {
   }, toxav_send_audio_frame, friendNumber, pcmData.data (), sampleCount, channels, samplingRate);
 }
+#endif

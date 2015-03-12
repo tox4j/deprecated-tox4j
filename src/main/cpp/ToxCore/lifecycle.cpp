@@ -16,10 +16,8 @@ void add_connectionstatus (Message &msg, TOX_CONNECTION connection_status)
   switch (connection_status)
     {
     connection_case (NONE);
-    connection_case (TCP4);
-    connection_case (TCP6);
-    connection_case (UDP4);
-    connection_case (UDP6);
+    connection_case (TCP);
+    connection_case (UDP);
     }
 
 #undef connection_case
@@ -73,6 +71,9 @@ tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_STATUS status, voi
       break;
     case TOX_STATUS_BUSY:
       msg->set_status (FriendStatus::BUSY);
+      break;
+    case TOX_STATUS_INVALID:
+      cosmic_ray_error (__func__);
       break;
     }
 }
@@ -286,7 +287,12 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
       failure_case (NEW, PROXY_BAD_PORT);
       failure_case (NEW, PROXY_NOT_FOUND);
       failure_case (NEW, LOAD_ENCRYPTED);
+      failure_case (NEW, LOAD_DECRYPTION_FAILED);
       failure_case (NEW, LOAD_BAD_FORMAT);
+
+      case TOX_ERR_NEW_PROXY_BAD_TYPE:
+        cosmic_ray_error ("tox_new");
+        break;
     }
     return unhandled ();
   }, [env] (Tox *tox_pointer) {

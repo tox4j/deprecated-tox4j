@@ -1,12 +1,18 @@
 #pragma once
 
+#ifdef HAVE_TOXAV
 #include <tox/av.h>
+#endif
 #include <tox/core.h>
 
+#ifdef HAVE_TOXAV
 #include "im_tox_tox4j_ToxAvImpl.h"
+#endif
 #include "im_tox_tox4j_ToxCoreImpl.h"
 
+#ifdef HAVE_TOXAV
 #include "Av.pb.h"
+#endif
 #include "Core.pb.h"
 
 #include <algorithm>

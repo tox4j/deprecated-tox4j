@@ -5,22 +5,21 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxBootstrapException extends ToxException {
 
-    public static enum Code {
-        NULL,
-        BAD_ADDRESS,
-        BAD_PORT,
-    }
+  public static enum Code {
+    NULL,
+    BAD_ADDRESS,
+    BAD_PORT,
+  }
 
-    private final @NotNull Code code;
+  private final @NotNull Code code;
 
-    public ToxBootstrapException(@NotNull Code code) {
-        this.code = code;
-    }
+  public ToxBootstrapException(@NotNull Code code) {
+    this.code = code;
+  }
 
-    @NotNull
-    @Override
-    public Code getCode() {
-        return code;
-    }
+  @Override
+  public @NotNull Code getCode() {
+    return code;
+  }
 
 }

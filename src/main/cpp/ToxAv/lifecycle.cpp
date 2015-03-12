@@ -1,3 +1,4 @@
+#ifdef HAVE_TOXAV
 #include "ToxAv.h"
 
 using AvInstanceManager = instance_manager<tox_traits>;
@@ -154,3 +155,4 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_finalize
 {
   AvInstanceManager::self.finalize (env, instanceNumber);
 }
+#endif

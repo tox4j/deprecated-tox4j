@@ -1,6 +1,14 @@
 #include "ErrorHandling.h"
 
 
+void
+cosmic_ray_error (char const *function)
+{
+  fprintf (stderr, "Cosmic rays hit the wrong bits in toxcore (detected in %s)", function);
+  abort ();
+}
+
+
 static std::string
 fullMessage (jint instance_number, char const *message)
 {
@@ -86,5 +94,7 @@ throw_tox_exception (JNIEnv *env, char const *module, char const *method, char c
 }
 
 
+#ifdef HAVE_TOXAV
 namespace av   { char const *const tox_traits::module = "av"  ; }
+#endif
 namespace core { char const *const tox_traits::module = "core"; }

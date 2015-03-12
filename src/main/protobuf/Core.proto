@@ -5,10 +5,8 @@ option optimize_for = LITE_RUNTIME;
 
 enum Socket {
     NONE    = 1;
-    TCP4    = 2;
-    TCP6    = 3;
-    UDP4    = 4;
-    UDP6    = 5;
+    TCP     = 2;
+    UDP     = 3;
 }
 
 message ConnectionStatus {

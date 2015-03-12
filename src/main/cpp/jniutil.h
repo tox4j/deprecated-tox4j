@@ -10,8 +10,6 @@
 
 struct UTFChars
 {
-  typedef std::vector<char> utf8_vec;
-
   UTFChars (JNIEnv *env, jstring string)
     : env (env)
     , string (string)
@@ -24,8 +22,6 @@ struct UTFChars
   char const *data () const { return chars; }
 
   size_t size () const { return (size_t)string ? env->GetStringUTFLength (string) : 0; }
-
-  operator utf8_vec () const { return utf8_vec (data (), data () + size ()); }
 
 private:
   JNIEnv *env;
@@ -50,12 +46,10 @@ struct make_c_array
   static_assert (sizeof (JType) == sizeof (CType),
                  "Size requirements for Java array not met");
 
-  typedef std::vector<CType> vector_type;
-
   make_c_array (JNIEnv *env, JavaArray jArray)
     : env (env)
-    , jArray (jArray && env->GetArrayLength (jArray) != 0 ? jArray : nullptr)
-    , cArray (this->jArray ? (env->*GetArrayElements) (jArray, nullptr) : nullptr)
+    , jArray (jArray)
+    , cArray (jArray ? (env->*GetArrayElements) (jArray, nullptr) : nullptr)
   {
   }
 
@@ -66,8 +60,6 @@ struct make_c_array
 
   size_t size () const { return jArray ? env->GetArrayLength (jArray) : 0; }
   bool empty () const { return size () == 0; }
-
-  operator vector_type () const { return vector_type (data (), data () + size ()); }
 
 private:
   JNIEnv *env;
@@ -135,5 +127,25 @@ toJavaArray (JNIEnv *env, std::vector<T> const &data)
   return java_array_t<T>::make (env, data.size (),
                                 reinterpret_cast<java_type const *> (data.data ()));
 }
+
+
+/*****************************************************************************
+ * Identity and ignore value function.
+ */
+
+template<typename T>
+static inline T
+identity (T v)
+{
+  return v;
+}
+
+
+template<typename T>
+static inline void
+ignore (T)
+{
+}
+
 
 #endif /* JNIUTIL_H */

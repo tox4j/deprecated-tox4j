@@ -15,7 +15,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
     @Test
     public void testToxNewProxyNull() throws Exception {
         try {
-            newTox(true, true, ToxProxyType.SOCKS5, null, 0).close();
+            newTox(true, true, ToxProxyType.SOCKS5, null, 1).close();
             fail();
         } catch (ToxNewException e) {
             assertEquals(ToxNewException.Code.NULL, e.getCode());

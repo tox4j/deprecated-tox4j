@@ -18,6 +18,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
       failure_case (FILE_CONTROL, NOT_PAUSED);
       failure_case (FILE_CONTROL, DENIED);
       failure_case (FILE_CONTROL, ALREADY_PAUSED);
+      failure_case (FILE_CONTROL, SEND_FAILED);
     }
     return unhandled ();
   }, [] (bool) {
@@ -65,7 +66,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
       failure_case (FILE_SEND_CHUNK, FRIEND_NOT_FOUND);
       failure_case (FILE_SEND_CHUNK, FRIEND_NOT_CONNECTED);
       failure_case (FILE_SEND_CHUNK, NOT_FOUND);
+      failure_case (FILE_SEND_CHUNK, NOT_TRANSFERRING);
       failure_case (FILE_SEND_CHUNK, TOO_LARGE);
+      failure_case (FILE_SEND_CHUNK, SENDQ);
     }
     return unhandled ();
   }, [] (bool) {
