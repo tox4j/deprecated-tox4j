@@ -16,6 +16,8 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
 
     private static class Alice extends ChatClient {
 
+        private int state = 0;
+
         @Override
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
@@ -33,7 +35,9 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
         public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             debug("friend changed status message to: " + new String(message));
             assertEquals(FRIEND_NUMBER, friendNumber);
-            if (new String(message).equals("Two")) {
+            if (state == 0) {
+                state = 1;
+                assertEquals("Two", new String(message));
                 addTask(new Task() {
                     @Override
                     public void perform(@NotNull ToxCore tox) throws ToxException {
@@ -55,6 +59,8 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
 
     private static class Bob extends ChatClient {
 
+        private int state = 0;
+
         @Override
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
@@ -66,7 +72,9 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
         public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             debug("friend changed status message to: " + new String(message));
             assertEquals(FRIEND_NUMBER, friendNumber);
-            if (new String(message).equals("One")) {
+            if (state == 0) {
+                state = 1;
+                assertEquals("One", new String(message));
                 addTask(new Task() {
                     @Override
                     public void perform(@NotNull ToxCore tox) throws ToxException {

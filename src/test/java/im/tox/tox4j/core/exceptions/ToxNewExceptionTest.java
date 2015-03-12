@@ -18,7 +18,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
             newTox(true, true, ToxProxyType.SOCKS5, null, 1).close();
             fail();
         } catch (ToxNewException e) {
-            assertEquals(ToxNewException.Code.NULL, e.getCode());
+            assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
         }
     }
 
