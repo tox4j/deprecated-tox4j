@@ -65,7 +65,7 @@ TOX_METHOD (jint, FileSend,
  * Signature: (III[B)V
  */
 TOX_METHOD (void, FileSendChunk,
-  jint instanceNumber, jint friendNumber, jint fileNumber, jbyteArray chunk)
+  jint instanceNumber, jint friendNumber, jint fileNumber, jlong position, jbyteArray chunk)
 {
   ByteArray chunkData (env, chunk);
   return with_instance (env, instanceNumber, "FileSendChunk",
@@ -81,9 +81,10 @@ TOX_METHOD (void, FileSendChunk,
           failure_case (FILE_SEND_CHUNK, NOT_TRANSFERRING);
           failure_case (FILE_SEND_CHUNK, TOO_LARGE);
           failure_case (FILE_SEND_CHUNK, SENDQ);
+          failure_case (FILE_SEND_CHUNK, WRONG_POSITION);
           }
         return unhandled ();
       },
-    tox_file_send_chunk, friendNumber, fileNumber, chunkData.data (), chunkData.size ()
+    tox_file_send_chunk, friendNumber, fileNumber, position, chunkData.data (), chunkData.size ()
   );
 }

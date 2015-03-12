@@ -167,7 +167,7 @@ public class ToxGui extends JFrame {
                 if (length == 0) {
                     fileModel.remove(friendNumber, fileNumber);
                 } else {
-                    tox.fileSendChunk(friendNumber, fileNumber, fileModel.get(friendNumber, fileNumber).read(position, length));
+                    tox.fileSendChunk(friendNumber, fileNumber, position, fileModel.get(friendNumber, fileNumber).read(position, length));
                 }
             } catch (Throwable e) {
                 JOptionPane.showMessageDialog(ToxGui.this, printExn(e));

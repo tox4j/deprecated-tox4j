@@ -90,7 +90,7 @@ public class FileTransferHalfRequestedTest extends AliceBobTestBase {
                 public void perform(@NotNull ToxCore tox) throws ToxException {
                     int half = (int) Math.ceil(length / 2d);
                     debug("sending " + half + "B to " + friendNumber);
-                    tox.fileSendChunk(friendNumber, fileNumber,
+                    tox.fileSendChunk(friendNumber, fileNumber, position,
                             Arrays.copyOfRange(fileData, (int) position, Math.min((int) position + half, fileData.length)));
                 }
             });

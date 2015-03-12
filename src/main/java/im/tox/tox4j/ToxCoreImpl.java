@@ -599,11 +599,11 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, @NotNull byte[] data) throws ToxFileSendChunkException;
+    private static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
 
     @Override
-    public void fileSendChunk(int friendNumber, int fileNumber, @NotNull byte[] data) throws ToxFileSendChunkException {
-        toxFileSendChunk(instanceNumber, friendNumber, fileNumber, data);
+    public void fileSendChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException {
+        toxFileSendChunk(instanceNumber, friendNumber, fileNumber, position, data);
     }
 
 

@@ -20,7 +20,8 @@
       "NOT_FOUND",
       "NOT_TRANSFERRING",
       "TOO_LARGE",
-      "SENDQ"
+      "SENDQ",
+      "WRONG_POSITION"
    ],
    "FileSend": [
       "NULL",

@@ -13,6 +13,7 @@ public final class ToxFileSendChunkException extends ToxException {
     NOT_TRANSFERRING,
     TOO_LARGE,
     SENDQ,
+    WRONG_POSITION,
   }
 
   private final @NotNull Code code;

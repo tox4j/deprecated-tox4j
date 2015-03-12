@@ -90,7 +90,7 @@ public class FileTransferTest extends AliceBobTestBase {
                 @Override
                 public void perform(@NotNull ToxCore tox) throws ToxException {
                     debug("sending " + length + "B to " + friendNumber);
-                    tox.fileSendChunk(friendNumber, fileNumber,
+                    tox.fileSendChunk(friendNumber, fileNumber, position,
                             Arrays.copyOfRange(fileData, (int) position, Math.min((int) position + length, fileData.length)));
                 }
             });
@@ -104,14 +104,16 @@ public class FileTransferTest extends AliceBobTestBase {
             assertEquals(0 | 0x10000, fileNumber);
             assertEquals(this.position, position);
             assertNotNull(data);
+            if (this.position == receivedData.length) {
+                assertEquals(0, data.length);
+                assertArrayEquals(fileData, receivedData);
+                finish();
+                return;
+            }
             assertNotEquals(0, data.length);
             this.position += data.length;
             assertTrue(this.position <= receivedData.length);
             System.arraycopy(data, 0, receivedData, (int) position, data.length);
-            if (this.position == receivedData.length) {
-                assertArrayEquals(fileData, receivedData);
-                finish();
-            }
         }
     }
 

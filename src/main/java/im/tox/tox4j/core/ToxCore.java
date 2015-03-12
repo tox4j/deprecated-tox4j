@@ -336,7 +336,7 @@ public interface ToxCore extends Closeable {
 
     int fileSend(int friendNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException;
 
-    void fileSendChunk(int friendNumber, int fileNumber, @NotNull byte[] data) throws ToxFileSendChunkException;
+    void fileSendChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
 
     void callbackFileRequestChunk(@Nullable FileRequestChunkCallback callback);
 
