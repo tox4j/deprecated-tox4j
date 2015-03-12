@@ -1,0 +1,40 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use JSON::XS;
+
+my $exns = do { local $/; open my $fh, '<', 'exceptions.json' or die $!; decode_json <$fh> };
+
+for my $type (keys %$exns) {
+   open my $fh, '>', "Tox${type}Exception.java"
+      or die $!;
+
+   my $codes = join ",\n", map { "    $_" } @{ $exns->{$type} };
+
+   print $fh <<JAVA;
+package im.tox.tox4j.core.exceptions;
+
+import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.exceptions.ToxException;
+
+public final class Tox${type}Exception extends ToxException {
+
+  public static enum Code {
+$codes,
+  }
+
+  private final \@NotNull Code code;
+
+  public Tox${type}Exception(\@NotNull Code code) {
+    this.code = code;
+  }
+
+  \@Override
+  public \@NotNull Code getCode() {
+    return code;
+  }
+
+}
+JAVA
+
+}
