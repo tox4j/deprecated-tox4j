@@ -234,7 +234,7 @@ TOX_METHOD (jint, New,
 
 #if 0
   scope_guard {
-      [&]{ printf ("creating new instance"); },
+    [&]{ printf ("creating new instance"); },
   };
 #endif
 
