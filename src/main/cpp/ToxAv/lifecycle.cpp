@@ -114,7 +114,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvNew
     TOXAV_ERR_NEW error;
     AvInstance::pointer av (toxav_new (tox, &error));
 
-    std::unique_ptr<Events> events (new Events);
+    auto events = std::make_unique<Events> ();
 
     // Set up our callbacks.
     toxav_callback_call                (av.get (), tox4j_call_cb,                events.get ());
@@ -127,7 +127,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvNew
     AvInstance instance {
       std::move (av),
       std::move (events),
-      std::unique_ptr<std::mutex> (new std::mutex)
+      std::make_unique<std::mutex> ()
     };
 
     return AvInstanceManager::self.add (std::move (instance));

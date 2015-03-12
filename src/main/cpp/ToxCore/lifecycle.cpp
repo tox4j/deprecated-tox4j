@@ -24,39 +24,35 @@ void add_connectionstatus (Message &msg, TOX_CONNECTION connection_status)
 }
 
 static void
-tox4j_connection_status_cb (Tox *tox, TOX_CONNECTION connection_status, void *user_data)
+tox4j_connection_status_cb (Tox *tox, TOX_CONNECTION connection_status, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_connectionstatus ();
   add_connectionstatus (msg, connection_status);
 }
 
 static void
-tox4j_friend_name_cb (Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, void *user_data)
+tox4j_friend_name_cb (Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendname ();
   msg->set_friendnumber (friend_number);
   msg->set_name (name, length);
 }
 
 static void
-tox4j_friend_status_message_cb (Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, void *user_data)
+tox4j_friend_status_message_cb (Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendstatusmessage ();
   msg->set_friendnumber (friend_number);
   msg->set_message (message, length);
 }
 
 static void
-tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_STATUS status, void *user_data)
+tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_STATUS status, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendstatus ();
   msg->set_friendnumber (friend_number);
 
@@ -79,40 +75,36 @@ tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_STATUS status, voi
 }
 
 static void
-tox4j_friend_connection_status_cb (Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status, void *user_data)
+tox4j_friend_connection_status_cb (Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendconnectionstatus ();
   msg->set_friendnumber (friend_number);
   add_connectionstatus (msg, connection_status);
 }
 
 static void
-tox4j_friend_typing_cb (Tox *tox, uint32_t friend_number, bool is_typing, void *user_data)
+tox4j_friend_typing_cb (Tox *tox, uint32_t friend_number, bool is_typing, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendtyping ();
   msg->set_friendnumber (friend_number);
   msg->set_istyping (is_typing);
 }
 
 static void
-tox4j_read_receipt_cb (Tox *tox, uint32_t friend_number, uint32_t message_id, void *user_data)
+tox4j_read_receipt_cb (Tox *tox, uint32_t friend_number, uint32_t message_id, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_readreceipt ();
   msg->set_friendnumber (friend_number);
   msg->set_messageid (message_id);
 }
 
 static void
-tox4j_friend_request_cb (Tox *tox, uint8_t const *public_key, /*uint32_t time_delta, */ uint8_t const *message, size_t length, void *user_data)
+tox4j_friend_request_cb (Tox *tox, uint8_t const *public_key, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendrequest ();
   msg->set_publickey (public_key, TOX_PUBLIC_KEY_SIZE);
   msg->set_timedelta (0);
@@ -120,10 +112,9 @@ tox4j_friend_request_cb (Tox *tox, uint8_t const *public_key, /*uint32_t time_de
 }
 
 static void
-tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */ uint8_t const *message, size_t length, void *user_data)
+tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendmessage ();
   msg->set_friendnumber (friend_number);
   msg->set_timedelta (0);
@@ -131,10 +122,9 @@ tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta
 }
 
 static void
-tox4j_friend_action_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */ uint8_t const *action, size_t length, void *user_data)
+tox4j_friend_action_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */ uint8_t const *action, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendaction ();
   msg->set_friendnumber (friend_number);
   msg->set_timedelta (0);
@@ -142,10 +132,9 @@ tox4j_friend_action_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta,
 }
 
 static void
-tox4j_file_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *user_data)
+tox4j_file_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_filecontrol ();
   msg->set_friendnumber (friend_number);
   msg->set_filenumber (file_number);
@@ -166,10 +155,9 @@ tox4j_file_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, T
 }
 
 static void
-tox4j_file_request_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data)
+tox4j_file_request_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_filerequestchunk ();
   msg->set_friendnumber (friend_number);
   msg->set_filenumber (file_number);
@@ -178,10 +166,9 @@ tox4j_file_request_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_num
 }
 
 static void
-tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, void *user_data)
+tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_filereceive ();
   msg->set_friendnumber (friend_number);
   msg->set_filenumber (file_number);
@@ -202,10 +189,9 @@ tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, T
 }
 
 static void
-tox4j_file_receive_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, void *user_data)
+tox4j_file_receive_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_filereceivechunk ();
   msg->set_friendnumber (friend_number);
   msg->set_filenumber (file_number);
@@ -214,20 +200,18 @@ tox4j_file_receive_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_num
 }
 
 static void
-tox4j_friend_lossy_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data)
+tox4j_friend_lossy_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendlossypacket ();
   msg->set_friendnumber (friend_number);
   msg->set_data (data, length);
 }
 
 static void
-tox4j_friend_lossless_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, void *user_data)
+tox4j_friend_lossless_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, Events &events)
 {
   unused (tox);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_friendlosslesspacket ();
   msg->set_friendnumber (friend_number);
   msg->set_data (data, length);
@@ -305,31 +289,33 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
         assert (tox != nullptr);
 
         // Create the master events object.
-        std::unique_ptr<Events> events (new Events);
+        auto events = std::make_unique<Events> ();
 
         // Set up our callbacks.
-        tox_callback_connection_status        (tox.get (), tox4j_connection_status_cb,        events.get ());
-        tox_callback_friend_name              (tox.get (), tox4j_friend_name_cb,              events.get ());
-        tox_callback_friend_status_message    (tox.get (), tox4j_friend_status_message_cb,    events.get ());
-        tox_callback_friend_status            (tox.get (), tox4j_friend_status_cb,            events.get ());
-        tox_callback_friend_connection_status (tox.get (), tox4j_friend_connection_status_cb, events.get ());
-        tox_callback_friend_typing            (tox.get (), tox4j_friend_typing_cb,            events.get ());
-        tox_callback_read_receipt             (tox.get (), tox4j_read_receipt_cb,             events.get ());
-        tox_callback_friend_request           (tox.get (), tox4j_friend_request_cb,           events.get ());
-        tox_callback_friend_message           (tox.get (), tox4j_friend_message_cb,           events.get ());
-        tox_callback_friend_action            (tox.get (), tox4j_friend_action_cb,            events.get ());
-        tox_callback_file_control             (tox.get (), tox4j_file_control_cb,             events.get ());
-        tox_callback_file_request_chunk       (tox.get (), tox4j_file_request_chunk_cb,       events.get ());
-        tox_callback_file_receive             (tox.get (), tox4j_file_receive_cb,             events.get ());
-        tox_callback_file_receive_chunk       (tox.get (), tox4j_file_receive_chunk_cb,       events.get ());
-        tox_callback_friend_lossy_packet      (tox.get (), tox4j_friend_lossy_packet_cb,      events.get ());
-        tox_callback_friend_lossless_packet   (tox.get (), tox4j_friend_lossless_packet_cb,   events.get ());
+        tox::callbacks (*events)
+          .set<tox::callback_connection_status,         tox4j_connection_status_cb       > ()
+          .set<tox::callback_friend_name,               tox4j_friend_name_cb             > ()
+          .set<tox::callback_friend_status_message,     tox4j_friend_status_message_cb   > ()
+          .set<tox::callback_friend_status,             tox4j_friend_status_cb           > ()
+          .set<tox::callback_friend_connection_status,  tox4j_friend_connection_status_cb> ()
+          .set<tox::callback_friend_typing,             tox4j_friend_typing_cb           > ()
+          .set<tox::callback_read_receipt,              tox4j_read_receipt_cb            > ()
+          .set<tox::callback_friend_request,            tox4j_friend_request_cb          > ()
+          .set<tox::callback_friend_message,            tox4j_friend_message_cb          > ()
+          .set<tox::callback_friend_action,             tox4j_friend_action_cb           > ()
+          .set<tox::callback_file_control,              tox4j_file_control_cb            > ()
+          .set<tox::callback_file_request_chunk,        tox4j_file_request_chunk_cb      > ()
+          .set<tox::callback_file_receive,              tox4j_file_receive_cb            > ()
+          .set<tox::callback_file_receive_chunk,        tox4j_file_receive_chunk_cb      > ()
+          .set<tox::callback_friend_lossy_packet,       tox4j_friend_lossy_packet_cb     > ()
+          .set<tox::callback_friend_lossless_packet,    tox4j_friend_lossless_packet_cb  > ()
+          .set (tox.get ());
 
         // We can create the new instance outside instance_manager's critical section.
         CoreInstance instance {
           std::move (tox),
           std::move (events),
-          std::unique_ptr<std::mutex> (new std::mutex)
+          std::make_unique<std::mutex> ()
         };
 
         // This call locks the instance manager.
