@@ -6,8 +6,8 @@
  * Method:    toxFileControl
  * Signature: (IIII)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint fileNumber, jint control)
+TOX_METHOD (void, FileControl,
+  jint instanceNumber, jint friendNumber, jint fileNumber, jint control)
 {
   return with_instance (env, instanceNumber, "FileControl",
     [] (TOX_ERR_FILE_CONTROL error)
@@ -25,7 +25,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
           }
         return unhandled ();
       },
-    ignore,
     tox_file_control, friendNumber, fileNumber, (TOX_FILE_CONTROL)control // TODO: check valid values for control?
   );
  
@@ -36,8 +35,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileControl
  * Method:    toxFileSend
  * Signature: (IIIJ[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSend
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
+TOX_METHOD (jint, FileSend,
+  jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
 {
   ByteArray filenameData (env, filename);
   return with_instance (env, instanceNumber, "FileSend",
@@ -65,8 +64,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSend
  * Method:    toxFileSendChunk
  * Signature: (III[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint fileNumber, jbyteArray chunk)
+TOX_METHOD (void, FileSendChunk,
+  jint instanceNumber, jint friendNumber, jint fileNumber, jbyteArray chunk)
 {
   ByteArray chunkData (env, chunk);
   return with_instance (env, instanceNumber, "FileSendChunk",
@@ -85,7 +84,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFileSendChunk
           }
         return unhandled ();
       },
-    ignore,
     tox_file_send_chunk, friendNumber, fileNumber, chunkData.data (), chunkData.size ()
   );
 }

@@ -23,13 +23,12 @@ handle_send_custom_packet_error (TOX_ERR_SEND_CUSTOM_PACKET error)
  * Method:    toxSendLossyPacket
  * Signature: (II[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLossyPacket
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray packet)
+TOX_METHOD (void, SendLossyPacket,
+  jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
   ByteArray packetData (env, packet);
   return with_instance (env, instanceNumber, "SendCustomPacket",
     handle_send_custom_packet_error,
-    ignore,
     tox_send_lossy_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }
@@ -39,13 +38,12 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLossyPacket
  * Method:    toxSendLosslessPacket
  * Signature: (II[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendLosslessPacket
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray packet)
+TOX_METHOD (void, SendLosslessPacket,
+  jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
   ByteArray packetData (env, packet);
   return with_instance (env, instanceNumber, "SendCustomPacket",
     handle_send_custom_packet_error,
-    ignore,
     tox_send_lossless_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }

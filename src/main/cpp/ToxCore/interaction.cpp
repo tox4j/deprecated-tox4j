@@ -6,8 +6,8 @@
  * Method:    toxSelfSetTyping
  * Signature: (IIZ)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetTyping
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean isTyping)
+TOX_METHOD (void, SelfSetTyping,
+  jint instanceNumber, jint friendNumber, jboolean isTyping)
 {
   return with_instance (env, instanceNumber, "SetTyping",
     [] (TOX_ERR_SET_TYPING error)
@@ -18,7 +18,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetTyping
         }
         return unhandled ();
       },
-    ignore,
     tox_self_set_typing, friendNumber, isTyping
   );
 }
@@ -46,8 +45,8 @@ handle_send_message_error (TOX_ERR_SEND_MESSAGE error)
  * Method:    toxSendMessage
  * Signature: (II[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendMessage
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray message)
+TOX_METHOD (jint, SendMessage,
+  jint instanceNumber, jint friendNumber, jbyteArray message)
 {
   ByteArray message_array (env, message);
   return with_instance (env, instanceNumber, "SendMessage",
@@ -62,8 +61,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendMessage
  * Method:    toxSendAction
  * Signature: (II[B)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSendAction
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jbyteArray action)
+TOX_METHOD (jint, SendAction,
+  jint instanceNumber, jint friendNumber, jbyteArray action)
 {
   ByteArray action_array (env, action);
   return with_instance (env, instanceNumber, "SendMessage",

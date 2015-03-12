@@ -129,12 +129,4 @@ toJavaArray (JNIEnv *env, std::vector<T> const &data)
 }
 
 
-/*****************************************************************************
- * Identity and ignore value function.
- */
-
-static auto const identity = [](auto v) { return v; };
-static auto const ignore = [](auto) { };
-
-
 #endif /* JNIUTIL_H */

@@ -8,7 +8,7 @@ with_instance (JNIEnv *env, jint instance_number, Func func)
     {
       throw_illegal_state_exception (env, instance_number,
                                      "Function called on incomplete object");
-      return default_value<return_type> ();
+      return return_type ();
     }
 
   auto lock = instance_manager<tox_traits>::self.lock ();
@@ -16,7 +16,7 @@ with_instance (JNIEnv *env, jint instance_number, Func func)
     {
       throw_tox_killed_exception (env, instance_number,
                                   "Tox function invoked on invalid tox instance");
-      return default_value<return_type> ();
+      return return_type ();
     }
 
   auto const &instance = instance_manager<tox_traits>::self[instance_number];
@@ -25,13 +25,15 @@ with_instance (JNIEnv *env, jint instance_number, Func func)
     {
       throw_tox_killed_exception (env, instance_number,
                                   "Tox function invoked on killed tox instance");
-      return default_value<return_type> ();
+      return return_type ();
     }
 
-  return instance.with_lock ([&] (tox_traits::subsystem *tox, Events &events) {
-    lock.unlock ();
-    return func (tox, events);
-  });
+  return instance.with_lock ([&lock, &func] (tox_traits::subsystem *tox, Events &events)
+    {
+      lock.unlock ();
+      return func (tox, events);
+    }
+  );
 }
 
 
@@ -59,7 +61,7 @@ with_error_handling (JNIEnv *env,
       break;
     }
 
-  return default_value<tox_success_t<SuccessFunc, ToxFunc, Args...>> ();
+  return tox_success_t<SuccessFunc, ToxFunc, Args...> ();
 }
 
 
@@ -73,8 +75,24 @@ with_instance (JNIEnv *env,
                ToxFunc tox_func,
                Args ...args)
 {
-  return with_instance (env, instanceNumber, [=] (tox_traits::subsystem *tox, Events &events) {
-    (void)events;
-    return with_error_handling (env, method, error_func, success_func, tox_func, tox, args...);
-  });
+  return with_instance (env, instanceNumber,
+    [=] (tox_traits::subsystem *tox, Events &events)
+      {
+        (void)events;
+        return with_error_handling (env, method, error_func, success_func, tox_func, tox, args...);
+      }
+  );
+}
+
+
+template<typename ErrorFunc, typename ToxFunc, typename ...Args>
+tox_success_t<ignore, ToxFunc, tox_traits::subsystem *, Args...>
+with_instance (JNIEnv *env,
+               jint instanceNumber,
+               char const *method,
+               ErrorFunc error_func,
+               ToxFunc tox_func,
+               Args ...args)
+{
+  return with_instance (env, instanceNumber, method, error_func, ignore (), tox_func, args...);
 }

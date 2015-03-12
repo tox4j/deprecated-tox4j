@@ -5,7 +5,8 @@ using CoreInstance = tox_instance<tox_traits>;
 
 
 template<typename Message>
-void add_connectionstatus (Message &msg, TOX_CONNECTION connection_status)
+static void
+add_connectionstatus (Message &msg, TOX_CONNECTION connection_status)
 {
 #define connection_case(STATUS)                         \
         case TOX_CONNECTION_##STATUS:                   \
@@ -223,8 +224,9 @@ tox4j_friend_lossless_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const
  * Method:    toxNew
  * Signature: (ZZILjava/lang/String;I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
-  (JNIEnv *env, jclass, jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled, jint proxyType, jstring proxyAddress, jint proxyPort)
+TOX_METHOD (jint, New,
+  jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled,
+  jint proxyType, jstring proxyAddress, jint proxyPort)
 {
   assert (proxyType >= 0);
   assert (proxyPort >= 0);
@@ -325,8 +327,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
  * Method:    toxKill
  * Signature: (I)I
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxKill
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (void, Kill,
+  jint instanceNumber)
 {
   CoreInstanceManager::self.kill (env, instanceNumber);
 }
@@ -336,8 +338,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxKill
  * Method:    finalize
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_finalize
-  (JNIEnv *env, jclass, jint instanceNumber)
+METHOD (void, finalize,
+  jint instanceNumber)
 {
   CoreInstanceManager::self.finalize (env, instanceNumber);
 }
@@ -347,8 +349,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_finalize
  * Method:    toxSave
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSave
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, Save,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)

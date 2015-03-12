@@ -2,6 +2,8 @@
 #include "jniutil.h"
 
 #define SUBSYSTEM TOXAV
+#define CLASS     ToxAv
+#define PREFIX    toxAv
 
 namespace proto = av::proto;
 

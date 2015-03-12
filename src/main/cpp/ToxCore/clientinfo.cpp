@@ -6,8 +6,8 @@
  * Method:    toxSelfGetPublicKey
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPublicKey
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, SelfGetPublicKey,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
@@ -25,8 +25,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetPublicKey
  * Method:    toxSelfGetSecretKey
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetSecretKey
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, SelfGetSecretKey,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
@@ -44,8 +44,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetSecretKey
  * Method:    toxSelfSetNospam
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetNospam
-  (JNIEnv *env, jclass, jint instanceNumber, jint nospam)
+TOX_METHOD (void, SelfSetNospam,
+  jint instanceNumber, jint nospam)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
@@ -61,8 +61,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetNospam
  * Method:    toxSelfGetNospam
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetNospam
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jint, SelfGetNospam,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
@@ -78,8 +78,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetNospam
  * Method:    toxSelfGetAddress
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetAddress
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, SelfGetAddress,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
@@ -111,13 +111,12 @@ handle_set_info_error (TOX_ERR_SET_INFO error)
  * Method:    toxSelfSetName
  * Signature: (I[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetName
-  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray name)
+TOX_METHOD (void, SelfSetName,
+  jint instanceNumber, jbyteArray name)
 {
   ByteArray name_array (env, name);
   return with_instance (env, instanceNumber, "SetInfo",
     handle_set_info_error, 
-    ignore,
     tox_self_set_name, name_array.data (), name_array.size ());
 }
 
@@ -126,8 +125,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetName
  * Method:    toxSelfGetName
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetName
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, SelfGetName,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events) -> jbyteArray
@@ -149,13 +148,12 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetName
  * Method:    toxSelfSetStatusMessage
  * Signature: (I[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatusMessage
-  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray statusMessage)
+TOX_METHOD (void, SelfSetStatusMessage,
+  jint instanceNumber, jbyteArray statusMessage)
 {
   ByteArray status_message_array (env, statusMessage);
   return with_instance (env, instanceNumber, "SetInfo",
     handle_set_info_error,
-    ignore,
     tox_self_set_status_message, status_message_array.data (), status_message_array.size ());
 }
 
@@ -164,8 +162,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatusMessage
  * Method:    toxSelfGetStatusMessage
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatusMessage
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, SelfGetStatusMessage,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events) -> jbyteArray
@@ -187,8 +185,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatusMessa
  * Method:    toxSelfSetStatus
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatus
-  (JNIEnv *env, jclass, jint instanceNumber, jint status)
+TOX_METHOD (void, SelfSetStatus,
+  jint instanceNumber, jint status)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
@@ -204,8 +202,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfSetStatus
  * Method:    toxSelfGetStatus
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSelfGetStatus
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jint, SelfGetStatus,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)

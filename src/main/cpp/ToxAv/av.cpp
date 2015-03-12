@@ -7,8 +7,8 @@
  * Method:    toxAvIterationInterval
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvIterationInterval
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jint, IterationInterval,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
@@ -24,8 +24,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvIterationInterval
  * Method:    toxAvIteration
  * Signature: (I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvIteration
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (jbyteArray, Iteration,
+  jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
@@ -46,8 +46,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvIteration
  * Method:    toxAvCall
  * Signature: (IIII)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCall
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
+TOX_METHOD (void, Call,
+  jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
 {
   return with_instance (env, instanceNumber, "Call",
     [] (TOXAV_ERR_CALL error)
@@ -63,7 +63,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCall
           }
         return unhandled ();
       },
-    ignore,
     toxav_call, friendNumber, audioBitRate, videoBitRate
   );
 }
@@ -73,8 +72,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCall
  * Method:    toxAvAnswer
  * Signature: (IIII)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvAnswer
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
+TOX_METHOD (void, Answer,
+  jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
 {
   return with_instance (env, instanceNumber, "Answer",
     [] (TOXAV_ERR_ANSWER error)
@@ -89,7 +88,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvAnswer
           }
         return unhandled ();
       },
-    ignore,
     toxav_answer, friendNumber, audioBitRate, videoBitRate
   );
 }
@@ -99,8 +97,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvAnswer
  * Method:    toxAvCallControl
  * Signature: (III)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCallControl
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint control)
+TOX_METHOD (void, CallControl,
+  jint instanceNumber, jint friendNumber, jint control)
 {
   return with_instance (env, instanceNumber, "CallControl",
     [] (TOXAV_ERR_CALL_CONTROL error)
@@ -116,7 +114,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCallControl
           }
         return unhandled ();
       },
-    ignore,
     toxav_call_control, friendNumber, (TOXAV_CALL_CONTROL) control
   );
 }
@@ -126,8 +123,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvCallControl
  * Method:    toxAvSetAudioBitRate
  * Signature: (III)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetAudioBitRate
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint audioBitRate)
+TOX_METHOD (void, SetAudioBitRate,
+  jint instanceNumber, jint friendNumber, jint audioBitRate)
 {
   return with_instance (env, instanceNumber, "BitRate",
     [] (TOXAV_ERR_BIT_RATE error)
@@ -139,7 +136,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetAudioBitRate
           }
         return unhandled ();
       },
-    ignore,
     toxav_set_audio_bit_rate, friendNumber, audioBitRate
   );
 }
@@ -149,8 +145,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetAudioBitRate
  * Method:    toxAvSetVideoBitRate
  * Signature: (III)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetVideoBitRate
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint videoBitRate)
+TOX_METHOD (void, SetVideoBitRate,
+  jint instanceNumber, jint friendNumber, jint videoBitRate)
 {
   return with_instance (env, instanceNumber, "BitRate",
     [] (TOXAV_ERR_BIT_RATE error)
@@ -162,7 +158,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetVideoBitRate
           }
         return unhandled ();
       },
-    ignore,
     toxav_set_video_bit_rate, friendNumber, videoBitRate
   );
 }
@@ -172,8 +167,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSetVideoBitRate
  * Method:    toxAvSendVideoFrame
  * Signature: (IIII[B[B[B[B)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jbyteArray a)
+TOX_METHOD (void, SendVideoFrame,
+  jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jbyteArray a)
 {
   size_t pixel_count = width * height;
 
@@ -204,7 +199,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
           }
         return unhandled ();
       },
-    ignore,
     toxav_send_video_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data (), aData.data ()
   );
 }
@@ -214,8 +208,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendVideoFrame
  * Method:    toxAvSendAudioFrame
  * Signature: (II[SIII)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendAudioFrame
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jshortArray pcm, jint sampleCount, jint channels, jint samplingRate)
+TOX_METHOD (void, SendAudioFrame,
+  jint instanceNumber, jint friendNumber, jshortArray pcm, jint sampleCount, jint channels, jint samplingRate)
 {
   assert (sampleCount >= 0);
   assert (channels >= 0);
@@ -243,7 +237,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvSendAudioFrame
           }
         return unhandled ();
       },
-    ignore,
     toxav_send_audio_frame, friendNumber, pcmData.data (), sampleCount, channels, samplingRate
   );
 }

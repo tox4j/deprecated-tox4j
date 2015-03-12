@@ -15,6 +15,22 @@ void throw_tox_exception (JNIEnv *env, char const *module, char const *method, c
 #include "ToxInstances.h"
 
 
+/*****************************************************************************
+ * Identity and ignore value function.
+ */
+
+static auto const identity = [](auto v) { return v; };
+
+struct ignore
+{
+  void operator () (bool) { }
+};
+
+
+/*****************************************************************************
+ * Error handling code.
+ */
+
 struct ErrorHandling
 {
   enum Result
@@ -53,10 +69,6 @@ unhandled ()
 #define failure_case(METHOD, ERROR)                 \
   case CAT (SUBSYSTEM, _ERR_##METHOD##_##ERROR):    \
     return failure (#ERROR)
-
-
-template<typename T> static inline T default_value () { return T (); }
-template<> inline void default_value<void> () { }
 
 
 template<typename FuncT>

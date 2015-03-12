@@ -64,8 +64,8 @@ testcase2 (JNIEnv *env)
  * Method:    playground
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_playground
-  (JNIEnv *env, jclass, jint instance_number)
+METHOD (void, playground,
+  jint instance_number)
 {
   return with_instance (env, instance_number,
     [=] (Tox *, Events &)

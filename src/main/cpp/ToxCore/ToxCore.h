@@ -2,6 +2,8 @@
 #include "jniutil.h"
 
 #define SUBSYSTEM TOX
+#define CLASS     ToxCore
+#define PREFIX    tox
 
 namespace proto = core::proto;
 

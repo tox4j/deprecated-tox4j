@@ -107,8 +107,8 @@ tox4j_receive_video_frame_cb (ToxAV *av,
  * Method:    toxAvNew
  * Signature: (ZZILjava/lang/String;I)I
  */
-JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvNew
-  (JNIEnv *env, jclass, jint toxInstanceNumber)
+TOX_METHOD (jint, New,
+  jint toxInstanceNumber)
 {
   return core::with_instance (env, toxInstanceNumber, [=] (Tox *tox, core::Events &) {
     TOXAV_ERR_NEW error;
@@ -139,8 +139,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvNew
  * Method:    toxAvKill
  * Signature: (I)I
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvKill
-  (JNIEnv *env, jclass, jint instanceNumber)
+TOX_METHOD (void, Kill,
+  jint instanceNumber)
 {
   AvInstanceManager::self.kill (env, instanceNumber);
 }
@@ -150,8 +150,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_toxAvKill
  * Method:    finalize
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxAvImpl_finalize
-  (JNIEnv *env, jclass, jint instanceNumber)
+METHOD (void, finize,
+  jint instanceNumber)
 {
   AvInstanceManager::self.finalize (env, instanceNumber);
 }
