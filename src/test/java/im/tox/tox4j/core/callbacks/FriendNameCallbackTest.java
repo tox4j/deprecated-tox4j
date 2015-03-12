@@ -19,6 +19,8 @@ public class FriendNameCallbackTest extends AliceBobTestBase {
 
     private static class Client extends ChatClient {
 
+        private int state = 0;
+
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
@@ -35,7 +37,12 @@ public class FriendNameCallbackTest extends AliceBobTestBase {
         public void friendName(int friendNumber, @NotNull byte[] name) {
             debug("friend changed name to: " + new String(name));
             assertEquals(FRIEND_NUMBER, friendNumber);
-            assertEquals(getFriendName(), new String(name));
+            if (state == 0) {
+                state = 1;
+                assertEquals("", new String(name));
+            } else {
+                assertEquals(getFriendName(), new String(name));
+            }
             finish();
         }
 
