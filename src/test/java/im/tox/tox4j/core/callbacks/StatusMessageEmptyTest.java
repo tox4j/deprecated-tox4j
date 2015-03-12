@@ -22,12 +22,6 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
                 debug("is now connected to friend " + friendNumber);
-                addTask(new Task() {
-                    @Override
-                    public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setStatusMessage(("One").getBytes());
-                    }
-                });
             }
         }
 
@@ -37,6 +31,15 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
             assertEquals(FRIEND_NUMBER, friendNumber);
             if (state == 0) {
                 state = 1;
+                assertEquals("", new String(message));
+                addTask(new Task() {
+                    @Override
+                    public void perform(@NotNull ToxCore tox) throws ToxException {
+                        tox.setStatusMessage(("One").getBytes());
+                    }
+                });
+            } else if (state == 1) {
+                state = 2;
                 assertEquals("Two", new String(message));
                 addTask(new Task() {
                     @Override
@@ -74,6 +77,9 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
             assertEquals(FRIEND_NUMBER, friendNumber);
             if (state == 0) {
                 state = 1;
+                assertEquals("", new String(message));
+            } else if (state == 1) {
+                state = 2;
                 assertEquals("One", new String(message));
                 addTask(new Task() {
                     @Override

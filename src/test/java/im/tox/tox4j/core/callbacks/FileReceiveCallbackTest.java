@@ -49,7 +49,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
         public void fileReceive(int friendNumber, int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
             assertEquals(FRIEND_NUMBER, friendNumber);
-            assertEquals(0 | 0x100, fileNumber);
+            assertEquals(0 | 0x10000, fileNumber);
             assertEquals(ToxFileKind.DATA, kind);
             if (isAlice()) {
                 assertEquals("This is a file for Alice".length(), fileSize);

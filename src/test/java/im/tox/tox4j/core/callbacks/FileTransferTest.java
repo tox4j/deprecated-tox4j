@@ -53,7 +53,7 @@ public class FileTransferTest extends AliceBobTestBase {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
             assertTrue(isBob());
             assertEquals(FRIEND_NUMBER, friendNumber);
-            assertEquals(0 | 0x100, fileNumber);
+            assertEquals(0 | 0x10000, fileNumber);
             assertEquals(ToxFileKind.DATA, kind);
             assertEquals(fileData.length, fileSize);
             assertEquals("file for " + getName() + ".png", new String(filename));
@@ -101,7 +101,7 @@ public class FileTransferTest extends AliceBobTestBase {
             debug("got " + data.length + "B from " + friendNumber + " at " + position);
             assertTrue(isBob());
             assertEquals(FRIEND_NUMBER, friendNumber);
-            assertEquals(0 | 0x100, fileNumber);
+            assertEquals(0 | 0x10000, fileNumber);
             assertEquals(this.position, position);
             assertNotNull(data);
             assertNotEquals(0, data.length);
