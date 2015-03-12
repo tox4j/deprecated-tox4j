@@ -20,16 +20,21 @@ toxBootstrapLike (bool function (Tox *tox,
   ByteArray public_key (env, publicKey);
   assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
 
-  return with_instance (env, instanceNumber, "Bootstrap", [] (TOX_ERR_BOOTSTRAP error) {
-    switch (error) {
-      success_case (BOOTSTRAP);
-      failure_case (BOOTSTRAP, NULL);
-      failure_case (BOOTSTRAP, BAD_ADDRESS);
-      failure_case (BOOTSTRAP, BAD_PORT);
-    }
-    return unhandled ();
-  }, [] (bool) {
-  }, function, UTFChars (env, address).data (), port, public_key.data ());
+  return with_instance (env, instanceNumber, "Bootstrap",
+    [] (TOX_ERR_BOOTSTRAP error)
+      {
+        switch (error)
+          {
+          success_case (BOOTSTRAP);
+          failure_case (BOOTSTRAP, NULL);
+          failure_case (BOOTSTRAP, BAD_ADDRESS);
+          failure_case (BOOTSTRAP, BAD_PORT);
+          }
+        return unhandled ();
+      },
+    ignore<bool>,
+    function, UTFChars (env, address).data (), port, public_key.data ()
+  );
 }
 
 
@@ -63,15 +68,19 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxAddTcpRelay
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetUdpPort
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, "GetPort", [] (TOX_ERR_GET_PORT error) {
-    switch (error) {
-      success_case (GET_PORT);
-      failure_case (GET_PORT, NOT_BOUND);
-    }
-    return unhandled ();
-  }, [] (uint16_t port) {
-    return port;
-  }, tox_get_udp_port);
+  return with_instance (env, instanceNumber, "GetPort",
+    [] (TOX_ERR_GET_PORT error)
+      {
+        switch (error)
+          {
+          success_case (GET_PORT);
+          failure_case (GET_PORT, NOT_BOUND);
+          }
+        return unhandled ();
+      },
+    identity<uint16_t>,
+    tox_get_udp_port
+  );
 }
 
 /*
@@ -82,15 +91,19 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetUdpPort
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetTcpPort
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, "GetPort", [] (TOX_ERR_GET_PORT error) {
-    switch (error) {
-      success_case (GET_PORT);
-      failure_case (GET_PORT, NOT_BOUND);
-    }
-    return unhandled ();
-  }, [] (uint16_t port) {
-    return port;
-  }, tox_get_tcp_port);
+  return with_instance (env, instanceNumber, "GetPort",
+    [] (TOX_ERR_GET_PORT error)
+      {
+        switch (error)
+          {
+          success_case (GET_PORT);
+          failure_case (GET_PORT, NOT_BOUND);
+          }
+        return unhandled ();
+      },
+    identity<uint16_t>,
+    tox_get_tcp_port
+  );
 }
 
 /*
@@ -101,12 +114,15 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetTcpPort
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetDhtId
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, [=] (Tox *tox, Events &events) {
-    unused (events);
-    std::vector<uint8_t> dht_id (TOX_PUBLIC_KEY_SIZE);
-    tox_get_dht_id (tox, dht_id.data ());
-    return toJavaArray (env, dht_id);
-  });
+  return with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        unused (events);
+        std::vector<uint8_t> dht_id (TOX_PUBLIC_KEY_SIZE);
+        tox_get_dht_id (tox, dht_id.data ());
+        return toJavaArray (env, dht_id);
+      }
+  );
 }
 
 /*
@@ -117,10 +133,13 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxGetDhtId
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIterationInterval
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, [=] (Tox *tox, Events &events) {
-    unused (events);
-    return tox_iteration_interval (tox);
-  });
+  return with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        unused (events);
+        return tox_iteration_interval (tox);
+      }
+  );
 }
 
 /*
@@ -131,13 +150,16 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIterationInterval
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxIteration
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, [=] (Tox *tox, Events &events) {
-    tox_iteration (tox);
+  return with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox_iteration (tox);
 
-    std::vector<char> buffer (events.ByteSize ());
-    events.SerializeToArray (buffer.data (), buffer.size ());
-    events.Clear ();
+        std::vector<char> buffer (events.ByteSize ());
+        events.SerializeToArray (buffer.data (), buffer.size ());
+        events.Clear ();
 
-    return toJavaArray (env, buffer);
-  });
+        return toJavaArray (env, buffer);
+      }
+  );
 }

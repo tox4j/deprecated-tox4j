@@ -277,59 +277,66 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
 
   ByteArray save_data (env, saveData);
 
-  return with_error_handling (env, "New", [] (TOX_ERR_NEW error) {
-    switch (error) {
-      success_case (NEW);
-      failure_case (NEW, NULL);
-      failure_case (NEW, MALLOC);
-      failure_case (NEW, PORT_ALLOC);
-      failure_case (NEW, PROXY_BAD_HOST);
-      failure_case (NEW, PROXY_BAD_PORT);
-      failure_case (NEW, PROXY_NOT_FOUND);
-      failure_case (NEW, LOAD_ENCRYPTED);
-      failure_case (NEW, LOAD_DECRYPTION_FAILED);
-      failure_case (NEW, LOAD_BAD_FORMAT);
+  return with_error_handling (env, "New",
+    [] (TOX_ERR_NEW error)
+      {
+        switch (error)
+          {
+          success_case (NEW);
+          failure_case (NEW, NULL);
+          failure_case (NEW, MALLOC);
+          failure_case (NEW, PORT_ALLOC);
+          failure_case (NEW, PROXY_BAD_HOST);
+          failure_case (NEW, PROXY_BAD_PORT);
+          failure_case (NEW, PROXY_NOT_FOUND);
+          failure_case (NEW, LOAD_ENCRYPTED);
+          failure_case (NEW, LOAD_DECRYPTION_FAILED);
+          failure_case (NEW, LOAD_BAD_FORMAT);
 
-      case TOX_ERR_NEW_PROXY_BAD_TYPE:
-        cosmic_ray_error ("tox_new");
-        break;
-    }
-    return unhandled ();
-  }, [env] (Tox *tox_pointer) {
-    CoreInstance::pointer tox (tox_pointer);
-    assert (tox != nullptr);
+          case TOX_ERR_NEW_PROXY_BAD_TYPE:
+            cosmic_ray_error ("tox_new");
+            break;
+          }
+        return unhandled ();
+      },
+    [env] (Tox *tox_pointer)
+      {
+        CoreInstance::pointer tox (tox_pointer);
+        assert (tox != nullptr);
 
-    // Create the master events object.
-    std::unique_ptr<Events> events (new Events);
+        // Create the master events object.
+        std::unique_ptr<Events> events (new Events);
 
-    // Set up our callbacks.
-    tox_callback_connection_status        (tox.get (), tox4j_connection_status_cb,        events.get ());
-    tox_callback_friend_name              (tox.get (), tox4j_friend_name_cb,              events.get ());
-    tox_callback_friend_status_message    (tox.get (), tox4j_friend_status_message_cb,    events.get ());
-    tox_callback_friend_status            (tox.get (), tox4j_friend_status_cb,            events.get ());
-    tox_callback_friend_connection_status (tox.get (), tox4j_friend_connection_status_cb, events.get ());
-    tox_callback_friend_typing            (tox.get (), tox4j_friend_typing_cb,            events.get ());
-    tox_callback_read_receipt             (tox.get (), tox4j_read_receipt_cb,             events.get ());
-    tox_callback_friend_request           (tox.get (), tox4j_friend_request_cb,           events.get ());
-    tox_callback_friend_message           (tox.get (), tox4j_friend_message_cb,           events.get ());
-    tox_callback_friend_action            (tox.get (), tox4j_friend_action_cb,            events.get ());
-    tox_callback_file_control             (tox.get (), tox4j_file_control_cb,             events.get ());
-    tox_callback_file_request_chunk       (tox.get (), tox4j_file_request_chunk_cb,       events.get ());
-    tox_callback_file_receive             (tox.get (), tox4j_file_receive_cb,             events.get ());
-    tox_callback_file_receive_chunk       (tox.get (), tox4j_file_receive_chunk_cb,       events.get ());
-    tox_callback_friend_lossy_packet      (tox.get (), tox4j_friend_lossy_packet_cb,      events.get ());
-    tox_callback_friend_lossless_packet   (tox.get (), tox4j_friend_lossless_packet_cb,   events.get ());
+        // Set up our callbacks.
+        tox_callback_connection_status        (tox.get (), tox4j_connection_status_cb,        events.get ());
+        tox_callback_friend_name              (tox.get (), tox4j_friend_name_cb,              events.get ());
+        tox_callback_friend_status_message    (tox.get (), tox4j_friend_status_message_cb,    events.get ());
+        tox_callback_friend_status            (tox.get (), tox4j_friend_status_cb,            events.get ());
+        tox_callback_friend_connection_status (tox.get (), tox4j_friend_connection_status_cb, events.get ());
+        tox_callback_friend_typing            (tox.get (), tox4j_friend_typing_cb,            events.get ());
+        tox_callback_read_receipt             (tox.get (), tox4j_read_receipt_cb,             events.get ());
+        tox_callback_friend_request           (tox.get (), tox4j_friend_request_cb,           events.get ());
+        tox_callback_friend_message           (tox.get (), tox4j_friend_message_cb,           events.get ());
+        tox_callback_friend_action            (tox.get (), tox4j_friend_action_cb,            events.get ());
+        tox_callback_file_control             (tox.get (), tox4j_file_control_cb,             events.get ());
+        tox_callback_file_request_chunk       (tox.get (), tox4j_file_request_chunk_cb,       events.get ());
+        tox_callback_file_receive             (tox.get (), tox4j_file_receive_cb,             events.get ());
+        tox_callback_file_receive_chunk       (tox.get (), tox4j_file_receive_chunk_cb,       events.get ());
+        tox_callback_friend_lossy_packet      (tox.get (), tox4j_friend_lossy_packet_cb,      events.get ());
+        tox_callback_friend_lossless_packet   (tox.get (), tox4j_friend_lossless_packet_cb,   events.get ());
 
-    // We can create the new instance outside instance_manager's critical section.
-    CoreInstance instance {
-      std::move (tox),
-      std::move (events),
-      std::unique_ptr<std::mutex> (new std::mutex)
-    };
+        // We can create the new instance outside instance_manager's critical section.
+        CoreInstance instance {
+          std::move (tox),
+          std::move (events),
+          std::unique_ptr<std::mutex> (new std::mutex)
+        };
 
-    // This call locks the instance manager.
-    return CoreInstanceManager::self.add (std::move (instance));
-  }, tox_new, opts.get (), save_data.data (), save_data.size ());
+        // This call locks the instance manager.
+        return CoreInstanceManager::self.add (std::move (instance));
+      },
+    tox_new, opts.get (), save_data.data (), save_data.size ()
+  );
 }
 
 /*
@@ -362,11 +369,14 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_finalize
 JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxSave
   (JNIEnv *env, jclass, jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, [=] (Tox *tox, Events &events) {
-    unused (events);
-    std::vector<uint8_t> buffer (tox_save_size (tox));
-    tox_save (tox, buffer.data ());
+  return with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        unused (events);
+        std::vector<uint8_t> buffer (tox_save_size (tox));
+        tox_save (tox, buffer.data ());
 
-    return toJavaArray (env, buffer);
-  });
+        return toJavaArray (env, buffer);
+      }
+  );
 }

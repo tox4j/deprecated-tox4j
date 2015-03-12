@@ -67,8 +67,11 @@ testcase2 (JNIEnv *env)
 JNIEXPORT void JNICALL Java_im_tox_tox4j_ToxCoreImpl_playground
   (JNIEnv *env, jclass, jint instance_number)
 {
-  return with_instance (env, instance_number, [=] (Tox *, Events &) {
-    testcase1 (env);
-    testcase2 (env);
-  });
+  return with_instance (env, instance_number,
+    [=] (Tox *, Events &)
+      {
+        testcase1 (env);
+        testcase2 (env);
+      }
+  );
 }

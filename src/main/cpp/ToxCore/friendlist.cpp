@@ -31,7 +31,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAdd
   ByteArray messageData (env, message);
   ByteArray addressData (env, address);
   assert (!address || addressData.size () == TOX_ADDRESS_SIZE);
-  return with_instance (env, instanceNumber, "FriendAdd", handle_tox_friend_add_result,
+  return with_instance (env, instanceNumber, "FriendAdd",
+    handle_tox_friend_add_result,
     identity<uint32_t>,
     tox_friend_add, addressData.data (), messageData.data (), messageData.size ()
   );
@@ -47,7 +48,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxFriendAddNorequest
 {
   ByteArray public_key (env, publicKey);
   assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendAdd", handle_tox_friend_add_result,
+  return with_instance (env, instanceNumber, "FriendAdd",
+    handle_tox_friend_add_result,
     identity<uint32_t>,
     tox_friend_add_norequest, public_key.data ()
   );
