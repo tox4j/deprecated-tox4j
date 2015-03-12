@@ -28,6 +28,10 @@ void tox_self_get_secret_key(Tox const *tox, uint8_t *secret_key);
 #endif
 
 
+#include <memory>
+#include <cassert>
+
+
 namespace tox
 {
 
@@ -44,15 +48,19 @@ namespace tox
         using type = void (Tox *, Args..., UserData &);
 
         template<typename UserData, type<UserData> Callback>
-        static void invoke (Tox *tox, Args ...args, void *user_data)
+        static void
+        invoke (Tox *tox, Args ...args, void *user_data)
         {
           Callback (tox, args..., *static_cast<UserData *> (user_data));
         }
 
         template<typename UserData, type<UserData> Callback>
-        static void set (Tox *tox, UserData &user_data)
+        static std::unique_ptr<UserData>
+        set (Tox *tox, std::unique_ptr<UserData> user_data)
         {
-          Set (tox, invoke<UserData, Callback>, &user_data);
+          assert (user_data.get () != nullptr);
+          Set (tox, invoke<UserData, Callback>, user_data.get ());
+          return user_data;
         }
       };
     };
@@ -130,9 +138,10 @@ namespace tox
     >
     struct setter
     {
-      static void set (Tox *tox, UserData &user_data)
+      static std::unique_ptr<UserData>
+      set (Tox *tox, std::unique_ptr<UserData> user_data)
       {
-        Cb::template set<UserData, Sig> (tox, user_data);
+        return Cb::template set<UserData, Sig> (tox, std::move (user_data));
       }
     };
 
@@ -143,17 +152,20 @@ namespace tox
     template<typename UserData>
     struct set_callbacks<UserData>
     {
-      static void set (Tox *, UserData &)
-      { }
+      static std::unique_ptr<UserData>
+      set (Tox *, std::unique_ptr<UserData> user_data)
+      {
+        return user_data;
+      }
     };
 
     template<typename UserData, typename Head, typename ...Tail>
     struct set_callbacks<UserData, Head, Tail...>
     {
-      static void set (Tox *tox, UserData &user_data)
+      static std::unique_ptr<UserData>
+      set (Tox *tox, std::unique_ptr<UserData> user_data)
       {
-        Head::set (tox, user_data);
-        set_callbacks<UserData, Tail...>::set (tox, user_data);
+        return set_callbacks<UserData, Tail...>::set (tox, Head::set (tox, std::move (user_data)));
       }
     };
 
@@ -166,15 +178,16 @@ namespace tox
         typename Cb::template type<UserData> Sig
       >
       callback_setter<UserData, Callbacks..., setter<UserData, Cb, Sig>>
-      set ()
-      { return { user_data }; }
+      set () &&
+      { return { std::move (user_data) }; }
 
-      void set (Tox *tox)
+      std::unique_ptr<UserData>
+      set (Tox *tox) &&
       {
-        set_callbacks<UserData, Callbacks...>::set (tox, user_data);
+        return set_callbacks<UserData, Callbacks...>::set (tox, std::move (user_data));
       }
 
-      UserData &user_data;
+      std::unique_ptr<UserData> user_data;
     };
 
   }
@@ -182,9 +195,9 @@ namespace tox
 
   template<typename UserData>
   detail::callback_setter<UserData>
-  callbacks (UserData &user_data)
+  callbacks (std::unique_ptr<UserData> user_data)
   {
-    return { user_data };
+    return { std::move (user_data) };
   }
 
 }

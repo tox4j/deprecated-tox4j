@@ -288,11 +288,8 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
         CoreInstance::pointer tox (tox_pointer);
         assert (tox != nullptr);
 
-        // Create the master events object.
-        auto events = std::make_unique<Events> ();
-
-        // Set up our callbacks.
-        tox::callbacks (*events)
+        // Create the master events object and set up our callbacks.
+        auto events = tox::callbacks (std::make_unique<Events> ())
           .set<tox::callback_connection_status,         tox4j_connection_status_cb       > ()
           .set<tox::callback_friend_name,               tox4j_friend_name_cb             > ()
           .set<tox::callback_friend_status_message,     tox4j_friend_status_message_cb   > ()
@@ -312,14 +309,12 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_ToxCoreImpl_toxNew
           .set (tox.get ());
 
         // We can create the new instance outside instance_manager's critical section.
-        CoreInstance instance {
+        // This call locks the instance manager.
+        return CoreInstanceManager::self.add ({
           std::move (tox),
           std::move (events),
           std::make_unique<std::mutex> ()
-        };
-
-        // This call locks the instance manager.
-        return CoreInstanceManager::self.add (std::move (instance));
+        });
       },
     tox_new, opts.get (), save_data.data (), save_data.size ()
   );
