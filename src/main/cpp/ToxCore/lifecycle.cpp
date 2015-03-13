@@ -270,7 +270,15 @@ TOX_METHOD (jint, New,
   opts->ipv6_enabled = ipv6Enabled;
   opts->udp_enabled = udpEnabled;
 
-  opts->proxy_type = (TOX_PROXY_TYPE)proxyType;
+  opts->proxy_type = [=] {
+    switch (proxyType)
+      {
+      case 0: return TOX_PROXY_TYPE_NONE;
+      case 1: return TOX_PROXY_TYPE_HTTP;
+      case 2: return TOX_PROXY_TYPE_SOCKS5;
+      }
+    fatal ("Invalid proxy type from Java");
+  } ();
   UTFChars proxy_address (env, proxyAddress);
   opts->proxy_address = proxy_address.data ();
   opts->proxy_port = proxyPort;

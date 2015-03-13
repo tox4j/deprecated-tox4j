@@ -119,10 +119,6 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
           {
           success_case (FRIEND_GET_PUBLIC_KEY);
           failure_case (FRIEND_GET_PUBLIC_KEY, FRIEND_NOT_FOUND);
-
-          case TOX_ERR_FRIEND_GET_PUBLIC_KEY_NULL:
-            cosmic_ray_error ("tox_friend_get_public_key");
-            break;
           }
         return unhandled ();
       },

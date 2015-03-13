@@ -9,6 +9,16 @@
 TOX_METHOD (void, FileControl,
   jint instanceNumber, jint friendNumber, jint fileNumber, jint control)
 {
+  TOX_FILE_CONTROL const file_control = [=] {
+    switch (control)
+      {
+      case 0: return TOX_FILE_CONTROL_RESUME;
+      case 1: return TOX_FILE_CONTROL_PAUSE;
+      case 2: return TOX_FILE_CONTROL_CANCEL;
+      }
+    fatal ("Invalid file control from Java");
+  } ();
+
   return with_instance (env, instanceNumber, "FileControl",
     [] (TOX_ERR_FILE_CONTROL error)
       {
@@ -25,7 +35,7 @@ TOX_METHOD (void, FileControl,
           }
         return unhandled ();
       },
-    tox_file_control, friendNumber, fileNumber, (TOX_FILE_CONTROL)control // TODO: check valid values for control?
+    tox_file_control, friendNumber, fileNumber, file_control
   );
  
 }
@@ -39,6 +49,15 @@ TOX_METHOD (jint, FileSend,
   jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
 {
   ByteArray filenameData (env, filename);
+  TOX_FILE_KIND const file_kind = [=] {
+    switch (kind)
+      {
+      case 0: return TOX_FILE_KIND_DATA;
+      case 1: return TOX_FILE_KIND_AVATAR;
+      }
+    fatal ("Invalid file kind from Java");
+  } ();
+
   return with_instance (env, instanceNumber, "FileSend",
     [] (TOX_ERR_FILE_SEND error)
       {
@@ -55,7 +74,7 @@ TOX_METHOD (jint, FileSend,
         return unhandled ();
       },
     identity,
-    tox_file_send, friendNumber, (TOX_FILE_KIND)kind, fileSize, filenameData.data (), filenameData.size () // TODO: check valid values for kind?
+    tox_file_send, friendNumber, file_kind, fileSize, filenameData.data (), filenameData.size ()
   );
 }
 

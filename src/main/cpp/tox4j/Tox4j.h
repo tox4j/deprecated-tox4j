@@ -9,12 +9,21 @@
 #include <vector>
 
 
-static inline void
-tox4j_assert (bool condition, JNIEnv *env, char const *message)
+#if defined(__GNUC__)
+#  define TOX4J_NORETURN __attribute__((__noreturn__))
+#else
+#  define TOX4J_NORETURN
+#endif
+
+
+static inline TOX4J_NORETURN void
+tox4j_fatal (JNIEnv *env, char const *message)
 {
-  if (!condition)
-    env->FatalError (message);
+  env->FatalError (message);
+  abort ();
 }
+
+#define fatal(message) tox4j_fatal (env, message)
 
 #ifdef assert
 #undef assert
@@ -23,8 +32,9 @@ tox4j_assert (bool condition, JNIEnv *env, char const *message)
 
 #define STR(token) STR_(token)
 #define STR_(token) #token
-#define assert(condition) do {                                                                  \
-  tox4j_assert (condition, env, __FILE__ ":" STR (__LINE__) ": Assertion failed: " #condition); \
+#define assert(condition) do {                                                  \
+  if (!(condition))                                                             \
+    fatal (__FILE__ ":" STR (__LINE__) ": Assertion failed: " #condition);      \
 } while (0)
 
 
