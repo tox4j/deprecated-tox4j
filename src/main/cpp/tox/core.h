@@ -70,6 +70,11 @@ namespace tox
     struct mk_tox_cb;
 
     // XXX: why don't variadic templates work here?
+    template<typename ...Args>
+    struct mk_tox_cb<void (Tox *, Args..., void *)>
+      : tox_cb<Args...>
+    { };
+
     template<typename Arg1>
     struct mk_tox_cb<void (Tox *, Arg1, void *)>
       : tox_cb<Arg1>
@@ -101,7 +106,7 @@ namespace tox
     { };
 
 
-    template<typename Sig, void Set (Tox *, Sig *, void *)>
+    template<typename Sig, void Set (Tox *, Sig, void *)>
     struct cb
       : mk_tox_cb<Sig>::template func<Set>
     { };
