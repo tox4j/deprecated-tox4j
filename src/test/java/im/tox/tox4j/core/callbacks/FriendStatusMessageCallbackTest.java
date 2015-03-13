@@ -19,6 +19,8 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
 
     private static class Client extends ChatClient {
 
+        private int state = 0;
+
         @Override
         public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
             if (connection != ToxConnection.NONE) {
@@ -36,8 +38,13 @@ public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
         public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
             debug("friend changed status message to: " + new String(message));
             assertEquals(FRIEND_NUMBER, friendNumber);
-            assertEquals("I like " + getName(), new String(message));
-            finish();
+            if (state == 0) {
+                state = 1;
+                assertEquals("", new String(message));
+            } else {
+                assertEquals("I like " + getName(), new String(message));
+                finish();
+            }
         }
 
     }

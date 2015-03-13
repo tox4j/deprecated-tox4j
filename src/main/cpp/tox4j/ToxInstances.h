@@ -378,7 +378,7 @@ public:
     // This instance was leaked, kill it before setting it free.
     if ((*this)[instanceNumber].isLive ())
       {
-        printf ("Leaked Tox instance #%d\n", instanceNumber);
+        fprintf (stderr, "Leaked Tox instance #%d\n", instanceNumber);
         instance_type dying (remove (instanceNumber));
         assert (dying.isLive ());
         dying.assertValid ();
