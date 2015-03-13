@@ -293,13 +293,6 @@ public:
     return std::find (freelist.begin (), freelist.end (), instance_number) != freelist.end ();
   }
 
-  void
-  setFree (jint instance_number)
-  {
-    check_locked ();
-    freelist.push_back (instance_number);
-  }
-
   instance_type const &
   operator [] (jint instance_number) const
   {
@@ -309,6 +302,14 @@ public:
 
 
 private:
+  void
+  setFree (jint instance_number)
+  {
+    check_locked ();
+    assert (!isFree (instance_number));
+    freelist.push_back (instance_number);
+  }
+
   instance_type
   remove (jint instance_number)
   {
