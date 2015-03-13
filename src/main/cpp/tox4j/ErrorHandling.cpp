@@ -95,6 +95,6 @@ throw_tox_exception (JNIEnv *env, char const *module, char const *method, char c
 
 
 #ifdef HAVE_TOXAV
-namespace av   { char const *const tox_traits::module = "av"  ; }
+char const *const tox_traits<ToxAV>::module = "av";
 #endif
-namespace core { char const *const tox_traits::module = "core"; }
+char const *const tox_traits<Tox  >::module = "core";

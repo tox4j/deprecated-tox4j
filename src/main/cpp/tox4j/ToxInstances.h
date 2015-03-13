@@ -16,9 +16,12 @@
 #include "Core.pb.h"
 
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <mutex>
-#include <functional>
+
+
+#define DEBUG_TOX_INSTANCE 0
 
 
 struct scope_guard
@@ -90,13 +93,16 @@ ID (std::unique_ptr<T, Delete> const &p)
 }
 
 
-template<typename ToxTraits>
+template<typename Subsystem>
+struct tox_traits;
+
+template<typename Subsystem, typename Traits = tox_traits<Subsystem>>
 class instance_manager;
 
-template<typename ToxTraits>
-class tox_instance
+template<typename Subsystem, typename Traits = tox_traits<Subsystem>>
+class tox_instance final
 {
-  friend class instance_manager<ToxTraits>;
+  friend class instance_manager<Subsystem, Traits>;
 
   // Objects of this class can conceptually have three states:
   // - LIVE: A tox instance is alive and running.
@@ -104,12 +110,10 @@ class tox_instance
   // - COLLECTED: state is DEAD, and the object's instance_number is in instance_freelist.
   bool live = true;
 
-  typedef typename ToxTraits::subsystem subsystem_type;
-  typedef typename ToxTraits::events events_type;
-  typedef typename ToxTraits::deleter deleter_type;
+  typedef typename Traits::events events_type;
 
 public:
-  typedef std::unique_ptr<subsystem_type, deleter_type> pointer;
+  typedef typename Traits::pointer pointer;
 
   pointer tox;
   std::unique_ptr<events_type> events;
@@ -117,29 +121,8 @@ public:
 private:
   std::unique_ptr<std::mutex> mutex;
 
-public:
-  bool isLive () const { return  live; }
-  bool isDead () const { return !live; }
-
-
-  template<typename Func, typename ... Args>
-  typename std::result_of<Func (typename pointer::pointer, events_type &, Args ...)>::type
-  with_lock (Func func, Args const &...args) const
-  {
-    assert (mutex != nullptr);
-    std::lock_guard<std::mutex> lock (*mutex);
-#if 0
-    scope_guard {
-      [&]{ printf ("locking instance %zd", ID (tox)); },
-      [&]{ printf ("unlocking instance %zd", ID (tox)); },
-    };
-#endif
-    assert (events != nullptr);
-    return func (tox.get (), *events, args ...);
-  }
-
-
-  void assertValid () const
+  void
+  assertValid () const
   {
     if (isLive ())
       {
@@ -156,14 +139,37 @@ public:
   }
 
 
-  tox_instance (pointer &&tox,
-                std::unique_ptr<events_type> &&events,
-                std::unique_ptr<std::mutex> &&mutex)
+public:
+  bool isLive () const { return  live; }
+  bool isDead () const { return !live; }
+
+
+  template<typename Func, typename ...Args>
+  typename std::result_of<Func (typename pointer::pointer, events_type &, Args...)>::type
+  with_lock (Func func, Args const &...args) const
+  {
+    assert (isLive ());
+    assertValid ();
+
+    std::lock_guard<std::mutex> lock (*mutex);
+#if DEBUG_TOX_INSTANCE
+    scope_guard {
+      [&]{ printf ("locking instance %zd", ID (tox)); },
+      [&]{ printf ("unlocking instance %zd", ID (tox)); },
+    };
+#endif
+    return func (tox.get (), *events, args...);
+  }
+
+
+  tox_instance (pointer tox,
+                std::unique_ptr<events_type> events,
+                std::unique_ptr<std::mutex> mutex)
     : tox (std::move (tox))
     , events (std::move (events))
     , mutex (std::move (mutex))
   {
-#if 0
+#if DEBUG_TOX_INSTANCE
     scope_guard {
       [&]{ printf ("new %zd", ID (tox)); }
     };
@@ -173,13 +179,13 @@ public:
 
 
   // Move members from another object into this new one, then set the old one to the DEAD state.
-  tox_instance (tox_instance && rhs)
+  tox_instance (tox_instance &&rhs)
     : live (rhs.live)
     , tox (std::move (rhs.tox))
     , events (std::move (rhs.events))
     , mutex (std::move (rhs.mutex))
   {
-#if 0
+#if DEBUG_TOX_INSTANCE
     scope_guard {
       [&]{ printf ("move: %zd -> %zd", ID (rhs.tox), ID (tox)); },
     };
@@ -191,11 +197,22 @@ public:
   }
 
 
+  ~tox_instance ()
+  {
+    if (isLive ())
+      // The caller must get the mutex out and lock it before destroying the instance.
+      assert (mutex == nullptr);
+    else
+      assertValid ();
+  }
+
+
   // Move members from another object into this existing one, then set the right hand side to the
   // DEAD state. This object is then live again.
-  tox_instance &operator = (tox_instance &&rhs)
+  tox_instance &
+  operator = (tox_instance &&rhs)
   {
-#if 0
+#if DEBUG_TOX_INSTANCE
     scope_guard {
       [&] { printf ("assign: %zd <- %zd", ID (tox), ID (rhs.tox)); }
     };
@@ -219,78 +236,114 @@ public:
 };
 
 
-template<typename ToxTraits>
+template<typename Subsystem, typename Traits>
 class instance_manager
 {
-  typedef tox_instance<ToxTraits> instance_type;
+  typedef tox_instance<Subsystem, Traits> instance_type;
 
   // This struct should remain small. Check some assumptions here.
   static_assert (sizeof (instance_type) == sizeof (void *) * 4,
-                 "tox_instance has unexpected members or padding");
+      "tox_instance has unexpected members or padding");
+
+  static_assert (
+      std::is_move_constructible<instance_type>::value
+      && std::is_move_assignable<instance_type>::value,
+      "tox_instance is not moveable");
+  static_assert (
+      !std::is_copy_constructible<instance_type>::value
+      && !std::is_copy_assignable<instance_type>::value,
+      "tox_instance is copyable but should only be moveable");
 
   std::vector<instance_type> instances;
   std::vector<jint> freelist;
   std::mutex mutex;
 
-  bool is_locked () const
+  void
+  check_locked () const
   {
-    return !const_cast<std::mutex &> (mutex).try_lock ();
+    assert (!const_cast<std::mutex &> (mutex).try_lock ());
   }
 
+  // Private constructor: this is a singleton.
+  instance_manager () = default;
+
+  // Non-copyable.
+  instance_manager (instance_manager const &) = delete;
+  instance_manager &operator = (instance_manager const &) = delete;
+
 public:
-  std::unique_lock<std::mutex> lock ()
+  std::unique_lock<std::mutex>
+  lock ()
   {
     return std::unique_lock<std::mutex> (mutex);
   }
 
-  bool isValid (jint instance_number) const
+  bool
+  isValid (jint instance_number) const
   {
-    assert (is_locked ());
+    check_locked ();
     return instance_number > 0
         && (size_t)instance_number <= instances.size ();
   }
 
-  bool isFree (jint instance_number) const
+  bool
+  isFree (jint instance_number) const
   {
-    assert (is_locked ());
+    check_locked ();
     return std::find (freelist.begin (), freelist.end (), instance_number) != freelist.end ();
   }
 
-  void setFree (jint instance_number)
+  void
+  setFree (jint instance_number)
   {
-    assert (is_locked ());
+    check_locked ();
     freelist.push_back (instance_number);
   }
 
-  instance_type const &operator [] (jint instance_number) const
+  instance_type const &
+  operator [] (jint instance_number) const
   {
-    assert (is_locked ());
+    check_locked ();
     return instances[instance_number - 1];
   }
 
 
 private:
-  instance_type remove (jint instance_number)
+  instance_type
+  remove (jint instance_number)
   {
-    assert (is_locked ());
+    check_locked ();
     return std::move (instances[instance_number - 1]);
   }
 
-  bool empty () const
+  bool
+  empty () const
   {
-    assert (is_locked ());
+    check_locked ();
     return instances.empty ();
   }
 
-  size_t size () const
+  size_t
+  size () const
   {
-    assert (is_locked ());
+    check_locked ();
     return instances.size ();
   }
 
 
+  static void
+  kill (instance_type dying)
+  {
+    assert (dying.isLive ());
+    dying.assertValid ();
+    auto mutex = std::move (dying.mutex);
+    std::lock_guard<std::mutex> ilock (*mutex);
+  }
+
+
 public:
-  jint add (instance_type && instance)
+  jint
+  add (instance_type instance)
   {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -313,7 +366,8 @@ public:
   }
 
 
-  void kill (JNIEnv *env, jint instanceNumber)
+  void
+  kill (JNIEnv *env, jint instanceNumber)
   {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -341,13 +395,12 @@ public:
         return;
       }
 
-    assert (dying.isLive ());
-    dying.assertValid ();
-    std::lock_guard<std::mutex> ilock (*dying.mutex);
+    kill (std::move (dying));
   }
 
 
-  void finalize (JNIEnv *env, jint instanceNumber)
+  void
+  finalize (JNIEnv *env, jint instanceNumber)
   {
     if (instanceNumber == 0)
       // This can happen when an exception is thrown from the constructor, giving this object
@@ -379,10 +432,7 @@ public:
     if ((*this)[instanceNumber].isLive ())
       {
         fprintf (stderr, "Leaked Tox instance #%d\n", instanceNumber);
-        instance_type dying (remove (instanceNumber));
-        assert (dying.isLive ());
-        dying.assertValid ();
-        std::lock_guard<std::mutex> ilock (*dying.mutex);
+        kill (remove (instanceNumber));
       }
 
     assert ((*this)[instanceNumber].isDead ());
@@ -393,5 +443,6 @@ public:
   static instance_manager self;
 };
 
-template<typename ToxTraits>
-instance_manager<ToxTraits> instance_manager<ToxTraits>::self;
+template<typename Subsystem, typename Traits>
+instance_manager<Subsystem, Traits>
+instance_manager<Subsystem, Traits>::self;

@@ -1,7 +1,7 @@
 #include "ToxCore.h"
 
-using CoreInstanceManager = instance_manager<tox_traits>;
-using CoreInstance = tox_instance<tox_traits>;
+using CoreInstanceManager = instance_manager<Subsystem>;
+using CoreInstance = tox_instance<Subsystem>;
 
 
 template<typename Message>
@@ -219,6 +219,28 @@ tox4j_friend_lossless_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const
 }
 
 
+static auto
+tox_options_new_unique ()
+{
+  struct Tox_Options_Deleter
+  {
+    void operator () (Tox_Options *options)
+    {
+      tox_options_free (options);
+    }
+  };
+
+  return std::unique_ptr<Tox_Options, Tox_Options_Deleter> (tox_options_new (nullptr));
+}
+
+
+static CoreInstance::pointer
+tox_new_unique (Tox_Options const *options, uint8_t const *data, size_t length, TOX_ERR_NEW *error)
+{
+  return CoreInstance::pointer (tox_new (options, data, length, error));
+}
+
+
 /*
  * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxNew
@@ -238,18 +260,10 @@ TOX_METHOD (jint, New,
   };
 #endif
 
-  struct Tox_Options_Deleter
-  {
-    void operator () (Tox_Options *options)
-    {
-      tox_options_free (options);
-    }
-  };
-
-  std::unique_ptr<Tox_Options, Tox_Options_Deleter> opts (tox_options_new (nullptr));
+  auto opts = tox_options_new_unique ();
   if (!opts)
     {
-      throw_tox_exception (env, tox_traits::module, "New", "MALLOC");
+      throw_tox_exception (env, tox_traits<Subsystem>::module, "New", "MALLOC");
       return 0;
     }
 
@@ -263,7 +277,7 @@ TOX_METHOD (jint, New,
 
   ByteArray save_data (env, saveData);
 
-  return with_error_handling (env, "New",
+  return with_error_handling<Subsystem> (env, "New",
     [] (TOX_ERR_NEW error)
       {
         switch (error)
@@ -285,9 +299,8 @@ TOX_METHOD (jint, New,
           }
         return unhandled ();
       },
-    [env] (Tox *tox_pointer)
+    [env] (CoreInstance::pointer tox)
       {
-        CoreInstance::pointer tox (tox_pointer);
         assert (tox != nullptr);
 
         // Create the master events object and set up our callbacks.
@@ -318,7 +331,7 @@ TOX_METHOD (jint, New,
           std::make_unique<std::mutex> ()
         });
       },
-    tox_new, opts.get (), save_data.data (), save_data.size ()
+    tox_new_unique, opts.get (), save_data.data (), save_data.size ()
   );
 }
 

@@ -5,9 +5,7 @@
 #define CLASS     ToxAv
 #define PREFIX    toxAv
 
-namespace proto = av::proto;
+namespace proto = im::tox::tox4j::av::proto;
 
-using av::Events;
-using av::tox_traits;
-using av::with_instance;
-using av::with_error_handling;
+using Subsystem = ToxAV;
+using Events = tox_traits<Subsystem>::events;

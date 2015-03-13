@@ -13,6 +13,7 @@ void throw_illegal_state_exception (JNIEnv *env, jint instance_number, std::stri
 void throw_tox_exception (JNIEnv *env, char const *module, char const *method, char const *code);
 
 #include "ToxInstances.h"
+#include "tox_traits.h"
 
 
 /*****************************************************************************
@@ -71,61 +72,139 @@ unhandled ()
     return failure (#ERROR)
 
 
-template<typename FuncT>
-struct error_type_of;
-
-template<typename Result, typename Head, typename... Tail>
-struct error_type_of<Result (*) (Head, Tail...)>
+template<typename Func>
+typename tox_handler_traits<Func>::return_type
+with_instance (JNIEnv *env, jint instance_number, Func func)
 {
-  typedef typename error_type_of<Result (*) (Tail...)>::type type;
-};
+  typedef typename tox_handler_traits<Func>::return_type    return_type;
+  typedef typename tox_handler_traits<Func>::subsystem_type subsystem_type;
+  typedef typename tox_handler_traits<Func>::events_type    events_type;
 
-template<typename Result, typename ErrorCode>
-struct error_type_of<Result (*) (ErrorCode *)>
+  if (instance_number == 0)
+    {
+      throw_illegal_state_exception (env, instance_number,
+                                     "Function called on incomplete object");
+      return return_type ();
+    }
+
+  auto lock = instance_manager<subsystem_type>::self.lock ();
+  if (!instance_manager<subsystem_type>::self.isValid (instance_number))
+    {
+      throw_tox_killed_exception (env, instance_number,
+                                  "Tox function invoked on invalid tox instance");
+      return return_type ();
+    }
+
+  auto const &instance = instance_manager<subsystem_type>::self[instance_number];
+
+  if (!instance.isLive ())
+    {
+      throw_tox_killed_exception (env, instance_number,
+                                  "Tox function invoked on killed tox instance");
+      return return_type ();
+    }
+
+  return instance.with_lock ([&lock, &func] (subsystem_type *tox, events_type &events)
+    {
+      lock.unlock ();
+      return func (tox, events);
+    }
+  );
+}
+
+
+template<typename Subsystem, typename ErrorFunc, typename SuccessFunc, typename ToxFunc, typename ...Args>
+tox_success_t<SuccessFunc, ToxFunc, Args...>
+with_error_handling (JNIEnv *env,
+                     char const *method,
+                     ErrorFunc error_func,
+                     SuccessFunc success_func,
+                     ToxFunc tox_func,
+                     Args ...args)
 {
-  typedef ErrorCode type;
-};
+  tox_error_t<ToxFunc> error;
+  auto value = tox_func (args..., &error);
+  ErrorHandling result = error_func (error);
+  switch (result.result)
+    {
+    case ErrorHandling::SUCCESS:
+      return success_func (std::move (value));
+    case ErrorHandling::FAILURE:
+      throw_tox_exception (env, tox_traits<Subsystem>::module, method, result.error);
+      break;
+    case ErrorHandling::UNHANDLED:
+      throw_illegal_state_exception (env, error, "Unknown error code");
+      break;
+    }
 
-template<typename FuncT>
-using tox_error_t = typename error_type_of<FuncT>::type;
+  return tox_success_t<SuccessFunc, ToxFunc, Args...> ();
+}
 
-template<typename SuccessFunc, typename ToxFunc, typename... Args>
-using tox_success_t = typename std::result_of<SuccessFunc (typename std::result_of<ToxFunc (Args..., tox_error_t<ToxFunc> *)>::type)>::type;
+
+template<typename ErrorFunc, typename SuccessFunc, typename ToxFunc, typename ...Args>
+tox_success_t<SuccessFunc, ToxFunc, typename tox_fun_traits<ToxFunc>::subsystem_type *, Args...>
+with_instance (JNIEnv *env,
+               jint instanceNumber,
+               char const *method,
+               ErrorFunc error_func,
+               SuccessFunc success_func,
+               ToxFunc tox_func,
+               Args ...args)
+{
+  typedef typename tox_fun_traits<ToxFunc>::subsystem_type subsystem_type;
+  typedef typename tox_traits<subsystem_type>::events      events_type;
+
+  return with_instance (env, instanceNumber,
+    [=] (subsystem_type *tox, events_type &events)
+      {
+        (void)events;
+        return with_error_handling<subsystem_type> (env, method, error_func, success_func, tox_func, tox, args...);
+      }
+  );
+}
+
+
+template<typename ErrorFunc, typename ToxFunc, typename ...Args>
+tox_success_t<ignore, ToxFunc, typename tox_fun_traits<ToxFunc>::subsystem_type *, Args...>
+with_instance (JNIEnv *env,
+               jint instanceNumber,
+               char const *method,
+               ErrorFunc error_func,
+               ToxFunc tox_func,
+               Args ...args)
+{
+  return with_instance (env, instanceNumber, method, error_func, ignore (), tox_func, args...);
+}
 
 
 #ifdef HAVE_TOXAV
-namespace av
+template<>
+struct tox_traits<ToxAV>
 {
-  namespace proto = im::tox::tox4j::av::proto;
-  using Events = proto::AvEvents;
-
-  struct Deleter
+private:
+  struct deleter
   {
-    void operator () (ToxAV *av)
+    void operator () (ToxAV *toxav)
     {
-      toxav_kill (av);
+      toxav_kill (toxav);
     }
   };
 
-  struct tox_traits
-  {
-    typedef ToxAV subsystem;
-    typedef Events events;
-    typedef Deleter deleter;
+public:
+  typedef im::tox::tox4j::av::proto::AvEvents events;
 
-    static char const *const module;
-  };
-#include "with_instance.h"
-}
+  typedef std::unique_ptr<ToxAV, deleter> pointer;
+
+  static char const *const module;
+};
 #endif
 
 
-namespace core
+template<>
+struct tox_traits<Tox>
 {
-  namespace proto = im::tox::tox4j::core::proto;
-  using Events = proto::CoreEvents;
-
-  struct Deleter
+private:
+  struct deleter
   {
     void operator () (Tox *tox)
     {
@@ -133,13 +212,10 @@ namespace core
     }
   };
 
-  struct tox_traits
-  {
-    typedef Tox subsystem;
-    typedef Events events;
-    typedef Deleter deleter;
+public:
+  typedef im::tox::tox4j::core::proto::CoreEvents events;
 
-    static char const *const module;
-  };
-#include "with_instance.h"
-}
+  typedef std::unique_ptr<Tox, deleter> pointer;
+
+  static char const *const module;
+};
