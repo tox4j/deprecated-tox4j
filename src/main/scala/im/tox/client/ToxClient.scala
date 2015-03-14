@@ -17,4 +17,6 @@ class ToxClient {
   def statusMessage: String = new String(tox.getStatusMessage)
   def statusMessage_=(message: String) = tox.setStatusMessage(message.getBytes)
 
+  def close() = tox.close()
+
 }
