@@ -21,4 +21,4 @@ let () =
   print_endline (ApiAst.show_decls api);
 
   Format.fprintf Format.std_formatter "%a\n"
-    ApiPp.pp_decls api
+    ApiCodegen.cg_decls api

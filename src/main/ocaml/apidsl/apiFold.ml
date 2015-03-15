@@ -30,10 +30,10 @@ let fold_list f v state l =
 
 
 let fold_uname v state = function
-  | UName (id, name) -> state, UName (id, name)
+  | UName name -> state, UName name
 
 let fold_lname v state = function
-  | LName (id, name) -> state, LName (id, name)
+  | LName name -> state, LName name
 
 let fold_macro v state = function
   | Macro macro -> state, Macro macro
