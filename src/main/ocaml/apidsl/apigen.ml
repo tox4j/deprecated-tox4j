@@ -12,6 +12,9 @@ let parse file =
 
 let () =
   let api = parse "tox.h" in
+  let clone = ApiClone.clone_decls api in
+  assert (api = clone);
+  assert (api != clone);
 
   (*print_endline (ApiAst.show_decls api);*)
 
