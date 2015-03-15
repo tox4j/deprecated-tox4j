@@ -251,8 +251,8 @@ comment
 		{ Cmtf_Break }
 
 
-lname: LNAME { LName $1 }
-uname: UNAME { UName $1 }
+lname: LNAME { LName (-1, $1) }
+uname: UNAME { UName (-1, $1) }
 
 
 bool_opt(rule)

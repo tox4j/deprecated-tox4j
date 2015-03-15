@@ -12,11 +12,13 @@ let parse file =
 
 let () =
   let api = parse "tox.h" in
-  let clone = ApiClone.clone_decls api in
+
+  let v = ApiFold.default in
+  let (), clone = ApiFold.fold_decls v () api in
   assert (api = clone);
   assert (api != clone);
 
-  (*print_endline (ApiAst.show_decls api);*)
+  print_endline (ApiAst.show_decls api);
 
   Format.fprintf Format.std_formatter "%a\n"
     ApiPp.pp_decls api

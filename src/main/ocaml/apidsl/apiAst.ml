@@ -1,5 +1,7 @@
-type uname = UName of string [@@deriving show]
-type lname = LName of string [@@deriving show]
+type 'a id = int [@@deriving show]
+
+type uname = UName of uname id * string [@@deriving show]
+type lname = LName of lname id * string [@@deriving show]
 type macro = Macro of string [@@deriving show]
 
 

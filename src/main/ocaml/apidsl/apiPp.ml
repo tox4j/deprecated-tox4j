@@ -17,8 +17,8 @@ let pr_braced pp fmt x =
   Format.fprintf fmt "{@,@[<v2>%a@]@,}@," pp x
 
 
-let pr_uname fmt (UName s) = Format.pp_print_string fmt s
-let pr_lname fmt (LName s) = Format.pp_print_string fmt s
+let pr_uname fmt (UName (_, s)) = Format.pp_print_string fmt s
+let pr_lname fmt (LName (_, s)) = Format.pp_print_string fmt s
 let pr_macro fmt (Macro s) = Format.pp_print_string fmt s
 
 
