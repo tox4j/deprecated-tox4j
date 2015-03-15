@@ -132,7 +132,7 @@ public class ToxGui extends JFrame {
         }
 
         @Override
-        public void fileReceive(int friendNumber, int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
+        public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
             addMessage("fileReceive", friendNumber, fileNumber, kind, fileSize, new String(filename));
             try {
                 if (JOptionPane.showConfirmDialog(ToxGui.this, "Incoming file transfer: " + new String(filename)) == JOptionPane.OK_OPTION) {

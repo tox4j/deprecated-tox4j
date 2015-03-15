@@ -159,8 +159,8 @@ TOX_METHOD (jintArray, FriendList,
     [=] (Tox *tox, Events &events)
       {
         unused (events);
-        std::vector<uint32_t> list (tox_friend_list_size (tox));
-        tox_friend_list (tox, list.data ());
+        std::vector<uint32_t> list (tox_self_get_friend_list_size (tox));
+        tox_self_get_friend_list (tox, list.data ());
         return toJavaArray (env, list);
       }
   );

@@ -1,8 +1,8 @@
 package im.tox.tox4j.core.enums;
 
-public enum ToxFileKind {
+public class ToxFileKind {
 
-    DATA,
-    AVATAR,
+    public static final int DATA = 0;
+    public static final int AVATAR = 1;
 
 }

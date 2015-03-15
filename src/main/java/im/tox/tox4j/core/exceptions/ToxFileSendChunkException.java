@@ -11,7 +11,7 @@ public final class ToxFileSendChunkException extends ToxException {
     FRIEND_NOT_CONNECTED,
     NOT_FOUND,
     NOT_TRANSFERRING,
-    TOO_LARGE,
+    INVALID_LENGTH,
     SENDQ,
     WRONG_POSITION,
   }

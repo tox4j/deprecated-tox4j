@@ -3,13 +3,12 @@ package im.tox.tox4j.core.callbacks;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
-import im.tox.tox4j.core.enums.ToxFileKind;
 import im.tox.tox4j.core.enums.ToxStatus;
 
 public class ToxEventAdapter implements ToxEventListener {
     @Override public void connectionStatus(@NotNull ToxConnection connectionStatus) { }
     @Override public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) { }
-    @Override public void fileReceive(int friendNumber, int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) { }
+    @Override public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) { }
     @Override public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) { }
     @Override public void fileRequestChunk(int friendNumber, int fileNumber, long position, int length) { }
     @Override public void friendAction(int friendNumber, int timeDelta, @NotNull byte[] message) { }

@@ -4,7 +4,6 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.callbacks.*;
 import im.tox.tox4j.core.enums.ToxFileControl;
-import im.tox.tox4j.core.enums.ToxFileKind;
 import im.tox.tox4j.core.enums.ToxStatus;
 import im.tox.tox4j.core.exceptions.*;
 
@@ -334,7 +333,7 @@ public interface ToxCore extends Closeable {
 
     void callbackFileControl(@Nullable FileControlCallback callback);
 
-    int fileSend(int friendNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException;
+    int fileSend(int friendNumber, int kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException;
 
     void fileSendChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
 

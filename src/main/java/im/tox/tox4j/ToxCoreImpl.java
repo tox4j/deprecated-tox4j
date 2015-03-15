@@ -9,7 +9,6 @@ import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.*;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
-import im.tox.tox4j.core.enums.ToxFileKind;
 import im.tox.tox4j.core.enums.ToxStatus;
 import im.tox.tox4j.core.exceptions.*;
 import im.tox.tox4j.core.proto.Core;
@@ -236,14 +235,6 @@ public final class ToxCoreImpl extends AbstractToxCore {
         throw new IllegalStateException("Bad enumerator: " + control);
     }
 
-    private static @NotNull ToxFileKind convert(@NotNull Core.FileReceive.Kind kind) {
-        switch (kind) {
-            case AVATAR: return ToxFileKind.AVATAR;
-            case DATA: return ToxFileKind.DATA;
-        }
-        throw new IllegalStateException("Bad enumerator: " + kind);
-    }
-
     private static native @NotNull byte[] toxIteration(int instanceNumber);
 
     @Override
@@ -319,7 +310,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 		}
         if (fileReceiveCallback != null) {
 			for (Core.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
-				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), fileReceive.getFileNumber(), convert(fileReceive.getKind()), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
+				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), fileReceive.getFileNumber(), fileReceive.getKind(), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
 			}
 		}
         if (fileReceiveChunkCallback != null) {
@@ -594,8 +585,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException;
 
     @Override
-    public int fileSend(int friendNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException {
-        return toxFileSend(instanceNumber, friendNumber, kind.ordinal(), fileSize, filename);
+    public int fileSend(int friendNumber, int kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException {
+        return toxFileSend(instanceNumber, friendNumber, kind, fileSize, filename);
     }
 
 

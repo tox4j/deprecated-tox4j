@@ -51,7 +51,7 @@ tox4j_friend_status_message_cb (Tox *tox, uint32_t friend_number, uint8_t const 
 }
 
 static void
-tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_STATUS status, Events &events)
+tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_USER_STATUS status, Events &events)
 {
   unused (tox);
   auto msg = events.add_friendstatus ();
@@ -60,16 +60,16 @@ tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_STATUS status, Eve
   using proto::FriendStatus;
   switch (status)
     {
-    case TOX_STATUS_NONE:
+    case TOX_USER_STATUS_NONE:
       msg->set_status (FriendStatus::NONE);
       break;
-    case TOX_STATUS_AWAY:
+    case TOX_USER_STATUS_AWAY:
       msg->set_status (FriendStatus::AWAY);
       break;
-    case TOX_STATUS_BUSY:
+    case TOX_USER_STATUS_BUSY:
       msg->set_status (FriendStatus::BUSY);
       break;
-    case TOX_STATUS_INVALID:
+    case TOX_USER_STATUS_INVALID:
       cosmic_ray_error (__func__);
       break;
     }
@@ -94,7 +94,7 @@ tox4j_friend_typing_cb (Tox *tox, uint32_t friend_number, bool is_typing, Events
 }
 
 static void
-tox4j_read_receipt_cb (Tox *tox, uint32_t friend_number, uint32_t message_id, Events &events)
+tox4j_friend_read_receipt_cb (Tox *tox, uint32_t friend_number, uint32_t message_id, Events &events)
 {
   unused (tox);
   auto msg = events.add_readreceipt ();
@@ -133,7 +133,7 @@ tox4j_friend_action_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta,
 }
 
 static void
-tox4j_file_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, Events &events)
+tox4j_file_recv_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, Events &events)
 {
   unused (tox);
   auto msg = events.add_filecontrol ();
@@ -167,24 +167,13 @@ tox4j_file_request_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_num
 }
 
 static void
-tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_KIND kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events &events)
+tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events &events)
 {
   unused (tox);
   auto msg = events.add_filereceive ();
   msg->set_friendnumber (friend_number);
   msg->set_filenumber (file_number);
-
-  using proto::FileReceive;
-  switch (kind)
-    {
-    case TOX_FILE_KIND_DATA:
-      msg->set_kind (FileReceive::DATA);
-      break;
-    case TOX_FILE_KIND_AVATAR:
-      msg->set_kind (FileReceive::AVATAR);
-      break;
-    }
-
+  msg->set_kind (kind);
   msg->set_filesize (file_size);
   msg->set_filename (filename, filename_length);
 }
@@ -248,7 +237,7 @@ tox_new_unique (Tox_Options const *options, uint8_t const *data, size_t length, 
  */
 TOX_METHOD (jint, New,
   jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled,
-  jint proxyType, jstring proxyAddress, jint proxyPort)
+  jint proxyType, jstring proxyHost, jint proxyPort)
 {
   assert (proxyType >= 0);
   assert (proxyPort >= 0);
@@ -279,8 +268,8 @@ TOX_METHOD (jint, New,
       }
     fatal ("Invalid proxy type from Java");
   } ();
-  UTFChars proxy_address (env, proxyAddress);
-  opts->proxy_address = proxy_address.data ();
+  UTFChars proxy_host (env, proxyHost);
+  opts->proxy_host = proxy_host.data ();
   opts->proxy_port = proxyPort;
 
   ByteArray save_data (env, saveData);
@@ -319,11 +308,11 @@ TOX_METHOD (jint, New,
           .set<tox::callback_friend_status,             tox4j_friend_status_cb           > ()
           .set<tox::callback_friend_connection_status,  tox4j_friend_connection_status_cb> ()
           .set<tox::callback_friend_typing,             tox4j_friend_typing_cb           > ()
-          .set<tox::callback_read_receipt,              tox4j_read_receipt_cb            > ()
+          .set<tox::callback_friend_read_receipt,       tox4j_friend_read_receipt_cb     > ()
           .set<tox::callback_friend_request,            tox4j_friend_request_cb          > ()
           .set<tox::callback_friend_message,            tox4j_friend_message_cb          > ()
           .set<tox::callback_friend_action,             tox4j_friend_action_cb           > ()
-          .set<tox::callback_file_control,              tox4j_file_control_cb            > ()
+          .set<tox::callback_file_recv_control,         tox4j_file_recv_control_cb       > ()
           .set<tox::callback_file_request_chunk,        tox4j_file_request_chunk_cb      > ()
           .set<tox::callback_file_receive,              tox4j_file_receive_cb            > ()
           .set<tox::callback_file_receive_chunk,        tox4j_file_receive_chunk_cb      > ()

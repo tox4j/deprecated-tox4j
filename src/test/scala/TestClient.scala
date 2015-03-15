@@ -1,7 +1,7 @@
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxCoreImpl
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxFileKind, ToxStatus}
+import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxStatus}
 import im.tox.tox4j.core.{ToxConstants, ToxOptions}
 import org.slf4j.LoggerFactory
 
@@ -113,7 +113,7 @@ object TestClient extends App {
       logger.info(s"[$id] friendLossyPacket($friendNumber, ${new String(data)})")
     }
 
-    override def fileReceive(friendNumber: Int, fileNumber: Int, kind: ToxFileKind, fileSize: Long, filename: Array[Byte]): Unit = {
+    override def fileReceive(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte]): Unit = {
       logger.info(s"[$id] fileReceive($friendNumber, $fileNumber, $kind, $fileSize, ${new String(filename)}})")
     }
 

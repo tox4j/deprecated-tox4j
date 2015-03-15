@@ -35,7 +35,7 @@ TOX_METHOD (void, FileControl,
           }
         return unhandled ();
       },
-    tox_file_control, friendNumber, fileNumber, file_control
+    tox_file_send_control, friendNumber, fileNumber, file_control
   );
  
 }
@@ -98,7 +98,7 @@ TOX_METHOD (void, FileSendChunk,
           failure_case (FILE_SEND_CHUNK, FRIEND_NOT_CONNECTED);
           failure_case (FILE_SEND_CHUNK, NOT_FOUND);
           failure_case (FILE_SEND_CHUNK, NOT_TRANSFERRING);
-          failure_case (FILE_SEND_CHUNK, TOO_LARGE);
+          failure_case (FILE_SEND_CHUNK, INVALID_LENGTH);
           failure_case (FILE_SEND_CHUNK, SENDQ);
           failure_case (FILE_SEND_CHUNK, WRONG_POSITION);
           }

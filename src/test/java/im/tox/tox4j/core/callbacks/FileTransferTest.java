@@ -49,7 +49,7 @@ public class FileTransferTest extends AliceBobTestBase {
         }
 
         @Override
-        public void fileReceive(final int friendNumber, final int fileNumber, @NotNull ToxFileKind kind, long fileSize, @NotNull byte[] filename) {
+        public void fileReceive(final int friendNumber, final int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
             debug("received file send request " + fileNumber + " from friend number " + friendNumber);
             assertTrue(isBob());
             assertEquals(FRIEND_NUMBER, friendNumber);

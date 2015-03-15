@@ -192,12 +192,12 @@ TOX_METHOD (void, SelfSetStatus,
     [=] (Tox *tox, Events &events)
       {
         unused (events);
-        TOX_STATUS const status_enum = [=] {
+        TOX_USER_STATUS const status_enum = [=] {
           switch (status)
             {
-            case 0: return TOX_STATUS_NONE;
-            case 1: return TOX_STATUS_AWAY;
-            case 2: return TOX_STATUS_BUSY;
+            case 0: return TOX_USER_STATUS_NONE;
+            case 1: return TOX_USER_STATUS_AWAY;
+            case 2: return TOX_USER_STATUS_BUSY;
             }
           fatal ("Invalid user status from Java");
         } ();
@@ -220,10 +220,10 @@ TOX_METHOD (jint, SelfGetStatus,
         unused (events);
         switch (tox_self_get_status (tox))
           {
-          case TOX_STATUS_NONE: return 0;
-          case TOX_STATUS_AWAY: return 1;
-          case TOX_STATUS_BUSY: return 2;
-          case TOX_STATUS_INVALID:
+          case TOX_USER_STATUS_NONE: return 0;
+          case TOX_USER_STATUS_AWAY: return 1;
+          case TOX_USER_STATUS_BUSY: return 2;
+          case TOX_USER_STATUS_INVALID:
             cosmic_ray_error ("tox_self_get_status");
             return 0;
           }

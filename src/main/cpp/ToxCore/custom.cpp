@@ -2,18 +2,18 @@
 
 
 static ErrorHandling
-handle_send_custom_packet_error (TOX_ERR_SEND_CUSTOM_PACKET error)
+handle_send_custom_packet_error (TOX_ERR_FRIEND_CUSTOM_PACKET error)
 {
   switch (error)
     {
-    success_case (SEND_CUSTOM_PACKET);
-    failure_case (SEND_CUSTOM_PACKET, NULL);
-    failure_case (SEND_CUSTOM_PACKET, FRIEND_NOT_FOUND);
-    failure_case (SEND_CUSTOM_PACKET, FRIEND_NOT_CONNECTED);
-    failure_case (SEND_CUSTOM_PACKET, INVALID);
-    failure_case (SEND_CUSTOM_PACKET, EMPTY);
-    failure_case (SEND_CUSTOM_PACKET, TOO_LONG);
-    failure_case (SEND_CUSTOM_PACKET, SENDQ);
+    success_case (FRIEND_CUSTOM_PACKET);
+    failure_case (FRIEND_CUSTOM_PACKET, NULL);
+    failure_case (FRIEND_CUSTOM_PACKET, FRIEND_NOT_FOUND);
+    failure_case (FRIEND_CUSTOM_PACKET, FRIEND_NOT_CONNECTED);
+    failure_case (FRIEND_CUSTOM_PACKET, INVALID);
+    failure_case (FRIEND_CUSTOM_PACKET, EMPTY);
+    failure_case (FRIEND_CUSTOM_PACKET, TOO_LONG);
+    failure_case (FRIEND_CUSTOM_PACKET, SENDQ);
     }
   return unhandled ();
 }
@@ -29,7 +29,7 @@ TOX_METHOD (void, SendLossyPacket,
   ByteArray packetData (env, packet);
   return with_instance (env, instanceNumber, "SendCustomPacket",
     handle_send_custom_packet_error,
-    tox_send_lossy_packet, friendNumber, packetData.data (), packetData.size ()
+    tox_friend_send_lossy_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }
 
@@ -44,6 +44,6 @@ TOX_METHOD (void, SendLosslessPacket,
   ByteArray packetData (env, packet);
   return with_instance (env, instanceNumber, "SendCustomPacket",
     handle_send_custom_packet_error,
-    tox_send_lossless_packet, friendNumber, packetData.data (), packetData.size ()
+    tox_friend_send_lossless_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }

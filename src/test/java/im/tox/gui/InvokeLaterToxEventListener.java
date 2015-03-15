@@ -4,7 +4,6 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
-import im.tox.tox4j.core.enums.ToxFileKind;
 import im.tox.tox4j.core.enums.ToxStatus;
 
 import javax.swing.*;
@@ -31,7 +30,7 @@ public class InvokeLaterToxEventListener implements ToxEventListener {
     }
 
     @Override
-    public void fileReceive(final int friendNumber, final int fileNumber, @NotNull final ToxFileKind kind, final long fileSize, @NotNull final byte[] filename) {
+    public void fileReceive(final int friendNumber, final int fileNumber, final int kind, final long fileSize, @NotNull final byte[] filename) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

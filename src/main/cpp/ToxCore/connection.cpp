@@ -77,7 +77,7 @@ TOX_METHOD (jint, GetUdpPort,
         return unhandled ();
       },
     identity,
-    tox_get_udp_port
+    tox_self_get_udp_port
   );
 }
 
@@ -100,7 +100,7 @@ TOX_METHOD (jint, GetTcpPort,
         return unhandled ();
       },
     identity,
-    tox_get_tcp_port
+    tox_self_get_tcp_port
   );
 }
 
@@ -117,7 +117,7 @@ TOX_METHOD (jbyteArray, GetDhtId,
       {
         unused (events);
         std::vector<uint8_t> dht_id (TOX_PUBLIC_KEY_SIZE);
-        tox_get_dht_id (tox, dht_id.data ());
+        tox_self_get_dht_id (tox, dht_id.data ());
         return toJavaArray (env, dht_id);
       }
   );
@@ -151,7 +151,7 @@ TOX_METHOD (jbyteArray, Iteration,
   return with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox_iteration (tox);
+        tox_iterate (tox);
 
         std::vector<char> buffer (events.ByteSize ());
         events.SerializeToArray (buffer.data (), buffer.size ());

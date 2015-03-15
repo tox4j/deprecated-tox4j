@@ -24,17 +24,17 @@ TOX_METHOD (void, SelfSetTyping,
 
 
 static ErrorHandling
-handle_send_message_error (TOX_ERR_SEND_MESSAGE error)
+handle_send_message_error (TOX_ERR_FRIEND_SEND_MESSAGE error)
 {
   switch (error)
     {
-    success_case (SEND_MESSAGE);
-    failure_case (SEND_MESSAGE, NULL);
-    failure_case (SEND_MESSAGE, FRIEND_NOT_FOUND);
-    failure_case (SEND_MESSAGE, FRIEND_NOT_CONNECTED);
-    failure_case (SEND_MESSAGE, SENDQ);
-    failure_case (SEND_MESSAGE, TOO_LONG);
-    failure_case (SEND_MESSAGE, EMPTY);
+    success_case (FRIEND_SEND_MESSAGE);
+    failure_case (FRIEND_SEND_MESSAGE, NULL);
+    failure_case (FRIEND_SEND_MESSAGE, FRIEND_NOT_FOUND);
+    failure_case (FRIEND_SEND_MESSAGE, FRIEND_NOT_CONNECTED);
+    failure_case (FRIEND_SEND_MESSAGE, SENDQ);
+    failure_case (FRIEND_SEND_MESSAGE, TOO_LONG);
+    failure_case (FRIEND_SEND_MESSAGE, EMPTY);
     }
 
   return unhandled ();
@@ -52,7 +52,7 @@ TOX_METHOD (jint, SendMessage,
   return with_instance (env, instanceNumber, "SendMessage",
     handle_send_message_error,
     identity,
-    tox_send_message, friendNumber, message_array.data (), message_array.size ()
+    tox_friend_send_message, friendNumber, message_array.data (), message_array.size ()
   );
 }
 
@@ -68,6 +68,6 @@ TOX_METHOD (jint, SendAction,
   return with_instance (env, instanceNumber, "SendMessage",
     handle_send_message_error,
     identity,
-    tox_send_action, friendNumber, action_array.data (), action_array.size ()
+    tox_friend_send_action, friendNumber, action_array.data (), action_array.size ()
   );
 }
