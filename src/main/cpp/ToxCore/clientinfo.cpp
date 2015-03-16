@@ -53,7 +53,7 @@ TOX_METHOD (jint, SelfGetNospam,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+    [=] (Tox const *tox, Events &events)
       {
         unused (events);
         return tox_self_get_nospam (tox);
@@ -176,7 +176,7 @@ TOX_METHOD (jint, SelfGetStatus,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+    [=] (Tox const *tox, Events &events)
       {
         unused (events);
         switch (tox_self_get_status (tox))

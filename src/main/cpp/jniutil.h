@@ -94,7 +94,7 @@ struct make_java_array
 
   static JavaArray make (JNIEnv *env, jsize size, JType const *data)
   {
-    JavaArray array = (env->*New)(size);
+    JavaArray array = (env->*New) (size);
 
     (env->*Set) (array, 0, size, data);
     return array;
@@ -132,7 +132,7 @@ toJavaArray (JNIEnv *env, std::vector<T> const &data)
 
 template<typename T, size_t get_size (Tox const *), void get_data (Tox const *, T *)>
 typename java_array_t<T>::array_type
-get_vector (JNIEnv *env, Tox *tox)
+get_vector (JNIEnv *env, Tox const *tox)
 {
   size_t size = get_size (tox);
   if (size == 0)
@@ -144,7 +144,7 @@ get_vector (JNIEnv *env, Tox *tox)
 }
 
 #define GET_VECTOR(T, FROM, WHAT)		\
-  [env] (Tox *tox, Events &)			\
+  [env] (Tox const *tox, Events &)		\
     {						\
       return get_vector<T,			\
         tox_##FROM##_get_##WHAT##_size,		\
@@ -154,7 +154,7 @@ get_vector (JNIEnv *env, Tox *tox)
 
 template<typename T, size_t size, void get_data (Tox const *, T *)>
 typename java_array_t<T>::array_type
-get_array (JNIEnv *env, Tox *tox)
+get_array (JNIEnv *env, Tox const *tox)
 {
   std::vector<T> name (size);
   get_data (tox, name.data ());
@@ -163,7 +163,7 @@ get_array (JNIEnv *env, Tox *tox)
 }
 
 #define GET_ARRAY(T, FROM, WHAT, SIZE)		\
-  [env] (Tox *tox, Events &)			\
+  [env] (Tox const *tox, Events &)		\
     {						\
       return get_array<T,			\
         SIZE,					\

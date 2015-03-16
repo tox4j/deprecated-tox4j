@@ -96,6 +96,11 @@ ID (std::unique_ptr<T, Delete> const &p)
 template<typename Subsystem>
 struct tox_traits;
 
+template<typename Subsystem>
+struct tox_traits<Subsystem const>
+  : tox_traits<Subsystem>
+{ };
+
 template<typename Subsystem, typename Traits = tox_traits<Subsystem>>
 class instance_manager;
 

@@ -139,7 +139,7 @@ TOX_METHOD (jboolean, FriendExists,
   jint instanceNumber, jint friendNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+    [=] (Tox const *tox, Events &events)
       {
         unused (events);
         return tox_friend_exists (tox, friendNumber);

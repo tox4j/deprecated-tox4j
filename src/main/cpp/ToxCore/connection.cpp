@@ -26,7 +26,7 @@ toxBootstrapLike (bool function (Tox *tox,
           {
           success_case (BOOTSTRAP);
           failure_case (BOOTSTRAP, NULL);
-          failure_case (BOOTSTRAP, BAD_ADDRESS);
+          failure_case (BOOTSTRAP, BAD_HOST);
           failure_case (BOOTSTRAP, BAD_PORT);
           }
         return unhandled ();
@@ -126,7 +126,7 @@ TOX_METHOD (jint, IterationInterval,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+    [] (Tox const *tox, Events &events)
       {
         unused (events);
         return tox_iteration_interval (tox);

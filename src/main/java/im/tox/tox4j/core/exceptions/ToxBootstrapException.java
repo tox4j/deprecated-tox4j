@@ -7,7 +7,7 @@ public final class ToxBootstrapException extends ToxException {
 
   public static enum Code {
     NULL,
-    BAD_ADDRESS,
+    BAD_HOST,
     BAD_PORT,
   }
 

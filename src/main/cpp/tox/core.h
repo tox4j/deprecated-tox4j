@@ -1,18 +1,6 @@
 #pragma once
 
-// XXX: Fix invalid names in tox.h.
-#define TOX_ERR_PROXY_TYPE TOX_ERR_NEW_PROXY_BAD_TYPE
-#define TOX_ERR_FILE_SEND_CHUNK_QUEUE_FULL TOX_ERR_FILE_SEND_CHUNK_SENDQ
-#define tox_self_get_friend_list_size tox_friend_list_size
-#define tox_self_get_friend_list tox_friend_get_list
-#define proxy_address proxy_host
-
 #include <tox/tox.h>
-
-/**
- * The size of a Tox Secret Key in bytes.
- */
-#define TOX_SECRET_KEY_SIZE             32
 
 
 #include <memory>

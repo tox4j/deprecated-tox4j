@@ -40,7 +40,7 @@ public class ToxBootstrapExceptionTest extends ToxCoreImplTestBase {
             tox.bootstrap(".", 33445, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
             fail();
         } catch (ToxBootstrapException e) {
-            assertEquals(ToxBootstrapException.Code.BAD_ADDRESS, e.getCode());
+            assertEquals(ToxBootstrapException.Code.BAD_HOST, e.getCode());
         }
     }
 

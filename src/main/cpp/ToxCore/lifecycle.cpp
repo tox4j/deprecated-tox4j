@@ -363,7 +363,7 @@ TOX_METHOD (jbyteArray, Save,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+    [=] (Tox const *tox, Events &events)
       {
         unused (events);
         std::vector<uint8_t> buffer (tox_save_size (tox));
