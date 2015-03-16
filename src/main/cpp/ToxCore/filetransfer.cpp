@@ -68,7 +68,7 @@ TOX_METHOD (jint, FileSend,
           failure_case (FILE_SEND, FRIEND_NOT_FOUND);
           failure_case (FILE_SEND, FRIEND_NOT_CONNECTED);
           failure_case (FILE_SEND, NAME_EMPTY);
-          failure_case (FILE_SEND, NAME_TOO_LONG);
+          failure_case (FILE_SEND, NAME_INVALID_LENGTH);
           failure_case (FILE_SEND, TOO_MANY);
           }
         return unhandled ();

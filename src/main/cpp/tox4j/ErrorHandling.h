@@ -83,24 +83,25 @@ with_instance (JNIEnv *env, jint instance_number, Func func)
   if (instance_number == 0)
     {
       throw_illegal_state_exception (env, instance_number,
-                                     "Function called on incomplete object");
+          "Function called on incomplete object");
       return return_type ();
     }
 
-  auto lock = instance_manager<subsystem_type>::self.lock ();
-  if (!instance_manager<subsystem_type>::self.isValid (instance_number))
+  auto &manager = instance_manager<subsystem_type>::self;
+  auto lock = manager.lock ();
+  if (!manager.isValid (instance_number))
     {
       throw_tox_killed_exception (env, instance_number,
-                                  "Tox function invoked on invalid tox instance");
+          "Tox function invoked on invalid tox instance");
       return return_type ();
     }
 
-  auto const &instance = instance_manager<subsystem_type>::self[instance_number];
+  auto const &instance = manager[instance_number];
 
   if (!instance.isLive ())
     {
       throw_tox_killed_exception (env, instance_number,
-                                  "Tox function invoked on killed tox instance");
+          "Tox function invoked on killed tox instance");
       return return_type ();
     }
 

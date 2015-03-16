@@ -10,7 +10,7 @@ public final class ToxFileSendException extends ToxException {
     FRIEND_NOT_FOUND,
     FRIEND_NOT_CONNECTED,
     NAME_EMPTY,
-    NAME_TOO_LONG,
+    NAME_INVALID_LENGTH,
     TOO_MANY,
   }
 

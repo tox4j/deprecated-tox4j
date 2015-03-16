@@ -27,15 +27,15 @@
 struct scope_guard
 {
   scope_guard (std::function<void ()> enter)
-    : exit ([=] { enter (); printf (" [done]"); fflush (stdout); })
-  { enter (); printf ("\n"); }
+    : exit ([=] { enter (); fprintf (stderr, " [done]"); })
+  { enter (); fprintf (stderr, "\n"); }
 
   scope_guard (std::function<void ()> enter, std::function<void ()> exit)
     : exit (exit)
-  { enter (); printf ("\n"); fflush (stdout); }
+  { enter (); fprintf (stderr, "\n"); }
 
   ~scope_guard ()
-  { this->exit (); printf ("\n"); fflush (stdout); }
+  { this->exit (); fprintf (stderr, "\n"); }
 
 private:
   std::function<void ()> enter;
@@ -104,6 +104,11 @@ struct tox_traits<Subsystem const>
 template<typename Subsystem, typename Traits = tox_traits<Subsystem>>
 class instance_manager;
 
+template<typename Subsystem>
+class instance_manager<Subsystem const>
+  : public instance_manager<Subsystem>
+{ };
+
 template<typename Subsystem, typename Traits = tox_traits<Subsystem>>
 class tox_instance final
 {
@@ -159,8 +164,8 @@ public:
     std::lock_guard<std::mutex> lock (*mutex);
 #if DEBUG_TOX_INSTANCE
     scope_guard {
-      [&]{ printf ("locking instance %zd", ID (tox)); },
-      [&]{ printf ("unlocking instance %zd", ID (tox)); },
+      [&]{ fprintf (stderr, "locking instance %zd", ID (tox)); },
+      [&]{ fprintf (stderr, "unlocking instance %zd", ID (tox)); },
     };
 #endif
     return func (tox.get (), *events, args...);
@@ -176,7 +181,7 @@ public:
   {
 #if DEBUG_TOX_INSTANCE
     scope_guard {
-      [&]{ printf ("new %zd", ID (tox)); }
+      [&]{ fprintf (stderr, "new %zd", ID (tox)); }
     };
 #endif
     assertValid ();
@@ -192,7 +197,7 @@ public:
   {
 #if DEBUG_TOX_INSTANCE
     scope_guard {
-      [&]{ printf ("move: %zd -> %zd", ID (rhs.tox), ID (tox)); },
+      [&]{ fprintf (stderr, "move: %zd -> %zd", ID (rhs.tox), ID (tox)); },
     };
 #endif
     rhs.live = false;
@@ -219,7 +224,7 @@ public:
   {
 #if DEBUG_TOX_INSTANCE
     scope_guard {
-      [&] { printf ("assign: %zd <- %zd", ID (tox), ID (rhs.tox)); }
+      [&] { fprintf (stderr, "assign: %zd <- %zd", ID (tox), ID (rhs.tox)); }
     };
 #endif
     assert (this->isDead ());
@@ -283,12 +288,19 @@ public:
     return std::unique_lock<std::mutex> (mutex);
   }
 
+  jint
+  size () const
+  {
+    check_locked ();
+    return instances.size ();
+  }
+
   bool
   isValid (jint instance_number) const
   {
     check_locked ();
     return instance_number > 0
-        && (size_t)instance_number <= instances.size ();
+        && instance_number <= size ();
   }
 
   bool
@@ -302,6 +314,7 @@ public:
   operator [] (jint instance_number) const
   {
     check_locked ();
+    assert (isValid (instance_number));
     return instances[instance_number - 1];
   }
 
@@ -327,13 +340,6 @@ private:
   {
     check_locked ();
     return instances.empty ();
-  }
-
-  size_t
-  size () const
-  {
-    check_locked ();
-    return instances.size ();
   }
 
 
@@ -368,7 +374,7 @@ public:
 
     // Otherwise, add a new one.
     instances.push_back (std::move (instance));
-    return (jint)instances.size ();
+    return size ();
   }
 
 
@@ -448,7 +454,3 @@ public:
 
   static instance_manager self;
 };
-
-template<typename Subsystem, typename Traits>
-instance_manager<Subsystem, Traits>
-instance_manager<Subsystem, Traits>::self;

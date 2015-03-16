@@ -1,7 +1,7 @@
 {
    "Bootstrap": [
       "NULL",
-      "BAD_ADDRESS",
+      "BAD_HOST",
       "BAD_PORT"
    ],
    "FileControl": [
@@ -28,7 +28,7 @@
       "FRIEND_NOT_FOUND",
       "FRIEND_NOT_CONNECTED",
       "NAME_EMPTY",
-      "NAME_TOO_LONG",
+      "NAME_INVALID_LENGTH",
       "TOO_MANY"
    ],
    "FriendAdd": [
