@@ -186,8 +186,8 @@ parameter
 
 
 class_decl
-	: CLASS lname SEMICOLON
-		{ Decl_Class ($2, []) }
+	: CLASS lname SEMICOLON declarations EOF
+		{ Decl_Class ($2, $4) }
 	| CLASS lname LBRACE declarations RBRACE
 		{ Decl_Class ($2, $4) }
 

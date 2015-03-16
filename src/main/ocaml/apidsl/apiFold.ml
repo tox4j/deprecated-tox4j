@@ -18,7 +18,7 @@ type 'a t = {
 }
 
 
-let fold_list f v state l =
+let visit_list f v state l =
   let state, l =
     List.fold_left
       (fun (state, l) elt ->
@@ -29,17 +29,17 @@ let fold_list f v state l =
   state, List.rev l
 
 
-let fold_uname v state = function
+let visit_uname v state = function
   | UName name -> state, UName name
 
-let fold_lname v state = function
+let visit_lname v state = function
   | LName name -> state, LName name
 
-let fold_macro v state = function
+let visit_macro v state = function
   | Macro macro -> state, Macro macro
 
 
-let fold_comment_fragment v state = function
+let visit_comment_fragment v state = function
   | Cmtf_Doc doc ->
       state, Cmtf_Doc doc
   | Cmtf_UName uname ->
@@ -52,18 +52,18 @@ let fold_comment_fragment v state = function
       state, Cmtf_Break
 
 
-let fold_comment v state = function
+let visit_comment v state = function
   | Cmt_None ->
       state, Cmt_None
   | Cmt_Doc frags ->
-      let state, frags = fold_list v.fold_comment_fragment v state frags in
+      let state, frags = visit_list v.fold_comment_fragment v state frags in
       state, Cmt_Doc frags
   | Cmt_Section frags ->
-      let state, frags = fold_list v.fold_comment_fragment v state frags in
+      let state, frags = visit_list v.fold_comment_fragment v state frags in
       state, Cmt_Section frags
 
 
-let rec fold_size_spec v state = function
+let visit_size_spec v state = function
   | Ss_UName uname ->
       let state, uname = v.fold_uname v state uname in
       state, Ss_UName uname
@@ -78,7 +78,7 @@ let rec fold_size_spec v state = function
       state, Ss_Bounded (size_spec, uname)
 
 
-let rec fold_type_name v state = function
+let visit_type_name v state = function
   | Ty_UName uname ->
       let state, uname = v.fold_uname v state uname in
       state, Ty_UName uname
@@ -96,36 +96,36 @@ let rec fold_type_name v state = function
       state, Ty_Const type_name
 
 
-let rec fold_enumerator v state = function
+let visit_enumerator v state = function
   | Enum_Name (comment, uname) ->
       let state, comment = v.fold_comment v state comment in
       let state, uname = v.fold_uname v state uname in
       state, Enum_Name (comment, uname)
   | Enum_Namespace (uname, enumerators) ->
       let state, uname = v.fold_uname v state uname in
-      let state, enumerators = fold_list v.fold_enumerator v state enumerators in
+      let state, enumerators = visit_list v.fold_enumerator v state enumerators in
       state, Enum_Namespace (uname, enumerators)
 
 
-let fold_error_list v state = function
+let visit_error_list v state = function
   | Err_None ->
       state, Err_None
   | Err_From lname ->
       let state, lname = v.fold_lname v state lname in
       state, Err_From lname
   | Err_List enumerators ->
-      let state, enumerators = fold_list v.fold_enumerator v state enumerators in
+      let state, enumerators = visit_list v.fold_enumerator v state enumerators in
       state, Err_List enumerators
 
 
-let fold_parameter v state = function
+let visit_parameter v state = function
   | Param (type_name, lname) ->
       let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in
       state, Param (type_name, lname)
 
 
-let fold_function_name v state = function
+let visit_function_name v state = function
   | Fn_Custom (type_name, lname) ->
       let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in
@@ -135,7 +135,7 @@ let fold_function_name v state = function
   | Fn_Set -> state, Fn_Set
 
 
-let rec fold_expr v state = function
+let visit_expr v state = function
   | E_Number num ->
       state, E_Number num
   | E_UName uname ->
@@ -150,7 +150,7 @@ let rec fold_expr v state = function
       state, E_Plus (lhs, rhs)
 
 
-let rec fold_decl v state = function
+let visit_decl v state = function
   | Decl_Comment (comment, decl) ->
       let state, comment = v.fold_comment v state comment in
       let state, decl = v.fold_decl v state decl in
@@ -163,15 +163,15 @@ let rec fold_decl v state = function
       state, Decl_Macro macro
   | Decl_Namespace (lname, decls) ->
       let state, lname = v.fold_lname v state lname in
-      let state, decls = fold_list v.fold_decl v state decls in
+      let state, decls = visit_list v.fold_decl v state decls in
       state, Decl_Namespace (lname, decls)
   | Decl_Class (lname, decls) ->
       let state, lname = v.fold_lname v state lname in
-      let state, decls = fold_list v.fold_decl v state decls in
+      let state, decls = visit_list v.fold_decl v state decls in
       state, Decl_Class (lname, decls)
   | Decl_Function (function_name, parameters, error_list) ->
       let state, function_name = v.fold_function_name v state function_name in
-      let state, parameters = fold_list v.fold_parameter v state parameters in
+      let state, parameters = visit_list v.fold_parameter v state parameters in
       let state, error_list = v.fold_error_list v state error_list in
       state, Decl_Function (function_name, parameters, error_list)
   | Decl_Const (uname, expr) ->
@@ -180,14 +180,14 @@ let rec fold_decl v state = function
       state, Decl_Const (uname, expr)
   | Decl_Enum (is_class, uname, enumerators) ->
       let state, uname = v.fold_uname v state uname in
-      let state, enumerators = fold_list v.fold_enumerator v state enumerators in
+      let state, enumerators = visit_list v.fold_enumerator v state enumerators in
       state, Decl_Enum (is_class, uname, enumerators)
   | Decl_Error (lname, enumerators) ->
       let state, lname = v.fold_lname v state lname in
-      let state, enumerators = fold_list v.fold_enumerator v state enumerators in
+      let state, enumerators = visit_list v.fold_enumerator v state enumerators in
       state, Decl_Error (lname, enumerators)
   | Decl_Struct decls ->
-      let state, decls = fold_list v.fold_decl v state decls in
+      let state, decls = visit_list v.fold_decl v state decls in
       state, Decl_Struct decls
   | Decl_Member (type_name, lname) ->
       let state, type_name = v.fold_type_name v state type_name in
@@ -196,11 +196,11 @@ let rec fold_decl v state = function
   | Decl_GetSet (type_name, lname, decls) ->
       let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in
-      let state, decls = fold_list v.fold_decl v state decls in
+      let state, decls = visit_list v.fold_decl v state decls in
       state, Decl_GetSet (type_name, lname, decls)
   | Decl_Typedef (lname, parameters) ->
       let state, lname = v.fold_lname v state lname in
-      let state, parameters = fold_list v.fold_parameter v state parameters in
+      let state, parameters = visit_list v.fold_parameter v state parameters in
       state, Decl_Typedef (lname, parameters)
   | Decl_Event (lname, decl) ->
       let state, lname = v.fold_lname v state lname in
@@ -208,21 +208,21 @@ let rec fold_decl v state = function
       state, Decl_Event (lname, decl)
 
 
-let fold_decls v state = fold_list v.fold_decl v state
+let visit_decls v state = visit_list v.fold_decl v state
 
 
 let default = {
-  fold_uname;
-  fold_lname;
-  fold_macro;
-  fold_comment_fragment;
-  fold_comment;
-  fold_size_spec;
-  fold_type_name;
-  fold_enumerator;
-  fold_error_list;
-  fold_parameter;
-  fold_function_name;
-  fold_expr;
-  fold_decl;
+  fold_uname = visit_uname;
+  fold_lname = visit_lname;
+  fold_macro = visit_macro;
+  fold_comment_fragment = visit_comment_fragment;
+  fold_comment = visit_comment;
+  fold_size_spec = visit_size_spec;
+  fold_type_name = visit_type_name;
+  fold_enumerator = visit_enumerator;
+  fold_error_list = visit_error_list;
+  fold_parameter = visit_parameter;
+  fold_function_name = visit_function_name;
+  fold_expr = visit_expr;
+  fold_decl = visit_decl;
 }

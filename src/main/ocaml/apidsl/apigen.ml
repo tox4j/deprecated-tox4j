@@ -13,10 +13,11 @@ let parse file =
 let () =
   let api = parse "tox.h" in
 
-  let v = ApiFold.default in
-  let (), clone = ApiFold.fold_decls v () api in
-  assert (api = clone);
-  assert (api != clone);
+  let api =
+    api
+    |> ApplyStatic.transform
+    |> FlattenNamespace.transform
+  in
 
   print_endline (ApiAst.show_decls api);
 
