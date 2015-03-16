@@ -63,8 +63,6 @@ let visit_size_spec v state = function
   | Ss_LName lname ->
       let lname = v.map_lname v state lname in
       Ss_LName lname
-  | Ss_Size ->
-      Ss_Size
   | Ss_Bounded (size_spec, uname) ->
       let size_spec = v.map_size_spec v state size_spec in
       let uname = v.map_uname v state uname in
@@ -82,6 +80,8 @@ let visit_type_name v state = function
       let lname = v.map_lname v state lname in
       let size_spec = v.map_size_spec v state size_spec in
       Ty_Array (lname, size_spec)
+  | Ty_Auto ->
+      Ty_Auto
   | Ty_This ->
       Ty_This
   | Ty_Const type_name ->
@@ -123,9 +123,6 @@ let visit_function_name v state = function
       let type_name = v.map_type_name v state type_name in
       let lname = v.map_lname v state lname in
       Fn_Custom (type_name, lname)
-  | Fn_Size -> Fn_Size
-  | Fn_Get -> Fn_Get
-  | Fn_Set -> Fn_Set
 
 
 let visit_expr v state = function
@@ -218,4 +215,35 @@ let default = {
   map_function_name = visit_function_name;
   map_expr = visit_expr;
   map_decl = visit_decl;
+}
+
+let make
+  ~map_name
+  ?(map_uname = fun v state (UName name) -> UName (map_name v state name))
+  ?(map_lname = fun v state (LName name) -> LName (map_name v state name))
+  ?(map_macro=visit_macro)
+  ?(map_comment_fragment=visit_comment_fragment)
+  ?(map_comment=visit_comment)
+  ?(map_size_spec=visit_size_spec)
+  ?(map_type_name=visit_type_name)
+  ?(map_enumerator=visit_enumerator)
+  ?(map_error_list=visit_error_list)
+  ?(map_parameter=visit_parameter)
+  ?(map_function_name=visit_function_name)
+  ?(map_expr=visit_expr)
+  ?(map_decl=visit_decl)
+  () = {
+  map_uname;
+  map_lname;
+  map_macro;
+  map_comment_fragment;
+  map_comment;
+  map_size_spec;
+  map_type_name;
+  map_enumerator;
+  map_error_list;
+  map_parameter;
+  map_function_name;
+  map_expr;
+  map_decl;
 }

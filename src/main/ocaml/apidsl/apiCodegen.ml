@@ -64,8 +64,6 @@ let rec cg_size_spec fmt = function
   | Ss_LName lname ->
       Format.fprintf fmt "%a"
         cg_lname lname
-  | Ss_Size ->
-      Format.fprintf fmt "size"
   | Ss_Bounded (lhs, rhs) ->
       Format.fprintf fmt "%a <= %a"
         cg_size_spec lhs
@@ -87,6 +85,8 @@ let rec cg_type_name fmt = function
       Format.fprintf fmt "%a%a"
         cg_lname lname
         cg_size_spec size_spec
+  | Ty_Auto ->
+      Format.fprintf fmt "auto"
   | Ty_This ->
       Format.fprintf fmt "this"
   | Ty_Const type_name ->
@@ -95,16 +95,13 @@ let rec cg_type_name fmt = function
 
 
 let cg_function_name fmt = function
+  | Fn_Custom (Ty_Auto, name) ->
+      Format.fprintf fmt "%a"
+        cg_lname name
   | Fn_Custom (type_name, name) ->
       Format.fprintf fmt "%a %a"
         cg_type_name type_name
         cg_lname name
-  | Fn_Size ->
-      Format.fprintf fmt "size"
-  | Fn_Get ->
-      Format.fprintf fmt "get"
-  | Fn_Set ->
-      Format.fprintf fmt "set"
 
 
 let rec cg_enumerator fmt = function

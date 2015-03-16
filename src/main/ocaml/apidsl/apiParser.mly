@@ -23,8 +23,6 @@ open ApiAst
 %token TYPEDEF
 %token WITH
 
-%token GET SET SIZE
-
 %token LBRACE RBRACE LBRACK RBRACK LSQBRACK RSQBRACK
 %token PLUS EQ LE
 %token COMMA SEMICOLON
@@ -152,12 +150,8 @@ function_decl
 function_name
 	: type_name lname
 		{ Fn_Custom ($1, $2) }
-	| SIZE
-		{ Fn_Size }
-	| GET
-		{ Fn_Get }
-	| SET
-		{ Fn_Set }
+	| lname
+		{ Fn_Custom (Ty_Auto, $1) }
 
 error_list
 	: SEMICOLON
@@ -214,12 +208,8 @@ size_spec
 		{ Ss_LName $1 }
 	| uname
 		{ Ss_UName $1 }
-	| SIZE
-		{ Ss_Size }
 	| lname LE uname
 		{ Ss_Bounded (Ss_LName $1, $3) }
-	| SIZE LE uname
-		{ Ss_Bounded (Ss_Size, $3) }
 
 
 comment_block_opt

@@ -21,7 +21,6 @@ type 'id comment =
 type 'id size_spec =
   | Ss_UName of 'id uname
   | Ss_LName of 'id lname
-  | Ss_Size
   | Ss_Bounded of 'id size_spec * 'id uname
   [@@deriving show]
 
@@ -30,6 +29,7 @@ type 'id type_name =
   | Ty_UName of 'id uname
   | Ty_LName of 'id lname
   | Ty_Array of 'id lname * 'id size_spec
+  | Ty_Auto
   | Ty_This
   | Ty_Const of 'id type_name
   [@@deriving show]
@@ -55,9 +55,6 @@ type 'id parameter =
 
 type 'id function_name =
   | Fn_Custom of 'id type_name * 'id lname
-  | Fn_Size
-  | Fn_Get
-  | Fn_Set
   [@@deriving show]
 
 

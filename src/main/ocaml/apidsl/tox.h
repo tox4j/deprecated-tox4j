@@ -406,14 +406,14 @@ static class options {
  * loop with a new instance will operate correctly.
  *
  * If the data parameter is not NULL, this function will load the Tox instance
- * from a byte array previously filled by ${save.get}.
+ * from a byte array previously filled by ${savedata.get}.
  *
  * If loading failed or succeeded only partially, the new or partially loaded
  * instance is returned and an error code is set.
  *
  * @param options An options object as described above. If this parameter is
  *   NULL, the default options are used.
- * @param data A byte array containing data previously stored by ${save.get}.
+ * @param data A byte array containing data previously stored by ${savedata.get}.
  * @param length The length of the byte array data. If this parameter is 0, the
  *   data parameter is ignored.
  *
@@ -488,7 +488,7 @@ static this new(const options options, const uint8_t[length] data, size_t length
 void kill();
 
 
-uint8_t[size] save {
+uint8_t[size] savedata {
   /**
    * Calculates the number of bytes required to store the tox instance with
    * $get. This function cannot fail. The result is always greater than 0.
@@ -1541,7 +1541,7 @@ namespace file {
    * File transmission occurs in chunks, which are requested through the
    * `file_request_chunk` event.
    *
-   * File numbers are stable across ${save.get}/$new cycles, so that file
+   * File numbers are stable across ${savedata.get}/$new cycles, so that file
    * transfers can be resumed when a client restarts. The client needs to
    * associate (friend Public Key, file number) with the local path of the file and
    * persist this information to support resuming of transfers across restarts.

@@ -4,7 +4,7 @@ open ApiAst
 let transform decls =
   let open ApiMap in
 
-  let map_decl v static = function
+  let map_decl v state = function
     | Decl_Const ((UName name), expr) ->
         let macro =
           Macro (
@@ -16,7 +16,7 @@ let transform decls =
         Decl_Macro macro
 
     | decl ->
-        visit_decl v static decl
+        visit_decl v state decl
   in
 
   let v = { default with map_decl } in

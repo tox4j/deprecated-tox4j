@@ -24,7 +24,6 @@ let rec length_param_of_size_spec = function
         "UName as parameter name: " ^ show_uname Format.pp_print_string n
       )
   | Ss_LName n -> n
-  | Ss_Size -> LName "size"
   | Ss_Bounded (spec, _) -> length_param_of_size_spec spec
 
 

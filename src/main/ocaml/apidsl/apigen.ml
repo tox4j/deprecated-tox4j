@@ -11,16 +11,24 @@ let parse file =
 
 
 let () =
-  let api = parse "tox.h" in
+  let tox_api = parse "tox.h" in
 
   let api =
-    api
+    tox_api
+    |> ScopeBinding.transform
+    |> ScopeBinding.inverse
+  in
+
+  let capi =
+    tox_api
     |> GetSet.transform
     |> ApplyStatic.transform
     |> FlattenNamespace.transform
     |> FlattenClass.transform
     |> Constants.transform
   in
+
+  ignore capi;
 
   (*print_endline (ApiAst.show_decls api);*)
 

@@ -70,8 +70,6 @@ let visit_size_spec v state = function
   | Ss_LName lname ->
       let state, lname = v.fold_lname v state lname in
       state, Ss_LName lname
-  | Ss_Size ->
-      state, Ss_Size
   | Ss_Bounded (size_spec, uname) ->
       let state, size_spec = v.fold_size_spec v state size_spec in
       let state, uname = v.fold_uname v state uname in
@@ -89,6 +87,8 @@ let visit_type_name v state = function
       let state, lname = v.fold_lname v state lname in
       let state, size_spec = v.fold_size_spec v state size_spec in
       state, Ty_Array (lname, size_spec)
+  | Ty_Auto ->
+      state, Ty_Auto
   | Ty_This ->
       state, Ty_This
   | Ty_Const type_name ->
@@ -130,9 +130,6 @@ let visit_function_name v state = function
       let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in
       state, Fn_Custom (type_name, lname)
-  | Fn_Size -> state, Fn_Size
-  | Fn_Get -> state, Fn_Get
-  | Fn_Set -> state, Fn_Set
 
 
 let visit_expr v state = function
@@ -225,4 +222,35 @@ let default = {
   fold_function_name = visit_function_name;
   fold_expr = visit_expr;
   fold_decl = visit_decl;
+}
+
+let make
+  ~fold_name
+  ?(fold_uname = fun v state (UName name) -> let x, name = fold_name v state name in x, UName name)
+  ?(fold_lname = fun v state (LName name) -> let x, name = fold_name v state name in x, LName name)
+  ?(fold_macro=visit_macro)
+  ?(fold_comment_fragment=visit_comment_fragment)
+  ?(fold_comment=visit_comment)
+  ?(fold_size_spec=visit_size_spec)
+  ?(fold_type_name=visit_type_name)
+  ?(fold_enumerator=visit_enumerator)
+  ?(fold_error_list=visit_error_list)
+  ?(fold_parameter=visit_parameter)
+  ?(fold_function_name=visit_function_name)
+  ?(fold_expr=visit_expr)
+  ?(fold_decl=visit_decl)
+  () = {
+  fold_uname;
+  fold_lname;
+  fold_macro;
+  fold_comment_fragment;
+  fold_comment;
+  fold_size_spec;
+  fold_type_name;
+  fold_enumerator;
+  fold_error_list;
+  fold_parameter;
+  fold_function_name;
+  fold_expr;
+  fold_decl;
 }

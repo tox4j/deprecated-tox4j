@@ -54,10 +54,6 @@ and normal state =
 | "typedef"				{ TYPEDEF }
 | "with"				{ WITH }
 
-| "get"					{ GET }
-| "set"					{ SET }
-| "size"				{ SIZE }
-
 | "{"					{ LBRACE }
 | "}"					{ RBRACE }
 | "("					{ LBRACK }
@@ -124,10 +120,6 @@ and comment state =
     | THIS -> "THIS"
     | TYPEDEF -> "TYPEDEF"
     | WITH -> "WITH"
-
-    | GET -> "GET"
-    | SET -> "SET"
-    | SIZE -> "SIZE"
 
     | LBRACE -> "LBRACE"
     | RBRACE -> "RBRACE"
