@@ -129,4 +129,46 @@ toJavaArray (JNIEnv *env, std::vector<T> const &data)
 }
 
 
+
+template<typename T, size_t get_size (Tox const *), void get_data (Tox const *, T *)>
+typename java_array_t<T>::array_type
+get_vector (JNIEnv *env, Tox *tox)
+{
+  size_t size = get_size (tox);
+  if (size == 0)
+    return nullptr;
+  std::vector<T> name (size);
+  get_data (tox, name.data ());
+
+  return toJavaArray (env, name);
+}
+
+#define GET_VECTOR(T, FROM, WHAT)		\
+  [env] (Tox *tox, Events &)			\
+    {						\
+      return get_vector<T,			\
+        tox_##FROM##_get_##WHAT##_size,		\
+        tox_##FROM##_get_##WHAT> (env, tox);	\
+    }
+
+
+template<typename T, size_t size, void get_data (Tox const *, T *)>
+typename java_array_t<T>::array_type
+get_array (JNIEnv *env, Tox *tox)
+{
+  std::vector<T> name (size);
+  get_data (tox, name.data ());
+
+  return toJavaArray (env, name);
+}
+
+#define GET_ARRAY(T, FROM, WHAT, SIZE)		\
+  [env] (Tox *tox, Events &)			\
+    {						\
+      return get_array<T,			\
+        SIZE,					\
+        tox_##FROM##_get_##WHAT> (env, tox);	\
+    }
+
+
 #endif /* JNIUTIL_H */

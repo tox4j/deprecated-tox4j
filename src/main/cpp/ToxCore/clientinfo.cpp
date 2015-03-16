@@ -10,13 +10,7 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
-      {
-        unused (events);
-        std::vector<uint8_t> public_key (TOX_PUBLIC_KEY_SIZE);
-        tox_self_get_public_key (tox, public_key.data ());
-        return toJavaArray (env, public_key);
-      }
+    GET_ARRAY (uint8_t, self, public_key, TOX_PUBLIC_KEY_SIZE)
   );
 }
 
@@ -29,13 +23,7 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
-      {
-        unused (events);
-        std::vector<uint8_t> secret_key (TOX_SECRET_KEY_SIZE);
-        tox_self_get_secret_key (tox, secret_key.data ());
-        return toJavaArray (env, secret_key);
-      }
+    GET_ARRAY (uint8_t, self, secret_key, TOX_SECRET_KEY_SIZE)
   );
 }
 
@@ -82,14 +70,7 @@ TOX_METHOD (jbyteArray, SelfGetAddress,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
-      {
-        unused (events);
-        std::vector<uint8_t> address (TOX_ADDRESS_SIZE);
-        tox_self_get_address (tox, address.data ());
-
-        return toJavaArray (env, address);
-      }
+    GET_ARRAY (uint8_t, self, address, TOX_ADDRESS_SIZE)
   );
 }
 
@@ -129,17 +110,7 @@ TOX_METHOD (jbyteArray, SelfGetName,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events) -> jbyteArray
-      {
-        unused (events);
-        size_t size = tox_self_get_name_size (tox);
-        if (size == 0)
-          return nullptr;
-        std::vector<uint8_t> name (size);
-        tox_self_get_name (tox, name.data ());
-
-        return toJavaArray (env, name);
-      }
+    GET_VECTOR (uint8_t, self, name)
   );
 }
 
@@ -166,17 +137,7 @@ TOX_METHOD (jbyteArray, SelfGetStatusMessage,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events) -> jbyteArray
-      {
-        unused (events);
-        size_t size = tox_self_get_status_message_size (tox);
-        if (size == 0)
-          return nullptr;
-        std::vector<uint8_t> name (size);
-        tox_self_get_status_message (tox, name.data ());
-
-        return toJavaArray (env, name);
-      }
+    GET_VECTOR (uint8_t, self, status_message)
   );
 }
 

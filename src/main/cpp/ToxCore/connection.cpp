@@ -113,13 +113,7 @@ TOX_METHOD (jbyteArray, GetDhtId,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
-      {
-        unused (events);
-        std::vector<uint8_t> dht_id (TOX_PUBLIC_KEY_SIZE);
-        tox_self_get_dht_id (tox, dht_id.data ());
-        return toJavaArray (env, dht_id);
-      }
+    GET_ARRAY (uint8_t, self, dht_id, TOX_PUBLIC_KEY_SIZE)
   );
 }
 
