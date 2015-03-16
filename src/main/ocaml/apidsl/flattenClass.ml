@@ -22,11 +22,12 @@ let transform decls =
   in
 
   let fold_decl v ns = function
-    | Decl_Namespace (name, decls) ->
+    | Decl_Class (name, decls) ->
         let ns' = ReplaceDecl.({ ns with state = name :: ns.state }) in
         let _, decls = visit_list v.fold_decl v ns' decls in
+        let decls = Decl_Class (name, []) :: decls in
         let ns = ReplaceDecl.replace ns decls in
-        ns, Decl_Namespace (name, decls)
+        ns, Decl_Class (name, decls)
 
     | decl ->
         ReplaceDecl.fold_decl v ns decl

@@ -18,6 +18,8 @@ let () =
     |> GetSet.transform
     |> ApplyStatic.transform
     |> FlattenNamespace.transform
+    |> FlattenClass.transform
+    |> Constants.transform
   in
 
   (*print_endline (ApiAst.show_decls api);*)

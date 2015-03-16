@@ -34,6 +34,19 @@ let fold_decls v state decls =
 
 
 let fold_decl v state = function
+  | Decl_Comment (comment, decl) ->
+      let state, comment = v.fold_comment v state comment in
+      let state, decl = v.fold_decl v state decl in
+      let state = {
+        state with
+        replacement =
+          match state.replacement with
+          | None -> None
+          | Some [] -> Some []
+          | Some (decl0 :: decls) ->
+              Some (Decl_Comment (comment, decl0) :: decls)
+      } in
+      state, Decl_Comment (comment, decl)
   | Decl_Namespace (lname, decls) ->
       let state, lname = v.fold_lname v state lname in
       let state, decls = fold_decls v state decls in
