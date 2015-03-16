@@ -31,5 +31,9 @@ let transform decls =
         visit_decl v ns decl
   in
 
-  let v = { default with map_decl; map_function_name } in
+  let v = {
+    default with
+    map_function_name;
+    map_decl;
+  } in
   visit_decls v [] decls

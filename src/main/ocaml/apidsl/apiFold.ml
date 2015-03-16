@@ -1,20 +1,20 @@
 open ApiAst
 
 
-type 'a t = {
-  fold_uname : 'a t -> 'a -> uname -> 'a * uname;
-  fold_lname : 'a t -> 'a -> lname -> 'a * lname;
-  fold_macro : 'a t -> 'a -> macro -> 'a * macro;
-  fold_comment_fragment : 'a t -> 'a -> comment_fragment -> 'a * comment_fragment;
-  fold_comment : 'a t -> 'a -> comment -> 'a * comment;
-  fold_size_spec : 'a t -> 'a -> size_spec -> 'a * size_spec;
-  fold_type_name : 'a t -> 'a -> type_name -> 'a * type_name;
-  fold_enumerator : 'a t -> 'a -> enumerator -> 'a * enumerator;
-  fold_error_list : 'a t -> 'a -> error_list -> 'a * error_list;
-  fold_parameter : 'a t -> 'a -> parameter -> 'a * parameter;
-  fold_function_name : 'a t -> 'a -> function_name -> 'a * function_name;
-  fold_expr : 'a t -> 'a -> expr -> 'a * expr;
-  fold_decl : 'a t -> 'a -> decl -> 'a * decl;
+type ('a, 'id1, 'id2) t = {
+  fold_uname            : ('a, 'id1, 'id2) t -> 'a -> 'id1 uname -> 'a * 'id2 uname;
+  fold_lname            : ('a, 'id1, 'id2) t -> 'a -> 'id1 lname -> 'a * 'id2 lname;
+  fold_macro            : ('a, 'id1, 'id2) t -> 'a -> macro -> 'a * macro;
+  fold_comment_fragment : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment_fragment -> 'a * 'id2 comment_fragment;
+  fold_comment          : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment -> 'a * 'id2 comment;
+  fold_size_spec        : ('a, 'id1, 'id2) t -> 'a -> 'id1 size_spec -> 'a * 'id2 size_spec;
+  fold_type_name        : ('a, 'id1, 'id2) t -> 'a -> 'id1 type_name -> 'a * 'id2 type_name;
+  fold_enumerator       : ('a, 'id1, 'id2) t -> 'a -> 'id1 enumerator -> 'a * 'id2 enumerator;
+  fold_error_list       : ('a, 'id1, 'id2) t -> 'a -> 'id1 error_list -> 'a * 'id2 error_list;
+  fold_parameter        : ('a, 'id1, 'id2) t -> 'a -> 'id1 parameter -> 'a * 'id2 parameter;
+  fold_function_name    : ('a, 'id1, 'id2) t -> 'a -> 'id1 function_name -> 'a * 'id2 function_name;
+  fold_expr             : ('a, 'id1, 'id2) t -> 'a -> 'id1 expr -> 'a * 'id2 expr;
+  fold_decl             : ('a, 'id1, 'id2) t -> 'a -> 'id1 decl -> 'a * 'id2 decl;
 }
 
 

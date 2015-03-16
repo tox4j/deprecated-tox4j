@@ -34,8 +34,8 @@ open ApiAst
 
 %left PLUS
 
-%start			parse_api
-%type<ApiAst.decl list>	parse_api
+%start				parse_api
+%type<string ApiAst.decl list>	parse_api
 
 %%
 

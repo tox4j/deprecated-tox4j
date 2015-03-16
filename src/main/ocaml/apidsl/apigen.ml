@@ -15,11 +15,12 @@ let () =
 
   let api =
     api
+    |> GetSet.transform
     |> ApplyStatic.transform
     |> FlattenNamespace.transform
   in
 
-  print_endline (ApiAst.show_decls api);
+  (*print_endline (ApiAst.show_decls api);*)
 
   Format.fprintf Format.std_formatter "%a\n"
     ApiCodegen.cg_decls api

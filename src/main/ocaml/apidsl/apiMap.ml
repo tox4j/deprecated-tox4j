@@ -1,20 +1,20 @@
 open ApiAst
 
 
-type 'a t = {
-  map_uname : 'a t -> 'a -> uname -> uname;
-  map_lname : 'a t -> 'a -> lname -> lname;
-  map_macro : 'a t -> 'a -> macro -> macro;
-  map_comment_fragment : 'a t -> 'a -> comment_fragment -> comment_fragment;
-  map_comment : 'a t -> 'a -> comment -> comment;
-  map_size_spec : 'a t -> 'a -> size_spec -> size_spec;
-  map_type_name : 'a t -> 'a -> type_name -> type_name;
-  map_enumerator : 'a t -> 'a -> enumerator -> enumerator;
-  map_error_list : 'a t -> 'a -> error_list -> error_list;
-  map_parameter : 'a t -> 'a -> parameter -> parameter;
-  map_function_name : 'a t -> 'a -> function_name -> function_name;
-  map_expr : 'a t -> 'a -> expr -> expr;
-  map_decl : 'a t -> 'a -> decl -> decl;
+type ('a, 'id1, 'id2) t = {
+  map_uname             : ('a, 'id1, 'id2) t -> 'a -> 'id1 uname -> 'id2 uname;
+  map_lname             : ('a, 'id1, 'id2) t -> 'a -> 'id1 lname -> 'id2 lname;
+  map_macro             : ('a, 'id1, 'id2) t -> 'a -> macro -> macro;
+  map_comment_fragment  : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment_fragment -> 'id2 comment_fragment;
+  map_comment           : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment -> 'id2 comment;
+  map_size_spec         : ('a, 'id1, 'id2) t -> 'a -> 'id1 size_spec -> 'id2 size_spec;
+  map_type_name         : ('a, 'id1, 'id2) t -> 'a -> 'id1 type_name -> 'id2 type_name;
+  map_enumerator        : ('a, 'id1, 'id2) t -> 'a -> 'id1 enumerator -> 'id2 enumerator;
+  map_error_list        : ('a, 'id1, 'id2) t -> 'a -> 'id1 error_list -> 'id2 error_list;
+  map_parameter         : ('a, 'id1, 'id2) t -> 'a -> 'id1 parameter -> 'id2 parameter;
+  map_function_name     : ('a, 'id1, 'id2) t -> 'a -> 'id1 function_name -> 'id2 function_name;
+  map_expr              : ('a, 'id1, 'id2) t -> 'a -> 'id1 expr -> 'id2 expr;
+  map_decl              : ('a, 'id1, 'id2) t -> 'a -> 'id1 decl -> 'id2 decl;
 }
 
 

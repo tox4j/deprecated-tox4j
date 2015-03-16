@@ -1,91 +1,94 @@
-type uname = UName of string [@@deriving show]
-type lname = LName of string [@@deriving show]
+type 'id uname = UName of 'id [@@deriving show]
+type 'id lname = LName of 'id [@@deriving show]
 type macro = Macro of string [@@deriving show]
 
 
-type comment_fragment =
+type 'id comment_fragment =
   | Cmtf_Doc of string
-  | Cmtf_UName of uname
-  | Cmtf_LName of lname
+  | Cmtf_UName of 'id uname
+  | Cmtf_LName of 'id lname
   | Cmtf_Break
   [@@deriving show]
 
 
-type comment =
+type 'id comment =
   | Cmt_None
-  | Cmt_Doc of comment_fragment list
-  | Cmt_Section of comment_fragment list
+  | Cmt_Doc of 'id comment_fragment list
+  | Cmt_Section of 'id comment_fragment list
   [@@deriving show]
 
 
-type size_spec =
-  | Ss_UName of uname
-  | Ss_LName of lname
+type 'id size_spec =
+  | Ss_UName of 'id uname
+  | Ss_LName of 'id lname
   | Ss_Size
-  | Ss_Bounded of size_spec * uname
+  | Ss_Bounded of 'id size_spec * 'id uname
   [@@deriving show]
 
 
-type type_name =
-  | Ty_UName of uname
-  | Ty_LName of lname
-  | Ty_Array of lname * size_spec
+type 'id type_name =
+  | Ty_UName of 'id uname
+  | Ty_LName of 'id lname
+  | Ty_Array of 'id lname * 'id size_spec
   | Ty_This
-  | Ty_Const of type_name
+  | Ty_Const of 'id type_name
   [@@deriving show]
 
 
-type enumerator =
-  | Enum_Name of comment * uname
-  | Enum_Namespace of uname * enumerator list
+type 'id enumerator =
+  | Enum_Name of 'id comment * 'id uname
+  | Enum_Namespace of 'id uname * 'id enumerator list
   [@@deriving show]
 
 
-type error_list =
+type 'id error_list =
   | Err_None
-  | Err_From of lname
-  | Err_List of enumerator list
+  | Err_From of 'id lname
+  | Err_List of 'id enumerator list
   [@@deriving show]
 
 
-type parameter =
-  | Param of type_name * lname
+type 'id parameter =
+  | Param of 'id type_name * 'id lname
   [@@deriving show]
 
 
-type function_name =
-  | Fn_Custom of type_name * lname
+type 'id function_name =
+  | Fn_Custom of 'id type_name * 'id lname
   | Fn_Size
   | Fn_Get
   | Fn_Set
   [@@deriving show]
 
 
-type expr =
+type 'id expr =
   | E_Number of int
-  | E_UName of uname
-  | E_Sizeof of lname
-  | E_Plus of expr * expr
+  | E_UName of 'id uname
+  | E_Sizeof of 'id lname
+  | E_Plus of 'id expr * 'id expr
   [@@deriving show]
 
 
-type decl =
-  | Decl_Comment of comment * decl
-  | Decl_Static of decl
+type 'id decl =
+  | Decl_Comment of 'id comment * 'id decl
+  | Decl_Static of 'id decl
   | Decl_Macro of macro
-  | Decl_Namespace of lname * decl list
-  | Decl_Class of lname * decl list
-  | Decl_Function of function_name * parameter list * error_list
-  | Decl_Const of uname * expr
-  | Decl_Enum of bool * uname * enumerator list
-  | Decl_Error of lname * enumerator list
-  | Decl_Struct of decl list
-  | Decl_Member of type_name * lname
-  | Decl_GetSet of type_name * lname * decl list
-  | Decl_Typedef of lname * parameter list
-  | Decl_Event of lname * decl
+  | Decl_Namespace of 'id lname * 'id decl list
+  | Decl_Class of 'id lname * 'id decl list
+  | Decl_Function of 'id function_name * 'id parameter list * 'id error_list
+  | Decl_Const of 'id uname * 'id expr
+  | Decl_Enum of bool * 'id uname * 'id enumerator list
+  | Decl_Error of 'id lname * 'id enumerator list
+  | Decl_Struct of 'id decl list
+  | Decl_Member of 'id type_name * 'id lname
+  | Decl_GetSet of 'id type_name * 'id lname * 'id decl list
+  | Decl_Typedef of 'id lname * 'id parameter list
+  | Decl_Event of 'id lname * 'id decl
   [@@deriving show]
 
 
-type decls = decl list
+type 'id decls = 'id decl list
   [@@deriving show]
+
+
+let id x = x
