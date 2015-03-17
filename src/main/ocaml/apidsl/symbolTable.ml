@@ -1,60 +1,62 @@
-type tree = {
-  name : string;
-  scope : int StringMap.t;
-  children : tree StringMap.t;
+type scope = {
+  name     : string;
+  symbols  : int StringMap.t;
+  children : scope StringMap.t;
 } [@@deriving show]
 
 
-type t = (string IntMap.t * tree) [@@deriving show]
+type t = string IntMap.t * scope [@@deriving show]
 
 
 let empty = {
-  name = "<root>";
-  scope = StringMap.empty;
+  name     = "<root>";
+  symbols  = StringMap.empty;
   children = StringMap.empty;
 }
 
 
-let enter_scope tree name =
+let enter_scope scope name =
   try
-    StringMap.find name tree.children
+    StringMap.find name scope.children
   with Not_found ->
     { empty with name }
 
 
-let leave_scope tree scope =
-  { tree with
-    children = StringMap.add scope.name scope tree.children }
+let leave_scope scope child =
+  { scope with
+    children = StringMap.add child.name child scope.children }
 
 
-let scoped tree name f x =
-  let scope = enter_scope tree name in
-  let scope, x = f scope x in
-  let tree = leave_scope tree scope in
-  tree, x
+let scoped scope name f x =
+  let child = enter_scope scope name in
+  let child, x = f child x in
+  let scope = leave_scope scope child in
+  scope, x
 
 
-let scopedl tree lname f x =
+let scopedl scope lname f x =
   let name = LName.to_string lname in
-  scoped tree name f x
+  scoped scope name f x
 
 
-let add tree name =
-  if StringMap.mem name tree.scope then
+let add scope name =
+  if StringMap.mem name scope.symbols then
     failwith @@ "duplicate name: " ^ name;
 
-  let scope = StringMap.add name (StringMap.cardinal tree.scope) tree.scope in
-  { tree with scope }
+  let symbols =
+    StringMap.add name (StringMap.cardinal scope.symbols) scope.symbols
+  in
+  { scope with symbols }
 
 
-let addl tree lname =
+let addl scope lname =
   let name = LName.to_string lname in
-  add tree name
+  add scope name
 
 
-let rec assign_ids table tree =
-  let scope =
-    StringMap.map (fun id -> id + IntMap.cardinal table) tree.scope
+let rec assign_ids table scope =
+  let symbols =
+    StringMap.map (fun id -> id + IntMap.cardinal table) scope.symbols
   in
 
   let table =
@@ -62,7 +64,7 @@ let rec assign_ids table tree =
       (fun name id table ->
          assert (not (IntMap.mem id table));
          IntMap.add id name table
-      ) scope table
+      ) symbols table
   in
 
   let table, children =
@@ -70,11 +72,11 @@ let rec assign_ids table tree =
       (fun ns child (table, children) ->
          let table, child = assign_ids table child in
          table, StringMap.add ns child children
-      ) tree.children (table, StringMap.empty)
+      ) scope.children (table, StringMap.empty)
   in
 
-  table, { tree with scope; children }
+  table, { scope with symbols; children }
 
 
-let make tree =
-  assign_ids IntMap.empty tree
+let make scope =
+  assign_ids IntMap.empty scope
