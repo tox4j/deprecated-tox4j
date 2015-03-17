@@ -4,13 +4,8 @@ open ApiAst
 let flip f a b = f b a
 
 
-let fold_scopedl f v lname decls scope =
-  SymbolTable.scopedl scope lname
-    (ApiFold.visit_list f v) decls
-
-
-let fold_scopedu f v uname decls scope =
-  SymbolTable.scopedu scope uname
+let fold_scoped f v uname decls scope =
+  SymbolTable.scoped scope uname
     (ApiFold.visit_list f v) decls
 
 
@@ -21,67 +16,67 @@ let extract decls =
   let fold_enumerator v scope = function
     | Enum_Name (_, uname) ->
         scope
-        |> SymbolTable.addu uname
+        |> SymbolTable.add uname
 
     | Enum_Namespace (uname, enumerators) ->
         scope
-        |> SymbolTable.addu uname
-        |> fold_scopedu v.fold_enumerator v uname enumerators
+        |> SymbolTable.add uname
+        |> fold_scoped v.fold_enumerator v uname enumerators
   in
 
 
   let fold_parameter v scope = function
     | Param (_, lname) ->
         scope
-        |> SymbolTable.addl lname
+        |> SymbolTable.add lname
   in
 
 
   let fold_decl v scope = function
     | Decl_Function (type_name, lname, parameters, error_list) ->
         scope
-        |> SymbolTable.addl lname
-        |> fold_scopedl v.fold_parameter v lname parameters
-        |> fold_scopedl v.fold_error_list v lname [error_list]
+        |> SymbolTable.add lname
+        |> fold_scoped v.fold_parameter v lname parameters
+        |> fold_scoped v.fold_error_list v lname [error_list]
 
     | Decl_GetSet (_, lname, decls)
     | Decl_Class (lname, decls) ->
         scope
-        |> SymbolTable.addl lname
-        |> fold_scopedl v.fold_decl v lname decls
+        |> SymbolTable.add lname
+        |> fold_scoped v.fold_decl v lname decls
 
     | Decl_Namespace (lname, decls) ->
         scope
-        |> SymbolTable.addl ~extend:true lname
-        |> fold_scopedl v.fold_decl v lname decls
+        |> SymbolTable.add ~extend:true lname
+        |> fold_scoped v.fold_decl v lname decls
 
     | Decl_Enum (_, uname, enumerators) ->
         scope
-        |> SymbolTable.addu uname
-        |> fold_scopedu v.fold_enumerator v uname enumerators
+        |> SymbolTable.add uname
+        |> fold_scoped v.fold_enumerator v uname enumerators
 
     | Decl_Error (lname, enumerators) ->
         scope
-        |> SymbolTable.addl lname
-        |> fold_scopedl v.fold_enumerator v lname enumerators
+        |> SymbolTable.add lname
+        |> fold_scoped v.fold_enumerator v lname enumerators
 
     | Decl_Member (_, lname) ->
         scope
-        |> SymbolTable.addl lname
+        |> SymbolTable.add lname
 
     | Decl_Const (uname, _) ->
         scope
-        |> SymbolTable.addu uname
+        |> SymbolTable.add uname
 
     | Decl_Struct decls ->
         scope
-        |> fold_scopedl v.fold_decl v (Name.lname "this") decls
+        |> fold_scoped v.fold_decl v "this" decls
 
     | Decl_Event (lname, decl) ->
-        let lname = LName.prepend "event " lname in
+        let lname = "event " ^ lname in
         scope
-        |> SymbolTable.addl lname
-        |> fold_scopedl v.fold_decl v lname [decl]
+        |> SymbolTable.add lname
+        |> fold_scoped v.fold_decl v lname [decl]
 
     | Decl_Comment _
     | Decl_Static _

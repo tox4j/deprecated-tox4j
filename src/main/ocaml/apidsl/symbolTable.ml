@@ -58,16 +58,7 @@ let scoped scope name f x =
   scope
 
 
-let scopedl scope lname f x =
-  let name = LName.to_string lname in
-  scoped scope name f x
-
-let scopedu scope uname f x =
-  let name = UName.to_string uname in
-  scoped scope name f x
-
-
-let add ?(extend=false) scope name =
+let add ?(extend=false) name scope =
   if StringMap.mem name scope.symbols then
     if not extend then
       failwith @@ "duplicate name: " ^ name
@@ -78,15 +69,6 @@ let add ?(extend=false) scope name =
       StringMap.add name (StringMap.cardinal scope.symbols) scope.symbols
     in
     { scope with symbols }
-
-
-let addl ?extend lname scope =
-  let name = LName.to_string lname in
-  add ?extend scope name
-
-let addu ?extend uname scope =
-  let name = UName.to_string uname in
-  add ?extend scope name
 
 
 let rec assign_ids table scope =
@@ -147,10 +129,32 @@ let lookup (_, root : t) scopes name =
   | None    -> -1
 
 
-let uname (table, _) = function
-  | -1 -> Name.uname "<UNRESOLVED>"
-  | id -> Name.uname (IntMap.find id table)
+let name (table, _ : t) = function
+  | -1 -> "<unresolved>"
+  | id -> IntMap.find id table
 
-let lname (table, _) = function
-  | -1 -> Name.lname "<unresolved>"
-  | id -> Name.lname (IntMap.find id table)
+
+let pp_symbol symtab fmt id =
+  Format.fprintf fmt "\"%s\""
+    (name symtab id |> String.escaped)
+
+
+let rename (table, scope as symtab) id f =
+  let name = name symtab id in
+
+  let renamed = f name in
+
+  let table = IntMap.add id renamed table in
+
+  (table, scope)
+
+
+let clone_symbol (table, scope as symtab) id =
+  let name = name symtab id in
+
+  let new_id = IntMap.cardinal table in
+  assert (not @@ IntMap.mem new_id table);
+
+  let table = IntMap.add new_id name table in
+
+  (table, scope), new_id

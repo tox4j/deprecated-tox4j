@@ -9,7 +9,7 @@ let transform decls =
         let macro =
           Macro (
             Format.asprintf "#define %-30s %a"
-              (UName.to_string name)
+              name
               ApiCodegen.cg_expr expr
           )
         in

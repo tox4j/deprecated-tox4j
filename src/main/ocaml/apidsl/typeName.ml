@@ -1,8 +1,14 @@
 open ApiAst
 
 
-let void = Ty_LName (Name.lname "void")
-let size_t = Ty_LName (Name.lname "size_t")
+let void = Ty_LName "void"
+let size_t = Ty_LName "size_t"
+
+let size_t_ symtab =
+  Ty_LName (SymbolTable.lookup symtab [] "size_t")
+
+let void_ symtab =
+  Ty_LName (SymbolTable.lookup symtab [] "void")
 
 
 let rec is_array = function
@@ -19,10 +25,7 @@ let rec is_var_array = function
 
 
 let rec length_param_of_size_spec = function
-  | Ss_UName n ->
-      failwith (
-        "UName as parameter name: " ^ show_uname Format.pp_print_string n
-      )
+  | Ss_UName n -> failwith "UName as parameter name"
   | Ss_LName n -> n
   | Ss_Bounded (spec, _) -> length_param_of_size_spec spec
 
@@ -32,7 +35,4 @@ let rec length_param = function
   | Ty_Array (_, size_spec) ->
       length_param_of_size_spec size_spec
 
-  | ty ->
-      failwith (
-        "Not an array type: " ^ show_type_name Format.pp_print_string ty
-      )
+  | ty -> failwith "Not an array type"

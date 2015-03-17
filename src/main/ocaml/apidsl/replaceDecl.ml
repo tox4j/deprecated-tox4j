@@ -3,18 +3,23 @@ open ApiFoldMap
 
 
 type ('a, 'id) t = {
-  state : 'a;
+  user_state : 'a;
   replacement : 'id decl list option;
 }
 
-let initial state = {
-  state;
+let initial user_state = {
+  user_state;
   replacement = None;
 }
 
-let replace state replacement = {
-  state with replacement = Some replacement
-}
+let replace state replacement =
+  { state with replacement = Some replacement }
+
+let set state user_state =
+  { state with user_state }
+
+let get state =
+  state.user_state
 
 
 let fold_decls v state decls =

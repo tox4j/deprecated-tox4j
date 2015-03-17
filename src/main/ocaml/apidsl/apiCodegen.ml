@@ -17,8 +17,8 @@ let cg_braced cg fmt x =
   Format.fprintf fmt "{@,@[<v2>%a@]@,}@," cg x
 
 
-let cg_uname fmt s = Format.pp_print_string fmt (UName.to_string s)
-let cg_lname fmt s = Format.pp_print_string fmt (LName.to_string s)
+let cg_uname = Format.pp_print_string
+let cg_lname = Format.pp_print_string
 let cg_macro fmt (Macro s) = Format.pp_print_string fmt s
 
 

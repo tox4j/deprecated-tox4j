@@ -20,12 +20,12 @@ let () =
   let api =
     api
     |> ScopeBinding.transform symtab
-    |> ScopeBinding.inverse symtab
+    |> GetSet.transform
+    |> ScopeBinding.inverse
   in
 
   let capi =
     api
-    |> GetSet.transform
     |> ApplyStatic.transform
     |> FlattenNamespace.transform
     |> FlattenClass.transform

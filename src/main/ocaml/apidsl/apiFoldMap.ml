@@ -201,6 +201,21 @@ let visit_decl v state = function
 let visit_decls v state = visit_list v.fold_decl v state
 
 
+let make ~fold_uname ~fold_lname = {
+  fold_uname;
+  fold_lname;
+  fold_macro = visit_macro;
+  fold_comment_fragment = visit_comment_fragment;
+  fold_comment = visit_comment;
+  fold_size_spec = visit_size_spec;
+  fold_type_name = visit_type_name;
+  fold_enumerator = visit_enumerator;
+  fold_error_list = visit_error_list;
+  fold_parameter = visit_parameter;
+  fold_expr = visit_expr;
+  fold_decl = visit_decl;
+}
+
 let default = {
   fold_uname = visit_uname;
   fold_lname = visit_lname;

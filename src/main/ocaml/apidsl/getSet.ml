@@ -1,75 +1,99 @@
 open ApiAst
 
 
-let translate_get ty name parameters error_list =
-  let fn_name = LName.prepend "get" name in
-
-  if TypeName.is_array ty then
-    let parameters =
-      if TypeName.is_var_array ty then
-        Param (TypeName.size_t, TypeName.length_param ty) :: parameters
-      else
-        parameters
-    in
-    let parameters = Param (ty, name) :: parameters in
-    Decl_Function (TypeName.void, fn_name, parameters, error_list)
-
-  else
-    Decl_Function (ty, fn_name, parameters, error_list)
-
-
-let translate_set ty name parameters error_list =
-  let fn_name = LName.prepend "set" name in
-  let parameters =
-    if TypeName.is_var_array ty then
-      Param (TypeName.size_t, TypeName.length_param ty) :: parameters
-    else
-      parameters
-  in
-  let parameters = Param (ty, name) :: parameters in
-  Decl_Function (TypeName.void, fn_name, parameters, error_list)
-
-
-let rec translate_get_set ty name = function
+let rec add_types symtab name ty = function
   | Decl_Comment (comment, decl) ->
-      let decl = translate_get_set ty name decl in
+      let decl = add_types symtab name ty decl in
       Decl_Comment (comment, decl)
 
   | Decl_Function (Ty_Auto, fname, parameters, error_list) as decl ->
-      begin match LName.to_string fname with
+      let size_t = TypeName.size_t_ symtab in
+      let void = TypeName.void_ symtab in
+
+      begin match SymbolTable.name symtab fname with
         | "size" ->
-            let name = LName.prepend "get" name in
-            let name = LName.append name "size" in
-            Decl_Function (TypeName.size_t, name, parameters, error_list)
+            Decl_Function (size_t, fname, parameters, error_list)
+
         | "get" ->
-            translate_get ty name parameters error_list
+            if TypeName.is_array ty then
+              let parameters =
+                if TypeName.is_var_array ty then
+                  Param (size_t, TypeName.length_param ty) :: parameters
+                else
+                  parameters
+              in
+              let parameters = Param (ty, name) :: parameters in
+              Decl_Function (void, fname, parameters, error_list)
+
+            else
+              Decl_Function (ty, fname, parameters, error_list)
+
         | "set" ->
-            translate_set ty name parameters error_list
-        | _ ->
-            decl
+            let parameters =
+              if TypeName.is_var_array ty then
+                Param (size_t, TypeName.length_param ty) :: parameters
+              else
+                parameters
+            in
+            let parameters = Param (ty, name) :: parameters in
+            Decl_Function (void, fname, parameters, error_list)
+
+        | _ -> failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
       end
 
   | decl ->
-      failwith @@ show_decl Format.pp_print_string decl
+      failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
 
 
-let translate_get_set ty name decls =
-  List.map (translate_get_set ty name) decls
+let rec rename_symbols name symtab = function
+  | Decl_Comment (comment, decl) ->
+      rename_symbols name symtab decl
+
+  | Decl_Function (_, fname, _, _) as decl ->
+      let name = SymbolTable.name symtab name in
+
+      begin match SymbolTable.name symtab fname with
+        | "size" ->
+            SymbolTable.rename symtab fname
+              (fun _ -> "get_" ^ name ^ "_size")
+
+        | "get" ->
+            SymbolTable.rename symtab fname
+              (fun _ -> "get_" ^ name)
+
+        | "set" ->
+            SymbolTable.rename symtab fname
+              (fun _ -> "set_" ^ name)
+
+        | _ ->
+            failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
+      end
+
+  | decl ->
+      failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
 
 
-let transform decls =
+let fold_decl v state = function
+  | Decl_GetSet (type_name, lname, decls) ->
+      let symtab = ReplaceDecl.get state in
+
+      let decls = List.rev_map (add_types symtab lname type_name) decls in
+
+      let symtab = List.fold_left (rename_symbols lname) symtab decls in
+
+      let state = ReplaceDecl.set state symtab in
+      let state = ReplaceDecl.replace state decls in
+
+      state, Decl_GetSet (type_name, lname, decls)
+
+  | decl ->
+      ReplaceDecl.fold_decl v state decl
+
+
+let transform (symtab, decls) =
   let open ApiFoldMap in
 
-  let fold_decl v state = function
-    | Decl_GetSet (type_name, lname, decls) as decl ->
-        let state =
-          ReplaceDecl.replace state (translate_get_set type_name lname decls)
-        in
-        state, decl
-
-    | decl ->
-        ReplaceDecl.fold_decl v state decl
-  in
-
   let v = { default with fold_decl } in
-  snd @@ visit_decls v (ReplaceDecl.initial ()) decls
+
+  let state, decls = visit_decls v (ReplaceDecl.initial symtab) decls in
+  ReplaceDecl.get state, decls

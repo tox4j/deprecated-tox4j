@@ -4,17 +4,10 @@ open ApiAst
 let flip f a b = f b a
 
 
-let this = Name.lname "this"
+let this = "this"
 
 
-let scopedl scopes lname f =
-  let name = LName.to_string lname in
-  let scopes = name :: scopes in
-  f scopes
-
-
-let scopedu scopes uname f =
-  let name = UName.to_string uname in
+let scoped scopes name f =
   let scopes = name :: scopes in
   f scopes
   
@@ -25,16 +18,12 @@ let transform symtab decls =
 
 
   let map_uname v scopes uname =
-    let name = UName.to_string uname in
-    let id = SymbolTable.lookup symtab scopes name in
-    Name.uid id
+    SymbolTable.lookup symtab scopes uname
   in
 
 
   let map_lname v scopes lname =
-    let name = LName.to_string lname in
-    let id = SymbolTable.lookup symtab scopes name in
-    Name.lid id
+    SymbolTable.lookup symtab scopes lname
   in
 
 
@@ -44,46 +33,46 @@ let transform symtab decls =
 
     | Enum_Namespace (uname, enumerators) ->
         let uname' = v.map_uname v scopes uname in
-        let enumerators = scopedu scopes uname (flip (visit_list v.map_enumerator v) enumerators) in
+        let enumerators = scoped scopes uname (flip (visit_list v.map_enumerator v) enumerators) in
         Enum_Namespace (uname', enumerators)
   in
 
 
-  let map_decl (v : (string list, string, int) ApiMap.t) scopes = function
+  let map_decl v scopes = function
     | Decl_Namespace (lname, decls) ->
         let lname' = v.map_lname v scopes lname in
-        let decls = scopedl scopes lname (flip (visit_list v.map_decl v) decls) in
+        let decls = scoped scopes lname (flip (visit_list v.map_decl v) decls) in
         Decl_Namespace (lname', decls)
     | Decl_Class (lname, decls) ->
         let lname' = v.map_lname v scopes lname in
-        let decls = scopedl scopes lname (flip (visit_list v.map_decl v) decls) in
+        let decls = scoped scopes lname (flip (visit_list v.map_decl v) decls) in
         Decl_Class (lname', decls)
     | Decl_Function (type_name, lname, parameters, error_list) ->
         let type_name = v.map_type_name v scopes type_name in
         let lname' = v.map_lname v scopes lname in
-        let parameters = scopedl scopes lname (flip (visit_list v.map_parameter v) parameters) in
-        let error_list = scopedl scopes lname (flip (v.map_error_list v) error_list) in
+        let parameters = scoped scopes lname (flip (visit_list v.map_parameter v) parameters) in
+        let error_list = scoped scopes lname (flip (v.map_error_list v) error_list) in
         Decl_Function (type_name, lname', parameters, error_list)
     | Decl_Enum (is_class, uname, enumerators) ->
         let uname' = v.map_uname v scopes uname in
-        let enumerators = scopedu scopes uname (flip (visit_list v.map_enumerator v) enumerators) in
+        let enumerators = scoped scopes uname (flip (visit_list v.map_enumerator v) enumerators) in
         Decl_Enum (is_class, uname', enumerators)
     | Decl_Error (lname, enumerators) ->
         let lname' = v.map_lname v scopes lname in
-        let enumerators = scopedl scopes lname (flip (visit_list v.map_enumerator v) enumerators) in
+        let enumerators = scoped scopes lname (flip (visit_list v.map_enumerator v) enumerators) in
         Decl_Error (lname', enumerators)
     | Decl_Struct decls ->
-        let decls = scopedl scopes this (flip (visit_list v.map_decl v) decls) in
+        let decls = scoped scopes this (flip (visit_list v.map_decl v) decls) in
         Decl_Struct decls
     | Decl_GetSet (type_name, lname, decls) ->
-        let type_name = scopedl scopes lname (flip (v.map_type_name v) type_name) in
+        let type_name = scoped scopes lname (flip (v.map_type_name v) type_name) in
         let lname' = v.map_lname v scopes lname in
-        let decls = scopedl scopes lname (flip (visit_list v.map_decl v) decls) in
+        let decls = scoped scopes lname (flip (visit_list v.map_decl v) decls) in
         Decl_GetSet (type_name, lname', decls)
     | Decl_Event (lname, decl) ->
-        let lname = LName.prepend "event " lname in
+        let lname = "event " ^ lname in
         let lname' = v.map_lname v scopes lname in
-        let decl = scopedl scopes lname (flip (v.map_decl v) decl) in
+        let decl = scoped scopes lname (flip (v.map_decl v) decl) in
         Decl_Event (lname', decl)
 
     | Decl_Const _
@@ -110,21 +99,21 @@ let transform symtab decls =
     map_parameter = visit_parameter;
     map_expr = visit_expr;
   } in
-  visit_decls v [] decls
+  symtab, visit_decls v [] decls
   
 
 
-let inverse symtab decls =
+let inverse (symtab, decls) =
   let open ApiMap in
 
 
   let map_uname v () uname =
-    Name.repr uname |> SymbolTable.uname symtab
+    SymbolTable.name symtab uname
   in
 
 
   let map_lname v () lname =
-    Name.repr lname |> SymbolTable.lname symtab
+    SymbolTable.name symtab lname
   in
 
 

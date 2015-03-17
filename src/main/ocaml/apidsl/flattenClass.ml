@@ -4,7 +4,7 @@ open ApiAst
 let prepend_ns ns name =
   List.fold_left
     (fun name ns ->
-       Name.lname (LName.to_string ns ^ "_" ^ LName.to_string name)
+       ns ^ "_" ^ name
     ) name ns
 
 
@@ -13,11 +13,11 @@ let transform decls =
 
   let fold_decl v ns = function
     | Decl_Function (type_name, lname, parameters, error_list) ->
-        let lname = prepend_ns ns.ReplaceDecl.state lname in
+        let lname = prepend_ns (ReplaceDecl.get ns) lname in
         ns, Decl_Function (type_name, lname, parameters, error_list)
 
     | Decl_Class (name, decls) ->
-        let ns' = ReplaceDecl.({ ns with state = name :: ns.state }) in
+        let ns' = ReplaceDecl.(set ns (name :: get ns)) in
         let _, decls = visit_list v.fold_decl v ns' decls in
         let decls = Decl_Class (name, []) :: decls in
         let ns = ReplaceDecl.replace ns decls in
