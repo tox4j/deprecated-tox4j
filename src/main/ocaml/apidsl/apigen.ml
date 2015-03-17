@@ -21,12 +21,12 @@ let () =
     api
     |> ScopeBinding.transform symtab
     |> GetSet.transform
+    |> ApplyStatic.transform
     |> ScopeBinding.inverse
   in
 
   let capi =
     api
-    |> ApplyStatic.transform
     |> FlattenNamespace.transform
     |> FlattenClass.transform
     |> Constants.transform

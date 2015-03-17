@@ -20,7 +20,7 @@ let can_apply_static = function
       false
 
 
-let transform decls =
+let transform (symtab, decls) =
   let open ApiFoldMap in
 
   let fold_decl v static decl =
@@ -52,4 +52,4 @@ let transform decls =
   in
 
   let v = { default with fold_decl } in
-  snd @@ visit_decls v false decls
+  symtab, snd @@ visit_decls v false decls
