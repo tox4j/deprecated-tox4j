@@ -95,10 +95,10 @@ let rec cg_type_name fmt = function
 
 
 let cg_function_name fmt = function
-  | Fn_Custom (Ty_Auto, name) ->
+  | (Ty_Auto, name) ->
       Format.fprintf fmt "%a"
         cg_lname name
-  | Fn_Custom (type_name, name) ->
+  | (type_name, name) ->
       Format.fprintf fmt "%a %a"
         cg_type_name type_name
         cg_lname name
@@ -181,10 +181,10 @@ let rec cg_decl_qualified qualifier fmt = function
         qualifier
         cg_lname lname
         (cg_braced cg_decls) decls
-  | Decl_Function (function_name, parameters, error_list) ->
+  | Decl_Function (type_name, lname, parameters, error_list) ->
       Format.fprintf fmt "@,%s%a%a%a"
         qualifier
-        cg_function_name function_name
+        cg_function_name (type_name, lname)
         cg_parameters parameters
         cg_error_list error_list
   | Decl_Const (uname, expr) ->

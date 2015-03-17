@@ -11,3 +11,8 @@ type 'id lname = (lcase, 'id) name [@@deriving show]
 
 let uname s = s
 let lname s = s
+
+let uid s = s
+let lid s = s
+
+let repr s = s

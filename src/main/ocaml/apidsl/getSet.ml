@@ -5,7 +5,6 @@ let translate_get ty name parameters error_list =
   let fn_name = LName.prepend "get" name in
 
   if TypeName.is_array ty then
-    let function_name = Fn_Custom (TypeName.void, fn_name) in
     let parameters =
       if TypeName.is_var_array ty then
         Param (TypeName.size_t, TypeName.length_param ty) :: parameters
@@ -13,16 +12,14 @@ let translate_get ty name parameters error_list =
         parameters
     in
     let parameters = Param (ty, name) :: parameters in
-    Decl_Function (function_name, parameters, error_list)
+    Decl_Function (TypeName.void, fn_name, parameters, error_list)
 
   else
-    let function_name = Fn_Custom (ty, fn_name) in
-    Decl_Function (function_name, parameters, error_list)
+    Decl_Function (ty, fn_name, parameters, error_list)
 
 
 let translate_set ty name parameters error_list =
   let fn_name = LName.prepend "set" name in
-  let function_name = Fn_Custom (TypeName.void, fn_name) in
   let parameters =
     if TypeName.is_var_array ty then
       Param (TypeName.size_t, TypeName.length_param ty) :: parameters
@@ -30,7 +27,7 @@ let translate_set ty name parameters error_list =
       parameters
   in
   let parameters = Param (ty, name) :: parameters in
-  Decl_Function (function_name, parameters, error_list)
+  Decl_Function (TypeName.void, fn_name, parameters, error_list)
 
 
 let rec translate_get_set ty name = function
@@ -38,13 +35,12 @@ let rec translate_get_set ty name = function
       let decl = translate_get_set ty name decl in
       Decl_Comment (comment, decl)
 
-  | Decl_Function (Fn_Custom (Ty_Auto, fname), parameters, error_list) as decl ->
+  | Decl_Function (Ty_Auto, fname, parameters, error_list) as decl ->
       begin match LName.to_string fname with
         | "size" ->
             let name = LName.prepend "get" name in
             let name = LName.append name "size" in
-            let function_name = Fn_Custom (TypeName.size_t, name) in
-            Decl_Function (function_name, parameters, error_list)
+            Decl_Function (TypeName.size_t, name, parameters, error_list)
         | "get" ->
             translate_get ty name parameters error_list
         | "set" ->

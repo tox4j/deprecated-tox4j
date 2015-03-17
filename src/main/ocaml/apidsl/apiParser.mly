@@ -145,13 +145,13 @@ expression
 
 function_decl
 	: function_name parameter_list error_list
-		{ Decl_Function ($1, $2, $3) }
+		{ Decl_Function (fst $1, snd $1, $2, $3) }
 
 function_name
 	: type_name lname
-		{ Fn_Custom ($1, $2) }
+		{ ($1, $2) }
 	| lname
-		{ Fn_Custom (Ty_Auto, $1) }
+		{ (Ty_Auto, $1) }
 
 error_list
 	: SEMICOLON

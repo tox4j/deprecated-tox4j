@@ -8,3 +8,8 @@ type 'id lname = (lcase, 'id) name [@@deriving show]
 
 val uname : string -> string uname
 val lname : string -> string lname
+
+val uid : int -> int uname
+val lid : int -> int lname
+
+val repr : ('case, 'id) name -> 'id

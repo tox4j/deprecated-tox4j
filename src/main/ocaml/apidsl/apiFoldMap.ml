@@ -12,7 +12,6 @@ type ('a, 'id1, 'id2) t = {
   fold_enumerator       : ('a, 'id1, 'id2) t -> 'a -> 'id1 enumerator -> 'a * 'id2 enumerator;
   fold_error_list       : ('a, 'id1, 'id2) t -> 'a -> 'id1 error_list -> 'a * 'id2 error_list;
   fold_parameter        : ('a, 'id1, 'id2) t -> 'a -> 'id1 parameter -> 'a * 'id2 parameter;
-  fold_function_name    : ('a, 'id1, 'id2) t -> 'a -> 'id1 function_name -> 'a * 'id2 function_name;
   fold_expr             : ('a, 'id1, 'id2) t -> 'a -> 'id1 expr -> 'a * 'id2 expr;
   fold_decl             : ('a, 'id1, 'id2) t -> 'a -> 'id1 decl -> 'a * 'id2 decl;
 }
@@ -125,13 +124,6 @@ let visit_parameter v state = function
       state, Param (type_name, lname)
 
 
-let visit_function_name v state = function
-  | Fn_Custom (type_name, lname) ->
-      let state, type_name = v.fold_type_name v state type_name in
-      let state, lname = v.fold_lname v state lname in
-      state, Fn_Custom (type_name, lname)
-
-
 let visit_expr v state = function
   | E_Number num ->
       state, E_Number num
@@ -166,11 +158,12 @@ let visit_decl v state = function
       let state, lname = v.fold_lname v state lname in
       let state, decls = visit_list v.fold_decl v state decls in
       state, Decl_Class (lname, decls)
-  | Decl_Function (function_name, parameters, error_list) ->
-      let state, function_name = v.fold_function_name v state function_name in
+  | Decl_Function (type_name, lname, parameters, error_list) ->
+      let state, type_name = v.fold_type_name v state type_name in
+      let state, lname = v.fold_lname v state lname in
       let state, parameters = visit_list v.fold_parameter v state parameters in
       let state, error_list = v.fold_error_list v state error_list in
-      state, Decl_Function (function_name, parameters, error_list)
+      state, Decl_Function (type_name, lname, parameters, error_list)
   | Decl_Const (uname, expr) ->
       let state, uname = v.fold_uname v state uname in
       let state, expr = v.fold_expr v state expr in
@@ -219,7 +212,6 @@ let default = {
   fold_enumerator = visit_enumerator;
   fold_error_list = visit_error_list;
   fold_parameter = visit_parameter;
-  fold_function_name = visit_function_name;
   fold_expr = visit_expr;
   fold_decl = visit_decl;
 }

@@ -12,7 +12,6 @@ type ('a, 'id) t = {
   fold_enumerator       : ('a, 'id) t -> 'a -> 'id enumerator -> 'a;
   fold_error_list       : ('a, 'id) t -> 'a -> 'id error_list -> 'a;
   fold_parameter        : ('a, 'id) t -> 'a -> 'id parameter -> 'a;
-  fold_function_name    : ('a, 'id) t -> 'a -> 'id function_name -> 'a;
   fold_expr             : ('a, 'id) t -> 'a -> 'id expr -> 'a;
   fold_decl             : ('a, 'id) t -> 'a -> 'id decl -> 'a;
 }
@@ -118,13 +117,6 @@ let visit_parameter v state = function
       state
 
 
-let visit_function_name v state = function
-  | Fn_Custom (type_name, lname) ->
-      let state = v.fold_type_name v state type_name in
-      let state = v.fold_lname v state lname in
-      state
-
-
 let visit_expr v state = function
   | E_Number num ->
       state
@@ -159,8 +151,9 @@ let visit_decl v state = function
       let state = v.fold_lname v state lname in
       let state = visit_list v.fold_decl v state decls in
       state
-  | Decl_Function (function_name, parameters, error_list) ->
-      let state = v.fold_function_name v state function_name in
+  | Decl_Function (type_name, lname, parameters, error_list) ->
+      let state = v.fold_type_name v state type_name in
+      let state = v.fold_lname v state lname in
       let state = visit_list v.fold_parameter v state parameters in
       let state = v.fold_error_list v state error_list in
       state
@@ -212,7 +205,6 @@ let default = {
   fold_enumerator = visit_enumerator;
   fold_error_list = visit_error_list;
   fold_parameter = visit_parameter;
-  fold_function_name = visit_function_name;
   fold_expr = visit_expr;
   fold_decl = visit_decl;
 }

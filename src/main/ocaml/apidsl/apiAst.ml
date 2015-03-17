@@ -53,11 +53,6 @@ type 'id parameter =
   [@@deriving show]
 
 
-type 'id function_name =
-  | Fn_Custom of 'id type_name * 'id lname
-  [@@deriving show]
-
-
 type 'id expr =
   | E_Number of int
   | E_UName of 'id uname
@@ -72,7 +67,7 @@ type 'id decl =
   | Decl_Macro of macro
   | Decl_Namespace of 'id lname * 'id decl list
   | Decl_Class of 'id lname * 'id decl list
-  | Decl_Function of 'id function_name * 'id parameter list * 'id error_list
+  | Decl_Function of 'id type_name * 'id lname * 'id parameter list * 'id error_list
   | Decl_Const of 'id uname * 'id expr
   | Decl_Enum of bool * 'id uname * 'id enumerator list
   | Decl_Error of 'id lname * 'id enumerator list

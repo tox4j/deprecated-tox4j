@@ -12,7 +12,6 @@ type ('a, 'id1, 'id2) t = {
   map_enumerator        : ('a, 'id1, 'id2) t -> 'a -> 'id1 enumerator -> 'id2 enumerator;
   map_error_list        : ('a, 'id1, 'id2) t -> 'a -> 'id1 error_list -> 'id2 error_list;
   map_parameter         : ('a, 'id1, 'id2) t -> 'a -> 'id1 parameter -> 'id2 parameter;
-  map_function_name     : ('a, 'id1, 'id2) t -> 'a -> 'id1 function_name -> 'id2 function_name;
   map_expr              : ('a, 'id1, 'id2) t -> 'a -> 'id1 expr -> 'id2 expr;
   map_decl              : ('a, 'id1, 'id2) t -> 'a -> 'id1 decl -> 'id2 decl;
 }
@@ -118,13 +117,6 @@ let visit_parameter v state = function
       Param (type_name, lname)
 
 
-let visit_function_name v state = function
-  | Fn_Custom (type_name, lname) ->
-      let type_name = v.map_type_name v state type_name in
-      let lname = v.map_lname v state lname in
-      Fn_Custom (type_name, lname)
-
-
 let visit_expr v state = function
   | E_Number num ->
       E_Number num
@@ -159,11 +151,12 @@ let visit_decl v state = function
       let lname = v.map_lname v state lname in
       let decls = visit_list v.map_decl v state decls in
       Decl_Class (lname, decls)
-  | Decl_Function (function_name, parameters, error_list) ->
-      let function_name = v.map_function_name v state function_name in
+  | Decl_Function (type_name, lname, parameters, error_list) ->
+      let type_name = v.map_type_name v state type_name in
+      let lname = v.map_lname v state lname in
       let parameters = visit_list v.map_parameter v state parameters in
       let error_list = v.map_error_list v state error_list in
-      Decl_Function (function_name, parameters, error_list)
+      Decl_Function (type_name, lname, parameters, error_list)
   | Decl_Const (uname, expr) ->
       let uname = v.map_uname v state uname in
       let expr = v.map_expr v state expr in
@@ -212,7 +205,6 @@ let default = {
   map_enumerator = visit_enumerator;
   map_error_list = visit_error_list;
   map_parameter = visit_parameter;
-  map_function_name = visit_function_name;
   map_expr = visit_expr;
   map_decl = visit_decl;
 }

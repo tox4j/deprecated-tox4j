@@ -49,7 +49,7 @@
  * It is possible to run multiple concurrent threads with a Tox instance for
  * each thread. It is also possible to run all Tox instances in the same thread.
  * A common way to run Tox (multiple or single instance) is to have one thread
- * running a simple $iterate loop, sleeping for $iteration_interval
+ * running a simple ${tox.iterate} loop, sleeping for ${tox.iteration_interval}
  * milliseconds on each iteration.
  *
  * If you want to access a single Tox instance from multiple threads, access
@@ -714,7 +714,7 @@ error for set_info {
 
 namespace self {
 
-  uint8_t[length <= MAX_NAME_LENGTH] name {
+  uint8_t[size <= MAX_NAME_LENGTH] name {
     /**
      * Set the nickname for the Tox client.
      *
@@ -755,7 +755,7 @@ namespace self {
   }
 
 
-  uint8_t[length <= MAX_STATUS_MESSAGE_LENGTH] status_message {
+  uint8_t[size <= MAX_STATUS_MESSAGE_LENGTH] status_message {
     /**
      * Set the client's status message.
      *
@@ -1127,7 +1127,7 @@ namespace friend {
   /**
    * This event is triggered when a friend changes their user status.
    */
-  event status_message {
+  event status {
     /**
      * @param friend_number The friend number of the friend whose user status
      *   changed.
@@ -1925,13 +1925,10 @@ namespace self {
   }
 
 
-  /**
-   * Return the TCP port this Tox instance is bound to. This is only relevant if
-   * the instance is acting as a TCP relay.
-   */
   uint16_t tcp_port {
     /**
-     * Return the UDP port this Tox instance is bound to.
+     * Return the TCP port this Tox instance is bound to. This is only relevant if
+     * the instance is acting as a TCP relay.
      */
     get() with error for get_port;
   }
