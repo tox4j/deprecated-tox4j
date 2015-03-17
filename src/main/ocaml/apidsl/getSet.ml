@@ -62,7 +62,7 @@ let translate_get_set ty name decls =
 
 
 let transform decls =
-  let open ApiFold in
+  let open ApiFoldMap in
 
   let fold_decl v state = function
     | Decl_GetSet (type_name, lname, decls) as decl ->

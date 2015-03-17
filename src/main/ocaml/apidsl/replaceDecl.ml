@@ -1,5 +1,5 @@
 open ApiAst
-open ApiFold
+open ApiFoldMap
 
 
 type ('a, 'id) t = {

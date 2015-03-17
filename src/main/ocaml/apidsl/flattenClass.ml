@@ -9,7 +9,7 @@ let prepend_ns ns name =
 
 
 let transform decls =
-  let open ApiFold in
+  let open ApiFoldMap in
 
   let fold_function_name v ns = function
     | Fn_Custom (type_name, lname) ->

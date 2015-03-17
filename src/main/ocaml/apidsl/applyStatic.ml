@@ -21,7 +21,7 @@ let can_apply_static = function
 
 
 let transform decls =
-  let open ApiFold in
+  let open ApiFoldMap in
 
   let fold_decl v static decl =
     let _, decl =

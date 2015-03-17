@@ -29,13 +29,17 @@ let leave_scope scope child =
 
 let scoped scope name f x =
   let child = enter_scope scope name in
-  let child, x = f child x in
+  let child = f child x in
   let scope = leave_scope scope child in
-  scope, x
+  scope
 
 
 let scopedl scope lname f x =
   let name = LName.to_string lname in
+  scoped scope name f x
+
+let scopedu scope uname f x =
+  let name = UName.to_string uname in
   scoped scope name f x
 
 
@@ -52,8 +56,12 @@ let add ?(extend=false) scope name =
     { scope with symbols }
 
 
-let addl ?extend scope lname =
+let addl ?extend lname scope =
   let name = LName.to_string lname in
+  add ?extend scope name
+
+let addu ?extend uname scope =
+  let name = UName.to_string uname in
   add ?extend scope name
 
 
