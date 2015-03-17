@@ -5,7 +5,7 @@ type tree = {
 } [@@deriving show]
 
 
-type t = (tree * string IntMap.t) [@@deriving show]
+type t = (string IntMap.t * tree) [@@deriving show]
 
 
 let empty = {
@@ -43,7 +43,8 @@ let add tree name =
   if StringMap.mem name tree.scope then
     failwith @@ "duplicate name: " ^ name;
 
-  { tree with scope = StringMap.add name 0 tree.scope }
+  let scope = StringMap.add name (StringMap.cardinal tree.scope) tree.scope in
+  { tree with scope }
 
 
 let addl tree lname =
@@ -51,5 +52,29 @@ let addl tree lname =
   add tree name
 
 
+let rec assign_ids table tree =
+  let scope =
+    StringMap.map (fun id -> id + IntMap.cardinal table) tree.scope
+  in
+
+  let table =
+    StringMap.fold
+      (fun name id table ->
+         assert (not (IntMap.mem id table));
+         IntMap.add id name table
+      ) scope table
+  in
+
+  let table, children =
+    StringMap.fold
+      (fun ns child (table, children) ->
+         let table, child = assign_ids table child in
+         table, StringMap.add ns child children
+      ) tree.children (table, StringMap.empty)
+  in
+
+  table, { tree with scope; children }
+
+
 let make tree =
-  (tree, IntMap.empty)
+  assign_ids IntMap.empty tree

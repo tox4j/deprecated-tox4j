@@ -1,2 +1,4 @@
 true: use_menhir
+true: annot
+true: bin_annot
 <*.ml{,i}>: package(ppx_deriving.std)
