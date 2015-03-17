@@ -23,10 +23,10 @@ let visit_list f v state l =
 
 
 let visit_uname v state = function
-  | UName name -> UName name
+  | name -> name
 
 let visit_lname v state = function
-  | LName name -> LName name
+  | name -> name
 
 let visit_macro v state = function
   | Macro macro -> Macro macro
@@ -215,35 +215,4 @@ let default = {
   map_function_name = visit_function_name;
   map_expr = visit_expr;
   map_decl = visit_decl;
-}
-
-let make
-  ~map_name
-  ?(map_uname = fun v state (UName name) -> UName (map_name v state name))
-  ?(map_lname = fun v state (LName name) -> LName (map_name v state name))
-  ?(map_macro=visit_macro)
-  ?(map_comment_fragment=visit_comment_fragment)
-  ?(map_comment=visit_comment)
-  ?(map_size_spec=visit_size_spec)
-  ?(map_type_name=visit_type_name)
-  ?(map_enumerator=visit_enumerator)
-  ?(map_error_list=visit_error_list)
-  ?(map_parameter=visit_parameter)
-  ?(map_function_name=visit_function_name)
-  ?(map_expr=visit_expr)
-  ?(map_decl=visit_decl)
-  () = {
-  map_uname;
-  map_lname;
-  map_macro;
-  map_comment_fragment;
-  map_comment;
-  map_size_spec;
-  map_type_name;
-  map_enumerator;
-  map_error_list;
-  map_parameter;
-  map_function_name;
-  map_expr;
-  map_decl;
 }

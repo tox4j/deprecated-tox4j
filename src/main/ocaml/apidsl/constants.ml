@@ -5,11 +5,11 @@ let transform decls =
   let open ApiMap in
 
   let map_decl v state = function
-    | Decl_Const ((UName name), expr) ->
+    | Decl_Const (name, expr) ->
         let macro =
           Macro (
             Format.asprintf "#define %-30s %a"
-              name
+              (UName.to_string name)
               ApiCodegen.cg_expr expr
           )
         in

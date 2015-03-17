@@ -30,10 +30,10 @@ let visit_list f v state l =
 
 
 let visit_uname v state = function
-  | UName name -> state, UName name
+  | name -> state, name
 
 let visit_lname v state = function
-  | LName name -> state, LName name
+  | name -> state, name
 
 let visit_macro v state = function
   | Macro macro -> state, Macro macro
@@ -222,35 +222,4 @@ let default = {
   fold_function_name = visit_function_name;
   fold_expr = visit_expr;
   fold_decl = visit_decl;
-}
-
-let make
-  ~fold_name
-  ?(fold_uname = fun v state (UName name) -> let x, name = fold_name v state name in x, UName name)
-  ?(fold_lname = fun v state (LName name) -> let x, name = fold_name v state name in x, LName name)
-  ?(fold_macro=visit_macro)
-  ?(fold_comment_fragment=visit_comment_fragment)
-  ?(fold_comment=visit_comment)
-  ?(fold_size_spec=visit_size_spec)
-  ?(fold_type_name=visit_type_name)
-  ?(fold_enumerator=visit_enumerator)
-  ?(fold_error_list=visit_error_list)
-  ?(fold_parameter=visit_parameter)
-  ?(fold_function_name=visit_function_name)
-  ?(fold_expr=visit_expr)
-  ?(fold_decl=visit_decl)
-  () = {
-  fold_uname;
-  fold_lname;
-  fold_macro;
-  fold_comment_fragment;
-  fold_comment;
-  fold_size_spec;
-  fold_type_name;
-  fold_enumerator;
-  fold_error_list;
-  fold_parameter;
-  fold_function_name;
-  fold_expr;
-  fold_decl;
 }

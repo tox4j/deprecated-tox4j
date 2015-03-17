@@ -1,5 +1,5 @@
-type 'id uname = UName of 'id [@@deriving show]
-type 'id lname = LName of 'id [@@deriving show]
+type 'id uname = 'id Name.uname [@@deriving show]
+type 'id lname = 'id Name.lname [@@deriving show]
 type macro = Macro of string [@@deriving show]
 
 

@@ -38,17 +38,20 @@ let rec translate_get_set ty name = function
       let decl = translate_get_set ty name decl in
       Decl_Comment (comment, decl)
 
-  | Decl_Function (Fn_Custom (Ty_Auto, LName "size"), parameters, error_list) ->
-      let name = LName.prepend "get" name in
-      let name = LName.append name "size" in
-      let function_name = Fn_Custom (TypeName.size_t, name) in
-      Decl_Function (function_name, parameters, error_list)
-
-  | Decl_Function (Fn_Custom (Ty_Auto, LName "get"), parameters, error_list) ->
-      translate_get ty name parameters error_list
-
-  | Decl_Function (Fn_Custom (Ty_Auto, LName "set"), parameters, error_list) ->
-      translate_set ty name parameters error_list
+  | Decl_Function (Fn_Custom (Ty_Auto, fname), parameters, error_list) as decl ->
+      begin match LName.to_string fname with
+        | "size" ->
+            let name = LName.prepend "get" name in
+            let name = LName.append name "size" in
+            let function_name = Fn_Custom (TypeName.size_t, name) in
+            Decl_Function (function_name, parameters, error_list)
+        | "get" ->
+            translate_get ty name parameters error_list
+        | "set" ->
+            translate_set ty name parameters error_list
+        | _ ->
+            decl
+      end
 
   | decl ->
       failwith @@ show_decl Format.pp_print_string decl

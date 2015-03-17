@@ -1,8 +1,8 @@
 open ApiAst
 
 
-let void = Ty_LName (LName "void")
-let size_t = Ty_LName (LName "size_t")
+let void = Ty_LName (Name.lname "void")
+let size_t = Ty_LName (Name.lname "size_t")
 
 
 let rec is_array = function

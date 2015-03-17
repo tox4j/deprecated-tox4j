@@ -3,8 +3,8 @@ open ApiAst
 
 let prepend_ns ns name =
   List.fold_left
-    (fun (LName name) (LName ns) ->
-       LName (ns ^ "_" ^ name)
+    (fun name ns ->
+       Name.lname (LName.to_string ns ^ "_" ^ LName.to_string name)
     ) name ns
 
 
@@ -16,9 +16,6 @@ let transform decls =
         let _, type_name = v.fold_type_name v ns type_name in
         let lname = prepend_ns ns.ReplaceDecl.state lname in
         ns, Fn_Custom (type_name, lname)
-
-    | function_name ->
-        visit_function_name v ns function_name
   in
 
   let fold_decl v ns = function

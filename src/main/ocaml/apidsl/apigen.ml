@@ -11,23 +11,23 @@ let parse file =
 
 
 let () =
-  let tox_api = parse "tox.h" in
+  let api = parse "tox.h" in
 
-  let api =
-    tox_api
-    |> ScopeBinding.transform
-    |> ScopeBinding.inverse
+  let symtab =
+    api
+    |> ExtractSymbols.extract
   in
 
+  print_endline @@ SymbolTable.show symtab;
+
   let capi =
-    tox_api
+    api
     |> GetSet.transform
     |> ApplyStatic.transform
     |> FlattenNamespace.transform
     |> FlattenClass.transform
     |> Constants.transform
   in
-
   ignore capi;
 
   (*print_endline (ApiAst.show_decls api);*)
