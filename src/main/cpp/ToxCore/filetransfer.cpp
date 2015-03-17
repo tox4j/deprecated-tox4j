@@ -31,13 +31,39 @@ TOX_METHOD (void, FileControl,
           failure_case (FILE_CONTROL, NOT_PAUSED);
           failure_case (FILE_CONTROL, DENIED);
           failure_case (FILE_CONTROL, ALREADY_PAUSED);
-          failure_case (FILE_CONTROL, SEND_FAILED);
+          failure_case (FILE_CONTROL, SENDQ);
           }
         return unhandled ();
       },
     tox_file_send_control, friendNumber, fileNumber, file_control
   );
- 
+}
+
+/*
+ * Class:     im_tox_tox4jToxCoreImpl
+ * Method:    toxFileSendSeek
+ * Signature: (IIII)V
+ */
+TOX_METHOD (void, FileSendSeek,
+  jint instanceNumber, jint friendNumber, jint fileNumber, jlong position)
+{
+  return with_instance (env, instanceNumber, "FileControl",
+    [] (TOX_ERR_FILE_SEEK error)
+      {
+        switch (error)
+          {
+          success_case (FILE_SEEK);
+          failure_case (FILE_SEEK, FRIEND_NOT_FOUND);
+          failure_case (FILE_SEEK, FRIEND_NOT_CONNECTED);
+          failure_case (FILE_SEEK, NOT_FOUND);
+          failure_case (FILE_SEEK, DENIED);
+          failure_case (FILE_SEEK, INVALID_POSITION);
+          failure_case (FILE_SEEK, SENDQ);
+          }
+        return unhandled ();
+      },
+    tox_file_send_seek, friendNumber, fileNumber, position
+  );
 }
 
 /*
@@ -46,8 +72,9 @@ TOX_METHOD (void, FileControl,
  * Signature: (IIIJ[B)I
  */
 TOX_METHOD (jint, FileSend,
-  jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray filename)
+  jint instanceNumber, jint friendNumber, jint kind, jlong fileSize, jbyteArray fileId, jbyteArray filename)
 {
+  ByteArray fileIdData (env, fileId);
   ByteArray filenameData (env, filename);
   TOX_FILE_KIND const file_kind = [=] {
     switch (kind)
@@ -67,14 +94,13 @@ TOX_METHOD (jint, FileSend,
           failure_case (FILE_SEND, NULL);
           failure_case (FILE_SEND, FRIEND_NOT_FOUND);
           failure_case (FILE_SEND, FRIEND_NOT_CONNECTED);
-          failure_case (FILE_SEND, NAME_EMPTY);
-          failure_case (FILE_SEND, NAME_INVALID_LENGTH);
+          failure_case (FILE_SEND, NAME_TOO_LONG);
           failure_case (FILE_SEND, TOO_MANY);
           }
         return unhandled ();
       },
     identity,
-    tox_file_send, friendNumber, file_kind, fileSize, filenameData.data (), filenameData.size ()
+    tox_file_send, friendNumber, file_kind, fileSize, fileIdData.data (), filenameData.data (), filenameData.size ()
   );
 }
 

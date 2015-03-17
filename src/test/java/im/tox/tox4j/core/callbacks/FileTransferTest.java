@@ -41,7 +41,7 @@ public class FileTransferTest extends AliceBobTestBase {
                 addTask(new Task() {
                     @Override
                     public void perform(@NotNull ToxCore tox) throws ToxException {
-                        sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
+                        sentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length, null,
                                 ("file for " + getFriendName() + ".png").getBytes());
                     }
                 });

@@ -1,5 +1,8 @@
 #pragma once
 
+#define TOX_ERR_FILE_CONTROL_SEND_FAILED TOX_ERR_FILE_CONTROL_SENDQ
+#define TOX_ERR_FILE_SEEK_SEND_FAILED TOX_ERR_FILE_SEEK_SENDQ
+
 #include <tox/tox.h>
 
 

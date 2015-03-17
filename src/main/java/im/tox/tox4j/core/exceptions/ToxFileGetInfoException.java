@@ -3,19 +3,16 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxFileSendException extends ToxException {
+public final class ToxFileGetInfoException extends ToxException {
 
   public static enum Code {
-    NULL,
     FRIEND_NOT_FOUND,
-    FRIEND_NOT_CONNECTED,
-    NAME_TOO_LONG,
-    TOO_MANY,
+    NOT_FOUND,
   }
 
   private final @NotNull Code code;
 
-  public ToxFileSendException(@NotNull Code code) {
+  public ToxFileGetInfoException(@NotNull Code code) {
     this.code = code;
   }
 

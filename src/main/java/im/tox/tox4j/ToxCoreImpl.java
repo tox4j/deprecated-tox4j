@@ -582,11 +582,19 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException;
+    private static native void toxFileSendSeek(int instanceNumber, int friendNumber, int fileNumber, long position) throws ToxFileSendSeekException;
 
     @Override
-    public int fileSend(int friendNumber, int kind, long fileSize, @NotNull byte[] filename) throws ToxFileSendException {
-        return toxFileSend(instanceNumber, friendNumber, kind, fileSize, filename);
+    public void fileSendSeek(int friendNumber, int fileNumber, long position) throws ToxFileSendSeekException {
+        toxFileSendSeek(instanceNumber, friendNumber, fileNumber, position);
+    }
+
+
+    private static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @Nullable byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException;
+
+    @Override
+    public int fileSend(int friendNumber, int kind, long fileSize, @Nullable byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException {
+        return toxFileSend(instanceNumber, friendNumber, kind, fileSize, fileId, filename);
     }
 
 
@@ -595,6 +603,13 @@ public final class ToxCoreImpl extends AbstractToxCore {
     @Override
     public void fileSendChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException {
         toxFileSendChunk(instanceNumber, friendNumber, fileNumber, position, data);
+    }
+
+
+    private static native byte[] toxFileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException;
+
+    public byte[] fileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException {
+      	return toxFileGetFileId(friendNumber, fileNumber);
     }
 
 

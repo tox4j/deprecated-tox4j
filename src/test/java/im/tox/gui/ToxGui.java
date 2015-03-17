@@ -478,7 +478,7 @@ public class ToxGui extends JFrame {
                         return;
                     }
                     fileModel.addOutgoing(friendNumber, file,
-                        tox.fileSend(friendNumber, ToxFileKind.DATA, file.length(), file.getName().getBytes()));
+                        tox.fileSend(friendNumber, ToxFileKind.DATA, file.length(), null, file.getName().getBytes()));
                 } catch (ToxFileSendException e) {
                     addMessage("Send file failed: ", e.getCode());
                 } catch (Throwable e) {

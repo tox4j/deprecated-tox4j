@@ -11,7 +11,15 @@
       "NOT_PAUSED",
       "DENIED",
       "ALREADY_PAUSED",
-      "SEND_FAILED"
+      "SENDQ"
+   ],
+   "FileSendSeek": [
+      "FRIEND_NOT_FOUND",
+      "FRIEND_NOT_CONNECTED",
+      "NOT_FOUND",
+      "DENIED",
+      "INVALID_POSITION",
+      "SENDQ"
    ],
    "FileSendChunk": [
       "NULL",
@@ -27,9 +35,12 @@
       "NULL",
       "FRIEND_NOT_FOUND",
       "FRIEND_NOT_CONNECTED",
-      "NAME_EMPTY",
-      "NAME_INVALID_LENGTH",
+      "NAME_TOO_LONG",
       "TOO_MANY"
+   ],
+   "FileGetInfo": [
+      "FRIEND_NOT_FOUND",
+      "NOT_FOUND"
    ],
    "FriendAdd": [
       "NULL",

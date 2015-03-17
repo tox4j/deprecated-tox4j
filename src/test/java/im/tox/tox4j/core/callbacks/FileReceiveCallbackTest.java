@@ -38,7 +38,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
                 addTask(new Task() {
                     @Override
                     public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
+                        tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length, null,
                                 ("file for " + getFriendName() + ".png").getBytes());
                     }
                 });

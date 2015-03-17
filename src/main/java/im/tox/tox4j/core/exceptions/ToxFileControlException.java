@@ -12,7 +12,7 @@ public final class ToxFileControlException extends ToxException {
     NOT_PAUSED,
     DENIED,
     ALREADY_PAUSED,
-    SEND_FAILED,
+    SENDQ,
   }
 
   private final @NotNull Code code;

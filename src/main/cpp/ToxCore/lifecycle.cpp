@@ -366,8 +366,8 @@ TOX_METHOD (jbyteArray, Save,
     [=] (Tox const *tox, Events &events)
       {
         unused (events);
-        std::vector<uint8_t> buffer (tox_save_size (tox));
-        tox_save (tox, buffer.data ());
+        std::vector<uint8_t> buffer (tox_get_savedata_size (tox));
+        tox_get_savedata (tox, buffer.data ());
 
         return toJavaArray (env, buffer);
       }
