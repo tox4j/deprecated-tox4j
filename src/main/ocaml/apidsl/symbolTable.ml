@@ -39,19 +39,22 @@ let scopedl scope lname f x =
   scoped scope name f x
 
 
-let add scope name =
+let add ?(extend=false) scope name =
   if StringMap.mem name scope.symbols then
-    failwith @@ "duplicate name: " ^ name;
+    if not extend then
+      failwith @@ "duplicate name: " ^ name
+    else
+      scope
+  else
+    let symbols =
+      StringMap.add name (StringMap.cardinal scope.symbols) scope.symbols
+    in
+    { scope with symbols }
 
-  let symbols =
-    StringMap.add name (StringMap.cardinal scope.symbols) scope.symbols
-  in
-  { scope with symbols }
 
-
-let addl scope lname =
+let addl ?extend scope lname =
   let name = LName.to_string lname in
-  add scope name
+  add ?extend scope name
 
 
 let rec assign_ids table scope =

@@ -18,16 +18,14 @@ let extract decls =
   in
 
   let fold_decl v scope = function
-    | Decl_GetSet (_, lname, decls) as decl ->
+    | Decl_GetSet (_, lname, decls)
+    | Decl_Class (lname, decls) as decl ->
         let scope = SymbolTable.addl scope lname in
         let scope = scoped_fold_decls v scope lname decls in
         scope, decl
 
-    | Decl_Class (lname, decls) as decl ->
-        let scope = scoped_fold_decls v scope lname decls in
-        scope, decl
-
     | Decl_Namespace (lname, decls) as decl ->
+        let scope = SymbolTable.addl ~extend:true scope lname in
         let scope = scoped_fold_decls v scope lname decls in
         scope, decl
 
