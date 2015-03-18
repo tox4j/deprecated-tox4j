@@ -63,7 +63,7 @@ let visit_size_spec v state = function
       let lname = v.map_lname v state lname in
       Ss_LName lname
   | Ss_Bounded (size_spec, uname) ->
-      let size_spec = v.map_size_spec v state size_spec in
+      let size_spec = v.map_lname v state size_spec in
       let uname = v.map_uname v state uname in
       Ss_Bounded (size_spec, uname)
 

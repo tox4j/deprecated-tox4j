@@ -67,16 +67,19 @@
  * E.g. to get the current nickname, one would write
  *
  * \code
- * size_t length = tox_self_get_name_size(tox);
+ * size_t length = ${tox.self.name.size}(tox);
  * uint8_t *name = malloc(length);
  * if (!name) abort();
- * tox_self_get_name(tox, name);
+ * ${tox.self.name.get}(tox, name);
  * \endcode
  *
- * If any other thread calls tox_self_set_name while this thread is allocating
- * memory, the length will have become invalid, and the call to
- * tox_self_get_name may cause undefined behaviour.
+ * If any other thread calls ${tox.self.name.set} while this thread is allocating
+ * memory, the length may have become invalid, and the call to
+ * ${tox.self.name.get} may cause undefined behaviour.
  */
+
+// The rest of this file is in class tox.
+class tox =
 
 /**
  * The Tox instance type. All the state associated with a connection is held
@@ -85,7 +88,7 @@
  * device is limited. Note that this is not just a per-process limit, since the
  * limiting factor is the number of usable ports on a device.
  */
-class tox;
+struct this;
 
 
 /*******************************************************************************
@@ -417,9 +420,9 @@ static class options {
  * @param length The length of the byte array data. If this parameter is 0, the
  *   data parameter is ignored.
  *
- * @see $iteration for the event loop.
+ * @see $iterate for the event loop.
  */
-static this new(const options options, const uint8_t[length] data, size_t length) {
+static this new(const options options, const uint8_t[length] data) {
   NULL,
   /**
    * The function was unable to allocate enough memory to store the internal
@@ -841,8 +844,7 @@ namespace friendlist {
    */
   uint32_t add(
       const uint8_t[ADDRESS_SIZE] address,
-      const uint8_t[length <= MAX_FRIEND_REQUEST_LENGTH] message,
-      size_t length
+      const uint8_t[length <= MAX_FRIEND_REQUEST_LENGTH] message
   ) {
     NULL,
     /**
@@ -1065,7 +1067,7 @@ namespace friend {
      * @param length A value equal to the return value of
      *   ${name.size}.
      */
-    typedef void(uint32_t friend_number, const uint8_t[length] name, size_t length);
+    typedef void(uint32_t friend_number, const uint8_t[length <= MAX_NAME_LENGTH] name);
   }
 
 
@@ -1107,7 +1109,7 @@ namespace friend {
      * @param length A value equal to the return value of
      *   ${status_message.size}.
      */
-    typedef void(uint32_t friend_number, const uint8_t[length] message, size_t length);
+    typedef void(uint32_t friend_number, const uint8_t[length <= MAX_STATUS_MESSAGE_LENGTH] message);
   }
 
 
@@ -1256,7 +1258,7 @@ namespace friend {
      * incremented by 1 each time a message is sent. If UINT32_MAX messages were
      * sent, the next message ID is 0.
      */
-    uint32_t message(uint32_t friend_number, const uint8_t[length] message, size_t length) {
+    uint32_t message(uint32_t friend_number, const uint8_t[length <= MAX_MESSAGE_LENGTH] message) {
       NULL,
       /**
        * The friend number did not designate a valid friend.
@@ -1292,7 +1294,7 @@ namespace friend {
      *
      * @see $message for more details.
      */
-    uint32_t action(uint32_t friend_number, const uint8_t[length] message, size_t length)
+    uint32_t action(uint32_t friend_number, const uint8_t[length <= MAX_MESSAGE_LENGTH] message)
         with error for message;
 
   }
@@ -1340,7 +1342,7 @@ namespace friend {
      * @param message The message they sent along with the request.
      * @param length The size of the message byte array.
      */
-    typedef void(const uint8_t[PUBLIC_KEY_SIZE] public_key, uint32_t time_delta, const uint8_t[length] message, size_t length);
+    typedef void(const uint8_t[PUBLIC_KEY_SIZE] public_key, uint32_t time_delta, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
   }
 
 
@@ -1356,7 +1358,7 @@ namespace friend {
      *
      * @see ${event request} for more information on time_delta.
      */
-    typedef void(uint32_t friend_number, uint32_t time_delta, const uint8_t[length] message, size_t length);
+    typedef void(uint32_t friend_number, uint32_t time_delta, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
   }
 
 
@@ -1372,7 +1374,7 @@ namespace friend {
      *
      * @see ${event request} for more information on time_delta.
      */
-    typedef void(uint32_t friend_number, uint32_t time_delta, const uint8_t[length] message, size_t length);
+    typedef void(uint32_t friend_number, uint32_t time_delta, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
   }
 
 }
@@ -1404,7 +1406,7 @@ namespace friend {
  *
  * @return true if hash was not NULL.
  */
-static bool hash(uint8_t[HASH_LENGTH] hash, const uint8_t[length] data, size_t length);
+static bool hash(uint8_t[HASH_LENGTH] hash, const uint8_t[length] data);
 
 
 namespace file {
@@ -1585,7 +1587,7 @@ namespace file {
    *   number is per friend. File numbers are reused after a transfer terminates.
    *   on failure, this function returns UINT32_MAX.
    */
-  uint32_t send(uint32_t friend_number, uint32_t kind, uint64_t file_size, const uint8_t[filename_length] filename, size_t filename_length) {
+  uint32_t send(uint32_t friend_number, uint32_t kind, uint64_t file_size, const uint8_t[filename_length] filename) {
     NULL,
     /**
      * The friend_number passed did not designate a valid friend.
@@ -1624,7 +1626,7 @@ namespace file {
    *
    * @return true on success.
    */
-  bool send_chunk(uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t[length] data, size_t length) {
+  bool send_chunk(uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t[length] data) {
     /**
      * The length parameter was non-zero, but data was NULL.
      */
@@ -1728,7 +1730,7 @@ namespace file {
      * @param filename_length Size in bytes of the filename.
      */
     typedef void(uint32_t friend_number, uint32_t file_number, uint32_t kind,
-        uint64_t file_size, const uint8_t[filename_length] filename, size_t filename_length);
+        uint64_t file_size, const uint8_t[filename_length] filename);
   }
 
 
@@ -1754,7 +1756,7 @@ namespace file {
      * @param length The length of the received chunk.
      */
     typedef void(uint32_t friend_number, uint32_t file_number, uint64_t position,
-        const uint8_t[length] data, size_t length);
+        const uint8_t[length] data);
   }
 
 }
@@ -1834,7 +1836,7 @@ namespace friend {
      *
      * @return true on success.
      */
-    bool lossy_packet(uint32_t friend_number, const uint8_t[length] data, size_t length)
+    bool lossy_packet(uint32_t friend_number, const uint8_t[length <= MAX_CUSTOM_PACKET_SIZE] data)
         with error for custom_packet;
 
 
@@ -1854,7 +1856,7 @@ namespace friend {
      *
      * @return true on success.
      */
-    bool lossless_packet(uint32_t friend_number, const uint8_t[length] data, size_t length)
+    bool lossless_packet(uint32_t friend_number, const uint8_t[length <= MAX_CUSTOM_PACKET_SIZE] data)
         with error for custom_packet;
 
   }
@@ -1866,7 +1868,7 @@ namespace friend {
      * @param data A byte array containing the received packet data.
      * @param length The length of the packet data byte array.
      */
-    typedef void(uint32_t friend_number, const uint8_t[length] data, size_t length);
+    typedef void(uint32_t friend_number, const uint8_t[length <= MAX_CUSTOM_PACKET_SIZE] data);
   }
 
 
@@ -1876,7 +1878,7 @@ namespace friend {
      * @param data A byte array containing the received packet data.
      * @param length The length of the packet data byte array.
      */
-    typedef void(uint32_t friend_number, const uint8_t[length] data, size_t length);
+    typedef void(uint32_t friend_number, const uint8_t[length <= MAX_CUSTOM_PACKET_SIZE] data);
   }
 
 }

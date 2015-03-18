@@ -99,6 +99,8 @@ member_decl
 struct_decl
 	: STRUCT THIS LBRACE declarations RBRACE
 		{ Decl_Struct $4 }
+	| STRUCT THIS SEMICOLON
+		{ Decl_Struct [] }
 
 
 error_decl
@@ -180,7 +182,7 @@ parameter
 
 
 class_decl
-	: CLASS lname SEMICOLON declarations EOF
+	: CLASS lname EQ declarations EOF
 		{ Decl_Class ($2, $4) }
 	| CLASS lname LBRACE declarations RBRACE
 		{ Decl_Class ($2, $4) }
@@ -209,7 +211,7 @@ size_spec
 	| uname
 		{ Ss_UName $1 }
 	| lname LE uname
-		{ Ss_Bounded (Ss_LName $1, $3) }
+		{ Ss_Bounded ($1, $3) }
 
 
 comment_block_opt

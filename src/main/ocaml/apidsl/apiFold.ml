@@ -63,7 +63,7 @@ let visit_size_spec v state = function
       let state = v.fold_lname v state lname in
       state
   | Ss_Bounded (size_spec, uname) ->
-      let state = v.fold_size_spec v state size_spec in
+      let state = v.fold_lname v state size_spec in
       let state = v.fold_uname v state uname in
       state
 

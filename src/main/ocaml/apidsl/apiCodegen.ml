@@ -66,7 +66,7 @@ let rec cg_size_spec fmt = function
         cg_lname lname
   | Ss_Bounded (lhs, rhs) ->
       Format.fprintf fmt "%a <= %a"
-        cg_size_spec lhs
+        cg_lname lhs
         cg_uname rhs
 
 
@@ -203,7 +203,10 @@ let rec cg_decl_qualified qualifier fmt = function
       Format.fprintf fmt "@,error for %a %a"
         cg_lname lname
         (cg_braced cg_enumerators) enumerators
-  | Decl_Struct (decls) ->
+  | Decl_Struct [] ->
+      assert (qualifier = "");
+      Format.fprintf fmt "@,struct this;"
+  | Decl_Struct decls ->
       assert (qualifier = "");
       Format.fprintf fmt "@,struct this %a"
         (cg_braced cg_decls) decls

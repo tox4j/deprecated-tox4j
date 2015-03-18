@@ -1,4 +1,5 @@
 open ApiAst
+open ApiFoldMap
 
 
 let can_apply_static = function
@@ -20,36 +21,36 @@ let can_apply_static = function
       false
 
 
-let transform (symtab, decls) =
-  let open ApiFoldMap in
+let fold_decl v static decl =
+  let _, decl =
+    match decl with
+    | Decl_Static (Decl_Namespace (name, decls)) ->
+        (* Add static to the inner scope. *)
+        let static' = true in
+        let static', decls = visit_list v.fold_decl v static' decls in
+        assert (static');
+        static', Decl_Namespace (name, decls)
 
-  let fold_decl v static decl =
-    let _, decl =
-      match decl with
-      | Decl_Static (Decl_Namespace (name, decls)) ->
-          (* Add static to the inner scope. *)
-          let static' = true in
-          let static', decls = visit_list v.fold_decl v static' decls in
-          assert (static');
-          static', Decl_Namespace (name, decls)
-
-      | decl ->
-          let static =
-            if can_apply_static decl then
-              false
-            else
-              static
-          in
-          visit_decl v static decl
-    in
-
-    (* Attach static to everything in this scope, if the outer scope was
-       static. *)
-    if static && can_apply_static decl then
-      static, Decl_Static decl
-    else
-      static, decl
+    | decl ->
+        let static =
+          if can_apply_static decl then
+            false
+          else
+            static
+        in
+        visit_decl v static decl
   in
 
-  let v = { default with fold_decl } in
+  (* Attach static to everything in this scope, if the outer scope was
+     static. *)
+  if static && can_apply_static decl then
+    static, Decl_Static decl
+  else
+    static, decl
+
+
+let v = { default with fold_decl }
+
+
+let transform (symtab, decls) =
   symtab, snd @@ visit_decls v false decls

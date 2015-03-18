@@ -1,4 +1,5 @@
 open ApiAst
+open ApiFoldMap
 
 
 let rec add_types symtab name ty = function
@@ -90,10 +91,9 @@ let fold_decl v state = function
       ReplaceDecl.fold_decl v state decl
 
 
+let v = { default with fold_decl }
+
+
 let transform (symtab, decls) =
-  let open ApiFoldMap in
-
-  let v = { default with fold_decl } in
-
   let state, decls = visit_decls v (ReplaceDecl.initial symtab) decls in
   ReplaceDecl.get state, decls

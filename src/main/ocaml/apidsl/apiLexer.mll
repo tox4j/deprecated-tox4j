@@ -34,6 +34,7 @@ and normal state =
   parse
 | '\n'					{ normal state lexbuf }
 | ' '					{ normal state lexbuf }
+| "//" [^'\n']*				{ normal state lexbuf }
 
 | "#define " uname ([^'\n']|"\\\n")+	{ MACRO (Lexing.lexeme lexbuf) }
 

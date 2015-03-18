@@ -24,10 +24,10 @@ let rec is_var_array = function
   | _ -> false
 
 
-let rec length_param_of_size_spec = function
+let length_param_of_size_spec = function
   | Ss_UName n -> failwith "UName as parameter name"
   | Ss_LName n -> n
-  | Ss_Bounded (spec, _) -> length_param_of_size_spec spec
+  | Ss_Bounded (spec, _) -> spec
 
 
 let rec length_param = function
