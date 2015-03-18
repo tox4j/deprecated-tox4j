@@ -264,6 +264,23 @@ enum class USER_STATUS {
 }
 
 
+/**
+ * Represents message types for ${tox.friend.send.message} and group chat
+ * messages.
+ */
+enum class MESSAGE_TYPE {
+  /**
+   * Normal text message. Similar to PRIVMSG on IRC.
+   */
+  NORMAL,
+  /**
+   * A message describing an user action. This is similar to /me (CTCP ACTION)
+   * on IRC.
+   */
+  ACTION,
+}
+
+
 /*******************************************************************************
  *
  * :: Startup options
@@ -1274,8 +1291,14 @@ namespace friend {
      * Message IDs are unique per friend. The first message ID is 0. Message IDs are
      * incremented by 1 each time a message is sent. If UINT32_MAX messages were
      * sent, the next message ID is 0.
+     *
+     * @param type Message type (normal, action, ...).
+     * @param friend_number The friend number of the friend to send the message to.
+     * @param message A non-NULL pointer to the first element of a byte array
+     *   containing the message text.
+     * @param length Length of the message to be sent.
      */
-    uint32_t message(uint32_t friend_number, const uint8_t[length <= MAX_MESSAGE_LENGTH] message) {
+    uint32_t message(MESSAGE_TYPE type, uint32_t friend_number, const uint8_t[length <= MAX_MESSAGE_LENGTH] message) {
       NULL,
       /**
        * The friend number did not designate a valid friend.
@@ -1298,21 +1321,6 @@ namespace friend {
        */
       EMPTY,
     }
-
-
-    /**
-     * Send an action to an online friend.
-     *
-     * This is similar to /me (CTCP ACTION) on IRC.
-     *
-     * Message ID space is shared between $message and $action. This
-     * means that sending a message will cause the next message ID from sending an
-     * action to be incremented.
-     *
-     * @see $message for more details.
-     */
-    uint32_t action(uint32_t friend_number, const uint8_t[length <= MAX_MESSAGE_LENGTH] message)
-        with error for message;
 
   }
 
@@ -1375,23 +1383,7 @@ namespace friend {
      *
      * @see ${event request} for more information on time_delta.
      */
-    typedef void(uint32_t friend_number, uint32_t time_delta, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
-  }
-
-
-  /**
-   * This event is triggered when an action from a friend is received.
-   */
-  event action {
-    /**
-     * @param friend_number The friend number of the friend who sent the action.
-     * @param time_delta Time between composition and sending.
-     * @param message The action message data they sent.
-     * @param length The size of the message byte array.
-     *
-     * @see ${event request} for more information on time_delta.
-     */
-    typedef void(uint32_t friend_number, uint32_t time_delta, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
+    typedef void(uint32_t friend_number, uint32_t time_delta, MESSAGE_TYPE type, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
   }
 
 }
