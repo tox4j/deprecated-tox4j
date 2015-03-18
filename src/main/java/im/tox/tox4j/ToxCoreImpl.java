@@ -20,6 +20,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    private static final int[] EMPTY_INT_ARRAY = new int[0];
 
     @NotNull
     private static byte[] notNull(@Nullable byte[] bytes) {
@@ -27,6 +28,14 @@ public final class ToxCoreImpl extends AbstractToxCore {
             bytes = EMPTY_BYTE_ARRAY;
         }
         return bytes;
+    }
+
+    @NotNull
+    private static int[] notNull(@Nullable int[] ints) {
+        if (ints == null) {
+            ints = EMPTY_INT_ARRAY;
+        }
+        return ints;
     }
 
     private static void checkInfoNotNull(byte[] info) throws ToxSetInfoException {
@@ -495,7 +504,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     @NotNull
     @Override
     public int[] getFriendList() {
-        return toxFriendList(instanceNumber);
+        return notNull(toxFriendList(instanceNumber));
     }
 
 

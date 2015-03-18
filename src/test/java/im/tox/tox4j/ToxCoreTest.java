@@ -371,6 +371,13 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     }
 
     @Test
+    public void testFriendList_Empty() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertArrayEquals(tox.getFriendList(), new int[]{});
+        }
+    }
+
+    @Test
     public void testDeleteAndReAddFriend() throws Exception {
         try (ToxCore tox = newTox()) {
             addFriends(tox, 5);
