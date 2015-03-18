@@ -281,6 +281,14 @@ class instance_manager
   instance_manager (instance_manager const &) = delete;
   instance_manager &operator = (instance_manager const &) = delete;
 
+  ~instance_manager ()
+  {
+    // Explicitly kill the instances, because their mutex needs to be locked
+    // before calling tox_kill.
+    while (!instances.empty ())
+      kill (std::move (instances.back ()));
+  }
+
 public:
   std::unique_lock<std::mutex>
   lock ()
@@ -346,8 +354,9 @@ private:
   static void
   kill (instance_type dying)
   {
-    assert (dying.isLive ());
     dying.assertValid ();
+    if (!dying.isLive ())
+      return;
     auto mutex = std::move (dying.mutex);
     std::lock_guard<std::mutex> ilock (*mutex);
   }
