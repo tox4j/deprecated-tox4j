@@ -90,6 +90,9 @@ let rec cg_type_name fmt = function
   | Ty_Const type_name ->
       Format.fprintf fmt "const %a"
         cg_type_name type_name
+  | Ty_Pointer type_name ->
+      Format.fprintf fmt "%a *"
+        cg_type_name type_name
 
 
 let cg_function_name fmt = function

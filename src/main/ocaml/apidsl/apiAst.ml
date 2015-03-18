@@ -31,6 +31,7 @@ type 'id type_name =
   | Ty_Array of 'id lname * 'id size_spec
   | Ty_Auto
   | Ty_Const of 'id type_name
+  | Ty_Pointer of 'id type_name
   [@@deriving show]
 
 

@@ -84,6 +84,9 @@ let visit_type_name v state = function
   | Ty_Const type_name ->
       let state = v.fold_type_name v state type_name in
       state
+  | Ty_Pointer type_name ->
+      let state = v.fold_type_name v state type_name in
+      state
 
 
 let visit_enumerator v state = function

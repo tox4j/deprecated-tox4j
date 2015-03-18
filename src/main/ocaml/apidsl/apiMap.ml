@@ -84,6 +84,9 @@ let visit_type_name v state = function
   | Ty_Const type_name ->
       let type_name = v.map_type_name v state type_name in
       Ty_Const type_name
+  | Ty_Pointer type_name ->
+      let type_name = v.map_type_name v state type_name in
+      Ty_Pointer type_name
 
 
 let visit_enumerator v state = function

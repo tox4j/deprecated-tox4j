@@ -9,7 +9,7 @@ let map_decl v symtab = function
       let lname = v.map_lname v symtab lname in
       let parameters =
         let error =
-          let error_ty = Ty_UName error_type_name in
+          let error_ty = Ty_Pointer (Ty_UName error_type_name) in
           let error_name = SymbolTable.lookup symtab [] "error" in
           Param (error_ty, error_name)
         in

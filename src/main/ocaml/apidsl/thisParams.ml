@@ -9,7 +9,7 @@ let map_decl v this_name = function
       decl
 
   | Decl_Function (Ty_Const (type_name), lname, parameters, error_list) ->
-      let this_type = Ty_Const (TypeName.this) in
+      let this_type = Ty_Const (Ty_Pointer TypeName.this) in
       let parameters = Param (this_type, this_name) :: parameters in
       Decl_Function (type_name, lname, parameters, error_list)
 
@@ -18,9 +18,9 @@ let map_decl v this_name = function
         let this_type =
           match lname with
           | "get" | "size" ->
-              Ty_Const (TypeName.this)
+              Ty_Const (Ty_Pointer TypeName.this)
           | _ ->
-              TypeName.this
+              Ty_Pointer TypeName.this
         in
         Param (this_type, this_name) :: parameters
       in
