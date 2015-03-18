@@ -20,8 +20,10 @@ let () =
     |> ThisParams.transform
     |> (fun api -> ExtractSymbols.extract api, api)
     |> ScopeBinding.transform
-    |> GetSetNames.transform
+    |> GetSetRename.transform
+    |> GetSetFlatten.transform
     |> SplitErrorCodes.transform
+    (*|> ErrorEnumsRename.transform*)
     |> ApplyStatic.transform
     |> StructTypes.transform
     |> ClassToNamespace.transform

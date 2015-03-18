@@ -1,5 +1,5 @@
 open ApiAst
-open ApiFoldMap
+open ApiFold
 
 
 let rec rename_symbols name symtab = function
@@ -48,26 +48,16 @@ let rec rename_symbols name symtab = function
       failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
 
 
-let fold_decl v state = function
+let fold_decl v symtab = function
   | Decl_GetSet (type_name, lname, decls) ->
-      let symtab = ReplaceDecl.get state in
-
-      let symtab = List.fold_left (rename_symbols lname) symtab decls in
-
-      let state = ReplaceDecl.set state symtab in
-      let state = ReplaceDecl.replace state decls in
-
-      state, Decl_GetSet (type_name, lname, decls)
+      List.fold_left (rename_symbols lname) symtab decls
 
   | decl ->
-      ReplaceDecl.fold_decl v state decl
+      visit_decl v symtab decl
 
 
 let v = { default with fold_decl }
 
 
 let transform (symtab, decls) =
-  let state, decls =
-    ReplaceDecl.fold_decls v (ReplaceDecl.initial, symtab) decls
-  in
-  ReplaceDecl.get state, decls
+  visit_decls v symtab decls, decls
