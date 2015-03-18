@@ -193,7 +193,7 @@ object Jni extends Plugin {
         case Some(flags) => flags
         case None =>
           if (required) {
-            sys.error(s"No valid flags found; tried ${flags}")
+            sys.error(s"No valid flags found with compiler ${compiler}; tried ${flags}")
           } else {
             Nil
           }
