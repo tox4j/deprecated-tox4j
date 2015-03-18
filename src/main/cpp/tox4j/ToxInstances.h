@@ -286,7 +286,10 @@ class instance_manager
     // Explicitly kill the instances, because their mutex needs to be locked
     // before calling tox_kill.
     while (!instances.empty ())
-      kill (std::move (instances.back ()));
+      {
+        kill (std::move (instances.back ()));
+        instances.pop_back ();
+      }
   }
 
 public:
