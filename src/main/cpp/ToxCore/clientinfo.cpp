@@ -10,7 +10,11 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_ARRAY (uint8_t, self, public_key, TOX_PUBLIC_KEY_SIZE)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_array<uint8_t, TOX_PUBLIC_KEY_SIZE,
+          tox_self_get_public_key> (env, tox);
+      }
   );
 }
 
@@ -23,7 +27,11 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_ARRAY (uint8_t, self, secret_key, TOX_SECRET_KEY_SIZE)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_array<uint8_t, TOX_SECRET_KEY_SIZE,
+          tox_self_get_secret_key> (env, tox);
+      }
   );
 }
 
@@ -70,7 +78,11 @@ TOX_METHOD (jbyteArray, SelfGetAddress,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_ARRAY (uint8_t, self, address, TOX_ADDRESS_SIZE)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_array<uint8_t, TOX_ADDRESS_SIZE,
+          tox_self_get_address> (env, tox);
+      }
   );
 }
 
@@ -110,7 +122,12 @@ TOX_METHOD (jbyteArray, SelfGetName,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_VECTOR (uint8_t, self, name)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_vector<uint8_t,
+          tox_self_get_name_size,
+          tox_self_get_name> (env, tox);
+      }
   );
 }
 
@@ -137,7 +154,12 @@ TOX_METHOD (jbyteArray, SelfGetStatusMessage,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_VECTOR (uint8_t, self, status_message)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_vector<uint8_t,
+          tox_self_get_status_message_size,
+          tox_self_get_status_message> (env, tox);
+      }
   );
 }
 

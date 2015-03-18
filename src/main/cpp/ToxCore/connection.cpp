@@ -113,7 +113,11 @@ TOX_METHOD (jbyteArray, GetDhtId,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_ARRAY (uint8_t, self, dht_id, TOX_PUBLIC_KEY_SIZE)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_array<uint8_t, TOX_PUBLIC_KEY_SIZE,
+          tox_self_get_dht_id> (env, tox);
+      }
   );
 }
 

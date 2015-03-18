@@ -156,6 +156,11 @@ TOX_METHOD (jintArray, FriendList,
   jint instanceNumber)
 {
   return with_instance (env, instanceNumber,
-    GET_VECTOR (uint32_t, self, friend_list)
+    [env] (Tox const *tox, Events &)
+      {
+        return get_vector<uint32_t,
+          tox_self_get_friend_list_size,
+          tox_self_get_friend_list> (env, tox);
+      }
   );
 }
