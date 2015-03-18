@@ -23,6 +23,7 @@ let () =
     |> ApplyStatic.transform
     |> StructTypes.transform
     |> ApplyNamespaces.transform
+    |> FlattenNamespaces.transform
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
   in
