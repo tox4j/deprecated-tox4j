@@ -81,8 +81,6 @@ let visit_type_name v state = function
       state
   | Ty_Auto ->
       state
-  | Ty_This ->
-      state
   | Ty_Const type_name ->
       let state = v.fold_type_name v state type_name in
       state

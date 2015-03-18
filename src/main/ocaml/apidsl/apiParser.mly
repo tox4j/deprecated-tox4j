@@ -201,7 +201,7 @@ type_name
 	| lname LSQBRACK size_spec RSQBRACK
 		{ Ty_Array ($1, $3) }
 	| THIS
-		{ Ty_This }
+		{ Ty_LName "this" }
 	| CONST type_name
 		{ Ty_Const $2 }
 

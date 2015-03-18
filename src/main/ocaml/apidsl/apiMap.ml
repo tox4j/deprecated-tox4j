@@ -81,8 +81,6 @@ let visit_type_name v state = function
       Ty_Array (lname, size_spec)
   | Ty_Auto ->
       Ty_Auto
-  | Ty_This ->
-      Ty_This
   | Ty_Const type_name ->
       let type_name = v.map_type_name v state type_name in
       Ty_Const type_name

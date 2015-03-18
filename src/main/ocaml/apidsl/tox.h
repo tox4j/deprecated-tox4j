@@ -225,6 +225,16 @@ const MAX_CUSTOM_PACKET_SIZE      = 1373;
  */
 const HASH_LENGTH                 = 32;
 
+/**
+ * The number of bytes in a file id.
+ */
+const FILE_ID_LENGTH              = 32;
+
+/**
+ * The number of bytes in a file id.
+ */
+const MAX_FILENAME_LENGTH         = 255;
+
 
 /*******************************************************************************
  *
@@ -623,7 +633,7 @@ event connection_status {
  * Return the time in milliseconds before $iterate() should be called again
  * for optimal performance.
  */
-uint32_t iteration_interval();
+const uint32_t iteration_interval();
 
 
 /**
@@ -938,7 +948,7 @@ namespace friendlist {
    * @return the friend number on success, UINT32_MAX on failure.
    * @param public_key A byte array containing the Public Key.
    */
-  uint32_t by_public_key(const uint8_t[PUBLIC_KEY_SIZE] public_key) {
+  const uint32_t by_public_key(const uint8_t[PUBLIC_KEY_SIZE] public_key) {
     NULL,
     /**
      * No friend with the given Public Key exists on the friend list.
@@ -951,27 +961,27 @@ namespace friendlist {
    * Checks if a friend with the given friend number exists and returns true if
    * it does.
    */
-  bool contains(uint32_t friend_number);
+  const bool contains(uint32_t friend_number);
 
 
   /**
    * Return the number of friends on the friend list.
    *
    * This function can be used to determine how much memory to allocate for
-   * $list.
+   * $get.
    */
-  size();
+  const size_t get_size();
 
 
   /**
    * Copy a list of valid friend numbers into an array.
    *
-   * Call $size to determine the number of elements to allocate.
+   * Call $get_size to determine the number of elements to allocate.
    *
    * @param list A memory region with enough space to hold the friend list. If
    *   this parameter is NULL, this function has no effect.
    */
-  void list(uint32_t[size] list);
+  const void get(uint32_t[size] list);
 
 }
 
@@ -1533,8 +1543,8 @@ namespace file {
   /**
    * Send a file transmission request.
    *
-   * Maximum filename length is 255 bytes. The filename should generally just be
-   * a file name, not a path with directory names.
+   * Maximum filename length is $MAX_FILENAME_LENGTH bytes. The filename
+   * should generally just be a file name, not a path with directory names.
    *
    * If a non-zero file size is provided, this can be used by both sides to
    * determine the sending progress. File size can be set to zero for streaming
@@ -1587,7 +1597,7 @@ namespace file {
    *   number is per friend. File numbers are reused after a transfer terminates.
    *   on failure, this function returns UINT32_MAX.
    */
-  uint32_t send(uint32_t friend_number, uint32_t kind, uint64_t file_size, const uint8_t[filename_length] filename) {
+  uint32_t send(uint32_t friend_number, uint32_t kind, uint64_t file_size, const uint8_t[filename_length <= MAX_FILENAME_LENGTH] filename) {
     NULL,
     /**
      * The friend_number passed did not designate a valid friend.
@@ -1602,7 +1612,7 @@ namespace file {
      */
     NAME_EMPTY,
     /**
-     * Filename length exceeded 255 bytes.
+     * Filename length exceeded $MAX_FILENAME_LENGTH bytes.
      */
     NAME_TOO_LONG,
     /**
@@ -1730,7 +1740,7 @@ namespace file {
      * @param filename_length Size in bytes of the filename.
      */
     typedef void(uint32_t friend_number, uint32_t file_number, uint32_t kind,
-        uint64_t file_size, const uint8_t[filename_length] filename);
+        uint64_t file_size, const uint8_t[filename_length <= MAX_FILENAME_LENGTH] filename);
   }
 
 

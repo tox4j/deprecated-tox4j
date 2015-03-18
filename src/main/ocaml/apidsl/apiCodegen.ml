@@ -43,7 +43,7 @@ let cg_comment fmt = function
       Format.fprintf fmt "@,/**%a@, */"
         (cg_list cg_comment_fragment) frags
   | Cmt_Section frags ->
-      Format.fprintf fmt "@,/*";
+      Format.fprintf fmt "@,@,/*";
       for i = 0 to 77 do
         Format.pp_print_char fmt '*'
       done;
@@ -53,7 +53,7 @@ let cg_comment fmt = function
       for i = 0 to 77 do
         Format.pp_print_char fmt '*'
       done;
-      Format.fprintf fmt "/@,@,@,";
+      Format.fprintf fmt "/@,@,";
 ;;
 
 
@@ -87,8 +87,6 @@ let rec cg_type_name fmt = function
         cg_size_spec size_spec
   | Ty_Auto ->
       Format.fprintf fmt "auto"
-  | Ty_This ->
-      Format.fprintf fmt "this"
   | Ty_Const type_name ->
       Format.fprintf fmt "const %a"
         cg_type_name type_name

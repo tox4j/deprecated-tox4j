@@ -22,6 +22,7 @@ let () =
     |> GetSet.transform
     |> ApplyStatic.transform
     |> StructTypes.transform
+    |> ClassToNamespace.transform
     |> ApplyNamespaces.transform
     |> FlattenNamespaces.transform
     |> Constants.transform

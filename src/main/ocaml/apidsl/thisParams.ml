@@ -8,8 +8,19 @@ let map_decl v this_name = function
   | Decl_Static (Decl_Function _) as decl ->
       decl
 
+  | Decl_Function (Ty_Const (type_name), lname, parameters, error_list) ->
+      let this_type = Ty_Const (TypeName.this) in
+      let parameters = Param (this_type, this_name) :: parameters in
+      Decl_Function (type_name, lname, parameters, error_list)
+
   | Decl_Function (type_name, lname, parameters, error_list) ->
-      let parameters = Param (TypeName.this, this_name) :: parameters in
+      let this_type =
+        if lname = "get" || lname = "size" then
+          Ty_Const (TypeName.this)
+        else
+          TypeName.this
+      in
+      let parameters = Param (this_type, this_name) :: parameters in
       Decl_Function (type_name, lname, parameters, error_list)
 
   | Decl_Class (lname, decls) ->

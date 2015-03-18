@@ -30,7 +30,6 @@ type 'id type_name =
   | Ty_LName of 'id lname
   | Ty_Array of 'id lname * 'id size_spec
   | Ty_Auto
-  | Ty_This
   | Ty_Const of 'id type_name
   [@@deriving show]
 

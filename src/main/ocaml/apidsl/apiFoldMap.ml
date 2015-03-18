@@ -88,8 +88,6 @@ let visit_type_name v state = function
       state, Ty_Array (lname, size_spec)
   | Ty_Auto ->
       state, Ty_Auto
-  | Ty_This ->
-      state, Ty_This
   | Ty_Const type_name ->
       let state, type_name = v.fold_type_name v state type_name in
       state, Ty_Const type_name
