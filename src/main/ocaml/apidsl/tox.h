@@ -620,29 +620,33 @@ enum class CONNECTION {
 }
 
 
-CONNECTION connection_status {
-  /**
-   * Return whether we are connected to the DHT. The return value is equal to the
-   * last value received through the `connection_status` callback.
-   */
-  get();
-}
+namespace self {
+
+  CONNECTION connection_status {
+    /**
+     * Return whether we are connected to the DHT. The return value is equal to the
+     * last value received through the `${event connection_status}` callback.
+     */
+    get();
+  }
 
 
-/**
- * This event is triggered whenever there is a change in the DHT connection
- * state. When disconnected, a client may choose to call $bootstrap again, to
- * reconnect to the DHT. Note that this state may frequently change for short
- * amounts of time. Clients should therefore not immediately bootstrap on
- * receiving a disconnect.
- *
- * TODO: how long should a client wait before bootstrapping again?
- */
-event connection_status {
   /**
-   * @param connection_status Whether we are connected to the DHT.
+   * This event is triggered whenever there is a change in the DHT connection
+   * state. When disconnected, a client may choose to call $bootstrap again, to
+   * reconnect to the DHT. Note that this state may frequently change for short
+   * amounts of time. Clients should therefore not immediately bootstrap on
+   * receiving a disconnect.
+   *
+   * TODO: how long should a client wait before bootstrapping again?
    */
-  typedef void(CONNECTION connection_status);
+  event connection_status {
+    /**
+     * @param connection_status Whether we are connected to the DHT.
+     */
+    typedef void(CONNECTION connection_status);
+  }
+
 }
 
 
@@ -1066,7 +1070,7 @@ namespace friend {
      * return value is unspecified.
      *
      * The return value is equal to the `length` argument received by the last
-     * `friend_name` callback.
+     * `${event name}` callback.
      */
     size(uint32_t friend_number)
         with error for friend_query;
@@ -1079,7 +1083,7 @@ namespace friend {
      * parameter.
      *
      * The data written to `name` is equal to the data received by the last
-     * `friend_name` callback.
+     * `${event name}` callback.
      *
      * @param name A valid memory region large enough to store the friend's name.
      *
@@ -1117,10 +1121,10 @@ namespace friend {
      * Write the name of the friend designated by the given friend number to a byte
      * array.
      *
-     * Call $size to determine the allocation size for the `name`
+     * Call $size to determine the allocation size for the `status_name`
      * parameter.
      *
-     * The data written to `message` is equal to the data received by the last
+     * The data written to `status_message` is equal to the data received by the last
      * `${event status_message}` callback.
      *
      * @param name A valid memory region large enough to store the friend's name.
@@ -1139,7 +1143,7 @@ namespace friend {
      * @param friend_number The friend number of the friend whose status message
      *   changed.
      * @param message A byte array containing the same data as
-     *   ${status_message.get} would write to its `message` parameter.
+     *   ${status_message.get} would write to its `status_message` parameter.
      * @param length A value equal to the return value of
      *   ${status_message.size}.
      */
@@ -1286,7 +1290,7 @@ namespace friend {
      * then reassemble the fragments. Messages may not be empty.
      *
      * The return value of this function is the message ID. If a read receipt is
-     * received, the triggered `read_receipt` event will be passed this message ID.
+     * received, the triggered `${event read_receipt}` event will be passed this message ID.
      *
      * Message IDs are unique per friend. The first message ID is 0. Message IDs are
      * incremented by 1 each time a message is sent. If UINT32_MAX messages were
@@ -1615,7 +1619,7 @@ namespace file {
    * data of unknown size.
    *
    * File transmission occurs in chunks, which are requested through the
-   * `file_request_chunk` event.
+   * `${event request_chunk}` event.
    *
    * If the file contents change during a transfer, the behaviour is unspecified
    * in general. What will actually happen depends on the mode in which the file
@@ -1683,7 +1687,7 @@ namespace file {
   /**
    * Send a chunk of file data to a friend.
    *
-   * This function is called in response to the `file_request_chunk` callback. The
+   * This function is called in response to the `${event request_chunk}` callback. The
    * length parameter should be equal to the one received though the callback.
    * If it is zero, the transfer is assumed complete. For files with known size,
    * Core will know that the transfer is complete after the last byte has been
