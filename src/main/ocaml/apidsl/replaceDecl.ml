@@ -2,39 +2,51 @@ open ApiAst
 open ApiFoldMap
 
 
-type ('a, 'id) t = {
-  user_state : 'a;
-  replacement : 'id decl list option;
-}
+type 'id action =
+  | Keep
+  | Replace of 'id decl list
+  | Prepend of 'id decl list
+  | Append  of 'id decl list
 
-let initial user_state = {
-  user_state;
-  replacement = None;
-}
 
-let replace state replacement =
-  { state with replacement = Some replacement }
+type ('a, 'id) t = 'id action * 'a
 
-let set state user_state =
-  { state with user_state }
 
-let get state =
-  state.user_state
+let initial = Keep
+
+let replace (_, user_state) decls =
+  (Replace decls, user_state)
+
+let prepend (_, user_state) decls =
+  (Prepend decls, user_state)
+
+let append (_, user_state) decls =
+  (Append decls, user_state)
+
+let set (replacement, _) user_state =
+  (replacement, user_state)
+
+let get = snd
 
 
 let fold_decls v state decls =
   let state, decls =
     List.fold_left
       (fun (state, decls) decl ->
-         let state, decl = v.fold_decl v state decl in
-         match state.replacement with
-         | None ->
+         let (replacement, user_state as state), decl =
+           v.fold_decl v state decl
+         in
+         match replacement with
+         | Keep ->
              state, decl :: decls
-         | Some replacement ->
-             { state with replacement = None }, List.rev replacement @ decls
+         | Replace replace ->
+             (Keep, user_state), List.rev replace @ decls
+         | Prepend prepend ->
+             (Keep, user_state), decl :: List.rev prepend @ decls
+         | _ -> failwith "Unhandled state in fold_decls"
       ) (state, []) decls
   in
-  assert (state.replacement = None);
+  assert (fst state = Keep);
   state, List.rev decls
 
 
@@ -42,16 +54,14 @@ let fold_decl v state = function
   | Decl_Comment (comment, decl) ->
       let state, comment = v.fold_comment v state comment in
       let state, decl = v.fold_decl v state decl in
-      let state = {
-        state with
-        replacement =
-          match state.replacement with
-          | None -> None
-          | Some [] -> Some []
-          | Some (decl0 :: decls) ->
-              Some (Decl_Comment (comment, decl0) :: decls)
-      } in
-      state, Decl_Comment (comment, decl)
+      let replacement =
+        match fst state with
+        | Keep | Replace [] | Prepend _ as replacement -> replacement
+        | Replace (decl0 :: decls) ->
+            Replace (Decl_Comment (comment, decl0) :: decls)
+        | _ -> failwith "Unhandled state"
+      in
+      (replacement, snd state), Decl_Comment (comment, decl)
   | Decl_Namespace (lname, decls) ->
       let state, lname = v.fold_lname v state lname in
       let state, decls = fold_decls v state decls in

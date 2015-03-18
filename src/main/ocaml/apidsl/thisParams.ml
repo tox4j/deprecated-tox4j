@@ -14,13 +14,16 @@ let map_decl v this_name = function
       Decl_Function (type_name, lname, parameters, error_list)
 
   | Decl_Function (type_name, lname, parameters, error_list) ->
-      let this_type =
-        if lname = "get" || lname = "size" then
-          Ty_Const (TypeName.this)
-        else
-          TypeName.this
+      let parameters =
+        let this_type =
+          match lname with
+          | "get" | "size" ->
+              Ty_Const (TypeName.this)
+          | _ ->
+              TypeName.this
+        in
+        Param (this_type, this_name) :: parameters
       in
-      let parameters = Param (this_type, this_name) :: parameters in
       Decl_Function (type_name, lname, parameters, error_list)
 
   | Decl_Class (lname, decls) ->

@@ -35,8 +35,14 @@ let rec rename_symbols name symtab = function
                    "set_" ^ name)
 
         | _ ->
-            failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
+            failwith (
+              "Unknown function: " ^
+              show_decl (SymbolTable.pp_symbol symtab) decl
+            )
       end
+
+  | Decl_Error _ ->
+      symtab
 
   | decl ->
       failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
@@ -61,5 +67,7 @@ let v = { default with fold_decl }
 
 
 let transform (symtab, decls) =
-  let state, decls = visit_decls v (ReplaceDecl.initial symtab) decls in
+  let state, decls =
+    ReplaceDecl.fold_decls v (ReplaceDecl.initial, symtab) decls
+  in
   ReplaceDecl.get state, decls

@@ -21,11 +21,12 @@ let () =
     |> (fun api -> ExtractSymbols.extract api, api)
     |> ScopeBinding.transform
     |> GetSetNames.transform
+    |> SplitErrorCodes.transform
     |> ApplyStatic.transform
     |> StructTypes.transform
     |> ClassToNamespace.transform
-    |> ApplyNamespaces.transform
-    |> FlattenNamespaces.transform
+    |> ApplyNamespaces.transform 1
+    |> FlattenNamespaces.transform 1
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
   in
