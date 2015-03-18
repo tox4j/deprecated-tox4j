@@ -828,7 +828,7 @@ namespace self {
  ******************************************************************************/
 
 
-namespace friendlist {
+namespace friend {
 
   /**
    * Add a friend to the friend list and send a friend request.
@@ -940,7 +940,7 @@ namespace friendlist {
  *
  ******************************************************************************/
 
-namespace friendlist {
+namespace friend {
 
   /**
    * Return the friend number associated with that Public Key.
@@ -961,29 +961,36 @@ namespace friendlist {
    * Checks if a friend with the given friend number exists and returns true if
    * it does.
    */
-  const bool contains(uint32_t friend_number);
+  const bool exists(uint32_t friend_number);
 
-
-  /**
-   * Return the number of friends on the friend list.
-   *
-   * This function can be used to determine how much memory to allocate for
-   * $get.
-   */
-  const size_t get_size();
-
-
-  /**
-   * Copy a list of valid friend numbers into an array.
-   *
-   * Call $get_size to determine the number of elements to allocate.
-   *
-   * @param list A memory region with enough space to hold the friend list. If
-   *   this parameter is NULL, this function has no effect.
-   */
-  const void get(uint32_t[size] list);
 
 }
+
+namespace self {
+
+  uint32_t[size] friend_list {
+    /**
+     * Return the number of friends on the friend list.
+     *
+     * This function can be used to determine how much memory to allocate for
+     * $get.
+     */
+    size();
+
+
+    /**
+     * Copy a list of valid friend numbers into an array.
+     *
+     * Call $size to determine the number of elements to allocate.
+     *
+     * @param list A memory region with enough space to hold the friend list. If
+     *   this parameter is NULL, this function has no effect.
+     */
+    get();
+  }
+
+}
+
 
 
 namespace friend {

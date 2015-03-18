@@ -15,11 +15,12 @@ let () =
 
   let api =
     api
+    |> GetSetParams.transform
     |> LengthParams.transform
     |> ThisParams.transform
     |> (fun api -> ExtractSymbols.extract api, api)
     |> ScopeBinding.transform
-    |> GetSet.transform
+    |> GetSetNames.transform
     |> ApplyStatic.transform
     |> StructTypes.transform
     |> ClassToNamespace.transform

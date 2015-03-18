@@ -89,6 +89,8 @@ typedef_decl
 get_set_decl
 	: type_name lname LBRACE declarations RBRACE
 		{ Decl_GetSet ($1, $2, $4) }
+	| type_name THIS LBRACE declarations RBRACE
+		{ Decl_GetSet ($1, "this", $4) }
 
 
 member_decl
