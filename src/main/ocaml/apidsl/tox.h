@@ -1628,7 +1628,7 @@ namespace file {
    * - If the file size was increased
    *   - and sending mode was streaming (file_size = 0), the behaviour will be as
    *     expected.
-   *   - and sending mode was file (file_size != 0), the file_request_chunk
+   *   - and sending mode was file (file_size != 0), the ${event request_chunk}
    *     callback will receive length = 0 when Core thinks the file transfer has
    *     finished. If the client remembers the file size as it was when sending
    *     the request, it will terminate the transfer normally. If the client
