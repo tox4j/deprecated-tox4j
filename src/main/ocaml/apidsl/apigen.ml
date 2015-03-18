@@ -10,7 +10,12 @@ let parse file =
   api
 
 
-let () =
+let (|!) x msg =
+  print_endline msg;
+  x
+
+
+let main () =
   let api = parse "tox.h" in
 
   let api =
@@ -18,17 +23,23 @@ let () =
     |> GetSetParams.transform
     |> LengthParams.transform
     |> ThisParams.transform
+    |> SplitErrorCodes.transform
     |> (fun api -> ExtractSymbols.extract api, api)
     |> ScopeBinding.transform
     |> GetSetRename.transform
     |> GetSetFlatten.transform
-    |> SplitErrorCodes.transform
-    (*|> ErrorEnumsRename.transform*)
     |> ApplyStatic.transform
     |> StructTypes.transform
     |> ClassToNamespace.transform
+    |> ErrorEnumsRename.transform
     |> ApplyNamespaces.transform 1
     |> FlattenNamespaces.transform 1
+    |> ErrorEnumsAddERR.transform
+    |> ErrorEnums.transform
+    |> ErrorParams.transform
+    |> ApplyNamespaces.transform 0
+    |> FlattenNamespaces.transform 0
+    |> ApplyEnums.transform
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
   in
@@ -37,3 +48,8 @@ let () =
 
   Format.fprintf Format.std_formatter "%a\n"
     ApiCodegen.cg_decls api
+
+
+let () =
+  (*Printexc.record_backtrace true;*)
+  main ()

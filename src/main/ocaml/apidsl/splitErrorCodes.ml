@@ -16,5 +16,5 @@ let fold_decl v state = function
 let v = { default with fold_decl }
 
 
-let transform (symtab, decls) =
-  symtab, snd @@ ReplaceDecl.fold_decls v (ReplaceDecl.initial, ()) decls
+let transform decls =
+  snd @@ ReplaceDecl.fold_decls v (ReplaceDecl.initial, ()) decls

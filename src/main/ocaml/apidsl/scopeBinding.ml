@@ -28,6 +28,16 @@ let map_enumerator symtab v scopes = function
       Enum_Namespace (uname', enumerators)
 
 
+let map_error_list symtab v scopes = function
+  | Err_From lname ->
+      let lname = "error " ^ lname in
+      let lname' = v.map_lname v scopes lname in
+      Err_From lname'
+
+  | error_list ->
+      visit_error_list v scopes error_list
+
+
 let map_decl symtab v scopes = function
   | Decl_Namespace (lname, decls) ->
       let lname' = v.map_lname v scopes lname in
@@ -48,6 +58,7 @@ let map_decl symtab v scopes = function
       let enumerators = scoped scopes uname (flip (visit_list v.map_enumerator v) enumerators) in
       Decl_Enum (is_class, uname', enumerators)
   | Decl_Error (lname, enumerators) ->
+      let lname = "error " ^ lname in
       let lname' = v.map_lname v scopes lname in
       let enumerators = scoped scopes lname (flip (visit_list v.map_enumerator v) enumerators) in
       Decl_Error (lname', enumerators)
@@ -79,13 +90,13 @@ let v symtab = {
   map_lname = map_lname symtab;
   map_enumerator = map_enumerator symtab;
   map_decl = map_decl symtab;
+  map_error_list = map_error_list symtab;
 
   map_macro = visit_macro;
   map_comment_fragment = visit_comment_fragment;
   map_comment = visit_comment;
   map_size_spec = visit_size_spec;
   map_type_name = visit_type_name;
-  map_error_list = visit_error_list;
   map_parameter = visit_parameter;
   map_expr = visit_expr;
 }

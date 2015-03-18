@@ -29,6 +29,11 @@ let fold_parameter v scope = function
 
 let fold_decl v scope = function
   | Decl_Function (type_name, lname, parameters, error_list) ->
+      let scope =
+        match error_list with
+        | Err_List _ -> SymbolTable.add ("error " ^ lname) scope
+        | _ -> scope
+      in
       scope
       |> SymbolTable.add lname
       |> fold_scoped v.fold_parameter v lname parameters
@@ -51,6 +56,7 @@ let fold_decl v scope = function
       |> fold_scoped v.fold_enumerator v uname enumerators
 
   | Decl_Error (lname, enumerators) ->
+      let lname = "error " ^ lname in
       scope
       |> SymbolTable.add lname
       |> fold_scoped v.fold_enumerator v lname enumerators

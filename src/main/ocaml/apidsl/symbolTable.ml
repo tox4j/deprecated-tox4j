@@ -26,6 +26,7 @@ let root = {
          id + 1, StringMap.add sym id symbols)
       (0, StringMap.empty)
       [
+        "error"; (* Used as name for error parameter. *)
         "void";
         "bool";
         "uint8_t";

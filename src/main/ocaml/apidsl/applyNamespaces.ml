@@ -14,6 +14,7 @@ let resolve_ns symtab ns =
 
 
 let fold_decl v (symtab, ignore_first, ns) = function
+  | Decl_Error (uname, _)
   | Decl_Enum (_, uname, _)
   | Decl_Const (uname, _) ->
       let symtab =

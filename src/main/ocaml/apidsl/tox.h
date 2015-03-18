@@ -1619,7 +1619,7 @@ namespace file {
    * data of unknown size.
    *
    * File transmission occurs in chunks, which are requested through the
-   * `${event request_chunk}` event.
+   * `${event chunk_request}` event.
    *
    * If the file contents change during a transfer, the behaviour is unspecified
    * in general. What will actually happen depends on the mode in which the file
@@ -1628,7 +1628,7 @@ namespace file {
    * - If the file size was increased
    *   - and sending mode was streaming (file_size = 0), the behaviour will be as
    *     expected.
-   *   - and sending mode was file (file_size != 0), the ${event request_chunk}
+   *   - and sending mode was file (file_size != 0), the ${event chunk_request}
    *     callback will receive length = 0 when Core thinks the file transfer has
    *     finished. If the client remembers the file size as it was when sending
    *     the request, it will terminate the transfer normally. If the client
@@ -1687,7 +1687,7 @@ namespace file {
   /**
    * Send a chunk of file data to a friend.
    *
-   * This function is called in response to the `${event request_chunk}` callback. The
+   * This function is called in response to the `${event chunk_request}` callback. The
    * length parameter should be equal to the one received though the callback.
    * If it is zero, the transfer is assumed complete. For files with known size,
    * Core will know that the transfer is complete after the last byte has been
@@ -1739,7 +1739,7 @@ namespace file {
   /**
    * This event is triggered when Core is ready to send more file data.
    */
-  event request_chunk {
+  event chunk_request {
     /**
      * If the length parameter is 0, the file transfer is finished, and the client's
      * resources associated with the file number should be released. After a call
