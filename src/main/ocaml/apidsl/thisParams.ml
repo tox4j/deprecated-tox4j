@@ -2,20 +2,21 @@ open ApiAst
 open ApiMap
 
 
-let map_decl v symtab = function
+let map_decl v state = function
 
-  | Decl_Static (Decl_Class (name, decls))
-  | Decl_Class (name, decls) ->
-      let decls = visit_list v.map_decl v symtab decls in
-      Decl_Namespace (name, decls)
+  | Decl_Static (Decl_Function _) as decl ->
+      decl
 
+  | Decl_Function (type_name, lname, parameters, error_list) ->
+      let parameters = Param (TypeName.this, "tox") :: parameters in
+      Decl_Function (type_name, lname, parameters, error_list)
 
   | decl ->
-      visit_decl v symtab decl
+      visit_decl v state decl
 
 
 let v = { default with map_decl }
 
 
-let transform (symtab, decls) =
-  symtab, visit_decls v symtab decls
+let transform decls =
+  visit_decls v () decls

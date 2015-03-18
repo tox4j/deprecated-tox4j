@@ -1,6 +1,7 @@
 open ApiAst
 
 
+let this = Ty_LName "this"
 let void = Ty_LName "void"
 let size_t = Ty_LName "size_t"
 

@@ -17,26 +17,26 @@ let rec add_types symtab name ty = function
 
         | "get" ->
             if TypeName.is_array ty then
+              let parameters = parameters @ [Param (ty, name)] in
               let parameters =
                 if TypeName.is_var_array ty then
-                  Param (size_t, TypeName.length_param ty) :: parameters
+                  parameters @ [Param (size_t, TypeName.length_param ty)]
                 else
                   parameters
               in
-              let parameters = Param (ty, name) :: parameters in
               Decl_Function (void, fname, parameters, error_list)
 
             else
               Decl_Function (ty, fname, parameters, error_list)
 
         | "set" ->
+            let parameters = parameters @ [Param (ty, name)] in
             let parameters =
               if TypeName.is_var_array ty then
-                Param (size_t, TypeName.length_param ty) :: parameters
+                parameters @ [Param (size_t, TypeName.length_param ty)]
               else
                 parameters
             in
-            let parameters = Param (ty, name) :: parameters in
             Decl_Function (void, fname, parameters, error_list)
 
         | _ -> failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
