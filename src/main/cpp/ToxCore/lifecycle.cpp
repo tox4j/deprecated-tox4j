@@ -25,7 +25,7 @@ add_connectionstatus (Message &msg, TOX_CONNECTION connection_status)
 }
 
 static void
-tox4j_connection_status_cb (Tox *tox, TOX_CONNECTION connection_status, Events &events)
+tox4j_self_connection_status_cb (Tox *tox, TOX_CONNECTION connection_status, Events &events)
 {
   unused (tox);
   auto msg = events.add_connectionstatus ();
@@ -69,9 +69,6 @@ tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_USER_STATUS status
     case TOX_USER_STATUS_BUSY:
       msg->set_status (FriendStatus::BUSY);
       break;
-    case TOX_USER_STATUS_INVALID:
-      cosmic_ray_error (__func__);
-      break;
     }
 }
 
@@ -113,23 +110,25 @@ tox4j_friend_request_cb (Tox *tox, uint8_t const *public_key, /*uint32_t time_de
 }
 
 static void
-tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events &events)
+tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events &events)
 {
   unused (tox);
   auto msg = events.add_friendmessage ();
   msg->set_friendnumber (friend_number);
+
+  using proto::FriendMessage;
+  switch (type)
+    {
+    case TOX_MESSAGE_TYPE_NORMAL:
+      msg->set_type (FriendMessage::NORMAL);
+      break;
+    case TOX_MESSAGE_TYPE_ACTION:
+      msg->set_type (FriendMessage::ACTION);
+      break;
+    }
+
   msg->set_timedelta (0);
   msg->set_message (message, length);
-}
-
-static void
-tox4j_friend_action_cb (Tox *tox, uint32_t friend_number, /*uint32_t time_delta, */ uint8_t const *action, size_t length, Events &events)
-{
-  unused (tox);
-  auto msg = events.add_friendaction ();
-  msg->set_friendnumber (friend_number);
-  msg->set_timedelta (0);
-  msg->set_action (action, length);
 }
 
 static void
@@ -167,7 +166,7 @@ tox4j_file_request_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_num
 }
 
 static void
-tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events &events)
+tox4j_file_recv_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events &events)
 {
   unused (tox);
   auto msg = events.add_filereceive ();
@@ -179,7 +178,7 @@ tox4j_file_receive_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, u
 }
 
 static void
-tox4j_file_receive_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, Events &events)
+tox4j_file_recv_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, Events &events)
 {
   unused (tox);
   auto msg = events.add_filereceivechunk ();
@@ -302,7 +301,7 @@ TOX_METHOD (jint, New,
 
         // Create the master events object and set up our callbacks.
         auto events = tox::callbacks (std::make_unique<Events> ())
-          .set<tox::callback_connection_status,         tox4j_connection_status_cb       > ()
+          .set<tox::callback_self_connection_status,    tox4j_self_connection_status_cb  > ()
           .set<tox::callback_friend_name,               tox4j_friend_name_cb             > ()
           .set<tox::callback_friend_status_message,     tox4j_friend_status_message_cb   > ()
           .set<tox::callback_friend_status,             tox4j_friend_status_cb           > ()
@@ -311,11 +310,10 @@ TOX_METHOD (jint, New,
           .set<tox::callback_friend_read_receipt,       tox4j_friend_read_receipt_cb     > ()
           .set<tox::callback_friend_request,            tox4j_friend_request_cb          > ()
           .set<tox::callback_friend_message,            tox4j_friend_message_cb          > ()
-          .set<tox::callback_friend_action,             tox4j_friend_action_cb           > ()
+          .set<tox::callback_file_recv,                 tox4j_file_recv_cb               > ()
           .set<tox::callback_file_recv_control,         tox4j_file_recv_control_cb       > ()
+          .set<tox::callback_file_recv_chunk,           tox4j_file_recv_chunk_cb         > ()
           .set<tox::callback_file_request_chunk,        tox4j_file_request_chunk_cb      > ()
-          .set<tox::callback_file_receive,              tox4j_file_receive_cb            > ()
-          .set<tox::callback_file_receive_chunk,        tox4j_file_receive_chunk_cb      > ()
           .set<tox::callback_friend_lossy_packet,       tox4j_friend_lossy_packet_cb     > ()
           .set<tox::callback_friend_lossless_packet,    tox4j_friend_lossless_packet_cb  > ()
           .set (tox.get ());

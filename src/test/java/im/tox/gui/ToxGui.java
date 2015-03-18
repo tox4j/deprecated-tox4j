@@ -175,11 +175,6 @@ public class ToxGui extends JFrame {
         }
 
         @Override
-        public void friendAction(int friendNumber, int timeDelta, @NotNull byte[] message) {
-            addMessage("friendAction", friendNumber, timeDelta, new String(message));
-        }
-
-        @Override
         public void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus) {
             addMessage("friendConnectionStatus", friendNumber, connectionStatus);
             friendListModel.setConnectionStatus(friendNumber, connectionStatus);
@@ -196,8 +191,8 @@ public class ToxGui extends JFrame {
         }
 
         @Override
-        public void friendMessage(int friendNumber, int timeDelta, @NotNull byte[] message) {
-            addMessage("friendMessage", friendNumber, timeDelta, new String(message));
+        public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) {
+            addMessage("friendMessage", friendNumber, type, timeDelta, new String(message));
         }
 
         @Override
@@ -438,10 +433,10 @@ public class ToxGui extends JFrame {
                         JOptionPane.showMessageDialog(ToxGui.this, "Select a friend to send a message to");
                     }
                     if (messageRadioButton.isSelected()) {
-                        tox.sendMessage(friendNumber, messageText.getText().getBytes());
+                        tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, messageText.getText().getBytes());
                         addMessage("Sent message to ", friendNumber + ": " + messageText.getText());
                     } else if (actionRadioButton.isSelected()) {
-                        tox.sendAction(friendNumber, messageText.getText().getBytes());
+                        tox.sendMessage(friendNumber, ToxMessageType.ACTION, 0, messageText.getText().getBytes());
                         addMessage("Sent action to ", friendNumber + ": " + messageText.getText());
                     }
                     messageText.setText("");

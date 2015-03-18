@@ -9,6 +9,7 @@ import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.*;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
+import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.core.enums.ToxStatus;
 import im.tox.tox4j.core.exceptions.*;
 import im.tox.tox4j.core.proto.Core;
@@ -62,7 +63,6 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private ReadReceiptCallback readReceiptCallback;
     private FriendRequestCallback friendRequestCallback;
     private FriendMessageCallback friendMessageCallback;
-    private FriendActionCallback friendActionCallback;
     private FileControlCallback fileControlCallback;
     private FileRequestChunkCallback fileRequestChunkCallback;
     private FileReceiveCallback fileReceiveCallback;
@@ -244,6 +244,14 @@ public final class ToxCoreImpl extends AbstractToxCore {
         throw new IllegalStateException("Bad enumerator: " + control);
     }
 
+    private static @NotNull ToxMessageType convert(@NotNull Core.FriendMessage.Type type) {
+        switch (type) {
+            case NORMAL: return ToxMessageType.NORMAL;
+            case ACTION: return ToxMessageType.ACTION;
+        }
+        throw new IllegalStateException("Bad enumerator: " + type);
+    }
+
     private static native @NotNull byte[] toxIteration(int instanceNumber);
 
     @Override
@@ -299,12 +307,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 		}
         if (friendMessageCallback != null) {
 			for (Core.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
-                friendMessageCallback.friendMessage(friendMessage.getFriendNumber(), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
-			}
-		}
-        if (friendActionCallback != null) {
-			for (Core.FriendAction friendAction : toxEvents.getFriendActionList()) {
-				friendActionCallback.friendAction(friendAction.getFriendNumber(), friendAction.getTimeDelta(), friendAction.getAction().toByteArray());
+                friendMessageCallback.friendMessage(friendMessage.getFriendNumber(), convert(friendMessage.getType()), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
 			}
 		}
         if (fileControlCallback != null) {
@@ -542,20 +545,13 @@ public final class ToxCoreImpl extends AbstractToxCore {
     }
 
 
-    private static native int toxSendMessage(int instanceNumber, int friendNumber, @NotNull byte[] message) throws ToxSendMessageException;
+    private static native int toxSendMessage(int instanceNumber, int friendNumber, int type, int timeDelta, @NotNull byte[] message) throws ToxSendMessageException;
 
     @Override
-    public int sendMessage(int friendNumber, @NotNull byte[] message) throws ToxSendMessageException {
-        return toxSendMessage(instanceNumber, friendNumber, message);
+    public int sendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) throws ToxSendMessageException {
+        return toxSendMessage(instanceNumber, friendNumber, type.ordinal(), timeDelta, message);
     }
 
-
-    private static native int toxSendAction(int instanceNumber, int friendNumber, @NotNull byte[] message) throws ToxSendMessageException;
-
-    @Override
-    public int sendAction(int friendNumber, @NotNull byte[] action) throws ToxSendMessageException {
-        return toxSendAction(instanceNumber, friendNumber, action);
-    }
 
     @Override
     public void callbackReadReceipt(ReadReceiptCallback callback) {
@@ -570,11 +566,6 @@ public final class ToxCoreImpl extends AbstractToxCore {
     @Override
     public void callbackFriendMessage(FriendMessageCallback callback) {
         this.friendMessageCallback = callback;
-    }
-
-    @Override
-    public void callbackFriendAction(FriendActionCallback callback) {
-        this.friendActionCallback = callback;
     }
 
 

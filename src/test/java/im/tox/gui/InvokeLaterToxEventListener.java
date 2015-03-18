@@ -4,6 +4,7 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
+import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.core.enums.ToxStatus;
 
 import javax.swing.*;
@@ -60,16 +61,6 @@ public class InvokeLaterToxEventListener implements ToxEventListener {
     }
 
     @Override
-    public void friendAction(final int friendNumber, final int timeDelta, @NotNull final byte[] message) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                underlying.friendAction(friendNumber, timeDelta, message);
-            }
-        });
-    }
-
-    @Override
     public void friendConnectionStatus(final int friendNumber, @NotNull final ToxConnection connectionStatus) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -100,11 +91,11 @@ public class InvokeLaterToxEventListener implements ToxEventListener {
     }
 
     @Override
-    public void friendMessage(final int friendNumber, final int timeDelta, @NotNull final byte[] message) {
+    public void friendMessage(final int friendNumber, final ToxMessageType type, final int timeDelta, @NotNull final byte[] message) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                underlying.friendMessage(friendNumber, timeDelta, message);
+                underlying.friendMessage(friendNumber, type, timeDelta, message);
             }
         });
     }

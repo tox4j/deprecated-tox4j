@@ -4,6 +4,7 @@ import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.enums.ToxConnection;
+import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.exceptions.ToxException;
 
 import java.util.HashMap;
@@ -35,7 +36,8 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
                         debug("Sending " + ITERATIONS + " messages");
                         for (int i = 0; i < ITERATIONS; i++) {
                             pendingIds[i] = -1;
-                            int receipt = tox.sendMessage(friendNumber, String.valueOf(i).getBytes());
+                            int receipt = tox.sendMessage(
+                                    friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes());
 //                        debug("next receipt: " + receipt);
                             assertNull(receipts.get(receipt));
                             receipts.put(receipt, i);
@@ -63,7 +65,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendMessage(int friendNumber, int timeDelta, @NotNull byte[] message) {
+        public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) {
 //            debug("got message: " + new String(message));
         }
     }

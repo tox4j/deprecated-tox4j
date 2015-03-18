@@ -1,7 +1,7 @@
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxCoreImpl
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxStatus}
+import im.tox.tox4j.core.enums.{ToxMessageType, ToxConnection, ToxFileControl, ToxStatus}
 import im.tox.tox4j.core.{ToxConstants, ToxOptions}
 import org.slf4j.LoggerFactory
 
@@ -101,11 +101,7 @@ object TestClient extends App {
       logger.info(s"[$id] friendName($friendNumber, ${new String(name)})")
     }
 
-    override def friendAction(friendNumber: Int, timeDelta: Int, message: Array[Byte]): Unit = {
-      logger.info(s"[$id] friendAction($friendNumber, $timeDelta, ${new String(message)})")
-    }
-
-    override def friendMessage(friendNumber: Int, timeDelta: Int, message: Array[Byte]): Unit = {
+    override def friendMessage(friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]): Unit = {
       logger.info(s"[$id] friendMessage($friendNumber, $timeDelta, ${new String(message)})")
     }
 

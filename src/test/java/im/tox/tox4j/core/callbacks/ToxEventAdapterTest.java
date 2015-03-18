@@ -1,9 +1,6 @@
 package im.tox.tox4j.core.callbacks;
 
-import im.tox.tox4j.core.enums.ToxConnection;
-import im.tox.tox4j.core.enums.ToxFileControl;
-import im.tox.tox4j.core.enums.ToxFileKind;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.*;
 import org.junit.Test;
 
 @SuppressWarnings("ConstantConditions")
@@ -37,18 +34,13 @@ public class ToxEventAdapterTest {
     }
 
     @Test
-    public void testFriendAction() throws Exception {
-        listener.friendAction(0, 0, null);
-    }
-
-    @Test
     public void testFriendConnected() throws Exception {
         listener.friendConnectionStatus(0, ToxConnection.NONE);
     }
 
     @Test
     public void testFriendMessage() throws Exception {
-        listener.friendMessage(0, 0, null);
+        listener.friendMessage(0, ToxMessageType.NORMAL, 0, null);
     }
 
     @Test

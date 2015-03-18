@@ -92,7 +92,7 @@ namespace tox
   }
 
 #define CALLBACK(NAME)  using callback_##NAME = detail::cb<tox_##NAME##_cb, tox_callback_##NAME>
-  CALLBACK (connection_status);
+  CALLBACK (self_connection_status);
   CALLBACK (friend_name);
   CALLBACK (friend_status_message);
   CALLBACK (friend_status);
@@ -101,11 +101,10 @@ namespace tox
   CALLBACK (friend_read_receipt);
   CALLBACK (friend_request);
   CALLBACK (friend_message);
-  CALLBACK (friend_action);
   CALLBACK (file_recv_control);
   CALLBACK (file_request_chunk);
-  CALLBACK (file_receive);
-  CALLBACK (file_receive_chunk);
+  CALLBACK (file_recv);
+  CALLBACK (file_recv_chunk);
   CALLBACK (friend_lossy_packet);
   CALLBACK (friend_lossless_packet);
 #undef CALLBACK

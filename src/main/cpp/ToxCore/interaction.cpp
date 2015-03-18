@@ -43,31 +43,24 @@ handle_send_message_error (TOX_ERR_FRIEND_SEND_MESSAGE error)
 /*
  * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSendMessage
- * Signature: (II[B)I
+ * Signature: (III[B)I
  */
 TOX_METHOD (jint, SendMessage,
-  jint instanceNumber, jint friendNumber, jbyteArray message)
+  jint instanceNumber, jint friendNumber, jint type, jbyteArray message)
 {
-  ByteArray message_array (env, message);
-  return with_instance (env, instanceNumber, "SendMessage",
-    handle_send_message_error,
-    identity,
-    tox_friend_send_message, friendNumber, message_array.data (), message_array.size ()
-  );
-}
+  ByteArray const message_array (env, message);
+  TOX_MESSAGE_TYPE const message_type = [=] {
+    switch (type)
+      {
+      case 0: return TOX_MESSAGE_TYPE_NORMAL;
+      case 1: return TOX_MESSAGE_TYPE_ACTION;
+      }
+    fatal ("Invalid message type from Java");
+  } ();
 
-/*
- * Class:     im_tox_tox4jToxCoreImpl
- * Method:    toxSendAction
- * Signature: (II[B)I
- */
-TOX_METHOD (jint, SendAction,
-  jint instanceNumber, jint friendNumber, jbyteArray action)
-{
-  ByteArray action_array (env, action);
   return with_instance (env, instanceNumber, "SendMessage",
     handle_send_message_error,
     identity,
-    tox_friend_send_action, friendNumber, action_array.data (), action_array.size ()
+    tox_friend_send_message, friendNumber, message_type, message_array.data (), message_array.size ()
   );
 }

@@ -47,21 +47,21 @@ message FileRequestChunk {
     required uint32 length          = 4;
 }
 
-message FriendAction {
-    required uint32 friendNumber    = 1;
-    required uint32 timeDelta       = 2;
-    required bytes  action          = 3;
-}
-
 message FriendConnectionStatus {
     required uint32 friendNumber    = 1;
     required Socket connectionStatus = 2;
 }
 
 message FriendMessage {
+    enum Type {
+        NORMAL  = 1;
+        ACTION  = 2;
+    }
+
     required uint32 friendNumber    = 1;
-    required uint32 timeDelta       = 2;
-    required bytes  message         = 3;
+    required Type   type            = 2;
+    required uint32 timeDelta       = 3;
+    required bytes  message         = 4;
 }
 
 message FriendName {
@@ -118,7 +118,6 @@ message CoreEvents {
     repeated FileReceive            fileReceive            =  3;
     repeated FileReceiveChunk       fileReceiveChunk       =  4;
     repeated FileRequestChunk       fileRequestChunk       =  5;
-    repeated FriendAction           friendAction           =  6;
     repeated FriendConnectionStatus friendConnectionStatus =  7;
     repeated FriendMessage          friendMessage          =  8;
     repeated FriendName             friendName             =  9;

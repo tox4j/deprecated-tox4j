@@ -4,6 +4,7 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.callbacks.*;
 import im.tox.tox4j.core.enums.ToxFileControl;
+import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.core.enums.ToxStatus;
 import im.tox.tox4j.core.exceptions.*;
 
@@ -317,17 +318,13 @@ public interface ToxCore extends Closeable {
      */
     void setTyping(int friendNumber, boolean typing) throws ToxSetTypingException;
 
-    int sendMessage(int friendNumber, @NotNull byte[] message) throws ToxSendMessageException;
-
-    int sendAction(int friendNumber, @NotNull byte[] action) throws ToxSendMessageException;
+    int sendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) throws ToxSendMessageException;
 
     void callbackReadReceipt(@Nullable ReadReceiptCallback callback);
 
     void callbackFriendRequest(@Nullable FriendRequestCallback callback);
 
     void callbackFriendMessage(@Nullable FriendMessageCallback callback);
-
-    void callbackFriendAction(@Nullable FriendActionCallback callback);
 
     void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) throws ToxFileControlException;
 

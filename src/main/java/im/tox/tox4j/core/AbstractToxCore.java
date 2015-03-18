@@ -12,7 +12,6 @@ public abstract class AbstractToxCore implements ToxCore {
         callbackFileReceive(handler);
         callbackFileReceiveChunk(handler);
         callbackFileRequestChunk(handler);
-        callbackFriendAction(handler);
         callbackFriendConnected(handler);
         callbackFriendMessage(handler);
         callbackFriendName(handler);

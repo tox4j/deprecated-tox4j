@@ -206,9 +206,6 @@ TOX_METHOD (jint, SelfGetStatus,
           case TOX_USER_STATUS_NONE: return 0;
           case TOX_USER_STATUS_AWAY: return 1;
           case TOX_USER_STATUS_BUSY: return 2;
-          case TOX_USER_STATUS_INVALID:
-            cosmic_ray_error ("tox_self_get_status");
-            return 0;
           }
         fatal ("Invalid result from tox_self_get_status");
       }
