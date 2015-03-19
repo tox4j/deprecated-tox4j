@@ -23,23 +23,25 @@ let main () =
     |> GetSetParams.transform
     |> LengthParams.transform
     |> ThisParams.transform
-    |> SplitErrorCodes.transform
+    |> ErrorSplitFromFunction.transform
     |> (fun api -> ExtractSymbols.extract api, api)
     |> ScopeBinding.transform
     |> GetSetRename.transform
     |> GetSetFlatten.transform
-    |> ApplyStatic.transform
+    |> StaticApply.transform
     |> StructTypes.transform
     |> ClassToNamespace.transform
     |> ErrorEnumsRename.transform
-    |> ApplyNamespaces.transform 1
-    |> FlattenNamespaces.transform 1
+    |> NamespaceApply.transform 1
+    |> NamespaceFlatten.transform 1
     |> ErrorEnumsAddERR.transform
     |> ErrorEnums.transform
     |> ErrorParams.transform
-    |> ApplyNamespaces.transform 0
-    |> FlattenNamespaces.transform 0
-    |> ApplyEnums.transform
+    |> NamespaceApply.transform 0
+    |> NamespaceFlatten.transform 0
+    |> EnumNamespaceApply.transform
+    |> EnumNamespaceFlatten.transform
+    |> EnumApply.transform
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
   in
