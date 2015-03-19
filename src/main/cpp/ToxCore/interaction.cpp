@@ -43,10 +43,10 @@ handle_send_message_error (TOX_ERR_FRIEND_SEND_MESSAGE error)
 /*
  * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSendMessage
- * Signature: (III[B)I
+ * Signature: (IIII[B)I
  */
 TOX_METHOD (jint, SendMessage,
-  jint instanceNumber, jint friendNumber, jint type, jbyteArray message)
+  jint instanceNumber, jint friendNumber, jint type, jint timeDelta, jbyteArray message)
 {
   ByteArray const message_array (env, message);
   TOX_MESSAGE_TYPE const message_type = [=] {
