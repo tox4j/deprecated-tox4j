@@ -76,22 +76,22 @@ let cg_size_spec fmt spec =
 
 let rec cg_type_name fmt = function
   | Ty_UName uname ->
-      Format.fprintf fmt "%a"
+      Format.fprintf fmt "%a "
         cg_uname uname
   | Ty_LName lname ->
-      Format.fprintf fmt "%a"
+      Format.fprintf fmt "%a "
         cg_lname lname
   | Ty_Array (lname, size_spec) ->
-      Format.fprintf fmt "%a%a"
+      Format.fprintf fmt "%a%a "
         cg_lname lname
         cg_size_spec size_spec
   | Ty_Auto ->
-      Format.fprintf fmt "auto"
+      Format.fprintf fmt "auto "
   | Ty_Const type_name ->
       Format.fprintf fmt "const %a"
         cg_type_name type_name
   | Ty_Pointer type_name ->
-      Format.fprintf fmt "%a *"
+      Format.fprintf fmt "%a*"
         cg_type_name type_name
 
 
@@ -100,7 +100,7 @@ let cg_function_name fmt = function
       Format.fprintf fmt "%a"
         cg_lname name
   | (type_name, name) ->
-      Format.fprintf fmt "%a %a"
+      Format.fprintf fmt "%a%a"
         cg_type_name type_name
         cg_lname name
 
@@ -133,7 +133,7 @@ let cg_error_list fmt = function
 
 let cg_parameter fmt = function
   | Param (type_name, lname) ->
-      Format.fprintf fmt "%a %a"
+      Format.fprintf fmt "%a%a"
         cg_type_name type_name
         cg_lname lname
 
@@ -213,12 +213,12 @@ let rec cg_decl_qualified qualifier fmt = function
         (cg_braced cg_decls) decls
   | Decl_Member (type_name, lname) ->
       assert (qualifier = "");
-      Format.fprintf fmt "@,%a %a;@,"
+      Format.fprintf fmt "@,%a%a;@,"
         cg_type_name type_name
         cg_lname lname
   | Decl_GetSet (type_name, lname, decls) ->
       assert (qualifier = "");
-      Format.fprintf fmt "@,%a %a %a"
+      Format.fprintf fmt "@,%a%a %a"
         cg_type_name type_name
         cg_lname lname
         (cg_braced cg_decls) decls
