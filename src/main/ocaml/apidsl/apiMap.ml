@@ -5,6 +5,7 @@ type ('a, 'id1, 'id2) t = {
   map_uname             : ('a, 'id1, 'id2) t -> 'a -> 'id1 uname -> 'id2 uname;
   map_lname             : ('a, 'id1, 'id2) t -> 'a -> 'id1 lname -> 'id2 lname;
   map_macro             : ('a, 'id1, 'id2) t -> 'a -> macro -> macro;
+  map_var               : ('a, 'id1, 'id2) t -> 'a -> 'id1 var -> 'id2 var;
   map_comment_fragment  : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment_fragment -> 'id2 comment_fragment;
   map_comment           : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment -> 'id2 comment;
   map_size_spec         : ('a, 'id1, 'id2) t -> 'a -> 'id1 size_spec -> 'id2 size_spec;
@@ -31,6 +32,17 @@ let visit_macro v state = function
   | Macro macro -> Macro macro
 
 
+let visit_var v state = function
+  | Var_UName uname ->
+      let uname = v.map_uname v state uname in
+      Var_UName uname
+  | Var_LName lname ->
+      let lname = v.map_lname v state lname in
+      Var_LName lname
+  | Var_Event ->
+      Var_Event
+
+
 let visit_comment_fragment v state = function
   | Cmtf_Doc doc ->
       Cmtf_Doc doc
@@ -40,6 +52,9 @@ let visit_comment_fragment v state = function
   | Cmtf_LName lname ->
       let lname = v.map_lname v state lname in
       Cmtf_LName lname
+  | Cmtf_Var var ->
+      let var = visit_list v.map_var v state var in
+      Cmtf_Var var
   | Cmtf_Break ->
       Cmtf_Break
 
@@ -199,6 +214,7 @@ let default = {
   map_uname = visit_uname;
   map_lname = visit_lname;
   map_macro = visit_macro;
+  map_var = visit_var;
   map_comment_fragment = visit_comment_fragment;
   map_comment = visit_comment;
   map_size_spec = visit_size_spec;

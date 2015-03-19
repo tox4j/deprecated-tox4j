@@ -3,10 +3,18 @@ type 'id lname = 'id [@@deriving show]
 type macro = Macro of string [@@deriving show]
 
 
+type 'id var =
+  | Var_UName of 'id uname
+  | Var_LName of 'id lname
+  | Var_Event
+  [@@deriving show]
+
+
 type 'id comment_fragment =
   | Cmtf_Doc of string
   | Cmtf_UName of 'id uname
   | Cmtf_LName of 'id lname
+  | Cmtf_Var of 'id var list
   | Cmtf_Break
   [@@deriving show]
 

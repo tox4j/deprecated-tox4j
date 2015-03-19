@@ -5,6 +5,7 @@ type ('a, 'id1, 'id2) t = {
   fold_uname            : ('a, 'id1, 'id2) t -> 'a -> 'id1 uname -> 'a * 'id2 uname;
   fold_lname            : ('a, 'id1, 'id2) t -> 'a -> 'id1 lname -> 'a * 'id2 lname;
   fold_macro            : ('a, 'id1, 'id2) t -> 'a -> macro -> 'a * macro;
+  fold_var              : ('a, 'id1, 'id2) t -> 'a -> 'id1 var -> 'a * 'id2 var;
   fold_comment_fragment : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment_fragment -> 'a * 'id2 comment_fragment;
   fold_comment          : ('a, 'id1, 'id2) t -> 'a -> 'id1 comment -> 'a * 'id2 comment;
   fold_size_spec        : ('a, 'id1, 'id2) t -> 'a -> 'id1 size_spec -> 'a * 'id2 size_spec;
@@ -38,6 +39,17 @@ let visit_macro v state = function
   | Macro macro -> state, Macro macro
 
 
+let visit_var v state = function
+  | Var_UName uname ->
+      let state, uname = v.fold_uname v state uname in
+      state, Var_UName uname
+  | Var_LName lname ->
+      let state, lname = v.fold_lname v state lname in
+      state, Var_LName lname
+  | Var_Event ->
+      state, Var_Event
+
+
 let visit_comment_fragment v state = function
   | Cmtf_Doc doc ->
       state, Cmtf_Doc doc
@@ -47,6 +59,9 @@ let visit_comment_fragment v state = function
   | Cmtf_LName lname ->
       let state, lname = v.fold_lname v state lname in
       state, Cmtf_LName lname
+  | Cmtf_Var var ->
+      let state, var = visit_list v.fold_var v state var in
+      state, Cmtf_Var var
   | Cmtf_Break ->
       state, Cmtf_Break
 
@@ -206,6 +221,7 @@ let make ~fold_uname ~fold_lname = {
   fold_uname;
   fold_lname;
   fold_macro = visit_macro;
+  fold_var = visit_var;
   fold_comment_fragment = visit_comment_fragment;
   fold_comment = visit_comment;
   fold_size_spec = visit_size_spec;
@@ -221,6 +237,7 @@ let default = {
   fold_uname = visit_uname;
   fold_lname = visit_lname;
   fold_macro = visit_macro;
+  fold_var = visit_var;
   fold_comment_fragment = visit_comment_fragment;
   fold_comment = visit_comment;
   fold_size_spec = visit_size_spec;

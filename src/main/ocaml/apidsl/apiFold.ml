@@ -5,6 +5,7 @@ type ('a, 'id) t = {
   fold_uname            : ('a, 'id) t -> 'a -> 'id uname -> 'a;
   fold_lname            : ('a, 'id) t -> 'a -> 'id lname -> 'a;
   fold_macro            : ('a, 'id) t -> 'a -> macro -> 'a;
+  fold_var              : ('a, 'id) t -> 'a -> 'id var -> 'a;
   fold_comment_fragment : ('a, 'id) t -> 'a -> 'id comment_fragment -> 'a;
   fold_comment          : ('a, 'id) t -> 'a -> 'id comment -> 'a;
   fold_size_spec        : ('a, 'id) t -> 'a -> 'id size_spec -> 'a;
@@ -31,6 +32,17 @@ let visit_macro v state = function
   | Macro macro -> state
 
 
+let visit_var v state = function
+  | Var_UName uname ->
+      let state = v.fold_uname v state uname in
+      state
+  | Var_LName lname ->
+      let state = v.fold_lname v state lname in
+      state
+  | Var_Event ->
+      state
+
+
 let visit_comment_fragment v state = function
   | Cmtf_Doc doc ->
       state
@@ -39,6 +51,9 @@ let visit_comment_fragment v state = function
       state
   | Cmtf_LName lname ->
       let state = v.fold_lname v state lname in
+      state
+  | Cmtf_Var var ->
+      let state = visit_list v.fold_var v state var in
       state
   | Cmtf_Break ->
       state
@@ -199,6 +214,7 @@ let default = {
   fold_uname = visit_uname;
   fold_lname = visit_lname;
   fold_macro = visit_macro;
+  fold_var = visit_var;
   fold_comment_fragment = visit_comment_fragment;
   fold_comment = visit_comment;
   fold_size_spec = visit_size_spec;

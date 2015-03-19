@@ -7,6 +7,7 @@
   type scan_state =
     | LexNormal
     | LexComment
+    | LexVariable
 
   type state = {
     mutable state : scan_state;
@@ -77,16 +78,23 @@ and normal state =
 
 and comment state =
   parse
-
 | "$" (lname as s)			{ LNAME s }
 | "$" (uname as s)			{ UNAME s }
-| "${" (lname ('.' lname)* as s) "}"	{ LNAME s }
-| "${" (uname ('.' uname)* as s) "}"	{ UNAME s }
-| "${" ("event " lname as s) "}"	{ LNAME s }
+| "${"					{ state.state <- LexVariable; VAR_START }
 
 | [^'$''\n']+ as c			{ COMMENT c }
 | '\n' ' '+ '*'				{ COMMENT_BREAK }
 | '\n' ' '+ '*'+ '/'			{ state.state <- LexNormal; COMMENT_END }
+| _ as c				{ raise (Lexing_error (lexeme_start_p lexbuf, Char.escaped c)) }
+
+
+and variable state =
+  parse
+| '.'					{ variable state lexbuf }
+| "}"					{ state.state <- LexComment; VAR_END }
+| "event "				{ EVENT }
+| lname as s				{ LNAME s }
+| uname as s				{ UNAME s }
 | _ as c				{ raise (Lexing_error (lexeme_start_p lexbuf, Char.escaped c)) }
 
 
@@ -134,6 +142,9 @@ and comment state =
     | COMMA -> "COMMA"
     | SEMICOLON -> "SEMICOLON"
 
+    | VAR_START -> "VAR_START"
+    | VAR_END -> "VAR_END"
+
     | NUMBER s -> "NUMBER " ^ string_of_int s
     | LNAME s -> "LNAME " ^ s
     | UNAME s -> "UNAME " ^ s
@@ -144,6 +155,7 @@ and comment state =
       match state.state with
       | LexNormal -> normal state lexbuf
       | LexComment -> comment state lexbuf
+      | LexVariable -> variable state lexbuf
     in
     (*print_endline (string_of_token token);*)
     token

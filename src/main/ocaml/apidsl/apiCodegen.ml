@@ -22,6 +22,17 @@ let cg_lname = Format.pp_print_string
 let cg_macro fmt (Macro s) = Format.pp_print_string fmt s
 
 
+let cg_var fmt = function
+  | Var_UName uname ->
+      Format.fprintf fmt "%a"
+        cg_uname uname
+  | Var_LName lname ->
+      Format.fprintf fmt "%a"
+        cg_lname lname
+  | Var_Event ->
+      Format.fprintf fmt "event"
+
+
 let cg_comment_fragment fmt = function
   | Cmtf_Doc doc ->
       Format.fprintf fmt "%s" doc
@@ -31,6 +42,9 @@ let cg_comment_fragment fmt = function
   | Cmtf_LName name ->
       Format.fprintf fmt "${%a}"
         cg_lname name
+  | Cmtf_Var var ->
+      Format.fprintf fmt "${%a}"
+        (cg_list ~sep:"." cg_var) var
   | Cmtf_Break ->
       Format.fprintf fmt "@, *"
 

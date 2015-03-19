@@ -92,6 +92,7 @@ let v symtab = {
   map_decl = map_decl symtab;
   map_error_list = map_error_list symtab;
 
+  map_var = visit_var;
   map_macro = visit_macro;
   map_comment_fragment = visit_comment_fragment;
   map_comment = visit_comment;
@@ -120,6 +121,7 @@ module Inverse = struct
     map_uname;
     map_lname;
 
+    map_var = visit_var;
     map_enumerator = visit_enumerator;
     map_decl = visit_decl;
     map_macro = visit_macro;

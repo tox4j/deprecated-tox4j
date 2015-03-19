@@ -9,6 +9,8 @@ open ApiAst
 %token COMMENT_START COMMENT_START_BIG COMMENT_BREAK COMMENT_END
 %token<string> COMMENT
 
+%token VAR_START VAR_END
+
 %token CLASS
 %token CONST
 %token ENUM
@@ -237,12 +239,30 @@ comments
 comment
 	: COMMENT
 		{ Cmtf_Doc $1 }
-	| uname
-		{ Cmtf_UName $1 }
 	| lname
-		{ Cmtf_LName $1 }
+		{ Cmtf_Var [Var_LName $1] }
+	| uname
+		{ Cmtf_Var [Var_UName $1] }
+	| VAR_START var VAR_END
+		{ Cmtf_Var (List.rev $2) }
+	| VAR_START EVENT var VAR_END
+		{ Cmtf_Var (Var_Event :: List.rev $3) }
 	| COMMENT_BREAK
 		{ Cmtf_Break }
+
+
+var
+	: var_body
+		{ [$1] }
+	| var var_body
+		{ $2 :: $1 }
+
+
+var_body
+	: lname
+		{ Var_LName $1 }
+	| uname
+		{ Var_UName $1 }
 
 
 lname: LNAME { $1 }
