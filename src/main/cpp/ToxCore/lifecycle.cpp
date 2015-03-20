@@ -282,16 +282,13 @@ TOX_METHOD (jint, New,
           failure_case (NEW, NULL);
           failure_case (NEW, MALLOC);
           failure_case (NEW, PORT_ALLOC);
+          failure_case (NEW, PROXY_BAD_TYPE);
           failure_case (NEW, PROXY_BAD_HOST);
           failure_case (NEW, PROXY_BAD_PORT);
           failure_case (NEW, PROXY_NOT_FOUND);
           failure_case (NEW, LOAD_ENCRYPTED);
           failure_case (NEW, LOAD_DECRYPTION_FAILED);
           failure_case (NEW, LOAD_BAD_FORMAT);
-
-          case TOX_ERR_NEW_PROXY_BAD_TYPE:
-            cosmic_ray_error ("tox_new");
-            break;
           }
         return unhandled ();
       },

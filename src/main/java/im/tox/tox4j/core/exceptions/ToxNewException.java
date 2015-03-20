@@ -9,6 +9,7 @@ public final class ToxNewException extends ToxException {
     NULL,
     MALLOC,
     PORT_ALLOC,
+    PROXY_BAD_TYPE,
     PROXY_BAD_HOST,
     PROXY_BAD_PORT,
     PROXY_NOT_FOUND,
