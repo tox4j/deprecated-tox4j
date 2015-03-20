@@ -5,8 +5,6 @@
 #include <sstream>
 
 
-void cosmic_ray_error (char const *function);
-
 void throw_tox_killed_exception (JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception (JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception (JNIEnv *env, jint instance_number, std::string const &message);

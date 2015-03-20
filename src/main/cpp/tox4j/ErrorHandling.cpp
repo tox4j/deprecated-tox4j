@@ -1,14 +1,6 @@
 #include "ErrorHandling.h"
 
 
-void
-cosmic_ray_error (char const *function)
-{
-  fprintf (stderr, "Cosmic rays hit the wrong bits in toxcore (detected in %s)", function);
-  abort ();
-}
-
-
 static std::string
 fullMessage (jint instance_number, char const *message)
 {
