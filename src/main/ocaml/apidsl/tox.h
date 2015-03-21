@@ -570,7 +570,7 @@ bool bootstrap(string address, uint16_t port, const uint8_t[PUBLIC_KEY_SIZE] pub
    * The address could not be resolved to an IP address, or the IP address
    * passed was invalid.
    */
-  BAD_ADDRESS,
+  BAD_HOST,
   /**
    * The port passed was invalid. The valid port range is (1, 65535).
    */
@@ -760,7 +760,7 @@ inline namespace self {
      *
      * @return true on success.
      */
-    set() with error for set_info;
+    bool set() with error for set_info;
 
     /**
      * Return the length of the current nickname as passed to $set.
@@ -797,7 +797,7 @@ inline namespace self {
      * length is 0, the status parameter is ignored (it can be NULL), and the
      * user status is set back to empty.
      */
-    set() with error for set_info;
+    bool set() with error for set_info;
 
     /**
      * Return the length of the current status message as passed to $set.
@@ -1026,7 +1026,7 @@ namespace friend {
      *
      * @return true on success.
      */
-    get(uint32_t friend_number) {
+    bool get(uint32_t friend_number) {
       /**
        * No friend with the given number exists on the friend list.
        */
@@ -1264,7 +1264,7 @@ inline namespace self {
      *
      * @return true on success.
      */
-    set(uint32_t friend_number) {
+    bool set(uint32_t friend_number) {
       /**
        * The friend number did not designate a valid friend.
        */
@@ -1302,7 +1302,7 @@ namespace friend {
      *   containing the message text.
      * @param length Length of the message to be sent.
      */
-    uint32_t message(MESSAGE_TYPE type, uint32_t friend_number, const uint8_t[length <= MAX_MESSAGE_LENGTH] message) {
+    uint32_t message(uint32_t friend_number, MESSAGE_TYPE type, const uint8_t[length <= MAX_MESSAGE_LENGTH] message) {
       NULL,
       /**
        * The friend number did not designate a valid friend.
@@ -1371,7 +1371,9 @@ namespace friend {
      * @param message The message they sent along with the request.
      * @param length The size of the message byte array.
      */
-    typedef void(const uint8_t[PUBLIC_KEY_SIZE] public_key, uint32_t time_delta, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
+    typedef void(const uint8_t[PUBLIC_KEY_SIZE] public_key
+        //, uint32_t time_delta
+        , const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
   }
 
 
@@ -1387,7 +1389,9 @@ namespace friend {
      *
      * @see ${event request} for more information on time_delta.
      */
-    typedef void(uint32_t friend_number, uint32_t time_delta, MESSAGE_TYPE type, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
+    typedef void(uint32_t friend_number
+        //, uint32_t time_delta
+        , MESSAGE_TYPE type, const uint8_t[length <= MAX_MESSAGE_LENGTH] message);
   }
 
 }
@@ -1514,7 +1518,7 @@ namespace file {
     /**
      * Packet failed to send.
      */
-    SEND_FAILED,
+    SENDQ,
   }
 
 
@@ -1868,7 +1872,7 @@ namespace file {
 
 namespace friend {
 
-  namespace send {
+  inline namespace send {
 
     error for custom_packet {
       NULL,

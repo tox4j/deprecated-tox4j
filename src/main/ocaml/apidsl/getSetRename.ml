@@ -41,8 +41,12 @@ let rec rename_symbols name symtab = function
             )
       end
 
-  | Decl_Error _ ->
-      symtab
+  | Decl_Error (uname, _) ->
+      let name = String.uppercase @@ SymbolTable.name symtab name in
+
+      SymbolTable.rename symtab uname
+        (fun error_name ->
+           error_name ^ "_" ^ name)
 
   | decl ->
       failwith @@ show_decl (SymbolTable.pp_symbol symtab) decl
