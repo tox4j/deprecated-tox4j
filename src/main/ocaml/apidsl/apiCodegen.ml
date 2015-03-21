@@ -263,6 +263,10 @@ let rec cg_decl_qualified qualifier fmt = function
       Format.fprintf fmt "@,event %a %a"
         cg_lname lname
         (cg_braced cg_decls) decl
+  | Decl_Inline (decl) ->
+      assert (qualifier = "");
+      Format.fprintf fmt "%a"
+        (cg_decl_qualified "inline ") decl
   | Decl_Static (decl) ->
       assert (qualifier = "");
       Format.fprintf fmt "%a"

@@ -86,6 +86,7 @@ let fold_decl v scope = function
       |> fold_scoped v.fold_parameter v lname parameters
 
   | Decl_Comment _
+  | Decl_Inline _
   | Decl_Static _
   | Decl_Macro _ as decl ->
       ApiFold.visit_decl v scope decl

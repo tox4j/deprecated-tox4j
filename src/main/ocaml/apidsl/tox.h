@@ -620,7 +620,7 @@ enum class CONNECTION {
 }
 
 
-namespace self {
+inline namespace self {
 
   CONNECTION connection_status {
     /**
@@ -671,7 +671,7 @@ void iterate();
  ******************************************************************************/
 
 
-namespace self {
+inline namespace self {
 
   uint8_t[ADDRESS_SIZE] address {
     /**
@@ -746,7 +746,7 @@ error for set_info {
 }
 
 
-namespace self {
+inline namespace self {
 
   uint8_t[size <= MAX_NAME_LENGTH] name {
     /**
@@ -987,7 +987,7 @@ namespace friend {
 
 }
 
-namespace self {
+inline namespace self {
 
   uint32_t[size] friend_list {
     /**
@@ -1251,7 +1251,7 @@ namespace friend {
  ******************************************************************************/
 
 
-namespace self {
+inline namespace self {
 
   bool typing {
     /**
@@ -1964,7 +1964,7 @@ namespace friend {
  ******************************************************************************/
 
 
-namespace self {
+inline namespace self {
 
   uint8_t[PUBLIC_KEY_SIZE] dht_id {
     /**

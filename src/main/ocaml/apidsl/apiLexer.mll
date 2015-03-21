@@ -48,6 +48,7 @@ and normal state =
 | "error"				{ ERROR }
 | "event"				{ EVENT }
 | "for"					{ FOR }
+| "inline"				{ INLINE }
 | "namespace"				{ NAMESPACE }
 | "sizeof"				{ SIZEOF }
 | "static"				{ STATIC }
@@ -122,6 +123,7 @@ and variable state =
     | ERROR -> "ERROR"
     | EVENT -> "EVENT"
     | FOR -> "FOR"
+    | INLINE -> "INLINE"
     | NAMESPACE -> "NAMESPACE"
     | SIZEOF -> "SIZEOF"
     | STATIC -> "STATIC"

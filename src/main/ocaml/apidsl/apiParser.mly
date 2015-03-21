@@ -17,6 +17,7 @@ open ApiAst
 %token ERROR
 %token EVENT
 %token FOR
+%token INLINE
 %token NAMESPACE
 %token SIZEOF
 %token STATIC
@@ -69,6 +70,8 @@ declaration
 	| namespace_decl	{ $1 }
 	| comment_block declaration
 		{ Decl_Comment ($1, $2) }
+	| INLINE declaration
+		{ Decl_Inline $2 }
 	| STATIC declaration
 		{ Decl_Static $2 }
 

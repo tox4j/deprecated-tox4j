@@ -3,7 +3,8 @@ open ApiFoldMap
 
 
 let fold_decl v (symtab, in_event) = function
-  | Decl_Function (type_name, lname, parameters, error_list) ->
+
+  | Decl_Function (type_name, lname, parameters, error_list) when in_event ->
       let symtab, lname = SymbolTable.clone_symbol symtab lname in
 
       let symtab =

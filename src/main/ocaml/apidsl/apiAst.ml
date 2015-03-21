@@ -81,6 +81,7 @@ type 'id decl =
   | Decl_Macro of macro
   | Decl_Member of 'id type_name * 'id lname
   | Decl_Namespace of 'id lname * 'id decl list
+  | Decl_Inline of 'id decl
   | Decl_Static of 'id decl
   | Decl_Struct of 'id decl list
   | Decl_Typedef of 'id type_name * 'id lname * 'id parameter list

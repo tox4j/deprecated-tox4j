@@ -17,6 +17,7 @@ let can_apply_static = function
   | Decl_Error _
   | Decl_Struct _
   | Decl_Comment _
+  | Decl_Inline _
   | Decl_Static _ ->
       false
 

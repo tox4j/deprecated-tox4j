@@ -153,6 +153,9 @@ let visit_decl v state = function
       let state = v.fold_comment v state comment in
       let state = v.fold_decl v state decl in
       state
+  | Decl_Inline decl ->
+      let state = v.fold_decl v state decl in
+      state
   | Decl_Static decl ->
       let state = v.fold_decl v state decl in
       state

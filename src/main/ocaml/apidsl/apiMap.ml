@@ -153,6 +153,9 @@ let visit_decl v state = function
       let comment = v.map_comment v state comment in
       let decl = v.map_decl v state decl in
       Decl_Comment (comment, decl)
+  | Decl_Inline decl ->
+      let decl = v.map_decl v state decl in
+      Decl_Inline decl
   | Decl_Static decl ->
       let decl = v.map_decl v state decl in
       Decl_Static decl

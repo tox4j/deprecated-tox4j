@@ -84,6 +84,7 @@ let map_decl symtab v scopes = function
   | Decl_Const _
   | Decl_Member _
   | Decl_Comment _
+  | Decl_Inline _
   | Decl_Static _
   | Decl_Macro _ as decl ->
       ApiMap.visit_decl v scopes decl
