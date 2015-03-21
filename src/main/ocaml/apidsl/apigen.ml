@@ -26,22 +26,31 @@ let main () =
     |> ErrorSplitFromFunction.transform
     |> (fun api -> ExtractSymbols.extract api, api)
     |> ScopeBinding.transform
+    |> EventRename.transform
+    |> EventApply.transform
+    |> ErrorEnumsRename.transform
     |> GetSetRename.transform
     |> GetSetFlatten.transform
     |> StaticApply.transform
     |> StructTypes.transform
     |> ClassToNamespace.transform
-    |> ErrorEnumsRename.transform
+    |> NamespaceApplyEvents.transform
     |> NamespaceApply.transform 1
     |> NamespaceFlatten.transform 1
     |> ErrorEnumsAddERR.transform
     |> ErrorEnums.transform
     |> ErrorParams.transform
+    |> EventFunction.transform
+    |> EventCloneFunctionName.transform
+    |> EventParams.transform
+    |> EventComments.transform
+    |> EventFlatten.transform
     |> NamespaceApply.transform 0
     |> NamespaceFlatten.transform 0
     |> EnumNamespaceApply.transform
     |> EnumNamespaceFlatten.transform
     |> EnumApply.transform
+    |> ArrayToPointer.transform
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
   in

@@ -26,6 +26,11 @@ let map_decl v this_name = function
       in
       Decl_Function (type_name, lname, parameters, error_list)
 
+  | Decl_Typedef (type_name, lname, parameters) ->
+      let this_type = Ty_Pointer TypeName.this in
+      let parameters = Param (this_type, this_name) :: parameters in
+      Decl_Typedef (type_name, lname, parameters)
+
   | Decl_Class (lname, decls) ->
       let decls = visit_list v.map_decl v lname decls in
       Decl_Class (lname, decls)

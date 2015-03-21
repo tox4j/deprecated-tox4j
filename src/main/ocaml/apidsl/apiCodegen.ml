@@ -1,6 +1,9 @@
 open ApiAst
 
 
+let c_mode = true
+
+
 let cg_list ?(sep="") cg fmt l =
   ignore (
     List.fold_left
@@ -13,8 +16,14 @@ let cg_list ?(sep="") cg fmt l =
   )
 
 
-let cg_braced cg fmt x =
-  Format.fprintf fmt "{@,@[<v2>%a@]@,}@," cg x
+let cg_braced ?(after_brace="") cg fmt x =
+  let after_brace =
+    if c_mode then
+      after_brace ^ ";"
+    else
+      after_brace
+  in
+  Format.fprintf fmt "{@,@[<v2>%a@]@,}%s@," cg x after_brace
 
 
 let cg_uname = Format.pp_print_string
@@ -209,10 +218,17 @@ let rec cg_decl_qualified qualifier fmt = function
         cg_expr expr
   | Decl_Enum (is_class, uname, enumerators) ->
       assert (qualifier = "");
-      Format.fprintf fmt "@,enum%s %a %a"
-        (if is_class then " class" else "")
+      let after_brace =
+        if is_class && c_mode then
+          Some (" " ^ uname)
+        else
+          None
+      in
+      Format.fprintf fmt "@,%senum%s %a %a"
+        (if is_class &&     c_mode then "typedef " else "")
+        (if is_class && not c_mode then " class" else "")
         cg_uname uname
-        (cg_braced cg_enumerators) enumerators
+        (cg_braced ?after_brace cg_enumerators) enumerators
   | Decl_Error (lname, enumerators) ->
       assert (qualifier = "");
       Format.fprintf fmt "@,error for %a %a"
@@ -236,16 +252,17 @@ let rec cg_decl_qualified qualifier fmt = function
         cg_type_name type_name
         cg_lname lname
         (cg_braced cg_decls) decls
-  | Decl_Typedef (lname, parameters) ->
+  | Decl_Typedef (type_name, lname, parameters) ->
       assert (qualifier = "");
-      Format.fprintf fmt "@,typedef %a%a;@,"
+      Format.fprintf fmt "@,typedef %a%a%a;@,"
+        cg_type_name type_name
         cg_lname lname
         cg_parameters parameters
   | Decl_Event (lname, decl) ->
       assert (qualifier = "");
       Format.fprintf fmt "@,event %a %a"
         cg_lname lname
-        (cg_braced cg_decl) decl
+        (cg_braced cg_decls) decl
   | Decl_Static (decl) ->
       assert (qualifier = "");
       Format.fprintf fmt "%a"

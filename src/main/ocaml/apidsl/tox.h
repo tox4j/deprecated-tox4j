@@ -1626,13 +1626,14 @@ namespace file {
    * was modified and how the client determines the file size.
    *
    * - If the file size was increased
-   *   - and sending mode was streaming (file_size = 0), the behaviour will be as
-   *     expected.
-   *   - and sending mode was file (file_size != 0), the ${event chunk_request}
-   *     callback will receive length = 0 when Core thinks the file transfer has
-   *     finished. If the client remembers the file size as it was when sending
-   *     the request, it will terminate the transfer normally. If the client
-   *     re-reads the size, it will think the friend cancelled the transfer.
+   *   - and sending mode was streaming (file_size = UINT64_MAX), the behaviour
+   *     will be as expected.
+   *   - and sending mode was file (file_size != UINT64_MAX), the
+   *     ${event chunk_request} callback will receive length = 0 when Core thinks
+   *     the file transfer has finished. If the client remembers the file size as
+   *     it was when sending the request, it will terminate the transfer normally.
+   *     If the client re-reads the size, it will think the friend cancelled the
+   *     transfer.
    * - If the file size was decreased
    *   - and sending mode was streaming, the behaviour is as expected.
    *   - and sending mode was file, the callback will return 0 at the new
@@ -1649,7 +1650,7 @@ namespace file {
    * @param friend_number The friend number of the friend the file send request
    *   should be sent to.
    * @param kind The meaning of the file to be sent.
-   * @param file_size Size in bytes of the file the client wants to send, 0 if
+   * @param file_size Size in bytes of the file the client wants to send, UINT64_MAX if
    *   unknown or streaming.
    * @param file_id A file identifier of length $FILE_ID_LENGTH that can be used to
    *   uniquely identify file transfers across core restarts. If NULL, a random one will
@@ -1793,8 +1794,8 @@ namespace file {
      * @param file_number The friend-specific file number the data received is
      *   associated with.
      * @param kind The meaning of the file to be sent.
-     * @param file_size Size in bytes of the file the client wants to send, 0 if
-     *   unknown or streaming.
+     * @param file_size Size in bytes of the file the client wants to send,
+     *   UINT64_MAX if unknown or streaming.
      * @param filename Name of the file. Does not need to be the actual name. This
      *   name will be sent along with the file send request. For avatars, this
      *   contains the hash in binary form.
@@ -1817,7 +1818,7 @@ namespace file {
      *
      * If position is equal to file_size (received in the file_receive callback)
      * when the transfer finishes, the file was received completely. Otherwise, if
-     * file_size was 0, streaming ended successfully when length is 0.
+     * file_size was UINT64_MAX, streaming ended successfully when length is 0.
      *
      * @param friend_number The friend number of the friend who is sending the file.
      * @param file_number The friend-specific file number the data received is

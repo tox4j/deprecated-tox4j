@@ -204,13 +204,14 @@ let visit_decl v state = function
       let state, lname = v.fold_lname v state lname in
       let state, decls = visit_list v.fold_decl v state decls in
       state, Decl_GetSet (type_name, lname, decls)
-  | Decl_Typedef (lname, parameters) ->
+  | Decl_Typedef (type_name, lname, parameters) ->
+      let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in
       let state, parameters = visit_list v.fold_parameter v state parameters in
-      state, Decl_Typedef (lname, parameters)
+      state, Decl_Typedef (type_name, lname, parameters)
   | Decl_Event (lname, decl) ->
       let state, lname = v.fold_lname v state lname in
-      let state, decl = v.fold_decl v state decl in
+      let state, decl = visit_list v.fold_decl v state decl in
       state, Decl_Event (lname, decl)
 
 

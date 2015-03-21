@@ -26,6 +26,8 @@ let root = {
          id + 1, StringMap.add sym id symbols)
       (0, StringMap.empty)
       [
+        "user_data"; (* Used as name for user_data parameter. *)
+        "callback"; (* Used as name for callback parameter. *)
         "error"; (* Used as name for error parameter. *)
         "void";
         "bool";

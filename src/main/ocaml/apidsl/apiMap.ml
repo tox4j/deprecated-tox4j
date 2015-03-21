@@ -197,13 +197,14 @@ let visit_decl v state = function
       let lname = v.map_lname v state lname in
       let decls = visit_list v.map_decl v state decls in
       Decl_GetSet (type_name, lname, decls)
-  | Decl_Typedef (lname, parameters) ->
+  | Decl_Typedef (type_name, lname, parameters) ->
+      let type_name = v.map_type_name v state type_name in
       let lname = v.map_lname v state lname in
       let parameters = visit_list v.map_parameter v state parameters in
-      Decl_Typedef (lname, parameters)
+      Decl_Typedef (type_name, lname, parameters)
   | Decl_Event (lname, decl) ->
       let lname = v.map_lname v state lname in
-      let decl = v.map_decl v state decl in
+      let decl = visit_list v.map_decl v state decl in
       Decl_Event (lname, decl)
 
 

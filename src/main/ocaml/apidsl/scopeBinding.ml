@@ -70,18 +70,22 @@ let map_decl symtab v scopes = function
       let lname' = v.map_lname v scopes lname in
       let decls = scoped scopes lname (flip (visit_list v.map_decl v) decls) in
       Decl_GetSet (type_name, lname', decls)
-  | Decl_Event (lname, decl) ->
+  | Decl_Event (lname, decls) ->
       let lname = "event " ^ lname in
       let lname' = v.map_lname v scopes lname in
-      let decl = scoped scopes lname (flip (v.map_decl v) decl) in
-      Decl_Event (lname', decl)
+      let decls = scoped scopes lname (flip (visit_list v.map_decl v) decls) in
+      Decl_Event (lname', decls)
+  | Decl_Typedef (type_name, lname, parameters) ->
+      let type_name = scoped scopes lname (flip (v.map_type_name v) type_name) in
+      let lname' = v.map_lname v scopes lname in
+      let parameters = scoped scopes lname (flip (visit_list v.map_parameter v) parameters) in
+      Decl_Typedef (type_name, lname', parameters)
 
   | Decl_Const _
   | Decl_Member _
   | Decl_Comment _
   | Decl_Static _
-  | Decl_Macro _
-  | Decl_Typedef _ as decl ->
+  | Decl_Macro _ as decl ->
       ApiMap.visit_decl v scopes decl
 
 

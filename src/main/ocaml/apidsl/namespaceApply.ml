@@ -31,6 +31,7 @@ let fold_decl v (symtab, ignore_first, ns) = function
       let symtab, _, _ = visit_list v.fold_decl v (symtab, ignore_first, []) decls in
       (symtab, ignore_first, ns)
 
+  | Decl_Typedef (_, lname, _)
   | Decl_Member (_, lname)
   | Decl_Function (_, lname, _, _) ->
       let symtab =

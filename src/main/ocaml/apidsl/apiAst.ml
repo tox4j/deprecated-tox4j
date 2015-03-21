@@ -75,7 +75,7 @@ type 'id decl =
   | Decl_Const of 'id uname * 'id expr
   | Decl_Enum of bool * 'id uname * 'id enumerator list
   | Decl_Error of 'id lname * 'id enumerator list
-  | Decl_Event of 'id lname * 'id decl
+  | Decl_Event of 'id lname * 'id decl list
   | Decl_Function of 'id type_name * 'id lname * 'id parameter list * 'id error_list
   | Decl_GetSet of 'id type_name * 'id lname * 'id decl list
   | Decl_Macro of macro
@@ -83,7 +83,7 @@ type 'id decl =
   | Decl_Namespace of 'id lname * 'id decl list
   | Decl_Static of 'id decl
   | Decl_Struct of 'id decl list
-  | Decl_Typedef of 'id lname * 'id parameter list
+  | Decl_Typedef of 'id type_name * 'id lname * 'id parameter list
   [@@deriving show]
 
 

@@ -197,13 +197,14 @@ let visit_decl v state = function
       let state = v.fold_lname v state lname in
       let state = visit_list v.fold_decl v state decls in
       state
-  | Decl_Typedef (lname, parameters) ->
+  | Decl_Typedef (type_name, lname, parameters) ->
+      let state = v.fold_type_name v state type_name in
       let state = v.fold_lname v state lname in
       let state = visit_list v.fold_parameter v state parameters in
       state
   | Decl_Event (lname, decl) ->
       let state = v.fold_lname v state lname in
-      let state = v.fold_decl v state decl in
+      let state = visit_list v.fold_decl v state decl in
       state
 
 

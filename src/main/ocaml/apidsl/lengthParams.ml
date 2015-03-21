@@ -17,10 +17,11 @@ let add_length_parameters parameters =
 
 let map_decl v state = function
 
-  | Decl_Typedef (lname, parameters) ->
+  | Decl_Typedef (type_name, lname, parameters) ->
+      let type_name = v.map_type_name v state type_name in
       let lname = v.map_lname v state lname in
       let parameters = add_length_parameters parameters in
-      Decl_Typedef (lname, parameters)
+      Decl_Typedef (type_name, lname, parameters)
 
   | Decl_Function (type_name, lname, parameters, error_list) ->
       let type_name = v.map_type_name v state type_name in

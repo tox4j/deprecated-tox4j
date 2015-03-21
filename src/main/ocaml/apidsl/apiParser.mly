@@ -80,12 +80,12 @@ macro_decl
 
 event_decl
 	: EVENT lname LBRACE typedef_decl RBRACE
-		{ Decl_Event ($2, $4) }
+		{ Decl_Event ($2, [$4]) }
 
 
 typedef_decl
-	: comment_block TYPEDEF lname parameter_list SEMICOLON
-		{ Decl_Comment ($1, Decl_Typedef ($3, $4)) }
+	: comment_block TYPEDEF type_name parameter_list SEMICOLON
+		{ Decl_Comment ($1, Decl_Typedef ($3, "cb", $4)) }
 
 
 get_set_decl

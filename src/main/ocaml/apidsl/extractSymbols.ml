@@ -28,7 +28,7 @@ let fold_parameter v scope = function
 
 
 let fold_decl v scope = function
-  | Decl_Function (type_name, lname, parameters, error_list) ->
+  | Decl_Function (_, lname, parameters, error_list) ->
       let scope =
         match error_list with
         | Err_List _ -> SymbolTable.add ("error " ^ lname) scope
@@ -78,12 +78,16 @@ let fold_decl v scope = function
       let lname = "event " ^ lname in
       scope
       |> SymbolTable.add lname
-      |> fold_scoped v.fold_decl v lname [decl]
+      |> fold_scoped v.fold_decl v lname decl
+
+  | Decl_Typedef (_, lname, parameters) ->
+      scope
+      |> SymbolTable.add lname
+      |> fold_scoped v.fold_parameter v lname parameters
 
   | Decl_Comment _
   | Decl_Static _
-  | Decl_Macro _
-  | Decl_Typedef _ as decl ->
+  | Decl_Macro _ as decl ->
       ApiFold.visit_decl v scope decl
 
 
