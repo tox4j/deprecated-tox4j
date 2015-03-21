@@ -1,5 +1,7 @@
 #pragma once
 
+#define TOX_ERR_FILE_SEEK_INVALID_POSITION TOX_ERR_FILE_SEND_SEEK_INVALID_POSITION
+
 #include <tox/tox.h>
 
 
@@ -99,7 +101,7 @@ namespace tox
   CALLBACK (friend_request);
   CALLBACK (friend_message);
   CALLBACK (file_recv_control);
-  CALLBACK (file_request_chunk);
+  CALLBACK (file_chunk_request);
   CALLBACK (file_recv);
   CALLBACK (file_recv_chunk);
   CALLBACK (friend_lossy_packet);

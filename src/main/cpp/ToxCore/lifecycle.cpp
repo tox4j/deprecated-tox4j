@@ -155,7 +155,7 @@ tox4j_file_recv_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_numb
 }
 
 static void
-tox4j_file_request_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, Events &events)
+tox4j_file_chunk_request_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, Events &events)
 {
   unused (tox);
   auto msg = events.add_filerequestchunk ();
@@ -310,7 +310,7 @@ TOX_METHOD (jint, New,
           .set<tox::callback_file_recv,                 tox4j_file_recv_cb               > ()
           .set<tox::callback_file_recv_control,         tox4j_file_recv_control_cb       > ()
           .set<tox::callback_file_recv_chunk,           tox4j_file_recv_chunk_cb         > ()
-          .set<tox::callback_file_request_chunk,        tox4j_file_request_chunk_cb      > ()
+          .set<tox::callback_file_chunk_request,        tox4j_file_chunk_request_cb      > ()
           .set<tox::callback_friend_lossy_packet,       tox4j_friend_lossy_packet_cb     > ()
           .set<tox::callback_friend_lossless_packet,    tox4j_friend_lossless_packet_cb  > ()
           .set (tox.get ());
