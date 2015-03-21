@@ -15,9 +15,7 @@ let make_event comment event_name typedef func =
         ] @ frags in
         Cmt_Doc frags
 
-    | Cmt_None
-    | Cmt_Section _ ->
-        comment
+    | Cmt_None -> Cmt_None
   in
 
   Decl_Event (event_name, [

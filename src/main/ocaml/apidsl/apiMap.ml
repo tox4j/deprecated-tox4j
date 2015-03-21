@@ -65,9 +65,6 @@ let visit_comment v state = function
   | Cmt_Doc frags ->
       let frags = visit_list v.map_comment_fragment v state frags in
       Cmt_Doc frags
-  | Cmt_Section frags ->
-      let frags = visit_list v.map_comment_fragment v state frags in
-      Cmt_Section frags
 
 
 let visit_size_spec v state = function
@@ -209,6 +206,9 @@ let visit_decl v state = function
       let lname = v.map_lname v state lname in
       let decl = visit_list v.map_decl v state decl in
       Decl_Event (lname, decl)
+  | Decl_Section frags ->
+      let frags = visit_list v.map_comment_fragment v state frags in
+      Decl_Section frags
 
 
 let visit_decls v state = visit_list v.map_decl v state

@@ -46,14 +46,23 @@ let cg_comment_fragment fmt = function
   | Cmtf_Doc doc ->
       Format.fprintf fmt "%s" doc
   | Cmtf_UName name ->
-      Format.fprintf fmt "${%a}"
-        cg_uname name
+      if c_mode then
+        cg_uname fmt name
+      else
+        Format.fprintf fmt "${%a}"
+          cg_uname name
   | Cmtf_LName name ->
-      Format.fprintf fmt "${%a}"
-        cg_lname name
+      if c_mode then
+        cg_lname fmt name
+      else
+        Format.fprintf fmt "${%a}"
+          cg_lname name
   | Cmtf_Var var ->
-      Format.fprintf fmt "${%a}"
-        (cg_list ~sep:"." cg_var) var
+      if c_mode then
+        cg_list ~sep:"." cg_var fmt var
+      else
+        Format.fprintf fmt "${%a}"
+          (cg_list ~sep:"." cg_var) var
   | Cmtf_Break ->
       Format.fprintf fmt "@, *"
 
@@ -65,18 +74,6 @@ let cg_comment fmt = function
   | Cmt_Doc frags ->
       Format.fprintf fmt "@,/**%a@, */"
         (cg_list cg_comment_fragment) frags
-  | Cmt_Section frags ->
-      Format.fprintf fmt "@,@,/*";
-      for i = 0 to 77 do
-        Format.pp_print_char fmt '*'
-      done;
-      Format.fprintf fmt "%a"
-        (cg_list cg_comment_fragment) frags;
-      Format.fprintf fmt "@, ";
-      for i = 0 to 77 do
-        Format.pp_print_char fmt '*'
-      done;
-      Format.fprintf fmt "/@,@,";
 ;;
 
 
@@ -271,6 +268,18 @@ let rec cg_decl_qualified qualifier fmt = function
       assert (qualifier = "");
       Format.fprintf fmt "%a"
         (cg_decl_qualified "static ") decl
+  | Decl_Section frags ->
+      Format.fprintf fmt "@,@,/*";
+      for i = 0 to 77 do
+        Format.pp_print_char fmt '*'
+      done;
+      Format.fprintf fmt "%a"
+        (cg_list cg_comment_fragment) frags;
+      Format.fprintf fmt "@, ";
+      for i = 0 to 77 do
+        Format.pp_print_char fmt '*'
+      done;
+      Format.fprintf fmt "/@,@,";
 
 
 and cg_decl fmt decl =

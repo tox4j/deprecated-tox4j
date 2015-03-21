@@ -83,6 +83,7 @@ let map_decl symtab v scopes = function
 
   | Decl_Const _
   | Decl_Member _
+  | Decl_Section _
   | Decl_Comment _
   | Decl_Inline _
   | Decl_Static _

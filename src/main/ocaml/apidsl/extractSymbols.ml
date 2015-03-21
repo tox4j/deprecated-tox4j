@@ -85,6 +85,7 @@ let fold_decl v scope = function
       |> SymbolTable.add lname
       |> fold_scoped v.fold_parameter v lname parameters
 
+  | Decl_Section _
   | Decl_Comment _
   | Decl_Inline _
   | Decl_Static _

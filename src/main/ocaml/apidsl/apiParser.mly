@@ -68,6 +68,7 @@ declaration
 	| const_decl		{ $1 }
 	| function_decl		{ $1 }
 	| namespace_decl	{ $1 }
+	| comment_section	{ $1 }
 	| comment_block declaration
 		{ Decl_Comment ($1, $2) }
 	| INLINE declaration
@@ -230,8 +231,11 @@ comment_block_opt
 comment_block
 	: COMMENT_START comments COMMENT_END
 		{ Cmt_Doc (List.rev $2) }
-	| COMMENT_START_BIG comments COMMENT_END
-		{ Cmt_Section (List.rev $2) }
+
+
+comment_section
+	: COMMENT_START_BIG comments COMMENT_END
+		{ Decl_Section (List.rev $2) }
 
 comments
 	: comment

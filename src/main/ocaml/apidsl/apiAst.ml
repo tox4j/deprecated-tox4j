@@ -22,7 +22,6 @@ type 'id comment_fragment =
 type 'id comment =
   | Cmt_None
   | Cmt_Doc of 'id comment_fragment list
-  | Cmt_Section of 'id comment_fragment list
   [@@deriving show]
 
 
@@ -82,6 +81,7 @@ type 'id decl =
   | Decl_Member of 'id type_name * 'id lname
   | Decl_Namespace of 'id lname * 'id decl list
   | Decl_Inline of 'id decl
+  | Decl_Section of 'id comment_fragment list
   | Decl_Static of 'id decl
   | Decl_Struct of 'id decl list
   | Decl_Typedef of 'id type_name * 'id lname * 'id parameter list

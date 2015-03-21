@@ -65,9 +65,6 @@ let visit_comment v state = function
   | Cmt_Doc frags ->
       let state = visit_list v.fold_comment_fragment v state frags in
       state
-  | Cmt_Section frags ->
-      let state = visit_list v.fold_comment_fragment v state frags in
-      state
 
 
 let visit_size_spec v state = function
@@ -208,6 +205,9 @@ let visit_decl v state = function
   | Decl_Event (lname, decl) ->
       let state = v.fold_lname v state lname in
       let state = visit_list v.fold_decl v state decl in
+      state
+  | Decl_Section frags ->
+      let state = visit_list v.fold_comment_fragment v state frags in
       state
 
 

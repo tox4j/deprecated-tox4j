@@ -51,6 +51,7 @@ let main () =
     |> EnumNamespaceFlatten.transform
     |> EnumApply.transform
     |> ArrayToPointer.transform
+    |> StaticElide.transform
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
   in
