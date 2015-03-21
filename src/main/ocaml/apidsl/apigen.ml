@@ -54,12 +54,57 @@ let main () =
     |> StaticElide.transform
     |> Constants.transform
     |> ScopeBinding.Inverse.transform
+    |> StringToCharP.transform
   in
 
   (*print_endline (ApiAst.show_decls api);*)
 
+  print_endline "\
+/* tox.h
+ *
+ * The Tox public API.
+ *
+ *  Copyright (C) 2013 Tox project All Rights Reserved.
+ *
+ *  This file is part of Tox.
+ *
+ *  Tox is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Tox is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Tox.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#ifndef TOX_H
+#define TOX_H
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern \"C\" {
+#endif";
+
   Format.fprintf Format.std_formatter "%a\n"
-    ApiCodegen.cg_decls api
+    ApiCodegen.cg_decls api;
+  print_endline "
+#include \"tox_old.h\"
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif"
+;;
 
 
 let () =

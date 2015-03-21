@@ -99,6 +99,9 @@ let rec cg_type_name fmt = function
       Format.fprintf fmt "%a "
         cg_uname uname
   | Ty_LName lname ->
+      if String.contains lname '_' &&
+         Char.uppercase lname.[0] = lname.[0] then
+        Format.fprintf fmt "struct ";
       Format.fprintf fmt "%a "
         cg_lname lname
   | Ty_Array (lname, size_spec) ->
@@ -231,12 +234,28 @@ let rec cg_decl_qualified qualifier fmt = function
       Format.fprintf fmt "@,error for %a %a"
         cg_lname lname
         (cg_braced cg_enumerators) enumerators
-  | Decl_Struct [] ->
+  | Decl_Struct (lname, []) ->
       assert (qualifier = "");
-      Format.fprintf fmt "@,struct this;"
-  | Decl_Struct decls ->
+      let uname = String.uppercase lname in
+      if c_mode then (
+        Format.fprintf fmt "@,#ifndef %a_DEFINED"
+          cg_uname uname;
+        Format.fprintf fmt "@,#define %a_DEFINED"
+          cg_uname uname;
+      );
+      Format.fprintf fmt "@,%sstruct %a%s;"
+        (if c_mode then "typedef " else "")
+        cg_lname lname
+        (if c_mode then " " ^ lname else "")
+      ;
+      if c_mode then (
+        Format.fprintf fmt "@,#endif /* %a_DEFINED */"
+          cg_uname uname;
+      );
+  | Decl_Struct (lname, decls) ->
       assert (qualifier = "");
-      Format.fprintf fmt "@,struct this %a"
+      Format.fprintf fmt "@,struct %a %a"
+        cg_lname lname
         (cg_braced cg_decls) decls
   | Decl_Member (type_name, lname) ->
       assert (qualifier = "");

@@ -16,11 +16,8 @@ let fold_decl v (symtab, ns) = function
       in
       (symtab, ns)
 
-  | Decl_Struct decls ->
+  | Decl_Struct (this, decls) ->
       let ns_names = List.map (SymbolTable.name symtab) ns in
-
-      let this = SymbolTable.lookup symtab ns_names "this" in
-      assert (this <> -1);
 
       let symtab =
         let class_name =

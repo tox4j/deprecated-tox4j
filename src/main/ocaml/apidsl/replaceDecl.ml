@@ -70,9 +70,10 @@ let fold_decl v state = function
       let state, lname = v.fold_lname v state lname in
       let state, decls = fold_decls v state decls in
       state, Decl_Class (lname, decls)
-  | Decl_Struct decls ->
+  | Decl_Struct (lname, decls) ->
+      let state, lname = v.fold_lname v state lname in
       let state, decls = fold_decls v state decls in
-      state, Decl_Struct decls
+      state, Decl_Struct (lname, decls)
   | Decl_GetSet (type_name, lname, decls) ->
       let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in

@@ -192,9 +192,10 @@ let visit_decl v state = function
       let state, lname = v.fold_lname v state lname in
       let state, enumerators = visit_list v.fold_enumerator v state enumerators in
       state, Decl_Error (lname, enumerators)
-  | Decl_Struct decls ->
+  | Decl_Struct (lname, decls) ->
+      let state, lname = v.fold_lname v state lname in
       let state, decls = visit_list v.fold_decl v state decls in
-      state, Decl_Struct decls
+      state, Decl_Struct (lname, decls)
   | Decl_Member (type_name, lname) ->
       let state, type_name = v.fold_type_name v state type_name in
       let state, lname = v.fold_lname v state lname in

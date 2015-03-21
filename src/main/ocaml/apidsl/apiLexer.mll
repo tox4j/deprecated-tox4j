@@ -57,6 +57,7 @@ and normal state =
 | "typedef"				{ TYPEDEF }
 | "with"				{ WITH }
 
+| "*"					{ STAR }
 | "{"					{ LBRACE }
 | "}"					{ RBRACE }
 | "("					{ LBRACK }
@@ -132,6 +133,7 @@ and variable state =
     | TYPEDEF -> "TYPEDEF"
     | WITH -> "WITH"
 
+    | STAR -> "STAR"
     | LBRACE -> "LBRACE"
     | RBRACE -> "RBRACE"
     | LBRACK -> "LBRACK"

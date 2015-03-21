@@ -53,7 +53,7 @@ let fold_decl v (symtab, ignore_first, ns) = function
 
       (symtab, ignore_first, ns)
 
-  | Decl_Struct decls ->
+  | Decl_Struct (lname, decls) ->
       (* Reset namespace for struct members. *)
       let symtab, _, _ = visit_list v.fold_decl v (symtab, ignore_first, []) decls in
       (symtab, ignore_first, ns)

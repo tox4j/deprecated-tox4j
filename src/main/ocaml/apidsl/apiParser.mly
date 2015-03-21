@@ -26,7 +26,7 @@ open ApiAst
 %token TYPEDEF
 %token WITH
 
-%token LBRACE RBRACE LBRACK RBRACK LSQBRACK RSQBRACK
+%token STAR LBRACE RBRACE LBRACK RBRACK LSQBRACK RSQBRACK
 %token PLUS EQ LE
 %token COMMA SEMICOLON
 
@@ -106,9 +106,9 @@ member_decl
 
 struct_decl
 	: STRUCT THIS LBRACE declarations RBRACE
-		{ Decl_Struct $4 }
+		{ Decl_Struct ("this", $4) }
 	| STRUCT THIS SEMICOLON
-		{ Decl_Struct [] }
+		{ Decl_Struct ("this", []) }
 
 
 error_decl
@@ -206,10 +206,12 @@ type_name
 		{ Ty_UName $1 }
 	| lname
 		{ Ty_LName $1 }
+	| lname STAR
+		{ Ty_Pointer (Ty_LName $1) }
 	| lname LSQBRACK size_spec RSQBRACK
 		{ Ty_Array ($1, $3) }
 	| THIS
-		{ Ty_LName "this" }
+		{ Ty_Pointer (Ty_LName "this") }
 	| CONST type_name
 		{ Ty_Const $2 }
 

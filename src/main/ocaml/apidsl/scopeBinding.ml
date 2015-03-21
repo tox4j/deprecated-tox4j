@@ -15,7 +15,16 @@ let map_uname symtab v scopes uname =
 
 
 let map_lname symtab v scopes lname =
-  SymbolTable.lookup symtab scopes lname
+  if String.length lname > 3 &&
+     String.sub lname (String.length lname - 2) 2 = "_t" then
+    try
+      let ns = String.sub lname 0 (String.length lname - 2) in
+      let scopes = ns :: List.tl scopes in
+      SymbolTable.lookup symtab scopes "this"
+    with Not_found ->
+      SymbolTable.lookup symtab scopes lname
+  else
+    SymbolTable.lookup symtab scopes lname
 
 
 let map_enumerator symtab v scopes = function
@@ -62,9 +71,10 @@ let map_decl symtab v scopes = function
       let lname' = v.map_lname v scopes lname in
       let enumerators = scoped scopes lname (flip (visit_list v.map_enumerator v) enumerators) in
       Decl_Error (lname', enumerators)
-  | Decl_Struct decls ->
-      let decls = scoped scopes "this" (flip (visit_list v.map_decl v) decls) in
-      Decl_Struct decls
+  | Decl_Struct (lname, decls) ->
+      let lname' = v.map_lname v scopes lname in
+      let decls = scoped scopes lname (flip (visit_list v.map_decl v) decls) in
+      Decl_Struct (lname', decls)
   | Decl_GetSet (type_name, lname, decls) ->
       let type_name = scoped scopes lname (flip (v.map_type_name v) type_name) in
       let lname' = v.map_lname v scopes lname in

@@ -449,7 +449,7 @@ static class options {
  *
  * @see $iterate for the event loop.
  */
-static this new(const options options, const uint8_t[length] data) {
+static this new(const options_t *options, const uint8_t[length] data) {
   NULL,
   /**
    * The function was unable to allocate enough memory to store the internal
