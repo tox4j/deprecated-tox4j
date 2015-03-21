@@ -7,26 +7,25 @@ let rec add_types name ty = function
       let decl = add_types name ty decl in
       Decl_Comment (comment, decl)
 
-  | Decl_Function (return_type, fname, parameters, error_list) as decl ->
-      let return_type ty =
-        match return_type with
-        | Ty_Auto -> ty
-        | ty -> ty
+  | Decl_Function (Ty_Auto, fname, parameters, error_list) as decl ->
+      let void =
+        if error_list = Err_None then
+          TypeName.void
+        else
+          TypeName.bool
       in
-      let size_t = TypeName.size_t in
-      let void = TypeName.void in
 
       begin match fname with
         | "size" ->
-            Decl_Function (return_type size_t, fname, parameters, error_list)
+            Decl_Function (TypeName.size_t, fname, parameters, error_list)
 
         | "get" ->
             if TypeName.is_array ty then
               let parameters = parameters @ [Param (ty, name)] in
-              Decl_Function (return_type void, fname, parameters, error_list)
+              Decl_Function (void, fname, parameters, error_list)
 
             else
-              Decl_Function (return_type ty, fname, parameters, error_list)
+              Decl_Function (ty, fname, parameters, error_list)
 
         | "set" ->
             let ty =
@@ -36,7 +35,7 @@ let rec add_types name ty = function
                 ty
             in
             let parameters = parameters @ [Param (ty, name)] in
-            Decl_Function (return_type void, fname, parameters, error_list)
+            Decl_Function (void, fname, parameters, error_list)
 
         | _ -> failwith @@ show_decl Format.pp_print_string decl
       end

@@ -760,7 +760,7 @@ inline namespace self {
      *
      * @return true on success.
      */
-    bool set() with error for set_info;
+    set() with error for set_info;
 
     /**
      * Return the length of the current nickname as passed to $set.
@@ -797,7 +797,7 @@ inline namespace self {
      * length is 0, the status parameter is ignored (it can be NULL), and the
      * user status is set back to empty.
      */
-    bool set() with error for set_info;
+    set() with error for set_info;
 
     /**
      * Return the length of the current status message as passed to $set.
@@ -1026,7 +1026,7 @@ namespace friend {
      *
      * @return true on success.
      */
-    bool get(uint32_t friend_number) {
+    get(uint32_t friend_number) {
       /**
        * No friend with the given number exists on the friend list.
        */
@@ -1089,7 +1089,7 @@ namespace friend {
      *
      * @return true on success.
      */
-    bool get(uint32_t friend_number)
+    get(uint32_t friend_number)
         with error for friend_query;
   }
 
@@ -1129,7 +1129,7 @@ namespace friend {
      *
      * @param name A valid memory region large enough to store the friend's name.
      */
-    bool get(uint32_t friend_number)
+    get(uint32_t friend_number)
         with error for friend_query;
 
   }
@@ -1264,7 +1264,7 @@ inline namespace self {
      *
      * @return true on success.
      */
-    bool set(uint32_t friend_number) {
+    set(uint32_t friend_number) {
       /**
        * The friend number did not designate a valid friend.
        */
