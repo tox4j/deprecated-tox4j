@@ -1446,6 +1446,9 @@ namespace file {
      * (same length as $FILE_ID_LENGTH) will contain the hash. A client can compare
      * this hash with a saved hash and send ${CONTROL.CANCEL} to terminate the avatar
      * transfer if it matches.
+     *
+     * When file_size is set to 0 in the transfer request it means that the client
+     * has no avatar.
      */
     AVATAR,
   }
@@ -1621,6 +1624,12 @@ namespace file {
    * File transmission occurs in chunks, which are requested through the
    * `${event chunk_request}` event.
    *
+   * When a friend goes offline, all file transfers associated with the friend are
+   * purged from core.
+   *
+   * If file_size is 0, this function will not allocate a file transfer in core and so
+   * will not return a valid file number however it will send a file request packet.
+   *
    * If the file contents change during a transfer, the behaviour is unspecified
    * in general. What will actually happen depends on the mode in which the file
    * was modified and how the client determines the file size.
@@ -1788,6 +1797,8 @@ namespace file {
      * returns, a transfer can be rejected by sending a ${CONTROL.CANCEL}
      * control command before any other control commands. It can be accepted by
      * sending ${CONTROL.RESUME}.
+     *
+     * If file_size is 0, the file_number is invalid and should be ignored.
      *
      * @param friend_number The friend number of the friend who is sending the file
      *   transfer request.
