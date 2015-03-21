@@ -1489,7 +1489,7 @@ namespace file {
    *
    * @return true on success.
    */
-  bool send_control(uint32_t friend_number, uint32_t file_number, CONTROL control) {
+  bool control(uint32_t friend_number, uint32_t file_number, CONTROL control) {
     /**
      * The friend_number passed did not designate a valid friend.
      */
@@ -1550,7 +1550,7 @@ namespace file {
    * @param file_number The friend-specific identifier for the file transfer.
    * @param position The position that the file should be seeked to.
    */
-  bool send_seek(uint32_t friend_number, uint32_t file_number, uint64_t position) {
+  bool seek(uint32_t friend_number, uint32_t file_number, uint64_t position) {
     /**
      * The friend_number passed did not designate a valid friend.
      */
@@ -1630,9 +1630,6 @@ namespace file {
    *
    * When a friend goes offline, all file transfers associated with the friend are
    * purged from core.
-   *
-   * If file_size is 0, this function will not allocate a file transfer in core and so
-   * will not return a valid file number however it will send a file request packet.
    *
    * If the file contents change during a transfer, the behaviour is unspecified
    * in general. What will actually happen depends on the mode in which the file
@@ -1801,8 +1798,6 @@ namespace file {
      * returns, a transfer can be rejected by sending a ${CONTROL.CANCEL}
      * control command before any other control commands. It can be accepted by
      * sending ${CONTROL.RESUME}.
-     *
-     * If file_size is 0, the file_number is invalid and should be ignored.
      *
      * @param friend_number The friend number of the friend who is sending the file
      *   transfer request.

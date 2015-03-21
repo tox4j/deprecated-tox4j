@@ -35,7 +35,7 @@ TOX_METHOD (void, FileControl,
           }
         return unhandled ();
       },
-    tox_file_send_control, friendNumber, fileNumber, file_control
+    tox_file_control, friendNumber, fileNumber, file_control
   );
 }
 
@@ -62,7 +62,7 @@ TOX_METHOD (void, FileSendSeek,
           }
         return unhandled ();
       },
-    tox_file_send_seek, friendNumber, fileNumber, position
+    tox_file_seek, friendNumber, fileNumber, position
   );
 }
 
