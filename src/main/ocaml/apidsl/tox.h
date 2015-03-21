@@ -1089,7 +1089,7 @@ namespace friend {
      *
      * @return true on success.
      */
-    get(uint32_t friend_number)
+    bool get(uint32_t friend_number)
         with error for friend_query;
   }
 
@@ -1129,7 +1129,7 @@ namespace friend {
      *
      * @param name A valid memory region large enough to store the friend's name.
      */
-    get(uint32_t friend_number)
+    bool get(uint32_t friend_number)
         with error for friend_query;
 
   }
