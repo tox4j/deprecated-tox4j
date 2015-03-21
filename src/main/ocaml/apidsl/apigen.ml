@@ -20,6 +20,8 @@ let main () =
 
   let api =
     api
+    |> ErrorNULL.transform
+    |> ErrorOK.transform
     |> GetSetParams.transform
     |> LengthParams.transform
     |> ThisParams.transform

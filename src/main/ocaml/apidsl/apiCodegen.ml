@@ -181,6 +181,20 @@ let rec cg_expr fmt = function
         cg_expr rhs
 
 
+let cg_expr fmt expr =
+  let is_simple =
+    match expr with
+    | E_Number _ | E_UName _ -> true
+    | E_Sizeof _ | E_Plus _ -> false
+  in
+  if not is_simple then
+    Format.pp_print_char fmt '(';
+  cg_expr fmt expr;
+  if not is_simple then
+    Format.pp_print_char fmt ')';
+;;
+
+
 let rec cg_decl_qualified qualifier fmt = function
   | Decl_Comment (comment, decl) ->
       assert (qualifier = "");

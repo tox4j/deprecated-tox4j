@@ -13,6 +13,7 @@ let fold_enumerator v state = function
 let fold_decl v state = function
   | Decl_Enum (is_class, lname, _) as enum ->
       let state, _ = visit_decl v state enum in
+      let state = List.rev state in
 
       [], Decl_Enum (is_class, lname, state)
 
