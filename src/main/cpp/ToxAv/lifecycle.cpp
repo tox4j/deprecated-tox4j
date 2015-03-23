@@ -114,7 +114,7 @@ TOX_METHOD (jint, New,
     TOXAV_ERR_NEW error;
     AvInstance::pointer av (toxav_new (tox, &error));
 
-    auto events = std::make_unique<Events> ();
+    auto events = std::unique_ptr<Events> (new Events);
 
     // Set up our callbacks.
     toxav_callback_call                (av.get (), tox4j_call_cb,                events.get ());
@@ -127,7 +127,7 @@ TOX_METHOD (jint, New,
     AvInstance instance {
       std::move (av),
       std::move (events),
-      std::make_unique<std::mutex> ()
+      std::unique_ptr<std::mutex> (new std::mutex)
     };
 
     return AvInstanceManager::self.add (std::move (instance));
