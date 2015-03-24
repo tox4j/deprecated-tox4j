@@ -119,7 +119,7 @@ callbacks).
 - `tox_self_set_status_message`
 - `tox_friend_get_public_key`
 - (`tox_friend_get_name`)
-- (`tox_get_friend_get_status_message`)
+- (`tox_friend_get_status_message`)
 - `tox_self_set_typing`
 - `tox_friend_delete`
 - `tox_file_control`
