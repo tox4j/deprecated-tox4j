@@ -489,14 +489,6 @@ static this new(const options_t *options, const uint8_t[length] data) {
      */
     ENCRYPTED,
     /**
-     * The encrypted byte array could not be decrypted. Either the data was
-     * corrupt or the password/key was incorrect.
-     *
-     * NOTE: This error code is only set by tox_encrypted_new() and
-     * tox_encrypted_key_new(), in the toxencryptsave module.
-     */
-    DECRYPTION_FAILED,
-    /**
      * The data format was invalid. This can happen when loading data that was
      * saved by an older version of Tox, or when the data has been corrupted.
      * When loading from badly formatted data, some data may have been loaded,
@@ -1136,7 +1128,7 @@ namespace friend {
 
 
   /**
-   * This event is triggered when a friend changes their name.
+   * This event is triggered when a friend changes their status message.
    */
   event status_message {
     /**
@@ -1330,17 +1322,14 @@ namespace friend {
 
 
   /**
-   * This event is triggered when a read receipt is received from a friend. This
-   * normally means that the message has been received by the friend, however a
-   * friend can send a read receipt with any message ID in it, so the number
-   * received here may not correspond to any message sent through ${send.message}
-   * or ${send.action}. In that case, the receipt should be discarded.
+   * This event is triggered when the friend receives the message sent with
+   * ${send.message} with the corresponding message ID.
    */
   event read_receipt {
     /**
      * @param friend_number The friend number of the friend who received the message.
-     * @param message_id The message ID as returned from ${send.message} or
-     *   ${send.action} corresponding to the message sent.
+     * @param message_id The message ID as returned from ${send.message}
+     *   corresponding to the message sent.
      */
     typedef void(uint32_t friend_number, uint32_t message_id);
   }
@@ -1483,7 +1472,7 @@ namespace file {
    * Sends a file control command to a friend for a given file transfer.
    *
    * @param friend_number The friend number of the friend the file is being
-   *   transferred to.
+   *   transferred to or received from.
    * @param file_number The friend-specific identifier for the file transfer.
    * @param control The control command to send.
    *
@@ -1546,7 +1535,7 @@ namespace file {
    * ${CONTROL.RESUME} is sent.
    *
    * @param friend_number The friend number of the friend the file is being
-   *   transferred to.
+   *   received from.
    * @param file_number The friend-specific identifier for the file transfer.
    * @param position The position that the file should be seeked to.
    */
@@ -1593,7 +1582,7 @@ namespace file {
    * Copy the file id associated to the file transfer to a byte array.
    *
    * @param friend_number The friend number of the friend the file is being
-   *   transferred to.
+   *   transferred to or received from.
    * @param file_number The friend-specific identifier for the file transfer.
    * @param file_id A memory region of at least $FILE_ID_LENGTH bytes. If
    *   this parameter is NULL, this function has no effect.
@@ -1706,6 +1695,9 @@ namespace file {
    * chunk to terminate. For streams, core will know that the transfer is finished
    * if a chunk with length less than the length requested in the callback is sent.
    *
+   * @param friend_number The friend number of the receiving friend for this file.
+   * @param file_number The file transfer identifier returned by tox_file_send.
+   * @param position The file or stream position from which to continue reading.
    * @return true on success.
    */
   bool send_chunk(uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t[length] data) {

@@ -287,7 +287,6 @@ TOX_METHOD (jint, New,
           failure_case (NEW, PROXY_BAD_PORT);
           failure_case (NEW, PROXY_NOT_FOUND);
           failure_case (NEW, LOAD_ENCRYPTED);
-          failure_case (NEW, LOAD_DECRYPTION_FAILED);
           failure_case (NEW, LOAD_BAD_FORMAT);
           }
         return unhandled ();
