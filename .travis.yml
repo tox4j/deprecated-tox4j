@@ -18,7 +18,7 @@ install:
    - protoc --version || true
    # google-glog
    - cd $HOME
-   - svn checkout http://google-glog.googlecode.com/svn/trunk/ google-glog
+   - git clone https://github.com/google/glog.git google-glog
    - cd google-glog
    - mkdir _build
    - cd _build
