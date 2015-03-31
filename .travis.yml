@@ -54,6 +54,7 @@ install:
    - sudo cp *.pc /usr/lib/pkgconfig/
    - sudo cp ../toxav/toxav.h /usr/include/tox/
    - sudo cp ../toxcore/tox.h /usr/include/tox/
+   - sudo cp ../toxcore/tox_old.h /usr/include/tox/
    - sudo cp ../toxdns/toxdns.h /usr/include/tox/
    - sudo cp ../toxencryptsave/toxencryptsave.h /usr/include/tox/
    - sudo cp build/.libs/libtoxav.so /usr/lib/libtoxav.so.0.0.0
