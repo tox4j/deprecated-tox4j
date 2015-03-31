@@ -2,6 +2,7 @@ language: cpp
 compiler: clang
 script:
    - sbt compile
+   - test -f target/cpp/bin/libtox4j.so
    - sbt coverage test || true
 
 after_success:
