@@ -9,6 +9,8 @@ after_success:
    - sbt coveralls
 
 before_install:
+   - java -version
+   - javac -version
    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
    - sudo apt-get update -qq
 
