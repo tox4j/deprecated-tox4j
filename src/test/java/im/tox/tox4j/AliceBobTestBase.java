@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(DataDrivenTestRunner.class)
-//@Parallel
+@Parallel
 public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(AliceBobTestBase.class);
