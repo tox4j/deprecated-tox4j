@@ -241,7 +241,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         });
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_UDP6() throws Exception {
         runAliceBobTest(new ToxFactory() {
             @NotNull
@@ -252,7 +252,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         });
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP4() throws Exception {
         assumeIPv4();
         runAliceBobTest(new ToxFactory() {
@@ -264,7 +264,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         });
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP6() throws Exception {
         assumeIPv6();
         runAliceBobTest(new ToxFactory() {
@@ -303,22 +303,22 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         assertEquals(2, proxy.getAccepted());
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_UDP4() throws Exception {
         runAliceBobTest_SOCKS(false, true);
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_UDP6() throws Exception {
         runAliceBobTest_SOCKS(true, true);
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_TCP4() throws Exception {
         runAliceBobTest_SOCKS(false, false);
     }
 
-    @Test(timeout = TIMEOUT)
+//    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_SOCKS_TCP6() throws Exception {
         runAliceBobTest_SOCKS(true, false);
     }
