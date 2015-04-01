@@ -2,12 +2,12 @@ language: cpp
 compiler: clang
 script:
    # Compile first, so a compile error fails the build.
-   - sbt compile
+   - yes q | sbt compile
    # Compile again, because sbt coverage deleted our native library.
-   - sbt coverage compile test || true
+   - yes q | sbt coverage compile test || true
 
 after_success:
-   - sbt coveralls
+   - yes q | sbt coveralls
 
 before_install:
    - java -version
@@ -75,7 +75,7 @@ install:
    - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/lib/libtoxencryptsave.so.0
    - cd `cat $HOME/.pushd`
    # Trigger installation of SBT.
-   - sbt update
+   - yes q | sbt update
 
 # whitelist
 branches:
