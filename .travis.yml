@@ -1,9 +1,10 @@
 language: cpp
 compiler: clang
 script:
+   # Compile first, so a compile error fails the build.
    - sbt compile
-   - test -f target/cpp/bin/libtox4j.so
-   - sbt coverage test || true
+   # Compile again, because sbt coverage deleted our native library.
+   - sbt coverage compile test || true
 
 after_success:
    - sbt coveralls
