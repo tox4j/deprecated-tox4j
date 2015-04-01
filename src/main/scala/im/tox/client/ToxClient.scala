@@ -6,7 +6,7 @@ import im.tox.tox4j.core.{ToxCore, ToxOptions}
 
 class ToxClient {
 
-  private val tox: ToxCore = new ToxCoreImpl(new ToxOptions)
+  private val tox: ToxCore = new ToxCoreImpl(new ToxOptions, null)
 
   def name: String = new String(tox.getName)
   def name_=(name: String) = tox.setName(name.getBytes)

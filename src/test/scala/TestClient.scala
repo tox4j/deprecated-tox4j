@@ -62,7 +62,7 @@ object TestClient extends App {
           options.setIpv6Enabled(true)
           options.setUdpEnabled(bootstrap.isEmpty)
           options
-        })
+        }, null)
 
         tox.callback(new TestEventListener(id))
         logger.info(s"[$id] Key: ${readablePublicKey(tox.getPublicKey)}")

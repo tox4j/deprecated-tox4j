@@ -21,7 +21,7 @@ public abstract class ToxAvImplTestBase extends ToxAvTestBase {
             ToxOptions options = new ToxOptions();
             options.setIpv6Enabled(ipv6Enabled);
             options.setUdpEnabled(udpEnabled);
-            return new ToxCoreImpl(options);
+            return new ToxCoreImpl(options, null);
         }
     });
 

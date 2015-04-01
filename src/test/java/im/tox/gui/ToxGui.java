@@ -329,7 +329,7 @@ public class ToxGui extends JFrame {
                             friendListModel.add(friendNumber, tox.getPublicKey(friendNumber));
                         }
                     } else {
-                        tox = new ToxCoreImpl(options);
+                        tox = new ToxCoreImpl(options, null);
                     }
                     selfPublicKey.setText(readablePublicKey(tox.getAddress()));
                     tox.callback(toxEvents);

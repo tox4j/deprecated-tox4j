@@ -18,7 +18,11 @@ public class NetworkTest extends ToxCoreImplTestBase {
         try (ToxCore tox = newTox(ipv6Enabled, udpEnabled)) {
             logger.info("Attempting to {}", action);
             long start = System.currentTimeMillis();
-            tox.bootstrap(ip, port, dhtId);
+            if (udpEnabled) {
+                tox.bootstrap(ip, port, dhtId);
+            } else {
+                tox.addTcpRelay(ip, port, dhtId);
+            }
             ConnectedListener status = new ConnectedListener();
             tox.callbackConnectionStatus(status);
             while (!status.isConnected()) {

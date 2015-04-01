@@ -52,7 +52,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     /**
      * This field is set by {@link ToxAvImpl} on construction and reset back to null on close.
      */
-    ToxAvImpl av = null;
+    @Nullable ToxAvImpl av = null;
 
     private ConnectionStatusCallback connectionStatusCallback;
     private FriendNameCallback friendNameCallback;
@@ -77,7 +77,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
 
     private static native int toxNew(
-        byte[] data,
+        @Nullable byte[] data,
         boolean ipv6Enabled,
         boolean udpEnabled,
         int proxyType,
@@ -85,20 +85,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
         int proxyPort
     ) throws ToxNewException;
 
-    public ToxCoreImpl() throws ToxNewException {
-        this(new ToxOptions());
-    }
-
-    public ToxCoreImpl(@NotNull byte[] data) throws ToxNewException {
-        this(new ToxOptions(), data);
-    }
-
-    public ToxCoreImpl(@NotNull ToxOptions options) throws ToxNewException {
-        //noinspection ConstantConditions
-        this(options, null);
-    }
-
-    public ToxCoreImpl(@NotNull ToxOptions options, @NotNull byte[] data) throws ToxNewException {
+    public ToxCoreImpl(@NotNull ToxOptions options, @Nullable byte[] data) throws ToxNewException {
         instanceNumber = toxNew(
             data,
             options.isIpv6Enabled(),
@@ -136,9 +123,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native byte[] toxSave(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] save() {
+    public @NotNull byte[] save() {
         return toxSave(instanceNumber);
     }
 
@@ -146,15 +132,13 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxBootstrap(int instanceNumber, @NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
     private static native void toxAddTcpRelay(int instanceNumber, @NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
 
-    private static void checkBootstrapArguments(int port, byte[] public_key) {
+    private static void checkBootstrapArguments(int port, @Nullable byte[] public_key) {
         if (port < 0) {
             throw new IllegalArgumentException("Ports cannot be negative");
         }
         if (port > 65535) {
             throw new IllegalArgumentException("Ports cannot be larger than 65535");
         }
-        // Failing when it's null is toxBootstrap's job.
-        //noinspection ConstantConditions
         if (public_key != null) {
             if (public_key.length < ToxConstants.PUBLIC_KEY_SIZE) {
                 throw new IllegalArgumentException("Key too short, must be " + ToxConstants.PUBLIC_KEY_SIZE + " bytes");
@@ -202,9 +186,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @NotNull byte[] toxGetDhtId(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] getDhtId() {
+    public @NotNull byte[] getDhtId() {
         return toxGetDhtId(instanceNumber);
     }
 
@@ -345,18 +328,16 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @NotNull byte[] toxSelfGetPublicKey(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] getPublicKey() {
+    public @NotNull byte[] getPublicKey() {
         return toxSelfGetPublicKey(instanceNumber);
     }
 
 
     private static native @NotNull byte[] toxSelfGetSecretKey(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] getSecretKey() {
+    public @NotNull byte[] getSecretKey() {
         return toxSelfGetSecretKey(instanceNumber);
     }
 
@@ -379,9 +360,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @NotNull byte[] toxSelfGetAddress(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] getAddress() {
+    public @NotNull byte[] getAddress() {
         return toxSelfGetAddress(instanceNumber);
     }
 
@@ -397,9 +377,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @Nullable byte[] toxSelfGetName(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] getName() {
+    public @NotNull byte[] getName() {
         return notNull(toxSelfGetName(instanceNumber));
     }
 
@@ -415,9 +394,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @Nullable byte[] toxSelfGetStatusMessage(int instanceNumber);
 
-    @NotNull
     @Override
-    public byte[] getStatusMessage() {
+    public @NotNull byte[] getStatusMessage() {
         return notNull(toxSelfGetStatusMessage(instanceNumber));
     }
 
@@ -432,9 +410,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native int toxSelfGetStatus(int instanceNumber);
 
-    @NotNull
     @Override
-    public ToxStatus getStatus() {
+    public @NotNull ToxStatus getStatus() {
         return ToxStatus.values()[toxSelfGetStatus(instanceNumber)];
     }
 
@@ -487,9 +464,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @NotNull byte[] toxFriendGetPublicKey(int instanceNumber, int friendNumber) throws ToxFriendGetPublicKeyException;
 
-    @NotNull
     @Override
-    public byte[] getPublicKey(int friendNumber) throws ToxFriendGetPublicKeyException {
+    public @NotNull byte[] getPublicKey(int friendNumber) throws ToxFriendGetPublicKeyException {
         return toxFriendGetPublicKey(instanceNumber, friendNumber);
     }
 
@@ -504,9 +480,8 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
     private static native @NotNull int[] toxFriendList(int instanceNumber);
 
-    @NotNull
     @Override
-    public int[] getFriendList() {
+    public @NotNull int[] getFriendList() {
         return notNull(toxFriendList(instanceNumber));
     }
 

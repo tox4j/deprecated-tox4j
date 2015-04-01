@@ -18,7 +18,7 @@ public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
             ToxOptions options = new ToxOptions();
             options.setIpv6Enabled(ipv6Enabled);
             options.setUdpEnabled(udpEnabled);
-            return new ToxCoreImpl(options);
+            return new ToxCoreImpl(options, null);
         }
     });
 
@@ -33,9 +33,8 @@ public abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
         System.gc();
     }
 
-    @NotNull
     @Override
-    protected final ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
+    protected final @NotNull ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException {
         ToxCoreImpl tox = new ToxCoreImpl(options, data);
         toxes.add(tox);
         return tox;

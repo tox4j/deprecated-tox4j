@@ -48,8 +48,7 @@ public abstract class ToxCoreTestBase {
 
     protected abstract @NotNull DhtNode node();
 
-    protected abstract @NotNull
-    ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
+    protected abstract @NotNull ToxCore newTox(ToxOptions options, byte[] data) throws ToxNewException;
 
     protected final @NotNull ToxCore newTox() throws ToxNewException {
         return newTox(new ToxOptions(), null);
