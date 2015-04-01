@@ -68,3 +68,7 @@ scalacOptions in Compile += "-target:jvm-" + "1.6"
 // Latest Java for test code.
 javacOptions in Test ++= Seq("-source", javaVersion, "-target", javaVersion)
 scalacOptions in Test += "-target:jvm-" + javaVersion
+
+// Require 100% test coverage.
+ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
+ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
