@@ -80,5 +80,7 @@ install:
 # whitelist
 branches:
    only:
-      - master
-      - /.*\/staging/
+      - auto
+
+notifications:
+   webhooks: http://slevermann.de:54856/travis
