@@ -9,8 +9,10 @@ METHOD (void, playground,
   jint instance_number)
 {
   return with_instance (env, instance_number,
-    [=] (Tox *, Events &)
+    [=] (Tox *tox, Events &events)
       {
+        unused (tox);
+        unused (events);
       }
   );
 }
