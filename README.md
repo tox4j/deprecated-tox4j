@@ -82,4 +82,4 @@ $ brew install llvm --with-clang
 
 ## Contributing
 
-We use Upsource for code review now. Please [sign up](https://upsource.slevermann.de)!
+We use Upsource for code review now. Please [sign up](https://upsource.slevermann.de)! We're also using Homu now. You don't even need to sign up, it does things automatically, if it works.
