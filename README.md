@@ -47,6 +47,7 @@ Install required packages:
 $ brew install automake libtool libsodium libvpx opus pkg-config protobuf sbt 
 $ mkdir -p ~/code/git
 $ cd ~/code/git
+$ test
 $ git clone https://github.com/irungentoo/toxcore
 $ cd toxcore && ./autogen.sh
 $ mkdir _build && cd _build
