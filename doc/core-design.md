@@ -114,18 +114,17 @@ instead of passing it as an out parameter. The functions in () are essentially
 useless functions kept for legacy reasons (their value can also be read through
 callbacks).
 
-- `tox_load`
 - `tox_bootstrap`
-- `tox_set_self_name`
-- `tox_set_self_status_message`
-- `tox_get_friend_client_id`
-- (`tox_get_friend_name`)
-- (`tox_get_friend_status_message`)
-- `tox_set_typing`
-- `tox_delete_friend`
+- `tox_self_set_name`
+- `tox_self_set_status_message`
+- `tox_friend_get_public_key`
+- (`tox_friend_get_name`)
+- (`tox_friend_get_status_message`)
+- `tox_self_set_typing`
+- `tox_friend_delete`
 - `tox_file_control`
-- `tox_send_lossy_packet`
-- `tox_send_lossless_packet`
+- `tox_friend_send_lossy_packet`
+- `tox_friend_send_lossless_packet`
 
 The scenario in which the call site of these functions would be improved is one
 where the caller wants to know the specific error condition (not just the fact
@@ -135,9 +134,9 @@ once (e.g. in a `switch` statement).
 
 Concretely, a common use of these functions would be:
 
-    TOX_ERR_LOAD error;
+    TOX_ERR_FRIEND_DELETE error;
     ...other code...
-    tox_load(tox, ..., &error);
+    tox_friend_delete(tox, ..., &error);
     switch (error) {
         // handle error
     }
@@ -145,16 +144,16 @@ Concretely, a common use of these functions would be:
 Which would otherwise be written more concisely as:
 
     ...other code...
-    switch (tox_load(tox, ..., &error)) {
+    switch (tox_friend_delete(tox, ..., &error)) {
         // handle error
     }
 
 For cases where the error code is needed in a context other than a `switch`
 condition, the improvements are negligible:
 
-    TOX_ERR_LOAD error;
+    TOX_ERR_FRIEND_DELETE error;
     ...other code...
-    error = tox_load(tox, ...);
+    error = tox_friend_delete(tox, ...);
     if (error == CODE1 || error == CODE2) {
         // handle error 1 and 2
     }
@@ -162,13 +161,13 @@ condition, the improvements are negligible:
 The second improvement an error code as return value has is that the "OK" check
 is slightly more explicit:
 
-    if (tox_load(tox, ...) != TOX_ERR_LOAD_OK) {
+    if (tox_friend_delete(tox, ...) != TOX_ERR_LOAD_OK) {
         // handle error
     }
 
 vs.
 
-    if (!tox_load(tox, ..., NULL)) {
+    if (!tox_friend_delete(tox, ..., NULL)) {
         // handle error
     }
 
@@ -187,15 +186,15 @@ general concepts used throughout the API, and will know what to expect from all
 other functions. All callbacks behave the same, all error handling is the same,
 naming conventions aid readers in their learning.
 
-Changing the calling convention for 10 (12) of the 66 functions (at the time of
+Changing the calling convention for 9 (11) of the 66 functions (at the time of
 writing) will be surprising to users, giving more potential for making mistakes
 and getting confused.
 
-In addition, as mentioned before, calls to these 10 functions would no longer
+In addition, as mentioned before, calls to these 9 functions would no longer
 explicitly express the intention of ignoring the specific error condition,
 giving potential for forgetting the function's failure conditions. Given that
 there are several functions without error code that cannot fail, could further
-increase the impression that these 10 functions cannot fail.
+increase the impression that these 9 functions cannot fail.
 
 For these reasons, we decided to sacrifice a small potential for slight
 improvement of readability in order to preserve the API's consistency and
@@ -264,12 +263,12 @@ and user status. Each of these has a set of functions named:
 Some information, such as Client ID and nickname, can be retrieved for both the
 local client and for friends. Such functions are named:
 - Local:
-  - `tox_set_self_${name}`: Setter for local client.
-  - `tox_get_self_${name}`: Getter for local client.
+  - `tox_self_set_${name}`: Setter for local client.
+  - `tox_self_get_${name}`: Getter for local client.
   - `tox_self_${name}_size`: Size function for local client.
 - Friend:
-  - `tox_set_friend_${name}`: Setter for friend info.
-  - `tox_get_friend_${name}`: Getter for friend info.
+  - `tox_friend_set_${name}`: Setter for friend info.
+  - `tox_friend_get${name}`: Getter for friend info.
   - `tox_friend_${name}_size`: Size function for friend info.
 
 Functions that get or set local information that does not exist for friends,
