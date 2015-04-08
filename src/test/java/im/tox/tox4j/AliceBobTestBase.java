@@ -259,7 +259,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             @NotNull
             @Override
             public ToxCore make() throws ToxException {
-                return bootstrap(false, newTox(false, false));
+                return bootstrap(false, false, newTox(false, false));
             }
         });
     }
@@ -271,7 +271,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             @NotNull
             @Override
             public ToxCore make() throws ToxException {
-                return bootstrap(true, newTox(true, false));
+                return bootstrap(true, false, newTox(true, false));
             }
         });
     }
@@ -290,7 +290,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                 @NotNull
                 @Override
                 public ToxCore make() throws ToxException {
-                    return bootstrap(ipv6Enabled, newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort()));
+                    return bootstrap(ipv6Enabled, udpEnabled, newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort()));
                 }
             });
         } finally {

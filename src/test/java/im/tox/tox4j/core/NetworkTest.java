@@ -13,8 +13,8 @@ public class NetworkTest extends ToxCoreImplTestBase {
     private static final int TOX_COUNT = 10;
 
     private void testBootstrap(boolean ipv6Enabled, boolean udpEnabled, String ip, int port, byte[] dhtId) throws Exception {
-        String action = String.format("bootstrap to remote node on %s with %s%d",
-            ip, udpEnabled ? "UDP" : "TCP", ipv6Enabled ? 6 : 4);
+        String action = String.format("bootstrap to remote node on %s:%d with %s%d",
+            ip, port, udpEnabled ? "UDP" : "TCP", ipv6Enabled ? 6 : 4);
         try (ToxCore tox = newTox(ipv6Enabled, udpEnabled)) {
             logger.info("Attempting to {}", action);
             long start = System.currentTimeMillis();
@@ -41,25 +41,25 @@ public class NetworkTest extends ToxCoreImplTestBase {
     @Test(timeout = TIMEOUT)
     public void testBootstrap4_UDP() throws Exception {
         assumeIPv4();
-        testBootstrap(false, true, node().ipv4, node().port, node().dhtId);
+        testBootstrap(false, true, node().ipv4, node().udpPort, node().dhtId);
     }
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap6_UDP() throws Exception {
         assumeIPv6();
-        testBootstrap(true, true, node().ipv6, node().port, node().dhtId);
+        testBootstrap(true, true, node().ipv6, node().udpPort, node().dhtId);
     }
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap4_TCP() throws Exception {
         assumeIPv4();
-        testBootstrap(false, false, node().ipv4, node().port, node().dhtId);
+        testBootstrap(false, false, node().ipv4, node().tcpPort, node().dhtId);
     }
 
     @Test(timeout = TIMEOUT)
     public void testBootstrap6_TCP() throws Exception {
         assumeIPv6();
-        testBootstrap(true, false, node().ipv6, node().port, node().dhtId);
+        testBootstrap(true, false, node().ipv6, node().tcpPort, node().dhtId);
     }
 
     @Test

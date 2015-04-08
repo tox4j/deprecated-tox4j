@@ -27,7 +27,7 @@ public abstract class ToxCoreTestBase {
 
     static final DhtNode[] nodeCandidates = {
         new DhtNode("192.254.75.102", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
-        new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
+        new DhtNode("144.76.60.215", "2a01:4f8:191:64d6::1", 33445, 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"),
         new DhtNode("23.226.230.47", "2604:180:1::3ded:b280", 33445, "A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074"),
         new DhtNode("178.62.125.224", "2a03:b0c0:1:d0::178:6001", 33445, "10B20C49ACBD968D7C80F2E8438F92EA51F189F4E70CFBBB2C2C8C799E97F03E"),
         new DhtNode("178.21.112.187", "2a02:2308::216:3eff:fe82:eaef", 33445, "4B2C19E924972CB9B57732FB172F8A8604DE13EEDA2A6234E348983344B23057"),
@@ -232,12 +232,8 @@ public abstract class ToxCoreTestBase {
         assumeConnection("2001:4860:4860::8888", 53);
     }
 
-    @NotNull ToxCore bootstrap(boolean useIPv6, @NotNull ToxCore tox) throws ToxBootstrapException {
-        if (useIPv6) {
-            tox.bootstrap(node().ipv6, node().port, node().dhtId);
-        } else {
-            tox.bootstrap(node().ipv4, node().port, node().dhtId);
-        }
+    @NotNull ToxCore bootstrap(boolean useIPv6, boolean udpEnabled, @NotNull ToxCore tox) throws ToxBootstrapException {
+        tox.bootstrap(useIPv6 ? node().ipv6 : node().ipv4, udpEnabled ? node().udpPort : node().tcpPort, node().dhtId);
         return tox;
     }
 
