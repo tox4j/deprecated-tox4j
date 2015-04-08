@@ -27,7 +27,7 @@ public final class DhtNodeSelector {
         logger.info("Looking for a working bootstrap node");
         for (DhtNode node : ToxCoreTestBase.nodeCandidates) {
             logger.info("Trying to establish a TCP connection to {}", node.ipv4);
-            try (Socket socket = new Socket(InetAddress.getByName(node.ipv4), node.port)) {
+            try (Socket socket = new Socket(InetAddress.getByName(node.ipv4), node.tcpPort)) {
                 assumeNotNull(socket.getInputStream());
             } catch (IOException e) {
                 logger.info("TCP connection failed ({})", e.getMessage());
@@ -43,7 +43,7 @@ public final class DhtNodeSelector {
                     ConnectedListener status = new ConnectedListener();
                     tox.callbackConnectionStatus(status);
 
-                    tox.bootstrap(node.ipv4, node.port, node.dhtId);
+                    tox.bootstrap(node.ipv4, udpEnabled ? node.udpPort : node.tcpPort, node.dhtId);
                     long startTime = System.currentTimeMillis();
                     final long TIMEOUT = 10000;
 

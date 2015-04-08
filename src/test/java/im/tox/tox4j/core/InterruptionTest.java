@@ -19,7 +19,7 @@ public final class InterruptionTest extends ToxCoreImplTestBase {
                 public void run() {
                     System.out.println("Survived " + cycle + " seconds");
                     try (ToxCore tox = newTox()) {
-                        tox.bootstrap(node().ipv4, node().port, node().dhtId);
+                        tox.bootstrap(node().ipv4, node().udpPort, node().dhtId);
                         //noinspection InfiniteLoopStatement
                         while (true) {
                             tox.iteration();
