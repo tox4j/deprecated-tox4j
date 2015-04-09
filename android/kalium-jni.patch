@@ -33,4 +33,4 @@ index 03cb879..4c8ecaa 100644
  
 -APP_ABI := armeabi armeabi-v7a x86 mips
 \ No newline at end of file
-+APP_ABI := armeabi
++APP_ABI := @PLATFORM_KALIUM@
