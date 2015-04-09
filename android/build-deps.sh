@@ -6,13 +6,13 @@ if [ -z "$ANDROID_NDK_HOME" ]; then
   export ANDROID_NDK_HOME=$HOME/usr/android-ndk
 fi
 
-COMPILER=clang3.5
+COMPILER=4.9
 TARGET=x86
 
 case $TARGET in
    arm)
       PLATFORM=arm-linux-androideabi
-      PLATFORM_NDK=arm-linux-androideabi
+      PLATFORM_NDK=$PLATFORM
       PLATFORM_VPX=armv7-android-gcc
       PLATFORM_KALIUM=armeabi
       ;;
@@ -20,11 +20,11 @@ case $TARGET in
       PLATFORM=i686-linux-android
       PLATFORM_NDK=x86
       PLATFORM_VPX=x86-android-gcc
-      PLATFORM_KALIUM=x86
+      PLATFORM_KALIUM=$PLATFORM_NDK
       ;;
 esac
 
-export TOOLCHAIN=$PWD/$PLATFORM_NDK
+export TOOLCHAIN=$PWD/$PLATFORM
 export PKG_CONFIG_PATH=$TOOLCHAIN/sysroot/usr/lib/pkgconfig
 if [ -d /usr/lib/jvm/default-java ]; then
   export JAVA_HOME=/usr/lib/jvm/default-java
@@ -112,6 +112,7 @@ INSTALL() {
 # toxcore
 (
   CLONE https://github.com/irungentoo toxcore --depth=1
+  patch -p1 < ../toxcore.patch
   INSTALL toxcore --disable-rt --disable-testing --disable-tests
 )
 # protobuf
