@@ -25,7 +25,7 @@ New and improved java wrapper for Tox.
 
 Build and install toxcore and toxav. Run the sbt console with ```sbt```, and then use ```compile``` to build, ```test``` to run unit tests (these are a lot of tests with high timeouts, might take 40minutes or longer), and ```package``` to create a jar and the needed native library.
 
-### Developing on OS X
+### Developing on Mac OS X
 
 Getting the required tools for development on OS X is very easy. If you have XCode installed, you will already be ready to compile the C++ part of tox4j, otherwise you will need to install a C++ compiler with brew. To get started, follow these instructions.
 
@@ -79,6 +79,33 @@ If you don't have a C++ compiler (e.g. from XCode), install it with brew:
 ```
 $ brew install llvm --with-clang
 ```
+
+### IntelliJ IDEA on Mac OS X
+
+Building:
+
+1. Download and install IntelliJ IDEA with the Scala "Featured plugin" enabled. If you already have IDEA, install the Scala plugin in the plugins section of the settings.
+2. In the Welcome dialogue, select "Open", select the tox4j directory in the file chooser, press "Choose".
+3. In the "Import Project from SBT" dialogue, select "Use auto-import", "Download sources and docs", and select a project SDK. If you don't have a project SDK, set one up with "New...". The Java SDKs are usually in `/System/Library/Java/JavaVirtualMachines`.
+4. Install the "Google Protocol Buffers support" plugin in Preferences > Plugins.
+5. Restart the IDE.
+6. The IDE will now tell you "Protocol Facet framework is detected". Click "Configure". The dialogue will list 2 proto files. Click "OK".
+7. Now the IDE will ask you to set the output directory. Set it to the `target/scala-2.11/src\_managed/main/compiled\_protobuf` directory in the tox4j project root.
+8. Set the Protobuf compiler in "Preferences > Build, Execution, Deployment > Compiler > Protocol Buffers Compiler" to `$HOME/homebrew/bin/protoc`, where `$HOME` is `/Users/yourname`.
+9. Select the menu entry "Build > Make Project".
+
+Running tests:
+
+1. Secondary mouse button click on the tox4j project root (Ctrl-click, two-finger-tap, ...), "Create 'All Tests'".
+2. Add to "VM options": `-Djava.library.path=target/cpp/bin`
+3. Clear the field "Working directory", which is set to `$MODULE_DIR$`.
+
+#### Troubleshooting
+
+If you get an error about source and target versions not being 1.7 ("Error:java: javacTask: source release 1.7 requires target release 1.7"), go to "Preferences > Build, Execution, Deployment > Compiler > Java Compiler" and select "1.7" from the dropdown list for "Project bytecode version".
+
+If you get "Av" or "Core" already defined errors, try setting the Protobuf Facet output directory to target/generated and adding target/generated as a sources directory in "File > Project Structure".
+
 
 ## Contributing
 
