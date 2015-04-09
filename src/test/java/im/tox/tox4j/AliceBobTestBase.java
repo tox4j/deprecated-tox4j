@@ -8,10 +8,7 @@ import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
 import im.tox.tox4j.exceptions.ToxException;
-import org.easetech.easytest.annotation.Parallel;
-import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +18,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(DataDrivenTestRunner.class)
-@Parallel
 public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(AliceBobTestBase.class);
@@ -106,7 +101,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         }
 
         protected void debug(@NotNull String message) {
-            logger.info("[{}] {}: {}", new Object[]{ Thread.currentThread().getId(), getName(), message });
+            logger.info("[{}] {}: {}", Thread.currentThread().getId(), getName(), message);
         }
 
         @Override
@@ -132,7 +127,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         }
 
         protected final <T, TaskT extends TaskBase<T>> void performTasks(@NotNull List<TaskT> tasks, @NotNull T tox) throws ToxException {
-            List<TaskT> iterationTasks = new ArrayList<>(tasks);
+            Iterable<TaskT> iterationTasks = new ArrayList<>(tasks);
             tasks.clear();
             for (TaskT task : iterationTasks) {
                 try {
@@ -176,7 +171,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
     private void runAliceBobTest(@NotNull ToxFactory factory) throws Exception {
         String method = getToplevelMethod(Thread.currentThread().getStackTrace());
-        logger.info("[{}] --- {}.{}", new Object[]{ Thread.currentThread().getId(), getClass().getSimpleName(), method });
+        logger.info("[{}] --- {}.{}", Thread.currentThread().getId(), getClass().getSimpleName(), method);
 
         ChatClient aliceChat = newAlice();
         ChatClient bobChat = newBob();

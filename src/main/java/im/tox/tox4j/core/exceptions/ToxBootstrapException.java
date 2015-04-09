@@ -5,7 +5,7 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxBootstrapException extends ToxException {
 
-  public static enum Code {
+  public enum Code {
     NULL,
     BAD_HOST,
     BAD_PORT,

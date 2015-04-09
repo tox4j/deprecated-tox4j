@@ -65,7 +65,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) {
+        public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) {
 //            debug("got message: " + new String(message));
         }
     }

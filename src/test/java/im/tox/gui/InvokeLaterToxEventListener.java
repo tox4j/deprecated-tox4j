@@ -91,7 +91,7 @@ public class InvokeLaterToxEventListener implements ToxEventListener {
     }
 
     @Override
-    public void friendMessage(final int friendNumber, final ToxMessageType type, final int timeDelta, @NotNull final byte[] message) {
+    public void friendMessage(final int friendNumber, @NotNull final ToxMessageType type, final int timeDelta, @NotNull final byte[] message) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

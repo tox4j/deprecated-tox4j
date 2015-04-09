@@ -359,4 +359,6 @@ public interface ToxCore extends Closeable {
      */
     void callback(@Nullable ToxEventListener handler);
 
+    @NotNull byte[] hash(@NotNull byte[] data);
+
 }

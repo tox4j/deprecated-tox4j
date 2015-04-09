@@ -20,7 +20,7 @@ namespace tox
       struct func
       {
         template<typename UserData>
-        using type = void (Tox *, Args..., UserData &);
+        using type = void (*) (Tox *, Args..., UserData &);
 
         template<typename UserData, type<UserData> Callback>
         static void

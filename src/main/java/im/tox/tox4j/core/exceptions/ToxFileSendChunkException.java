@@ -5,7 +5,7 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxFileSendChunkException extends ToxException {
 
-  public static enum Code {
+  public enum Code {
     NULL,
     FRIEND_NOT_FOUND,
     FRIEND_NOT_CONNECTED,

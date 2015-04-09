@@ -34,7 +34,7 @@ public class FriendMessageCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) {
+        public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) {
             debug("received a message: " + new String(message));
             assertEquals(FRIEND_NUMBER, friendNumber);
             assertEquals(ToxMessageType.NORMAL, type);
