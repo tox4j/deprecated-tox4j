@@ -4,8 +4,8 @@ name          := "tox4j"
 version       := "0.0.0-SNAPSHOT"
 scalaVersion  := "2.11.4"
 
-// Compile Java code first.
-compileOrder := CompileOrder.JavaThenScala
+// Mixed project.
+compileOrder := CompileOrder.Mixed
 
 // Build dependencies
 libraryDependencies ++= Seq(

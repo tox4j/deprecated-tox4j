@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static im.tox.tox4j.TestConstants.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 
 public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
@@ -249,33 +250,33 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
 //    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP4() throws Exception {
-        assumeIPv4();
+        ToxCoreTestBase$.MODULE$.assumeIPv4();
         runAliceBobTest(new ToxFactory() {
             @NotNull
             @Override
             public ToxCore make() throws ToxException {
-                return bootstrap(false, newTox(false, false));
+                return bootstrap(false, false, newTox(false, false));
             }
         });
     }
 
 //    @Test(timeout = TIMEOUT)
     public void runAliceBobTest_TCP6() throws Exception {
-        assumeIPv6();
+        ToxCoreTestBase$.MODULE$.assumeIPv6();
         runAliceBobTest(new ToxFactory() {
             @NotNull
             @Override
             public ToxCore make() throws ToxException {
-                return bootstrap(true, newTox(true, false));
+                return bootstrap(true, false, newTox(true, false));
             }
         });
     }
 
     private void runAliceBobTest_SOCKS(final boolean ipv6Enabled, final boolean udpEnabled) throws Exception {
         if (ipv6Enabled) {
-            assumeIPv6();
+            ToxCoreTestBase$.MODULE$.assumeIPv6();
         } else {
-            assumeIPv4();
+            ToxCoreTestBase$.MODULE$.assumeIPv4();
         }
         final SocksServer proxy = new SocksServer();
         Thread proxyThread = new Thread(proxy);
@@ -285,7 +286,10 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
                 @NotNull
                 @Override
                 public ToxCore make() throws ToxException {
-                    return bootstrap(ipv6Enabled, newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort()));
+                    return bootstrap(
+                        ipv6Enabled, udpEnabled,
+                        newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort())
+                    );
                 }
             });
         } finally {
