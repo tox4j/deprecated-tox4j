@@ -629,4 +629,11 @@ public final class ToxCoreImpl extends AbstractToxCore {
         this.friendLosslessPacketCallback = callback;
     }
 
+
+    private static native @NotNull byte[] toxHash(@NotNull byte[] data);
+
+    public @NotNull byte[] hash(@NotNull byte[] data) {
+        return toxHash(data);
+    }
+
 }

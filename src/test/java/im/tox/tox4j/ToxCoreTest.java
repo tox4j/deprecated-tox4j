@@ -462,14 +462,17 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         }
     }
 
+    // TODO: when TCP relay is supported, enable this test.
+    /*
     @Test
-    public void testGetTcpPort() throws Exception {
+    public void testGetTcpPort_Bound() throws Exception {
         try (ToxCore tox = newTox()) {
             assertNotEquals(0, tox.getTcpPort());
             assertTrue(tox.getTcpPort() > 0);
             assertTrue(tox.getTcpPort() <= 65535);
         }
     }
+    */
 
     @Test
     public void testGetDhtId() throws Exception {
@@ -487,6 +490,24 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
                 double e = entropy(tox.getDhtId());
                 assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
             }
+        }
+    }
+
+    @Test
+    public void testHash1() throws Exception {
+        try (ToxCore tox = newTox()) {
+            for (int i = 1; i < 200; i++) {
+              byte[] data = randomBytes(i);
+              double e = entropy(tox.hash(data));
+              assertTrue("Entropy of hash should be >= 0.5, but was " + e, e >= 0.5);
+            }
+        }
+    }
+
+    @Test
+    public void testHash2() throws Exception {
+        try (ToxCore tox = newTox()) {
+            assertArrayEquals(new byte[ToxConstants.HASH_LENGTH], tox.hash(new byte[0]));
         }
     }
 
