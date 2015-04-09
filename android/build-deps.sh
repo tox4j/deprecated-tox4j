@@ -2,12 +2,15 @@
 
 set -ex
 
+COMPILER=4.9
+
 if [ -z "$ANDROID_NDK_HOME" ]; then
   export ANDROID_NDK_HOME=$HOME/usr/android-ndk
 fi
 
-COMPILER=4.9
-TARGET=x86
+if [ -z "$TARGET" ]; then
+   TARGET=arm
+fi
 
 case $TARGET in
    arm)
