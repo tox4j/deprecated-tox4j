@@ -17,6 +17,7 @@ import java.net.Socket
 import java.util.Random
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
+import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
 
@@ -143,7 +144,7 @@ object ToxCoreTestBase {
   }
 }
 
-abstract class ToxCoreTestBase {
+abstract class ToxCoreTestBase extends JUnitSuite {
 
   @NotNull protected def node: DhtNode
 

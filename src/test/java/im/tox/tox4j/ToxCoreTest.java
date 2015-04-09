@@ -494,15 +494,4 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         }
     }
 
-    @Test
-    public void testHash1() throws Exception {
-        try (ToxCore tox = newTox()) {
-            for (int i = 0; i < 200; i++) {
-              byte[] data = ToxCoreTestBase$.MODULE$.randomBytes(i);
-              double e = ToxCoreTestBase$.MODULE$.entropy(tox.hash(data));
-              assertTrue("Entropy of hash should be >= 0.5, but was " + e, e >= 0.5);
-            }
-        }
-    }
-
 }
