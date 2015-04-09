@@ -191,7 +191,7 @@ public class ToxGui extends JFrame {
         }
 
         @Override
-        public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) {
+        public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) {
             addMessage("friendMessage", friendNumber, type, timeDelta, new String(message));
         }
 
