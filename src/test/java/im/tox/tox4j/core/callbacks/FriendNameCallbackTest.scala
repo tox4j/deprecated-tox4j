@@ -5,33 +5,38 @@ import im.tox.tox4j.AliceBobTestBase.ChatClient
 import im.tox.tox4j.AliceBobTestBase.ChatClient.Task
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
+
 import org.junit.Assert.assertEquals
 
-final class FriendLosslessPacketCallbackTest extends AliceBobTestBase {
+final class FriendNameCallbackTest extends AliceBobTestBase {
 
   override def newAlice(): ChatClient = new ChatClient {
+
+    private var state = 0
 
     override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
       if (connection != ToxConnection.NONE) {
         debug("is now connected to friend " + friendNumber)
-        addTask(new Task() {
+        addTask(new Task {
           override def perform(tox: ToxCore): Unit = {
-            val packet = ("_My name is " + getName).getBytes
-            packet(0) = 160.toByte
-            tox.sendLosslessPacket(friendNumber, packet)
+            tox.setName(getName.getBytes)
           }
         })
       }
     }
 
-    override def friendLosslessPacket(friendNumber: Int, packet: Array[Byte]): Unit = {
-      val message = new String(packet, 1, packet.length - 1)
-      debug("received a lossless packet[id=" + packet(0) + "]: " + message)
+    override def friendName(friendNumber: Int, name: Array[Byte]): Unit = {
+      debug("friend changed name to: " + new String(name))
       assertEquals(ChatClient.FRIEND_NUMBER, friendNumber)
-      assertEquals(160.toByte, packet(0))
-      assertEquals("My name is " + getFriendName, message)
+      if (state == 0) {
+        state = 1
+        assertEquals("", new String(name))
+      } else {
+        assertEquals(getFriendName, new String(name))
+      }
       finish()
     }
+
   }
 
 }

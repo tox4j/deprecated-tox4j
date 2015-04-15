@@ -7,8 +7,10 @@ import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
 import org.junit.Assert.assertEquals
 
-class FriendLossyPacketCallbackTest extends AliceBobTestBase {
-  def newAlice: ChatClient = new ChatClient {
+final class FriendLossyPacketCallbackTest extends AliceBobTestBase {
+
+  override def newAlice(): ChatClient = new ChatClient {
+
     override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
       if (connection != ToxConnection.NONE) {
         debug("is now connected to friend " + friendNumber)
@@ -30,5 +32,7 @@ class FriendLossyPacketCallbackTest extends AliceBobTestBase {
       assertEquals("My name is " + getFriendName, message)
       finish()
     }
+
   }
+
 }

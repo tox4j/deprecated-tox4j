@@ -20,44 +20,15 @@ import java.util.List;
 import static im.tox.tox4j.TestConstants.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 
-public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
+public abstract class AliceBobTestBase extends AliceBobScalaBase {
 
   private static final Logger logger = LoggerFactory.getLogger(AliceBobTestBase.class);
 
-  public abstract static class TaskBase<T> {
-    protected StackTraceElement[] creationTrace = null;
-    private long wakeUp = 0;
-
-    protected void sleep(int iterations) {
-      wakeUp = iterations;
-    }
-
-    public boolean sleeping() {
-      return wakeUp > 0;
-    }
-
-    public void slept() {
-      wakeUp--;
-    }
-
-    public abstract void perform(@NotNull T tox) throws ToxException;
-  }
-
-  public static class ChatClient extends ToxEventAdapter {
+  public static class ChatClient extends AliceBobScalaBase.ChatClient {
 
     protected static final int FRIEND_NUMBER = 10;
 
-    private boolean done;
-
-    public boolean isRunning() {
-      return !done;
-    }
-
-    public void done() throws InterruptedException {
-      this.done = true;
-    }
-
-    public abstract static class Task extends TaskBase<ToxCore> {
+    public abstract static class Task extends AliceBobScalaBase.TaskBase<ToxCore> {
     }
 
     private final List<Task> tasks = new ArrayList<>();
@@ -118,8 +89,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
       }
     }
 
-    protected static <T extends TaskBase<?>> void addTask(@NotNull Collection<T> tasks, @NotNull T task) {
-      task.creationTrace = new Throwable().getStackTrace();
+    protected static <T extends AliceBobScalaBase.TaskBase<?>> void addTask(@NotNull Collection<T> tasks, @NotNull T task) {
+      task.creationTrace_$eq(new Throwable().getStackTrace());
       tasks.add(task);
     }
 
@@ -131,7 +102,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
       performTasks(this.tasks, tox);
     }
 
-    protected final <T, TaskT extends TaskBase<T>> void performTasks(@NotNull List<TaskT> tasks, @NotNull T tox)
+    protected final <T, TaskT extends AliceBobScalaBase.TaskBase<T>> void performTasks(@NotNull List<TaskT> tasks, @NotNull T tox)
         throws ToxException {
       Iterable<TaskT> iterationTasks = new ArrayList<>(tasks);
       tasks.clear();
@@ -155,7 +126,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
             trace.add(callSite);
           }
           // After that, add the task creation trace, minus the "addTask" method.
-          trace.addAll(Arrays.asList(task.creationTrace).subList(1, task.creationTrace.length));
+          trace.addAll(Arrays.asList(task.creationTrace()).subList(1, task.creationTrace().length));
 
           // Put the assembled trace into the exception and throw it.
           e.setStackTrace(trace.toArray(new StackTraceElement[trace.size()]));

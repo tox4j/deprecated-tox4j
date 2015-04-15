@@ -1,7 +1,7 @@
 package im.tox.tox4j.core
 
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
+import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions, SaveDataOptions }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 import scala.collection.mutable.ArrayBuffer
@@ -51,6 +51,10 @@ object ToxCoreFactory {
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => R): R = {
     withTox(ToxOptions(ipv6Enabled, udpEnabled))(f)
+  }
+
+  def withTox[R](saveData: SaveDataOptions.Type)(f: ToxCore => R): R = {
+    withTox(new ToxOptions(saveData = saveData))(f);
   }
 
   def withTox[R](f: ToxCore => R): R = {
