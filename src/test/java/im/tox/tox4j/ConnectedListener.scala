@@ -12,6 +12,6 @@ final class ConnectedListener extends ConnectionStatusCallback {
     value = connectionStatus
   }
 
-  def isConnected = value != ToxConnection.NONE
+  def isConnected: Boolean = value != ToxConnection.NONE
 
 }

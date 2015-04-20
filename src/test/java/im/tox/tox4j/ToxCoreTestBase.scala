@@ -1,22 +1,15 @@
 package im.tox.tox4j
 
-import im.tox.tox4j.ToxCoreTestBase.ToxList
-import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.core.ToxOptions
-import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
-import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.core.exceptions.ToxBootstrapException
-import im.tox.tox4j.core.exceptions.ToxFriendAddException
-import im.tox.tox4j.core.exceptions.ToxNewException
-import java.io.Closeable
-import java.io.IOException
-import java.net.InetAddress
-import java.net.Socket
+import java.io.{Closeable, IOException}
+import java.net.{InetAddress, Socket}
 import java.util.Random
-import org.junit.Assume.assumeNotNull
-import org.junit.Assume.assumeTrue
+
+import im.tox.tox4j.annotations.NotNull
+import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
+import im.tox.tox4j.core.enums.{ToxConnection, ToxProxyType}
+import im.tox.tox4j.core.exceptions.{ToxBootstrapException, ToxFriendAddException, ToxNewException}
+import im.tox.tox4j.core.{ToxCore, ToxCoreFactory, ToxOptions}
+import org.junit.Assume.{assumeNotNull, assumeTrue}
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
@@ -63,15 +56,15 @@ object ToxCoreTestBase {
       toxes.foreach(_.close())
     }
 
-    def isAllConnected = connected.forall(_ != ToxConnection.NONE)
-    def isAnyConnected = connected.exists(_ != ToxConnection.NONE)
+    def isAllConnected: Boolean = connected.forall(_ != ToxConnection.NONE)
+    def isAnyConnected: Boolean = connected.exists(_ != ToxConnection.NONE)
 
-    def iteration() = toxes.foreach(_.iteration())
+    def iteration(): Unit = toxes.foreach(_.iteration())
 
-    def iterationInterval = toxes.map(_.iterationInterval()).max
+    def iterationInterval: Int = toxes.map(_.iterationInterval()).max
 
-    def get(index: Int) = toxes(index)
-    def size = toxes.length
+    def get(index: Int): ToxCore = toxes(index)
+    def size: Int = toxes.length
 
   }
 
@@ -130,8 +123,9 @@ object ToxCoreTestBase {
       case e: IOException =>
         assumeTrue("A network connection can't be established to " + ip + ':' + port + ": " + e.getMessage, false)
     } finally {
-      if (socket != null)
+      if (socket != null) {
         socket.close()
+      }
     }
   }
 
@@ -150,28 +144,33 @@ abstract class ToxCoreTestBase extends JUnitSuite {
 
   @NotNull
   @throws(classOf[ToxNewException])
+  @Deprecated
   protected def newTox(options: ToxOptions, data: Array[Byte]): ToxCore
 
   @NotNull
   @throws(classOf[ToxNewException])
+  @Deprecated
   protected final def newTox(): ToxCore = {
     newTox(new ToxOptions, null)
   }
 
   @NotNull
   @throws(classOf[ToxNewException])
+  @Deprecated
   protected final def newTox(data: Array[Byte]): ToxCore = {
     newTox(new ToxOptions, data)
   }
 
   @NotNull
   @throws(classOf[ToxNewException])
+  @Deprecated
   protected final def newTox(options: ToxOptions): ToxCore = {
     newTox(options, null)
   }
 
   @NotNull
   @throws(classOf[ToxNewException])
+  @Deprecated
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
     val options = new ToxOptions
     options.setIpv6Enabled(ipv6Enabled)
@@ -181,39 +180,13 @@ abstract class ToxCoreTestBase extends JUnitSuite {
 
   @NotNull
   @throws(classOf[ToxNewException])
+  @Deprecated
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
     val options = new ToxOptions
     options.setIpv6Enabled(ipv6Enabled)
     options.setUdpEnabled(udpEnabled)
     options.enableProxy(proxyType, proxyAddress, proxyPort)
     newTox(options, null)
-  }
-
-  protected def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => R): R = {
-    val tox = newTox(ipv6Enabled, udpEnabled)
-    try {
-      f(tox)
-    } finally {
-      tox.close()
-    }
-  }
-
-  protected def withTox[R](f: ToxCore => R): R = {
-    val tox = newTox()
-    try {
-      f(tox)
-    } finally {
-      tox.close()
-    }
-  }
-
-  protected def withToxes[R](count: Int)(f: ToxList => R): R = {
-    val toxes = new ToxList(this, count)
-    try {
-      f(toxes)
-    } finally {
-      toxes.close()
-    }
   }
 
   @throws(classOf[ToxNewException])
@@ -224,7 +197,7 @@ abstract class ToxCoreTestBase extends JUnitSuite {
     }
     val message = "heyo".getBytes
     (0 until count).map { (i: Int) =>
-      withTox { friend =>
+      ToxCoreFactory.withTox { friend =>
         tox.addFriendNoRequest(friend.getPublicKey)
       }
     }.last
