@@ -19,7 +19,7 @@ object NetworkTest {
 final class NetworkTest extends FlatSpec with Timeouts {
 
   private def testBootstrap(ipv6Enabled: Boolean, udpEnabled: Boolean, ip: String, port: Int, dhtId: Array[Byte]) {
-    val action = s"bootstrap to remote node on $ip with ${if (udpEnabled) "UDP" else "TCP"}${if (ipv6Enabled) 6 else 4}"
+    val action = s"bootstrap to remote node on $ip:$port with ${if (udpEnabled) "UDP" else "TCP"}${if (ipv6Enabled) 6 else 4}"
 
     withTox(ipv6Enabled, udpEnabled) { tox =>
       logger.info(s"Attempting to $action")
