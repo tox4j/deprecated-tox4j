@@ -112,7 +112,7 @@ TOX_METHOD (void, SelfSetName,
 {
   ByteArray name_array (env, name);
   return with_instance (env, instanceNumber, "SetInfo",
-    handle_set_info_error, 
+    handle_set_info_error,
     tox_self_set_name, name_array.data (), name_array.size ());
 }
 
