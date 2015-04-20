@@ -19,7 +19,7 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class Tox${type}Exception extends ToxException {
 
-  public static enum Code {
+  public enum Code {
 $codes,
   }
 

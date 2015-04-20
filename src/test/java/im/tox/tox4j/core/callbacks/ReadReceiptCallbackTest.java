@@ -1,6 +1,7 @@
 package im.tox.tox4j.core.callbacks;
 
 import im.tox.tox4j.AliceBobTestBase;
+import im.tox.tox4j.TestConstants;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.enums.ToxConnection;
@@ -10,6 +11,7 @@ import im.tox.tox4j.exceptions.ToxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
 
 public class ReadReceiptCallbackTest extends AliceBobTestBase {
@@ -65,7 +67,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
         }
 
         @Override
-        public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) {
+        public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) {
 //            debug("got message: " + new String(message));
         }
     }

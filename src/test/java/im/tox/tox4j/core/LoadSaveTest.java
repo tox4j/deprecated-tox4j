@@ -1,6 +1,7 @@
 package im.tox.tox4j.core;
 
 import im.tox.tox4j.ToxCoreImplTestBase;
+import im.tox.tox4j.ToxCoreTestBase$;
 import im.tox.tox4j.core.enums.ToxStatus;
 import im.tox.tox4j.exceptions.ToxException;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
                 if (expected == null) {
                     expected = new byte[0];
                 } else {
-                    expected = randomBytes(expected.length + 1);
+                    expected = ToxCoreTestBase$.MODULE$.randomBytes(expected.length + 1);
                 }
                 tox.setName(expected);
                 return expected.length < ToxConstants.MAX_NAME_LENGTH;
@@ -65,7 +66,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
                 if (expected == null) {
                     expected = new byte[0];
                 } else {
-                    expected = randomBytes(expected.length + 1);
+                    expected = ToxCoreTestBase$.MODULE$.randomBytes(expected.length + 1);
                 }
                 tox.setStatusMessage(expected);
                 return expected.length < ToxConstants.MAX_NAME_LENGTH;

@@ -4,8 +4,11 @@ name          := "tox4j"
 version       := "0.0.0-SNAPSHOT"
 scalaVersion  := "2.11.4"
 
-// Compile Java code first.
-compileOrder := CompileOrder.JavaThenScala
+// Mixed project.
+compileOrder := CompileOrder.Mixed
+
+scalaSource in Compile := (javaSource in Compile).value
+scalaSource in Test    := (javaSource in Test   ).value
 
 // Build dependencies
 libraryDependencies ++= Seq(
@@ -17,6 +20,7 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "com.novocode" % "junit-interface" % "0.11",
   "org.scalatest" %% "scalatest" % "2.2.1",
+  "org.scalacheck" %% "scalacheck" % "1.12.2",
   "org.hamcrest" % "hamcrest-all" % "1.3",
   "junit" % "junit" % "4.12",
   "org.easetech" % "easytest-core" % "1.3.1"
@@ -72,3 +76,6 @@ scalacOptions in Test += "-target:jvm-" + javaVersion
 // Require 100% test coverage.
 ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
+
+// Enable checkstyle.
+com.etsy.sbt.Checkstyle.checkstyleSettings

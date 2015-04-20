@@ -5,7 +5,7 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxGetPortException extends ToxException {
 
-  public static enum Code {
+  public enum Code {
     NOT_BOUND,
   }
 

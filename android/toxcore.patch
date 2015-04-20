@@ -1,0 +1,15 @@
+diff --git a/toxcore/TCP_server.c b/toxcore/TCP_server.c
+index d7401de..1ba77a2 100644
+--- a/toxcore/TCP_server.c
++++ b/toxcore/TCP_server.c
+@@ -32,6 +32,10 @@
+ 
+ #include "util.h"
+ 
++#ifndef EPOLLRDHUP
++#define EPOLLRDHUP 0x2000
++#endif
++
+ /* return 1 on success
+  * return 0 on failure
+  */

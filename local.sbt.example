@@ -1,39 +1,7 @@
-import Jni.Keys._
+import Jni.Platform._
 
-val dependencyPrefix = file(System.getenv("HOME")) / "code/git/_install"
+//val platform = Android("arm-linux-androideabi")
+//val platform = Android("i686-linux-android")
+val platform = Host(file(System.getenv("HOME")) / "code/git/_install")
 
-// Host build:
-val hostSettings = Seq(
-  pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
-)
-
-// Android build:
-val androidSettings = Seq(
-  toolchainPath := {
-    val candidates = Seq(
-      baseDirectory.value / "android/arm-linux-androideabi",
-      baseDirectory.value.getParentFile / "android/arm-linux-androideabi"
-    )
-    // Try $TOOLCHAIN first, then try some other possible candidate paths.
-    Option(System.getenv("TOOLCHAIN")).map(file).orElse(candidates.find(_.exists))
-  },
-  pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
-  jniSourceFiles in Compile += {
-    val ndkHome = Option(System.getenv("ANDROID_NDK_HOME"))
-      .map(file)
-      .getOrElse(file(System.getenv("HOME")) / "usr/android-ndk")
-    val cpufeatures = ndkHome / "sources/android/cpufeatures/cpu-features.c"
-    if (!cpufeatures.exists) {
-      sys.error("Could not find cpu-features.c required for Android")
-    }
-    cpufeatures
-  }
-)
-
-// Choose which one to build:
-val ANDROID = false
-
-if (ANDROID)
-  androidSettings
-else
-  hostSettings
+jniSettings(platform)
