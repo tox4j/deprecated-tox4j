@@ -5,7 +5,7 @@ import org.scalatest.FlatSpec
 
 class ToxClientSpec extends FlatSpec {
 
-  def withTox(code: ToxClient => Unit) = {
+  private def withTox(code: ToxClient => Unit) = {
     val tox = new ToxClient
     try {
       code(tox)

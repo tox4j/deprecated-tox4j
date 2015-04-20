@@ -18,16 +18,16 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
   }
 
 
-  def close() = toxes.foreach(_.tox.close())
+  def close(): Unit = toxes.foreach(_.tox.close())
 
-  def isAllConnected = toxes.forall(_.connected != ToxConnection.NONE)
-  def isAnyConnected = toxes.exists(_.connected != ToxConnection.NONE)
+  def isAllConnected: Boolean = toxes.forall(_.connected != ToxConnection.NONE)
+  def isAnyConnected: Boolean = toxes.exists(_.connected != ToxConnection.NONE)
 
-  def iteration() = toxes.foreach(_.tox.iteration())
+  def iteration(): Unit = toxes.foreach(_.tox.iteration())
 
-  def iterationInterval = toxes.map(_.tox.iterationInterval()).max
+  def iterationInterval: Int = toxes.map(_.tox.iterationInterval()).max
 
-  def get(index: Int) = toxes(index).tox
-  def size = toxes.length
+  def get(index: Int): ToxCore = toxes(index).tox
+  def size: Int = toxes.length
 
 }
