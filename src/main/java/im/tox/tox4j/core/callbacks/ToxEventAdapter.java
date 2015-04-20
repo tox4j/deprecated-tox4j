@@ -13,7 +13,7 @@ public class ToxEventAdapter implements ToxEventListener {
     @Override public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) { }
     @Override public void fileRequestChunk(int friendNumber, int fileNumber, long position, int length) { }
     @Override public void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus) { }
-    @Override public void friendMessage(int friendNumber, ToxMessageType type, int timeDelta, @NotNull byte[] message) { }
+    @Override public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) { }
     @Override public void friendName(int friendNumber, @NotNull byte[] name) { }
     @Override public void friendRequest(@NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message) { }
     @Override public void friendStatus(int friendNumber, @NotNull ToxStatus status) { }

@@ -5,7 +5,7 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxFriendAddException extends ToxException {
 
-  public static enum Code {
+  public enum Code {
     NULL,
     TOO_LONG,
     NO_MESSAGE,

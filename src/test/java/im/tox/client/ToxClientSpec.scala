@@ -5,7 +5,7 @@ import org.scalatest.FlatSpec
 
 class ToxClientSpec extends FlatSpec {
 
-  def with_tox(code: ToxClient => Unit) = {
+  def withTox(code: ToxClient => Unit) = {
     val tox = new ToxClient
     try {
       code(tox)
@@ -15,21 +15,21 @@ class ToxClientSpec extends FlatSpec {
   }
 
   "getName" should "return the name set by setName" in {
-    with_tox { tox =>
+    withTox { tox =>
       tox.name = "Alice"
       assert(tox.name == "Alice")
     }
   }
 
   it must "return an empty string if no name was set" in {
-    with_tox { tox =>
+    withTox { tox =>
       assert(tox.name == "")
     }
   }
 
 
   "getStatus" should "return the status set by setStatus" in {
-    with_tox { tox =>
+    withTox { tox =>
       assert(tox.status == ToxStatus.NONE)
       tox.status = ToxStatus.AWAY
       assert(tox.status == ToxStatus.AWAY)
@@ -37,21 +37,21 @@ class ToxClientSpec extends FlatSpec {
   }
 
   it should "return NONE if no status was set" in {
-    with_tox { tox =>
+    withTox { tox =>
       assert(tox.status == ToxStatus.NONE)
     }
   }
 
 
   "getStatusMessage" should "return the status message set by setStatusMessage" in {
-    with_tox { tox =>
+    withTox { tox =>
       tox.statusMessage = "Yo, cool status"
       assert(tox.statusMessage == "Yo, cool status")
     }
   }
 
   it should "return an empty string if no status message was set" in {
-    with_tox { tox =>
+    withTox { tox =>
       assert(tox.statusMessage == "")
     }
   }

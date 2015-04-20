@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
 
 public class ToxCoreTest extends ToxCoreImplTestBase {
@@ -101,14 +102,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testBootstrapBorderlinePort1() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(node().ipv4, 1, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
+            tox.bootstrap(node().ipv4(), 1, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
         }
     }
 
     @Test
     public void testBootstrapBorderlinePort2() throws Exception {
         try (ToxCore tox = newTox()) {
-            tox.bootstrap(node().ipv4, 65535, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
+            tox.bootstrap(node().ipv4(), 65535, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
         }
     }
 
@@ -162,7 +163,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testPublicKeyEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getPublicKey());
+                double e = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey());
                 assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }
@@ -172,7 +173,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testSecretKeyEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getSecretKey());
+                double e = ToxCoreTestBase$.MODULE$.entropy(tox.getSecretKey());
                 assertTrue("Entropy of secret key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }
@@ -230,7 +231,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testSetNameMinSize() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] array = randomBytes(1);
+            byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(1);
             tox.setName(array);
             assertArrayEquals(array, tox.getName());
         }
@@ -239,7 +240,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testSetNameMaxSize() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] array = randomBytes(ToxConstants.MAX_NAME_LENGTH);
+            byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxConstants.MAX_NAME_LENGTH);
             tox.setName(array);
             assertArrayEquals(array, tox.getName());
         }
@@ -249,7 +250,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testSetNameExhaustive() throws Exception {
         try (ToxCore tox = newTox()) {
             for (int i = 1; i <= ToxConstants.MAX_NAME_LENGTH; i++) {
-                byte[] array = randomBytes(i);
+                byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(i);
                 tox.setName(array);
                 assertArrayEquals(array, tox.getName());
             }
@@ -279,7 +280,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testSetStatusMessageMinSize() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] array = randomBytes(1);
+            byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(1);
             tox.setStatusMessage(array);
             assertArrayEquals(array, tox.getStatusMessage());
         }
@@ -288,7 +289,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     @Test
     public void testSetStatusMessageMaxSize() throws Exception {
         try (ToxCore tox = newTox()) {
-            byte[] array = randomBytes(ToxConstants.MAX_STATUS_MESSAGE_LENGTH);
+            byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxConstants.MAX_STATUS_MESSAGE_LENGTH);
             tox.setStatusMessage(array);
             assertArrayEquals(array, tox.getStatusMessage());
         }
@@ -298,7 +299,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testSetStatusMessageExhaustive() throws Exception {
         try (ToxCore tox = newTox()) {
             for (int i = 1; i <= ToxConstants.MAX_STATUS_MESSAGE_LENGTH; i++) {
-                byte[] array = randomBytes(i);
+                byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(i);
                 tox.setStatusMessage(array);
                 assertArrayEquals(array, tox.getStatusMessage());
             }
@@ -425,7 +426,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
             addFriends(tox, 1);
             assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getPublicKey(0).length);
             assertArrayEquals(tox.getPublicKey(0), tox.getPublicKey(0));
-            double e = entropy(tox.getPublicKey(0));
+            double e = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey(0));
             assertTrue("Entropy of friend's public key should be >= 0.5, but was " + e, e >= 0.5);
         }
     }
@@ -462,14 +463,17 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         }
     }
 
+    // TODO: when TCP relay is supported, enable this test.
+    /*
     @Test
-    public void testGetTcpPort() throws Exception {
+    public void testGetTcpPort_Bound() throws Exception {
         try (ToxCore tox = newTox()) {
             assertNotEquals(0, tox.getTcpPort());
             assertTrue(tox.getTcpPort() > 0);
             assertTrue(tox.getTcpPort() <= 65535);
         }
     }
+    */
 
     @Test
     public void testGetDhtId() throws Exception {
@@ -484,7 +488,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     public void testDhtIdEntropy() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             try (ToxCore tox = newTox()) {
-                double e = entropy(tox.getDhtId());
+                double e = ToxCoreTestBase$.MODULE$.entropy(tox.getDhtId());
                 assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
             }
         }

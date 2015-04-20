@@ -6,6 +6,7 @@ import java.io.{File, PrintWriter}
 import scala.language.postfixOps
 
 object Jni extends Plugin {
+
   object BuildTool {
     sealed trait T { def name: String; def command: String }
     case object Ninja extends T { def name = "Ninja"; def command = "ninja" }
@@ -74,6 +75,12 @@ object Jni extends Plugin {
     def buffer[T](f: => T): T = f
     def error(s: => String) = { }
     def info(s: => String) = { }
+  }
+
+  private object stdoutLog extends AnyRef with ProcessLogger {
+    def buffer[T](f: => T): T = f
+    def error(s: => String) = { println(s) }
+    def info(s: => String) = { println(s) }
   }
 
   /**
@@ -146,32 +153,7 @@ object Jni extends Plugin {
   }
 
 
-  private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
-    val prefixTools =
-      toolchainPath map { toolchainPath =>
-        val triple = toolchainPath.getName
-        tools map { tool => (toolchainPath / "bin" / s"$triple-$tool").getPath }
-      } getOrElse Nil
-    prefixTools ++ tools
-  }
-
-  private def findTool(toolchainPath: Option[File], candidates: String*) = {
-    mkToolchain(toolchainPath, candidates) find { cc =>
-      try {
-        Seq(cc, "--version") !< nullLog == 0
-      } catch {
-        case _: java.io.IOException => false
-      }
-    } getOrElse "false"
-  }
-
-  private def findCc(toolchainPath: Option[File]) = findTool(toolchainPath,
-    "clang-3.5", "gcc-4.9", "clang", "gcc", "cc")
-  private def findCxx(toolchainPath: Option[File]) = findTool(toolchainPath,
-    "clang++-3.5", "g++-4.9", "clang++", "g++", "c++")
-
-
-  private def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
+  private def findCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
     val sourceFile = File.createTempFile("configtest", cppExtensions(0))
     val targetFile = File.createTempFile("configtest", ".out")
 
@@ -184,25 +166,79 @@ object Jni extends Plugin {
         out.close()
       }
 
-      flags find { flags =>
-        Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< nullLog match {
-          case 0 => true
-          case _ => false
-        }
-      } match {
-        case Some(flags) => flags
-        case None =>
-          if (required) {
-            sys.error(s"No valid flags found with compiler ${compiler}; tried ${flags}")
-          } else {
-            Nil
+      val found =
+        flags find { flags =>
+          Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< nullLog match {
+            case 0 => true
+            case _ => false
           }
+        }
+
+      if (found == None && required) {
+        sys.error(s"No valid flags found with compiler ${compiler}; tried [${flags.map(_.mkString).mkString("; ")}]")
       }
+
+      found
     } finally {
       targetFile.delete()
       sourceFile.delete()
     }
   }
+
+
+  private def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) =
+    findCcOptions(compiler, required, code)(flags:_*) match {
+      case None => Nil
+      case Some(flags) => flags
+    }
+
+
+  private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
+    toolchainPath match {
+      case Some(toolchainPath) =>
+        val triple = toolchainPath.getName
+        (tools map { tool => (toolchainPath / "bin" / s"$triple-$tool").getPath }) ++ tools
+      case None =>
+        tools
+    }
+  }
+
+  private def findTool(toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: String*) = {
+    mkToolchain(toolchainPath, candidates) find { cc =>
+      try {
+        val flagsOpt = Seq() +: flags
+        //println(s"Trying $cc")
+        Seq(cc, "--version") !< nullLog == 0 && findCcOptions(cc, false, code)(flagsOpt:_*) != None
+      } catch {
+        case _: java.io.IOException => false
+      }
+    } getOrElse "false"
+  }
+
+  private def findCc(toolchainPath: Option[File]) = findTool(toolchainPath,
+    // Check for a working C89 compiler.
+    """
+    int foo(void);
+    """)(
+      Seq("-std=c89")
+    )("clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc")
+
+  private def findCxx(toolchainPath: Option[File]) = findTool(toolchainPath,
+    // Check for a working C++14 compiler.
+    """
+    auto f = [](auto i) mutable { return i; };
+
+    template<typename... Args>
+    int bar (Args ...args) { return sizeof... (Args); }
+
+    template<typename... Args>
+    auto foo (Args ...args) {
+      return [&] { return bar (args...); };
+    }
+    """)(
+      Seq("-std=c++14"),
+      Seq("-std=c++1y")
+    )("clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++")
 
 
   private def checkExitCode(command: ProcessBuilder, log: Logger) = {
@@ -308,20 +344,8 @@ object Jni extends Plugin {
     },
     buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
 
-    // Check for some C++14 support.
-    ccOptions ++= checkCcOptions(nativeCXX.value, true,
-      """
-      auto f = [](auto i) mutable { return i; };
-
-      template<typename... Args>
-      int bar (Args ...args) { return sizeof... (Args); }
-
-      template<typename... Args>
-      auto foo (Args ...args) {
-        return [&] { return bar (args...); };
-      }
-      """
-    )(
+    // C++14 flags.
+    ccOptions ++= checkCcOptions(nativeCXX.value)(
       Seq("-std=c++14"),
       Seq("-std=c++1y")
     ),
@@ -551,5 +575,48 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
     // Required in order to have a separate JVM to set Java options.
     fork := true
   )
-}
 
+
+  object Platform {
+
+    sealed trait T
+    case class Android(platform: String) extends T
+    case class Host(dependencyPrefix: File) extends T
+
+    // Host build:
+    private def hostSettings(dependencyPrefix: File) = Seq(
+      pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
+    )
+
+    // Android build:
+    private def androidSettings(platform: String) = Seq(
+      toolchainPath := {
+        val candidates = Seq(
+          baseDirectory.value / "android" / platform,
+          baseDirectory.value.getParentFile / "android" / platform
+        )
+        // Try $TOOLCHAIN first, then try some other possible candidate paths.
+        Option(System.getenv("TOOLCHAIN")).map(file).orElse(candidates.find(_.exists))
+      },
+      pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
+      jniSourceFiles in Compile += {
+        val ndkHome = Option(System.getenv("ANDROID_NDK_HOME"))
+          .map(file)
+          .getOrElse(file(System.getenv("HOME")) / "usr/android-ndk")
+        val cpufeatures = ndkHome / "sources/android/cpufeatures/cpu-features.c"
+        if (!cpufeatures.exists) {
+          sys.error("Could not find cpu-features.c required for Android")
+        }
+        cpufeatures
+      }
+    )
+
+    def jniSettings(target: T) =
+      target match {
+        case Android(platform) => androidSettings(platform)
+        case Host(dependencyPrefix) => hostSettings(dependencyPrefix)
+      }
+
+  }
+
+}

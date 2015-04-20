@@ -10,8 +10,8 @@ public class JavaLibraryPath {
     Field field = ClassLoader.class.getDeclaredField("usr_paths");
     field.setAccessible(true);
     String[] paths = (String[]) field.get(null);
-    for (int i = 0; i < paths.length; i++) {
-      if (path.equals(paths[i])) {
+    for (String usr_path : paths) {
+      if (path.equals(usr_path)) {
         return;
       }
     }

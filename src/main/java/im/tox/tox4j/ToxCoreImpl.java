@@ -249,80 +249,80 @@ public final class ToxCoreImpl extends AbstractToxCore {
         }
 
         if (connectionStatusCallback != null) {
-			for (Core.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
-				connectionStatusCallback.connectionStatus(convert(connectionStatus.getConnectionStatus()));
-			}
-		}
+            for (Core.ConnectionStatus connectionStatus : toxEvents.getConnectionStatusList()) {
+                connectionStatusCallback.connectionStatus(convert(connectionStatus.getConnectionStatus()));
+            }
+        }
         if (friendNameCallback != null) {
-			for (Core.FriendName friendName : toxEvents.getFriendNameList()) {
-				friendNameCallback.friendName(friendName.getFriendNumber(), friendName.getName().toByteArray());
-			}
-		}
+            for (Core.FriendName friendName : toxEvents.getFriendNameList()) {
+                friendNameCallback.friendName(friendName.getFriendNumber(), friendName.getName().toByteArray());
+            }
+        }
         if (friendStatusMessageCallback != null) {
-			for (Core.FriendStatusMessage friendStatusMessage : toxEvents.getFriendStatusMessageList()) {
-				friendStatusMessageCallback.friendStatusMessage(friendStatusMessage.getFriendNumber(), friendStatusMessage.getMessage().toByteArray());
-			}
-		}
+            for (Core.FriendStatusMessage friendStatusMessage : toxEvents.getFriendStatusMessageList()) {
+                friendStatusMessageCallback.friendStatusMessage(friendStatusMessage.getFriendNumber(), friendStatusMessage.getMessage().toByteArray());
+            }
+        }
         if (friendStatusCallback != null) {
-			for (Core.FriendStatus friendStatus : toxEvents.getFriendStatusList()) {
-				friendStatusCallback.friendStatus(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
-			}
-		}
+            for (Core.FriendStatus friendStatus : toxEvents.getFriendStatusList()) {
+                friendStatusCallback.friendStatus(friendStatus.getFriendNumber(), convert(friendStatus.getStatus()));
+            }
+        }
         if (friendConnectionStatusCallback != null) {
-			for (Core.FriendConnectionStatus friendConnectionStatus : toxEvents.getFriendConnectionStatusList()) {
-				friendConnectionStatusCallback.friendConnectionStatus(friendConnectionStatus.getFriendNumber(), convert(friendConnectionStatus.getConnectionStatus()));
-			}
-		}
+            for (Core.FriendConnectionStatus friendConnectionStatus : toxEvents.getFriendConnectionStatusList()) {
+                friendConnectionStatusCallback.friendConnectionStatus(friendConnectionStatus.getFriendNumber(), convert(friendConnectionStatus.getConnectionStatus()));
+            }
+        }
         if (friendTypingCallback != null) {
-			for (Core.FriendTyping friendTyping : toxEvents.getFriendTypingList()) {
-				friendTypingCallback.friendTyping(friendTyping.getFriendNumber(), friendTyping.getIsTyping());
-			}
-		}
+            for (Core.FriendTyping friendTyping : toxEvents.getFriendTypingList()) {
+                friendTypingCallback.friendTyping(friendTyping.getFriendNumber(), friendTyping.getIsTyping());
+            }
+        }
         if (readReceiptCallback != null) {
-			for (Core.ReadReceipt readReceipt : toxEvents.getReadReceiptList()) {
-				readReceiptCallback.readReceipt(readReceipt.getFriendNumber(), readReceipt.getMessageId());
-			}
-		}
+            for (Core.ReadReceipt readReceipt : toxEvents.getReadReceiptList()) {
+                readReceiptCallback.readReceipt(readReceipt.getFriendNumber(), readReceipt.getMessageId());
+            }
+        }
         if (friendRequestCallback != null) {
-			for (Core.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
-				friendRequestCallback.friendRequest(friendRequest.getPublicKey().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
-			}
-		}
+            for (Core.FriendRequest friendRequest : toxEvents.getFriendRequestList()) {
+                friendRequestCallback.friendRequest(friendRequest.getPublicKey().toByteArray(), friendRequest.getTimeDelta(), friendRequest.getMessage().toByteArray());
+            }
+        }
         if (friendMessageCallback != null) {
-			for (Core.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
+            for (Core.FriendMessage friendMessage : toxEvents.getFriendMessageList()) {
                 friendMessageCallback.friendMessage(friendMessage.getFriendNumber(), convert(friendMessage.getType()), friendMessage.getTimeDelta(), friendMessage.getMessage().toByteArray());
-			}
-		}
+            }
+        }
         if (fileControlCallback != null) {
-			for (Core.FileControl fileControl : toxEvents.getFileControlList()) {
-				fileControlCallback.fileControl(fileControl.getFriendNumber(), fileControl.getFileNumber(), convert(fileControl.getControl()));
-			}
-		}
+            for (Core.FileControl fileControl : toxEvents.getFileControlList()) {
+                fileControlCallback.fileControl(fileControl.getFriendNumber(), fileControl.getFileNumber(), convert(fileControl.getControl()));
+            }
+        }
         if (fileRequestChunkCallback != null) {
-			for (Core.FileRequestChunk fileRequestChunk : toxEvents.getFileRequestChunkList()) {
-				fileRequestChunkCallback.fileRequestChunk(fileRequestChunk.getFriendNumber(), fileRequestChunk.getFileNumber(), fileRequestChunk.getPosition(), fileRequestChunk.getLength());
-			}
-		}
+            for (Core.FileRequestChunk fileRequestChunk : toxEvents.getFileRequestChunkList()) {
+                fileRequestChunkCallback.fileRequestChunk(fileRequestChunk.getFriendNumber(), fileRequestChunk.getFileNumber(), fileRequestChunk.getPosition(), fileRequestChunk.getLength());
+            }
+        }
         if (fileReceiveCallback != null) {
-			for (Core.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
-				fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), fileReceive.getFileNumber(), fileReceive.getKind(), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
-			}
-		}
+            for (Core.FileReceive fileReceive : toxEvents.getFileReceiveList()) {
+                fileReceiveCallback.fileReceive(fileReceive.getFriendNumber(), fileReceive.getFileNumber(), fileReceive.getKind(), fileReceive.getFileSize(), fileReceive.getFilename().toByteArray());
+            }
+        }
         if (fileReceiveChunkCallback != null) {
-			for (Core.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
-				fileReceiveChunkCallback.fileReceiveChunk(fileReceiveChunk.getFriendNumber(), fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
-			}
-		}
+            for (Core.FileReceiveChunk fileReceiveChunk : toxEvents.getFileReceiveChunkList()) {
+                fileReceiveChunkCallback.fileReceiveChunk(fileReceiveChunk.getFriendNumber(), fileReceiveChunk.getFileNumber(), fileReceiveChunk.getPosition(), fileReceiveChunk.getData().toByteArray());
+            }
+        }
         if (friendLossyPacketCallback != null) {
-			for (Core.FriendLossyPacket friendLossyPacket : toxEvents.getFriendLossyPacketList()) {
-				friendLossyPacketCallback.friendLossyPacket(friendLossyPacket.getFriendNumber(), friendLossyPacket.getData().toByteArray());
-			}
-		}
+            for (Core.FriendLossyPacket friendLossyPacket : toxEvents.getFriendLossyPacketList()) {
+                friendLossyPacketCallback.friendLossyPacket(friendLossyPacket.getFriendNumber(), friendLossyPacket.getData().toByteArray());
+            }
+        }
         if (friendLosslessPacketCallback != null) {
-			for (Core.FriendLosslessPacket friendLosslessPacket : toxEvents.getFriendLosslessPacketList()) {
-				friendLosslessPacketCallback.friendLosslessPacket(friendLosslessPacket.getFriendNumber(), friendLosslessPacket.getData().toByteArray());
-			}
-		}
+            for (Core.FriendLosslessPacket friendLosslessPacket : toxEvents.getFriendLosslessPacketList()) {
+                friendLosslessPacketCallback.friendLosslessPacket(friendLosslessPacket.getFriendNumber(), friendLosslessPacket.getData().toByteArray());
+            }
+        }
     }
 
 
@@ -386,7 +386,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native void toxSelfSetStatusMessage(int instanceNumber, byte[] message) throws ToxSetInfoException;
 
     @Override
-    public void setStatusMessage(byte[] message) throws ToxSetInfoException {
+    public void setStatusMessage(@NotNull byte[] message) throws ToxSetInfoException {
         checkInfoNotNull(message);
         toxSelfSetStatusMessage(instanceNumber, message);
     }
@@ -584,7 +584,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
     private static native byte[] toxFileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException;
 
     public byte[] fileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException {
-      	return toxFileGetFileId(friendNumber, fileNumber);
+        return toxFileGetFileId(friendNumber, fileNumber);
     }
 
 
@@ -627,6 +627,13 @@ public final class ToxCoreImpl extends AbstractToxCore {
     @Override
     public void callbackFriendLosslessPacket(FriendLosslessPacketCallback callback) {
         this.friendLosslessPacketCallback = callback;
+    }
+
+
+    private static native @NotNull byte[] toxHash(@NotNull byte[] data);
+
+    public @NotNull byte[] hash(@NotNull byte[] data) {
+        return toxHash(data);
     }
 
 }

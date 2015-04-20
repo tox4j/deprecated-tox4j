@@ -44,7 +44,7 @@ let handle_network_event ~dht_ref ~send_write (from, packet) =
       print_endline @@ "Got EchoRequest from " ^
                        InetAddr.to_string from.cn_node.n_addr ^ ":" ^
                        string_of_int (Port.to_int from.cn_node.n_port);
- 
+
       (*
       print_endline @@ "Sending EchoResponse to " ^
                        InetAddr.to_string from.cn_node.n_addr ^ ":" ^

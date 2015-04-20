@@ -1,9 +1,11 @@
 package im.tox.tox4j.core;
 
+import im.tox.tox4j.DhtNode;
+import im.tox.tox4j.DhtNodeSelector$;
 import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class InterruptionTest extends ToxCoreImplTestBase {
+public final class InterruptionTest {
 
     public static void main(String[] args) throws Exception {
         new InterruptionTest().causeSegfault();
@@ -18,8 +20,9 @@ public final class InterruptionTest extends ToxCoreImplTestBase {
                 @Override
                 public void run() {
                     System.out.println("Survived " + cycle + " seconds");
-                    try (ToxCore tox = newTox()) {
-                        tox.bootstrap(node().ipv4, node().port, node().dhtId);
+                    try (ToxCore tox = ToxCoreFactory$.MODULE$.apply(new ToxOptions(), null)) {
+                        DhtNode node = DhtNodeSelector$.MODULE$.node();
+                        tox.bootstrap(node.ipv4(), node.udpPort(), node.dhtId());
                         //noinspection InfiniteLoopStatement
                         while (true) {
                             tox.iteration();
