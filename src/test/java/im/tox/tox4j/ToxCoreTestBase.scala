@@ -172,21 +172,14 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   @throws(classOf[ToxNewException])
   @Deprecated
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
-    val options = new ToxOptions
-    options.setIpv6Enabled(ipv6Enabled)
-    options.setUdpEnabled(udpEnabled)
-    newTox(options, null)
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled), null)
   }
 
   @NotNull
   @throws(classOf[ToxNewException])
   @Deprecated
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
-    val options = new ToxOptions
-    options.setIpv6Enabled(ipv6Enabled)
-    options.setUdpEnabled(udpEnabled)
-    options.enableProxy(proxyType, proxyAddress, proxyPort)
-    newTox(options, null)
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)
   }
 
   @throws(classOf[ToxNewException])

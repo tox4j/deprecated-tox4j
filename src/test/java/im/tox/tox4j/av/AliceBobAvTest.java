@@ -2,6 +2,7 @@ package im.tox.tox4j.av;
 
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxAvImpl;
+import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.ToxAvEventListener;
@@ -39,7 +40,7 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
     }
 
     public void setup(ToxCore tox) throws ToxException {
-      av = new ToxAvImpl(tox);
+      av = new ToxAvImpl((ToxCoreImpl) tox);
       av.callback(this);
       thread = new Thread(new Runnable() {
         @Override

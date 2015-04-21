@@ -89,10 +89,7 @@ object DhtNodeSelector {
 
   def node: DhtNode = findNode({
     (ipv6Enabled: Boolean, udpEnabled: Boolean) =>
-      val options = new ToxOptions
-      options.setIpv6Enabled(ipv6Enabled)
-      options.setUdpEnabled(udpEnabled)
-      ToxCoreFactory(options, null)
+      ToxCoreFactory(new ToxOptions(ipv6Enabled, udpEnabled), null)
   })
 
 }

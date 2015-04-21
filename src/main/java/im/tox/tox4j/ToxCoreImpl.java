@@ -98,11 +98,11 @@ public final class ToxCoreImpl extends AbstractToxCore {
   public ToxCoreImpl(@NotNull ToxOptions options, @Nullable byte[] data) throws ToxNewException {
     instanceNumber = toxNew(
         data,
-        options.isIpv6Enabled(),
-        options.isUdpEnabled(),
-        options.getProxyType().ordinal(),
-        options.getProxyAddress(),
-        options.getProxyPort()
+        options.ipv6Enabled,
+        options.udpEnabled,
+        options.proxyType.ordinal(),
+        options.proxyAddress,
+        options.proxyPort
     );
   }
 

@@ -22,11 +22,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    ToxOptions options = new ToxOptions();
-    options.disableProxy();
-    options.setIpv6Enabled(true);
-    options.setUdpEnabled(true);
-    newTox(options).close();
+    newTox(new ToxOptions()).close();
   }
 
   @Test

@@ -34,7 +34,7 @@ abstract class ToxAvImplTestBase extends ToxAvTestBase {
 
   @throws(classOf[ToxAvNewException])
   protected final def newToxAv(tox: ToxCore): ToxAv = {
-    val av = new ToxAvImpl(tox)
+    val av = new ToxAvImpl(tox.asInstanceOf[ToxCoreImpl])
     avs += av
     av
   }

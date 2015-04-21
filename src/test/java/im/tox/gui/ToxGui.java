@@ -311,15 +311,11 @@ public class ToxGui extends JFrame {
 
       private void connect() {
         try {
-          ToxOptions options = new ToxOptions();
-          options.setIpv6Enabled(enableIPv6CheckBox.isSelected());
-          options.setUdpEnabled(enableUDPCheckBox.isSelected());
-          if (noneRadioButton.isSelected()) {
-            options.disableProxy();
-          } else if (HTTPRadioButton.isSelected()) {
-            options.enableProxy(ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
+          ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUDPCheckBox.isSelected());
+          if (HTTPRadioButton.isSelected()) {
+            options = options.enableProxy(ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
           } else if (SOCKSRadioButton.isSelected()) {
-            options.enableProxy(ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
+            options = options.enableProxy(ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
           }
 
           byte[] toxSave = load();

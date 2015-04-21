@@ -58,9 +58,7 @@ object TestClient extends App {
 
       val toxes = (1 to count) map { id =>
         val tox = new ToxCoreImpl({
-          val options = new ToxOptions
-          options.setIpv6Enabled(true)
-          options.setUdpEnabled(bootstrap.isEmpty)
+          val options = new ToxOptions(true, bootstrap.isEmpty)
           options
         }, null)
 
