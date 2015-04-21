@@ -6,6 +6,6 @@ import im.tox.tox4j.core.exceptions.ToxNewException;
 
 public interface ToxFactory {
 
-    @NotNull ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException;
+  @NotNull ToxCore newTox(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException;
 
 }

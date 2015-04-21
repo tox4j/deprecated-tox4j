@@ -5,6 +5,6 @@ import im.tox.tox4j.core.enums.ToxConnection;
 
 public interface FriendConnectionStatusCallback {
 
-    void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus);
+  void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus);
 
 }
