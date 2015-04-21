@@ -9,8 +9,8 @@ import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.av.exceptions.*;
 import im.tox.tox4j.av.proto.Av;
-import im.tox.tox4j.core.ToxCore;
 
+@SuppressWarnings("checkstyle:nofinalizer")
 public final class ToxAvImpl implements ToxAv {
 
   static {
@@ -28,17 +28,16 @@ public final class ToxAvImpl implements ToxAv {
 
   private static native int toxAvNew(int toxInstanceNumber) throws ToxAvNewException;
 
-  public ToxAvImpl(ToxCore tox) throws ToxAvNewException {
-    if (tox instanceof ToxCoreImpl) {
-      this.tox = (ToxCoreImpl) tox;
-      this.tox.av = this;
-      instanceNumber = toxAvNew(this.tox.instanceNumber);
-    } else {
-      throw new IllegalArgumentException(
-          "This implementation of " + ToxAv.class.getName() +
-          " requires an instance of " + ToxCoreImpl.class.getName()
-      );
-    }
+  /**
+   * Initialise an A/V session for the existing Tox instance.
+   *
+   * @param tox An instance of the C-backed ToxCore implementation.
+   * @throws ToxAvNewException If there was already an A/V session.
+   */
+  public ToxAvImpl(ToxCoreImpl tox) throws ToxAvNewException {
+    this.tox = tox;
+    this.tox.av = this;
+    instanceNumber = toxAvNew(this.tox.instanceNumber);
   }
 
 
@@ -145,7 +144,8 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvCall(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate) throws ToxCallException;
+  private static native void toxAvCall(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate)
+      throws ToxCallException;
 
   @Override
   public void call(int friendNumber, int audioBitRate, int videoBitRate) throws ToxCallException {
@@ -158,7 +158,8 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvAnswer(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate) throws ToxAnswerException;
+  private static native void toxAvAnswer(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate)
+      throws ToxAnswerException;
 
   @Override
   public void answer(int friendNumber, int audioBitRate, int videoBitRate) throws ToxAnswerException {
@@ -166,7 +167,8 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvCallControl(int instanceNumber, int friendNumber, int control) throws ToxCallControlException;
+  private static native void toxAvCallControl(int instanceNumber, int friendNumber, int control)
+      throws ToxCallControlException;
 
   @Override
   public void callControl(int friendNumber, @NotNull ToxCallControl control) throws ToxCallControlException {
@@ -179,7 +181,8 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvSetAudioBitRate(int instanceNumber, int friendNumber, int audioBitRate) throws ToxBitRateException;
+  private static native void toxAvSetAudioBitRate(int instanceNumber, int friendNumber, int audioBitRate)
+      throws ToxBitRateException;
 
   @Override
   public void setAudioBitRate(int friendNumber, int bitRate) throws ToxBitRateException {
@@ -187,7 +190,8 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvSetVideoBitRate(int instanceNumber, int friendNumber, int videoBitRate) throws ToxBitRateException;
+  private static native void toxAvSetVideoBitRate(int instanceNumber, int friendNumber, int videoBitRate)
+      throws ToxBitRateException;
 
   @Override
   public void setVideoBitRate(int friendNumber, int bitRate) throws ToxBitRateException {
@@ -200,10 +204,21 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvSendVideoFrame(int instanceNumber, int friendNumber, int width, int height, byte[] y, byte[] u, byte[] v, byte[] a) throws ToxSendFrameException;
+  @SuppressWarnings("checkstyle:parametername")
+  private static native void toxAvSendVideoFrame(
+      int instanceNumber,
+      int friendNumber,
+      int width, int height,
+      byte[] y, byte[] u, byte[] v, byte[] a
+  ) throws ToxSendFrameException;
 
   @Override
-  public void sendVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) throws ToxSendFrameException {
+  @SuppressWarnings("checkstyle:parametername")
+  public void sendVideoFrame(
+      int friendNumber,
+      int width, int height,
+      @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a
+  ) throws ToxSendFrameException {
     toxAvSendVideoFrame(instanceNumber, friendNumber, width, height, y, u, v, a);
   }
 
@@ -213,10 +228,13 @@ public final class ToxAvImpl implements ToxAv {
   }
 
 
-  private static native void toxAvSendAudioFrame(int instanceNumber, int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
+  private static native void toxAvSendAudioFrame(
+      int instanceNumber, int friendNumber, short[] pcm, int sampleCount, int channels, int samplingRate
+  ) throws ToxSendFrameException;
 
   @Override
-  public void sendAudioFrame(int friendNumber, @NotNull short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException {
+  public void sendAudioFrame(int friendNumber, @NotNull short[] pcm, int sampleCount, int channels, int samplingRate)
+      throws ToxSendFrameException {
     toxAvSendAudioFrame(instanceNumber, friendNumber, pcm, sampleCount, channels, samplingRate);
   }
 

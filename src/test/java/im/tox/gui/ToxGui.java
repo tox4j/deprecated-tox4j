@@ -326,7 +326,7 @@ public class ToxGui extends JFrame {
           if (toxSave != null) {
             tox = new ToxCoreImpl(options, toxSave);
             for (int friendNumber : tox.getFriendList()) {
-              friendListModel.add(friendNumber, tox.getPublicKey(friendNumber));
+              friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
             }
           } else {
             tox = new ToxCoreImpl(options, null);

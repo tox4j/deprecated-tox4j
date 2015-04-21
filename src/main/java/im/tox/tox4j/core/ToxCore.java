@@ -249,7 +249,7 @@ public interface ToxCore extends Closeable {
    * @throws im.tox.tox4j.core.exceptions.ToxFriendGetPublicKeyException if an error occurs.
    */
   @NotNull
-  byte[] getPublicKey(int friendNumber) throws ToxFriendGetPublicKeyException;
+  byte[] getFriendPublicKey(int friendNumber) throws ToxFriendGetPublicKeyException;
 
   /**
    * Checks whether a friend with the specified friend number exists.
