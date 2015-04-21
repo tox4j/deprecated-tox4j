@@ -1,6 +1,6 @@
 [![Build Status](https://jenkins.libtoxcore.so/job/Sync%20Tox4j/badge/icon)](https://jenkins.libtoxcore.so/job/Sync%20Tox4j/)
 [![Travis Build Status](https://api.travis-ci.org/tox4j/tox4j.svg)](https://travis-ci.org/tox4j/tox4j)
-[![Coverage Status](https://coveralls.io/repos/tox4j/tox4j/badge.svg)](https://coveralls.io/r/tox4j/tox4j)
+[![Coverage Status](https://coveralls.io/repos/tox4j/tox4j/badge.svg?branch=auto)](https://coveralls.io/r/tox4j/tox4j?branch=auto)
 
 # tox4j
 
