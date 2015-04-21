@@ -44,8 +44,8 @@ object ScriptSecurityManager extends SecurityManager {
     }
   }
 
-  private def doChecks(perm: Permission): Unit = {
-    if (new Throwable().getStackTrace.exists { element =>
+  private def checkWhiteListedCallers(): Boolean = {
+    new Throwable().getStackTrace.exists { element =>
       val name = element.getFileName
       // TODO: apply more robust checks
       List(
@@ -57,9 +57,11 @@ object ScriptSecurityManager extends SecurityManager {
         "Using.scala",
         "TimeZone.java"
       ).contains(name)
-    }) return
+    }
+  }
 
-    if (Seq(
+  private def checkWhiteListedPermissions(perm: Permission): Boolean = {
+    Seq(
       "accessDeclaredMembers",
       "suppressAccessChecks",
       "createClassLoader",
@@ -72,59 +74,73 @@ object ScriptSecurityManager extends SecurityManager {
       "getClassLoader",
       "accessClassInPackage.sun.misc",
       "loadLibrary.tox4j"
-    ).contains(perm.getName)) return
+    ).contains(perm.getName) || perm.getName.startsWith("getenv")
+  }
 
-    if (perm.getName.startsWith("getenv"))
-      return
+  private def checkFilePermission(perm: FilePermission): Boolean = {
+    if (perm.getActions == "read") {
+      if (!new File(perm.getName).exists()) {
+        true
+      } else {
+        val cwd = sys.props("user.dir")
 
+        val allowedFiles = Seq(
+          ".*\\.jar",
+          s"^$cwd/target/.*classes.*",
+          s"^$cwd/target/cpp/bin/libtox4j.so"
+        )
+        allowedFiles.exists { allowed =>
+          perm.getName.replaceAll("\\\\", "/").matches(allowed) ||
+            new File(perm.getName).getAbsolutePath == new File(allowed).getAbsolutePath
+        }
+      }
+    } else {
+      false
+    }
+  }
+
+  private def checkSpecificPermissions(perm: Permission): Boolean = {
     perm match {
       case perm: FilePermission =>
-        if (perm.getActions == "read") {
-          if (!new File(perm.getName).exists())
-            return
-
-          val cwd = sys.props("user.dir")
-
-          val allowedFiles = Seq(
-            ".*\\.jar",
-            s"^$cwd/target/.*classes.*",
-            s"^$cwd/target/cpp/bin/libtox4j.so"
-          )
-          if (allowedFiles.exists { allowed =>
-            perm.getName.replaceAll("\\\\", "/").matches(allowed) ||
-              new File(perm.getName).getAbsolutePath == new File(allowed).getAbsolutePath
-          }) return
-        }
+        checkFilePermission(perm)
 
       case perm: PropertyPermission =>
-        if (perm.getActions == "read")
-          return
+        perm.getActions == "read"
 
       case perm: SecurityPermission =>
-        if (perm.getName.startsWith("getProperty."))
-          return
+        perm.getName.startsWith("getProperty.")
 
       case perm: NetPermission =>
-        if (Seq(
+        Seq(
           "specifyStreamHandler",
           "getProxySelector"
-        ).contains(perm.getName)) return
+        ).contains(perm.getName)
 
       case perm: SocketPermission =>
-        if (perm.getActions == "connect,resolve")
-          return
+        perm.getActions == "connect,resolve"
 
       case perm: RuntimePermission =>
-        if (Seq(
+        Seq(
           "readFileDescriptor"
-        ).contains(perm.getName)) return
+        ).contains(perm.getName)
 
       case _ =>
+        false
     }
+  }
 
-    val exception = new SecurityException(perm.toString)
-    exception.printStackTrace()
-    throw exception
+  private def doChecks(perm: Permission): Unit = {
+    val allowed = Seq(
+      checkWhiteListedCallers(),
+      checkWhiteListedPermissions(perm),
+      checkSpecificPermissions(perm)
+    ).contains(true)
+
+    if (!allowed) {
+      val exception = new SecurityException(perm.toString)
+      exception.printStackTrace()
+      throw exception
+    }
   }
 
 

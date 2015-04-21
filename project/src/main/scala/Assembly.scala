@@ -1,9 +1,7 @@
+import java.io.File
+
 import sbt.Keys._
 import sbt._
-
-import java.io.{File, PrintWriter}
-
-import sbt.inc.Analysis
 
 object Assembly extends Plugin {
 
@@ -39,7 +37,7 @@ object Assembly extends Plugin {
       val mainClasses = discoveredMainClasses.value
 
       val (outputs, jars) =
-        classpath.foldLeft(0, Map[File, File]()) { (result: (Int, Map[File, File]), path: Attributed[File]) =>
+        classpath.foldLeft(0, Map[File, File]()) { (result, path) =>
             path.get(analysis) match {
               case Some(analysisInfo) =>
                 (result._1 + analysisInfo.stamps.allProducts.size, result._2)

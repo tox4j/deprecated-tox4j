@@ -14,6 +14,7 @@ import scala.collection.mutable
 import scala.tools.nsc.interpreter.IMain
 
 object EvalBot extends PircBot {
+
   private val BOT_NAME = "tox4j"
   private val BOT_MSG = BOT_NAME + ":"
   private val MAX_LINES = 10
@@ -23,7 +24,7 @@ object EvalBot extends PircBot {
 
   private var running = true
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]) {
     setName(BOT_NAME)
     setVerbose(true)
     setEncoding("UTF-8")
@@ -98,11 +99,12 @@ object EvalBot extends PircBot {
   }
 
   private object Cmd {
-    def unapply(s: String) =
-      if (s.contains(' '))
+    def unapply(s: String): Option[List[String]] =
+      if (s.contains(' ')) {
         Some(s.split(" ", 2).toList)
-      else
+      } else {
         None
+      }
   }
 
   private def evaluateCode(code: String, channel: String) = {
@@ -135,19 +137,20 @@ object EvalBot extends PircBot {
 
   private val Replacement = """^!replace (.*) with (.*)""".r
 
-  override def onPrivateMessage(sender: String, login: String, hostname: String, message: String) =
+  override def onPrivateMessage(sender: String, login: String, hostname: String, message: String) {
     onMessage(sender, sender, login, hostname, message)
+  }
 
-  override def onMessage(channel: String, sender: String, login: String, hostname: String, message: String) = {
-    def withPrevious(block: String => Unit) = {
-      try {
-        block(lastCode(channel))
-      } catch {
-        case _: NoSuchElementException =>
-          sendMessage(channel, "no previous code")
-      }
+  private def withPrevious(channel: String)(block: String => Unit) = {
+    try {
+      block(lastCode(channel))
+    } catch {
+      case _: NoSuchElementException =>
+        sendMessage(channel, "no previous code")
     }
+  }
 
+  override def onMessage(channel: String, sender: String, login: String, hostname: String, message: String) {
     message match {
       case Cmd(BOT_MSG :: m :: Nil) if ADMINS contains sender =>
         m match {
@@ -165,12 +168,12 @@ object EvalBot extends PircBot {
         sendMessage(channel, scalaInterpreter(channel)((si, cout) => si.typeOfExpression(m).directObjectString))
 
       case Replacement(from, to) =>
-        withPrevious { last =>
+        withPrevious(channel) { last =>
           evaluateCode(last.replaceAll(from, to), channel)
         }
 
       case "!show" =>
-        withPrevious(sendMessage(channel, _))
+        withPrevious(channel)(sendMessage(channel, _))
 
       case "!reset" =>
         scalaInt invalidate channel
@@ -201,7 +204,7 @@ object EvalBot extends PircBot {
   }
 
   private val scalaInt = interpreterCache(new CacheLoader[String, IMain] {
-    override def load(key: String) = {
+    override def load(key: String): IMain = {
       val settings = new scala.tools.nsc.Settings(null)
       settings.usejavacp.value = true
       settings.deprecation.value = true
@@ -239,7 +242,7 @@ object EvalBot extends PircBot {
       .softValues()
       .maximumSize(CHANNELS.size + 5)
       .removalListener(new RemovalListener[K, V] {
-      override def onRemoval(notification: RemovalNotification[K, V]) = {
+      override def onRemoval(notification: RemovalNotification[K, V]) {
         println(s"expired $notification")
       }
     }).build(loader)
@@ -251,10 +254,11 @@ object EvalBot extends PircBot {
 
     output foreach { m =>
       val message =
-        if (!m.isEmpty && m.charAt(0) == 13)
+        if (!m.isEmpty && m.charAt(0) == 13) {
           m.substring(1)
-        else
+        } else {
           m
+        }
       sendMessage(channel, message)
     }
 

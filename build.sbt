@@ -7,6 +7,9 @@ scalaVersion  := "2.11.4"
 // Mixed project.
 compileOrder := CompileOrder.Mixed
 
+scalaSource in Compile := (javaSource in Compile).value
+scalaSource in Test    := (javaSource in Test   ).value
+
 // Build dependencies
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",

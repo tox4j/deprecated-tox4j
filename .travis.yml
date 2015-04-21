@@ -2,7 +2,7 @@ language: cpp
 compiler: clang
 script:
    # Compile first, so a compile error fails the build.
-   - yes q | sbt compile
+   - yes q | sbt compile test:compile scalastyle test:scalastyle checkstyle test:checkstyle
    # Compile again, because sbt coverage deleted our native library.
    - yes q | sbt coverage compile test || true
 

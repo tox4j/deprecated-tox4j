@@ -26,8 +26,9 @@ object DhtNodeSelector {
         logger.info(s"TCP connection failed (${e.getMessage})")
         None
     } finally {
-      if (socket != null)
+      if (socket != null) {
         socket.close()
+      }
     }
   }
 
@@ -86,7 +87,7 @@ object DhtNodeSelector {
   }
 
 
-  def node = findNode({
+  def node: DhtNode = findNode({
     (ipv6Enabled: Boolean, udpEnabled: Boolean) =>
       val options = new ToxOptions
       options.setIpv6Enabled(ipv6Enabled)
