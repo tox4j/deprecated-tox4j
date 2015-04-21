@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
 
-  @Test(expected=ToxKilledException.class)
+  @Test(expected = ToxKilledException.class)
   public void testUseAfterCloseInOrder() throws Exception {
     ToxCore tox1 = newTox();
     ToxCore tox2 = newTox();
@@ -14,7 +14,7 @@ public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
     tox1.iterationInterval();
   }
 
-  @Test(expected=ToxKilledException.class)
+  @Test(expected = ToxKilledException.class)
   public void testUseAfterCloseReverseOrder() throws Exception {
     ToxCore tox1 = newTox();
     ToxCore tox2 = newTox();

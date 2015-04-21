@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class ToxFriendGetClientIdExceptionTest extends ToxCoreImplTestBase {
 
   @Test
-  public void testFRIEND_NOT_FOUND() throws Exception {
+  public void testFriendNotFound() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.getFriendPublicKey(0);
     } catch (ToxFriendGetPublicKeyException e) {

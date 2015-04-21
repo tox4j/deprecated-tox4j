@@ -25,6 +25,7 @@ public class FileTransferTest extends AliceBobTestBase {
   private static class Client extends ChatClient {
 
     private static final byte[] fileData = new byte[1500];
+
     static {
       new Random().nextBytes(fileData);
     }
@@ -37,7 +38,9 @@ public class FileTransferTest extends AliceBobTestBase {
       if (connection != ToxConnection.NONE) {
         debug("is now connected to friend " + friendNumber);
         assertEquals(FRIEND_NUMBER, friendNumber);
-        if (isBob()) return;
+        if (isBob()) {
+          return;
+        }
         addTask(new Task() {
           @Override
           public void perform(@NotNull ToxCore tox) throws ToxException {
@@ -49,7 +52,9 @@ public class FileTransferTest extends AliceBobTestBase {
     }
 
     @Override
-    public void fileReceive(final int friendNumber, final int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
+    public void fileReceive(
+        final int friendNumber, final int fileNumber, int kind, long fileSize, @NotNull byte[] filename
+    ) {
       debug("received file send request " + fileNumber + " from friend number " + friendNumber);
       assertTrue(isBob());
       assertEquals(FRIEND_NUMBER, friendNumber);

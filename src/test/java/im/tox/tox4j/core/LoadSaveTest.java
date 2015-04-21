@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 
 public final class LoadSaveTest extends ToxCoreImplTestBase {
 
+  @SuppressWarnings("checkstyle:emptylineseparator")
   private interface Check {
     boolean change(ToxCore tox) throws ToxException;
     void check(ToxCore tox);

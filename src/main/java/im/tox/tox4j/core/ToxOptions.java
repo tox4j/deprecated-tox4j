@@ -20,7 +20,6 @@ public class ToxOptions {
    * only allows IPv4 communication.
    * If it is set to true, an IPv6 socket is created, allowing both IPv4 and
    * IPv6 communication.
-   * </p>
    */
   public final boolean ipv6Enabled;
 
@@ -31,7 +30,6 @@ public class ToxOptions {
    * Setting this to false will force Tox to use TCP only. Communications will
    * need to be relayed through a TCP relay node, potentially slowing them down.
    * Disabling UDP support is necessary when using anonymous proxies or Tor.
-   * </p>
    */
   public final boolean udpEnabled;
 
@@ -47,11 +45,9 @@ public class ToxOptions {
    * <p>
    * If used, this must be non-NULL and be a valid DNS name. The name must not
    * exceed 255 characters.
-   * </p>
    *
    * <p>
    * This member is ignored (it can be NULL) if proxyEnabled is false.
-   * </p>
    */
   @Nullable
   public final String proxyAddress;
@@ -62,7 +58,6 @@ public class ToxOptions {
    * <p>
    * Ports must be in the range (1, 65535). The value is ignored if
    * proxyEnabled is false.
-   * </p>
    */
   public final int proxyPort;
 

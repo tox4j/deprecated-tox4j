@@ -15,6 +15,5 @@ public interface ToxEventListener extends
     FriendTypingCallback,
     FriendLosslessPacketCallback,
     FriendLossyPacketCallback,
-    ReadReceiptCallback
-{
+    ReadReceiptCallback {
 }

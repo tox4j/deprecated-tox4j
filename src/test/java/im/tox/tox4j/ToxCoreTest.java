@@ -51,6 +51,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0xffff).close();
   }
 
+  @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
   @Test
   public void testToxNewNoProxyBadAddress() throws Exception {
     // Should ignore the bad address.
@@ -159,8 +160,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testPublicKeyEntropy() throws Exception {
     for (int i = 0; i < ITERATIONS; i++) {
       try (ToxCore tox = newTox()) {
-        double e = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey());
-        assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
+        double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey());
+        assertTrue("Entropy of public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
       }
     }
   }
@@ -169,8 +170,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testSecretKeyEntropy() throws Exception {
     for (int i = 0; i < ITERATIONS; i++) {
       try (ToxCore tox = newTox()) {
-        double e = ToxCoreTestBase$.MODULE$.entropy(tox.getSecretKey());
-        assertTrue("Entropy of secret key should be >= 0.5, but was " + e, e >= 0.5);
+        double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getSecretKey());
+        assertTrue("Entropy of secret key should be >= 0.5, but was " + entropy, entropy >= 0.5);
       }
     }
   }
@@ -422,8 +423,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
       addFriends(tox, 1);
       assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getFriendPublicKey(0).length);
       assertArrayEquals(tox.getFriendPublicKey(0), tox.getFriendPublicKey(0));
-      double e = ToxCoreTestBase$.MODULE$.entropy(tox.getFriendPublicKey(0));
-      assertTrue("Entropy of friend's public key should be >= 0.5, but was " + e, e >= 0.5);
+      double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getFriendPublicKey(0));
+      assertTrue("Entropy of friend's public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
     }
   }
 
@@ -484,8 +485,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testDhtIdEntropy() throws Exception {
     for (int i = 0; i < ITERATIONS; i++) {
       try (ToxCore tox = newTox()) {
-        double e = ToxCoreTestBase$.MODULE$.entropy(tox.getDhtId());
-        assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
+        double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getDhtId());
+        assertTrue("Entropy of public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
       }
     }
   }

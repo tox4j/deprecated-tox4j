@@ -39,10 +39,10 @@ public class ToxGui extends JFrame {
   private JTabbedPane tabbedPane1;
   private JButton connectButton;
   private JCheckBox enableIPv6CheckBox;
-  private JCheckBox enableUDPCheckBox;
+  private JCheckBox enableUdpCheckBox;
   private JRadioButton noneRadioButton;
-  private JRadioButton HTTPRadioButton;
-  private JRadioButton SOCKSRadioButton;
+  private JRadioButton httpRadioButton;
+  private JRadioButton socksRadioButton;
   private JTextField proxyHost;
   private JTextField bootstrapHost;
   private JTextField bootstrapPort;
@@ -69,7 +69,7 @@ public class ToxGui extends JFrame {
   private DefaultListModel<String> messageModel = new DefaultListModel<>();
   private FriendList friendListModel = new FriendList();
   private FileTransferModel fileModel = new FileTransferModel();
-  private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]");
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]");
 
   private void addMessage(Object... args) {
     StringBuilder str = new StringBuilder();
@@ -92,6 +92,7 @@ public class ToxGui extends JFrame {
   }
 
   private final ToxEventListener toxEvents = new InvokeLaterToxEventListener(new ToxEventListener() {
+
     private void addMessage(String method, Object... args) {
       StringBuilder str = new StringBuilder();
       str.append(method);
@@ -135,7 +136,10 @@ public class ToxGui extends JFrame {
     public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
       addMessage("fileReceive", friendNumber, fileNumber, kind, fileSize, new String(filename));
       try {
-        if (JOptionPane.showConfirmDialog(ToxGui.this, "Incoming file transfer: " + new String(filename)) == JOptionPane.OK_OPTION) {
+        int confirmation = JOptionPane.showConfirmDialog(
+            ToxGui.this, "Incoming file transfer: " + new String(filename)
+        );
+        if (confirmation == JOptionPane.OK_OPTION) {
           JFileChooser chooser = new JFileChooser();
           int returnVal = chooser.showOpenDialog(ToxGui.this);
           if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -167,7 +171,8 @@ public class ToxGui extends JFrame {
         if (length == 0) {
           fileModel.remove(friendNumber, fileNumber);
         } else {
-          tox.fileSendChunk(friendNumber, fileNumber, position, fileModel.get(friendNumber, fileNumber).read(position, length));
+          tox.fileSendChunk(friendNumber, fileNumber, position,
+              fileModel.get(friendNumber, fileNumber).read(position, length));
         }
       } catch (Throwable e) {
         JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
@@ -228,6 +233,7 @@ public class ToxGui extends JFrame {
     public void readReceipt(int friendNumber, int messageId) {
       addMessage("readReceipt", friendNumber, messageId);
     }
+
   });
 
   private static final class SaveData implements Serializable {
@@ -254,7 +260,8 @@ public class ToxGui extends JFrame {
     }
   }
 
-  private @Nullable byte[] load() {
+  @Nullable
+  private byte[] load() {
     try (ObjectInputStream saveFile = new ObjectInputStream(new FileInputStream("/tmp/toxgui.tox"))) {
       SaveData saveData = (SaveData) saveFile.readObject();
 
@@ -277,6 +284,9 @@ public class ToxGui extends JFrame {
     }
   }
 
+  /**
+   * Create a new GUI application for Tox testing.
+   */
   public ToxGui() {
     setContentPane(contentPane);
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -288,10 +298,10 @@ public class ToxGui extends JFrame {
 
       private void setConnectSettingsEnabled(boolean enabled) {
         enableIPv6CheckBox.setEnabled(enabled);
-        enableUDPCheckBox.setEnabled(enabled);
+        enableUdpCheckBox.setEnabled(enabled);
         noneRadioButton.setEnabled(enabled);
-        HTTPRadioButton.setEnabled(enabled);
-        SOCKSRadioButton.setEnabled(enabled);
+        httpRadioButton.setEnabled(enabled);
+        socksRadioButton.setEnabled(enabled);
         proxyHost.setEnabled(enabled);
         proxyPort.setEnabled(enabled);
 
@@ -311,11 +321,15 @@ public class ToxGui extends JFrame {
 
       private void connect() {
         try {
-          ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUDPCheckBox.isSelected());
-          if (HTTPRadioButton.isSelected()) {
-            options = options.enableProxy(ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
-          } else if (SOCKSRadioButton.isSelected()) {
-            options = options.enableProxy(ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
+          ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUdpCheckBox.isSelected());
+          if (httpRadioButton.isSelected()) {
+            options = options.enableProxy(
+                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
+            );
+          } else if (socksRadioButton.isSelected()) {
+            options = options.enableProxy(
+                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
+            );
           }
 
           byte[] toxSave = load();
@@ -479,12 +493,12 @@ public class ToxGui extends JFrame {
     });
   }
 
-  private String printExn(Throwable e) {
+  private String printExn(Throwable exn) {
     try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-      e.printStackTrace(new PrintStream(output));
+      exn.printStackTrace(new PrintStream(output));
       return output.toString();
     } catch (IOException e1) {
-      return e.toString();
+      return exn.toString();
     }
   }
 

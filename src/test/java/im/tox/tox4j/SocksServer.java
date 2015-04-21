@@ -22,6 +22,11 @@ public class SocksServer implements Closeable, Runnable {
   private boolean running = true;
   private int accepted = 0;
 
+  /**
+   * Create a simple SOCKS5 server on a port between 8000 and 8999.
+   *
+   * @throws IOException if no port could be bound.
+   */
   public SocksServer() throws IOException {
     ServerSocket server = null;
     IOException lastException = null;
@@ -49,7 +54,7 @@ public class SocksServer implements Closeable, Runnable {
     return server.getLocalPort();
   }
 
-  public @NotNull String getAddress() {
+  @NotNull public String getAddress() {
     return server.getInetAddress().getHostAddress();
   }
 
@@ -123,7 +128,7 @@ public class SocksServer implements Closeable, Runnable {
 
   private void connection(@NotNull InputStream input, @NotNull OutputStream output) throws IOException {
     assertEquals(0x05, input.read());
-    int command = input.read();
+    final int command = input.read();
     assertEquals(0x00, input.read());
 
     InetAddress address;
@@ -167,7 +172,8 @@ public class SocksServer implements Closeable, Runnable {
     }
   }
 
-  private void establishStream(InputStream input, final OutputStream output, InetAddress address, int port) throws IOException {
+  private void establishStream(InputStream input, final OutputStream output, InetAddress address, int port)
+      throws IOException {
     output.write(0x05); // socks5
     Socket target;
     try {

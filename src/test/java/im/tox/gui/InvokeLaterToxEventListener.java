@@ -9,6 +9,7 @@ import im.tox.tox4j.core.enums.ToxStatus;
 
 import javax.swing.*;
 
+@SuppressWarnings("checkstyle:linelength")
 public final class InvokeLaterToxEventListener implements ToxEventListener {
 
   @Override

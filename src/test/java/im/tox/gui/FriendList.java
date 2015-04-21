@@ -11,6 +11,12 @@ public final class FriendList extends AbstractListModel<Friend> {
 
   private final ArrayList<Friend> friends = new ArrayList<>();
 
+  /**
+   * Add a friend to the friend list with the associated public key.
+   *
+   * @param friendNumber Friend number from toxcore.
+   * @param publicKey Public key as stable identifier for the friend.
+   */
   public void add(int friendNumber, byte[] publicKey) {
     while (friends.size() <= friendNumber) {
       friends.add(null);

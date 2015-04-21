@@ -12,20 +12,24 @@ import java.io.Closeable;
 
 /**
  * Interface for a basic wrapper of tox chat functionality.
- * <p>
+ *
+ * <p/>
  * This interface is designed to be thread-safe. However, once {@link #close()} has been called, all subsequent calls
- * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes {@link #close()},
- * all other threads with pending calls will throw. The exception is unchecked, as it should not occur in a normal
- * execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads should be stopped
- * before one thread invokes {@link #close()}, or appropriate exception handlers should be installed in all threads.
+ * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes
+ * {@link #close()}, all other threads with pending calls will throw. The exception is unchecked, as it should not occur
+ * in a normal execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads
+ * should be stopped before one thread invokes {@link #close()}, or appropriate exception handlers should be installed
+ * in all threads.
  */
 public interface ToxCore extends Closeable {
 
   /**
    * Shut down the tox instance.
+   *
    * <p>
    * Once this method has been called, all other calls on this instance will throw
-   * {@link im.tox.tox4j.exceptions.ToxKilledException}. A closed instance cannot be reused, a new instance must be created.
+   * {@link im.tox.tox4j.exceptions.ToxKilledException}. A closed instance cannot be reused, a new instance must be
+   * created.
    */
   @Override
   void close();
@@ -40,27 +44,29 @@ public interface ToxCore extends Closeable {
 
   /**
    * Bootstrap into the tox network.
+   *
    * <p>
    * May connect via UDP and/or TCP, depending of the settings of the Tox instance.
    *
    * @param address    the hostname, or an IPv4/IPv6 address of the node.
    * @param port       the port of the node.
-   * @param public_key the public key of the node.
+   * @param publicKey the public key of the node.
    * @throws ToxBootstrapException if an error occurred.
    */
-  void bootstrap(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
+  void bootstrap(@NotNull String address, int port, @NotNull byte[] publicKey) throws ToxBootstrapException;
 
   /**
    * Add another TCP relay in addition to the one passed to bootstrap.
+   *
    * <p>
    * Can also be used to add the same node the instance was bootstrapped with, but with a different port.
    *
    * @param address    the hostname, or an IPv4/IPv6 address of the node.
    * @param port       the TCP port the node is running a relay on.
-   * @param public_key the public key of the node.
+   * @param publicKey the public key of the node.
    * @throws ToxBootstrapException if an error occurred.
    */
-  void addTcpRelay(@NotNull String address, int port, @NotNull byte[] public_key) throws ToxBootstrapException;
+  void addTcpRelay(@NotNull String address, int port, @NotNull byte[] publicKey) throws ToxBootstrapException;
 
   /**
    * Sets the callback for connection status changes.
@@ -102,6 +108,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * The main tox loop.
+   *
    * <p>
    * This should be invoked every {@link #iterationInterval()} milliseconds.
    */
@@ -125,6 +132,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * Set the nospam number for our address.
+   *
    * <p>
    * Setting the nospam makes it impossible for others to send us friend requests that contained the old nospam number.
    *
@@ -141,6 +149,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * Get our current tox address to give to friends.
+   *
    * <p>
    * The format is the following: [Public Key (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
    * {@link #setNospam(int)}, the old address can no longer be used to send friend requests to this instance.
@@ -152,6 +161,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * Set our nickname.
+   *
    * <p>
    * Cannot be longer than {@link ToxConstants#MAX_NAME_LENGTH} bytes.
    *
@@ -170,6 +180,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * Set our status message.
+   *
    * <p>
    * Cannot be longer than {@link ToxConstants#MAX_STATUS_MESSAGE_LENGTH} bytes.
    *
@@ -214,6 +225,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * Add the specified Public Key as friend without sending a friend request.
+   *
    * <p>
    * This is mostly used for confirming incoming friend requests.
    *
@@ -253,6 +265,7 @@ public interface ToxCore extends Closeable {
 
   /**
    * Checks whether a friend with the specified friend number exists.
+   *
    * <p>
    * If this function returns <code>true</code>, the return value is valid until the friend is deleted. If
    * <code>false</code> is returned, the return value is valid until either of {@link #addFriend(byte[], byte[])}
@@ -265,11 +278,13 @@ public interface ToxCore extends Closeable {
 
   /**
    * Get an array of currently valid friend numbers.
-   * <p>
-   * This list is valid until either of the following is invoked: {@link #deleteFriend(int)}, {@link #addFriend(byte[], byte[])},
-   * {@link #addFriendNoRequest(byte[])}.
    *
-   * @return an array containing the currently valid friend numbers. Returns the empty int array if there are no friends.
+   * <p>
+   * This list is valid until either of the following is invoked: {@link #deleteFriend(int)},
+   * {@link #addFriend(byte[], byte[])}, {@link #addFriendNoRequest(byte[])}.
+   *
+   * @return an array containing the currently valid friend numbers. Returns the empty int array if there are no
+   *     friends.
    */
   @NotNull
   int[] getFriendList();
@@ -318,7 +333,8 @@ public interface ToxCore extends Closeable {
    */
   void setTyping(int friendNumber, boolean typing) throws ToxSetTypingException;
 
-  int sendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) throws ToxSendMessageException;
+  int sendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message)
+      throws ToxSendMessageException;
 
   void callbackReadReceipt(@Nullable ReadReceiptCallback callback);
 
@@ -332,9 +348,11 @@ public interface ToxCore extends Closeable {
 
   void fileSendSeek(int friendNumber, int fileNumber, long position) throws ToxFileSendSeekException;
 
-  int fileSend(int friendNumber, int kind, long fileSize, @Nullable byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException;
+  int fileSend(int friendNumber, int kind, long fileSize, @Nullable byte[] fileId, @NotNull byte[] filename)
+      throws ToxFileSendException;
 
-  void fileSendChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
+  void fileSendChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data)
+      throws ToxFileSendChunkException;
 
   byte[] fileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException;
 

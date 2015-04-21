@@ -5,6 +5,9 @@ import im.tox.tox4j.ToxCoreImpl;
 
 public final class RepeatedLanDiscoveryTest {
 
+  /**
+   * Attempts LAN discovery 1000 times.
+   */
   public static void main(String[] args) throws Exception {
     for (int i = 0; i < 1000; i++) {
       System.out.println("Cycle " + i);

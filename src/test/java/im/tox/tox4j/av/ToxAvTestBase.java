@@ -31,7 +31,9 @@ public abstract class ToxAvTestBase extends ToxCoreTestBase {
     return newToxAv(newTox(ipv6Enabled, udpEnabled));
   }
 
-  protected final ToxAv newToxAv(boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort) throws ToxNewException, ToxAvNewException {
+  protected final ToxAv newToxAv(
+      boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort
+  ) throws ToxNewException, ToxAvNewException {
     return newToxAv(newTox(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort));
   }
 

@@ -15,7 +15,8 @@ import static org.junit.Assert.assertEquals;
 
 public final class AudioCallTest extends AliceBobAvTest {
 
-  private static abstract class AudioGenerator {
+  @SuppressWarnings("checkstyle:parametername")
+  private abstract static class AudioGenerator {
 
     public int length() {
       return 128000;
@@ -33,6 +34,7 @@ public final class AudioCallTest extends AliceBobAvTest {
   }
 
   private static final AudioGenerator MortalKombat = new AudioGenerator() {
+    @SuppressWarnings({"checkstyle:parametername", "checkstyle:localvariablename"})
     @Override
     public short getSample(int t) {
       int a = (
@@ -57,6 +59,7 @@ public final class AudioCallTest extends AliceBobAvTest {
       return 96000 + 4000 * 8;
     }
 
+    @SuppressWarnings({"checkstyle:parametername", "checkstyle:localvariablename"})
     @Override
     public short getSample(int t) {
       // Period
@@ -68,14 +71,14 @@ public final class AudioCallTest extends AliceBobAvTest {
         b = t % 4000 * ("'&(&*$,*".charAt(t % 96000 / 4000) - 32);
       } else {
         b = (
-            t % 2000 * (
-                "$$$&%%%''''%%%'&".charAt(t % 32000 / 2000) - 32 - (
-                    t > 28000 && t < 32000 ? 2 : 0
+                t % 2000 * (
+                    "$$$&%%%''''%%%'&".charAt(t % 32000 / 2000) - 32 - (
+                        t > 28000 && t < 32000 ? 2 : 0
+                    )
                 )
-            )
-        ) / (
-            t % 8000 < 4000 ? 2 : 1
-        );
+            ) / (
+                t % 8000 < 4000 ? 2 : 1
+            );
       }
       return (short) ((a | b) << 8);
     }
@@ -83,6 +86,7 @@ public final class AudioCallTest extends AliceBobAvTest {
 
 
   private static final AudioGenerator Sine = new AudioGenerator() {
+    @SuppressWarnings({"checkstyle:parametername", "checkstyle:localvariablename"})
     @Override
     public short getSample(int t) {
       return (short) ((int) (Math.sin(t / (10000d / t)) * 128) << 8);
@@ -91,6 +95,7 @@ public final class AudioCallTest extends AliceBobAvTest {
 
 
   private static final AudioGenerator Sine2 = new AudioGenerator() {
+    @SuppressWarnings({"checkstyle:parametername", "checkstyle:localvariablename"})
     @Override
     public short getSample(int t) {
       if (t % 2 == 0) {
@@ -116,6 +121,9 @@ public final class AudioCallTest extends AliceBobAvTest {
   }
 
 
+  /**
+   * Run audio call test from command line.
+   */
   public static void main(String[] args) throws Exception {
     AudioFormat format = new AudioFormat(8000f, 16, 1, true, true);
     DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
@@ -124,6 +132,7 @@ public final class AudioCallTest extends AliceBobAvTest {
       soundLine.start();
 
       byte[] buffer = new byte[160];
+      @SuppressWarnings("checkstyle:localvariablename")
       int t = 0;
 
       while (true) {
@@ -152,6 +161,7 @@ public final class AudioCallTest extends AliceBobAvTest {
 
   private static class Alice extends AvClient {
 
+    @SuppressWarnings("checkstyle:membername")
     private int t = 0;
 
     @Override
@@ -197,6 +207,7 @@ public final class AudioCallTest extends AliceBobAvTest {
 
   private static class Bob extends AvClient {
 
+    @SuppressWarnings("checkstyle:membername")
     private int t = 0;
     private final SourceDataLine soundLine;
 
@@ -214,7 +225,10 @@ public final class AudioCallTest extends AliceBobAvTest {
       debug("received call from " + getFriendName());
       addTask(new Task() {
         // Wait for a few iterations before answering.
-        { sleep(2); }
+        {
+          sleep(2);
+        }
+
         @Override
         public void perform(@NotNull ToxAv av) throws ToxException {
           debug("answering call");
