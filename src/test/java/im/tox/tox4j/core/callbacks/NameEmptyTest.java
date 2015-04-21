@@ -10,81 +10,81 @@ import static org.junit.Assert.assertEquals;
 
 public class NameEmptyTest extends AliceBobTestBase {
 
-    @NotNull @Override protected ChatClient newAlice() {
-        return new Alice();
+  @NotNull @Override protected ChatClient newAlice() {
+    return new Alice();
+  }
+
+  private static class Alice extends ChatClient {
+
+    @Override
+    public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
+      if (connection != ToxConnection.NONE) {
+        debug("is now connected to friend " + friendNumber);
+        addTask(new Task() {
+          @Override
+          public void perform(@NotNull ToxCore tox) throws ToxException {
+            tox.setName(("One").getBytes());
+          }
+        });
+      }
     }
 
-    private static class Alice extends ChatClient {
-
-        @Override
-        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
-            if (connection != ToxConnection.NONE) {
-                debug("is now connected to friend " + friendNumber);
-                addTask(new Task() {
-                    @Override
-                    public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setName(("One").getBytes());
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void friendName(int friendNumber, @NotNull byte[] message) {
-            debug("friend changed name to: " + new String(message));
-            assertEquals(FRIEND_NUMBER, friendNumber);
-            if (new String(message).equals("Two")) {
-                addTask(new Task() {
-                    @Override
-                    public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setName(new byte[]{});
-                    }
-                });
-            } else {
-                assertEquals("", new String(message));
-                finish();
-            }
-        }
-
+    @Override
+    public void friendName(int friendNumber, @NotNull byte[] message) {
+      debug("friend changed name to: " + new String(message));
+      assertEquals(FRIEND_NUMBER, friendNumber);
+      if (new String(message).equals("Two")) {
+        addTask(new Task() {
+          @Override
+          public void perform(@NotNull ToxCore tox) throws ToxException {
+            tox.setName(new byte[]{});
+          }
+        });
+      } else {
+        assertEquals("", new String(message));
+        finish();
+      }
     }
 
+  }
 
-    @NotNull @Override protected ChatClient newBob() {
-        return new Bob();
+
+  @NotNull @Override protected ChatClient newBob() {
+    return new Bob();
+  }
+
+  private static class Bob extends ChatClient {
+
+    @Override
+    public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
+      if (connection != ToxConnection.NONE) {
+        debug("is now connected to friend " + friendNumber);
+      }
     }
 
-    private static class Bob extends ChatClient {
-
-        @Override
-        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
-            if (connection != ToxConnection.NONE) {
-                debug("is now connected to friend " + friendNumber);
-            }
-        }
-
-        @Override
-        public void friendName(int friendNumber, @NotNull byte[] message) {
-            debug("friend changed name to: " + new String(message));
-            assertEquals(FRIEND_NUMBER, friendNumber);
-            if (new String(message).equals("One")) {
-                addTask(new Task() {
-                    @Override
-                    public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setName("Two".getBytes());
-                    }
-                });
-            } else {
-                assertEquals("", new String(message));
-                addTask(new Task() {
-                    @Override
-                    public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setName(new byte[]{});
-                    }
-                });
-                finish();
-            }
-        }
-
+    @Override
+    public void friendName(int friendNumber, @NotNull byte[] message) {
+      debug("friend changed name to: " + new String(message));
+      assertEquals(FRIEND_NUMBER, friendNumber);
+      if (new String(message).equals("One")) {
+        addTask(new Task() {
+          @Override
+          public void perform(@NotNull ToxCore tox) throws ToxException {
+            tox.setName("Two".getBytes());
+          }
+        });
+      } else {
+        assertEquals("", new String(message));
+        addTask(new Task() {
+          @Override
+          public void perform(@NotNull ToxCore tox) throws ToxException {
+            tox.setName(new byte[]{});
+          }
+        });
+        finish();
+      }
     }
+
+  }
 
 }

@@ -5,6 +5,6 @@ import im.tox.tox4j.core.enums.ToxFileControl;
 
 public interface FileControlCallback {
 
-    void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control);
+  void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control);
 
 }

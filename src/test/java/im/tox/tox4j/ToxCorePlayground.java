@@ -5,10 +5,10 @@ import im.tox.tox4j.exceptions.ToxException;
 
 public final class ToxCorePlayground {
 
-    public static void main(String[] args) throws ToxException {
-        try (ToxCoreImpl tox = new ToxCoreImpl(new ToxOptions(), null)) {
-            tox.playground();
-        }
+  public static void main(String[] args) throws ToxException {
+    try (ToxCoreImpl tox = new ToxCoreImpl(new ToxOptions(), null)) {
+      tox.playground();
     }
+  }
 
 }

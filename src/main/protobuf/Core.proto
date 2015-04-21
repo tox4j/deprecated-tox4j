@@ -4,128 +4,128 @@ option optimize_for = LITE_RUNTIME;
 
 
 enum Socket {
-    NONE    = 1;
-    TCP     = 2;
-    UDP     = 3;
+  NONE    = 1;
+  TCP     = 2;
+  UDP     = 3;
 }
 
 message ConnectionStatus {
-    required Socket connectionStatus = 1;
+  required Socket connectionStatus = 1;
 }
 
 message FileControl {
-    enum Kind {
-        RESUME  = 1;
-        PAUSE   = 2;
-        CANCEL  = 3;
-    }
+  enum Kind {
+    RESUME  = 1;
+    PAUSE   = 2;
+    CANCEL  = 3;
+  }
 
-    required uint32 friendNumber    = 1;
-    required uint32 fileNumber      = 2;
-    required Kind   control         = 3;
+  required uint32 friendNumber    = 1;
+  required uint32 fileNumber      = 2;
+  required Kind   control         = 3;
 }
 
 message FileReceive {
-    required uint32 friendNumber    = 1;
-    required uint32 fileNumber      = 2;
-    required uint32 kind            = 3;
-    required uint64 fileSize        = 4;
-    required bytes  filename        = 5;
+  required uint32 friendNumber    = 1;
+  required uint32 fileNumber      = 2;
+  required uint32 kind            = 3;
+  required uint64 fileSize        = 4;
+  required bytes  filename        = 5;
 }
 
 message FileReceiveChunk {
-    required uint32 friendNumber    = 1;
-    required uint32 fileNumber      = 2;
-    required uint64 position        = 3;
-    required bytes  data            = 4;
+  required uint32 friendNumber    = 1;
+  required uint32 fileNumber      = 2;
+  required uint64 position        = 3;
+  required bytes  data            = 4;
 }
 
 message FileRequestChunk {
-    required uint32 friendNumber    = 1;
-    required uint32 fileNumber      = 2;
-    required uint64 position        = 3;
-    required uint32 length          = 4;
+  required uint32 friendNumber    = 1;
+  required uint32 fileNumber      = 2;
+  required uint64 position        = 3;
+  required uint32 length          = 4;
 }
 
 message FriendConnectionStatus {
-    required uint32 friendNumber    = 1;
-    required Socket connectionStatus = 2;
+  required uint32 friendNumber    = 1;
+  required Socket connectionStatus = 2;
 }
 
 message FriendMessage {
-    enum Type {
-        NORMAL  = 1;
-        ACTION  = 2;
-    }
+  enum Type {
+    NORMAL  = 1;
+    ACTION  = 2;
+  }
 
-    required uint32 friendNumber    = 1;
-    required Type   type            = 2;
-    required uint32 timeDelta       = 3;
-    required bytes  message         = 4;
+  required uint32 friendNumber    = 1;
+  required Type   type            = 2;
+  required uint32 timeDelta       = 3;
+  required bytes  message         = 4;
 }
 
 message FriendName {
-    required uint32 friendNumber    = 1;
-    required bytes  name            = 2;
+  required uint32 friendNumber    = 1;
+  required bytes  name            = 2;
 }
 
 message FriendRequest {
-    required bytes  publicKey       = 1;
-    required uint32 timeDelta       = 2;
-    required bytes  message         = 3;
+  required bytes  publicKey       = 1;
+  required uint32 timeDelta       = 2;
+  required bytes  message         = 3;
 }
 
 message FriendStatus {
-    enum Kind {
-        NONE    = 1;
-        AWAY    = 2;
-        BUSY    = 3;
-    }
+  enum Kind {
+    NONE    = 1;
+    AWAY    = 2;
+    BUSY    = 3;
+  }
 
-    required uint32 friendNumber    = 1;
-    required Kind   status          = 2;
+  required uint32 friendNumber    = 1;
+  required Kind   status          = 2;
 }
 
 message FriendStatusMessage {
-    required uint32 friendNumber    = 1;
-    required bytes  message         = 2;
+  required uint32 friendNumber    = 1;
+  required bytes  message         = 2;
 }
 
 message FriendTyping {
-    required uint32 friendNumber    = 1;
-    required bool   isTyping        = 2;
+  required uint32 friendNumber    = 1;
+  required bool   isTyping        = 2;
 }
 
 message FriendLosslessPacket {
-    required uint32 friendNumber    = 1;
-    required bytes  data            = 2;
+  required uint32 friendNumber    = 1;
+  required bytes  data            = 2;
 }
 
 message FriendLossyPacket {
-    required uint32 friendNumber    = 1;
-    required bytes  data            = 2;
+  required uint32 friendNumber    = 1;
+  required bytes  data            = 2;
 }
 
 message ReadReceipt {
-    required uint32 friendNumber    = 1;
-    required uint32 messageId       = 2;
+  required uint32 friendNumber    = 1;
+  required uint32 messageId       = 2;
 }
 
 
 message CoreEvents {
-    repeated ConnectionStatus       connectionStatus       =  1;
-    repeated FileControl            fileControl            =  2;
-    repeated FileReceive            fileReceive            =  3;
-    repeated FileReceiveChunk       fileReceiveChunk       =  4;
-    repeated FileRequestChunk       fileRequestChunk       =  5;
-    repeated FriendConnectionStatus friendConnectionStatus =  7;
-    repeated FriendMessage          friendMessage          =  8;
-    repeated FriendName             friendName             =  9;
-    repeated FriendRequest          friendRequest          = 10;
-    repeated FriendStatus           friendStatus           = 11;
-    repeated FriendStatusMessage    friendStatusMessage    = 12;
-    repeated FriendTyping           friendTyping           = 13;
-    repeated FriendLosslessPacket   friendLosslessPacket   = 14;
-    repeated FriendLossyPacket      friendLossyPacket      = 15;
-    repeated ReadReceipt            readReceipt            = 16;
+  repeated ConnectionStatus       connectionStatus       =  1;
+  repeated FileControl            fileControl            =  2;
+  repeated FileReceive            fileReceive            =  3;
+  repeated FileReceiveChunk       fileReceiveChunk       =  4;
+  repeated FileRequestChunk       fileRequestChunk       =  5;
+  repeated FriendConnectionStatus friendConnectionStatus =  7;
+  repeated FriendMessage          friendMessage          =  8;
+  repeated FriendName             friendName             =  9;
+  repeated FriendRequest          friendRequest          = 10;
+  repeated FriendStatus           friendStatus           = 11;
+  repeated FriendStatusMessage    friendStatusMessage    = 12;
+  repeated FriendTyping           friendTyping           = 13;
+  repeated FriendLosslessPacket   friendLosslessPacket   = 14;
+  repeated FriendLossyPacket      friendLossyPacket      = 15;
+  repeated ReadReceipt            readReceipt            = 16;
 }

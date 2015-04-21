@@ -4,6 +4,6 @@ import im.tox.tox4j.annotations.NotNull;
 
 public interface FriendLosslessPacketCallback {
 
-    void friendLosslessPacket(int friendNumber, @NotNull byte[] data);
+  void friendLosslessPacket(int friendNumber, @NotNull byte[] data);
 
 }

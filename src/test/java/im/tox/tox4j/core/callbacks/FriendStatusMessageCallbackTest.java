@@ -10,43 +10,43 @@ import static org.junit.Assert.assertEquals;
 
 public class FriendStatusMessageCallbackTest extends AliceBobTestBase {
 
-    @NotNull
+  @NotNull
+  @Override
+  protected ChatClient newAlice() {
+    return new Client();
+  }
+
+
+  private static class Client extends ChatClient {
+
+    private int state = 0;
+
     @Override
-    protected ChatClient newAlice() {
-        return new Client();
+    public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
+      if (connection != ToxConnection.NONE) {
+        debug("is now connected to friend " + friendNumber);
+        addTask(new Task() {
+          @Override
+          public void perform(@NotNull ToxCore tox) throws ToxException {
+            tox.setStatusMessage(("I like " + getFriendName()).getBytes());
+          }
+        });
+      }
     }
 
-
-    private static class Client extends ChatClient {
-
-        private int state = 0;
-
-        @Override
-        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connection) {
-            if (connection != ToxConnection.NONE) {
-                debug("is now connected to friend " + friendNumber);
-                addTask(new Task() {
-                    @Override
-                    public void perform(@NotNull ToxCore tox) throws ToxException {
-                        tox.setStatusMessage(("I like " + getFriendName()).getBytes());
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
-            debug("friend changed status message to: " + new String(message));
-            assertEquals(FRIEND_NUMBER, friendNumber);
-            if (state == 0) {
-                state = 1;
-                assertEquals("", new String(message));
-            } else {
-                assertEquals("I like " + getName(), new String(message));
-                finish();
-            }
-        }
-
+    @Override
+    public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
+      debug("friend changed status message to: " + new String(message));
+      assertEquals(FRIEND_NUMBER, friendNumber);
+      if (state == 0) {
+        state = 1;
+        assertEquals("", new String(message));
+      } else {
+        assertEquals("I like " + getName(), new String(message));
+        finish();
+      }
     }
+
+  }
 
 }
