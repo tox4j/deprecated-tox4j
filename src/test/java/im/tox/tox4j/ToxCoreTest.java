@@ -424,9 +424,9 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetFriendPublicKey() throws Exception {
     try (ToxCore tox = newTox()) {
       addFriends(tox, 1);
-      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getPublicKey(0).length);
-      assertArrayEquals(tox.getPublicKey(0), tox.getPublicKey(0));
-      double e = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey(0));
+      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getFriendPublicKey(0).length);
+      assertArrayEquals(tox.getFriendPublicKey(0), tox.getFriendPublicKey(0));
+      double e = ToxCoreTestBase$.MODULE$.entropy(tox.getFriendPublicKey(0));
       assertTrue("Entropy of friend's public key should be >= 0.5, but was " + e, e >= 0.5);
     }
   }
@@ -436,7 +436,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     try (ToxCore tox = newTox()) {
       addFriends(tox, 10);
       for (int i = 0; i < 10; i++) {
-        assertEquals(i, tox.getFriendByPublicKey(tox.getPublicKey(i)));
+        assertEquals(i, tox.getFriendByPublicKey(tox.getFriendPublicKey(i)));
       }
     }
   }
