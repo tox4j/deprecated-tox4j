@@ -9,8 +9,8 @@ import im.tox.tox4j.annotations.NotNull;
  */
 public final class ToxKilledException extends RuntimeException {
 
-    public ToxKilledException(@NotNull String message) {
-        super(message);
-    }
+  public ToxKilledException(@NotNull String message) {
+    super(message);
+  }
 
 }

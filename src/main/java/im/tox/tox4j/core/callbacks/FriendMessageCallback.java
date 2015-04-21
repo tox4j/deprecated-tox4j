@@ -5,6 +5,6 @@ import im.tox.tox4j.core.enums.ToxMessageType;
 
 public interface FriendMessageCallback {
 
-    void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message);
+  void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message);
 
 }

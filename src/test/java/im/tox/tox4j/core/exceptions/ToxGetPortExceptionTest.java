@@ -12,14 +12,14 @@ import static org.junit.Assert.fail;
 
 public class ToxGetPortExceptionTest extends ToxCoreImplTestBase {
 
-    @Test
-    public void testGetTcpPort_NotBound() throws Exception {
-        try (ToxCore tox = newTox()) {
-            tox.getTcpPort();
-            fail();
-        } catch (ToxGetPortException e) {
-            assertEquals(ToxGetPortException.Code.NOT_BOUND, e.getCode());
-        }
+  @Test
+  public void testGetTcpPort_NotBound() throws Exception {
+    try (ToxCore tox = newTox()) {
+      tox.getTcpPort();
+      fail();
+    } catch (ToxGetPortException e) {
+      assertEquals(ToxGetPortException.Code.NOT_BOUND, e.getCode());
     }
+  }
 
 }

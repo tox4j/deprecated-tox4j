@@ -3,7 +3,6 @@ package im.tox.tox4j;
 import java.io.File;
 import java.lang.reflect.Field;
 
-
 public class JavaLibraryPath {
 
   public static void addLibraryPath(String path) throws IllegalAccessException, NoSuchFieldException {

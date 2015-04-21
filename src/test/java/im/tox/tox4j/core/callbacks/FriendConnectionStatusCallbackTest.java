@@ -6,23 +6,23 @@ import im.tox.tox4j.core.enums.ToxConnection;
 
 public class FriendConnectionStatusCallbackTest extends AliceBobTestBase {
 
-    @NotNull
+  @NotNull
+  @Override
+  protected ChatClient newAlice() {
+    return new Client();
+  }
+
+
+  private static class Client extends ChatClient {
+
     @Override
-    protected ChatClient newAlice() {
-        return new Client();
+    public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connectionStatus) {
+      if (connectionStatus != ToxConnection.NONE) {
+        debug("is now connected to friend " + friendNumber);
+        finish();
+      }
     }
 
-
-    private static class Client extends ChatClient {
-
-        @Override
-        public void friendConnectionStatus(final int friendNumber, @NotNull ToxConnection connectionStatus) {
-            if (connectionStatus != ToxConnection.NONE) {
-                debug("is now connected to friend " + friendNumber);
-                finish();
-            }
-        }
-
-    }
+  }
 
 }
