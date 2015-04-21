@@ -8,10 +8,7 @@ import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
-import im.tox.tox4j.core.exceptions.ToxBootstrapException;
-import im.tox.tox4j.core.exceptions.ToxFileSendException;
-import im.tox.tox4j.core.exceptions.ToxFriendAddException;
-import im.tox.tox4j.core.exceptions.ToxSendMessageException;
+import im.tox.tox4j.core.exceptions.*;
 import im.tox.tox4j.exceptions.ToxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,6 +281,13 @@ public class ToxGui extends JFrame {
     }
   }
 
+  @NotNull
+  private static ToxOptions enableProxy(
+      @NotNull ToxOptions options, @NotNull ToxProxyType proxyType, @NotNull String proxyAddress, int proxyPort
+  ) throws ToxNewException {
+    return new ToxOptions(options.ipv6Enabled, options.udpEnabled, proxyType, proxyAddress, proxyPort);
+  }
+
   /**
    * Create a new GUI application for Tox testing.
    */
@@ -323,11 +327,11 @@ public class ToxGui extends JFrame {
         try {
           ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUdpCheckBox.isSelected());
           if (httpRadioButton.isSelected()) {
-            options = options.enableProxy(
+            options = enableProxy(options,
                 ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
             );
           } else if (socksRadioButton.isSelected()) {
-            options = options.enableProxy(
+            options = enableProxy(options,
                 ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
             );
           }

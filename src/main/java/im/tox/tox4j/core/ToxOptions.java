@@ -99,10 +99,4 @@ public class ToxOptions {
     this(true, true);
   }
 
-  @NotNull
-  public ToxOptions enableProxy(
-      @NotNull ToxProxyType proxyType, @NotNull String proxyAddress, int proxyPort
-  ) throws ToxNewException {
-    return new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort);
-  }
 }
