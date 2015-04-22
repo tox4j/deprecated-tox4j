@@ -1,10 +1,10 @@
 package im.tox.tox4j
 
 import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.av.{ToxAv, ToxAvTestBase}
 import im.tox.tox4j.av.exceptions.ToxAvNewException
-import im.tox.tox4j.core.{ToxCore, ToxOptions}
+import im.tox.tox4j.av.{ToxAv, ToxAvTestBase}
 import im.tox.tox4j.core.exceptions.ToxNewException
+import im.tox.tox4j.core.{ToxCore, ToxOptions}
 import org.junit.After
 
 import scala.collection.mutable.ArrayBuffer
