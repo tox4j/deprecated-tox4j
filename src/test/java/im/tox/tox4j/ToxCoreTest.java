@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
@@ -71,7 +72,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testToxCreationAndDelayedDestruction() throws Exception {
     int iterations = 30;
-    ArrayList<ToxCore> toxes = new ArrayList<>();
+    List<ToxCore> toxes = new ArrayList<>();
 
     long start = System.currentTimeMillis();
     for (int i = 0; i < iterations; i++) {
@@ -115,6 +116,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     System.gc();
     ToxCore tox = newTox();
     tox.close();
+    //noinspection UnusedAssignment
     tox = null;
     System.gc();
   }

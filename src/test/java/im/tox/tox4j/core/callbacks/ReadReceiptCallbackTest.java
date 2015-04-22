@@ -1,7 +1,6 @@
 package im.tox.tox4j.core.callbacks;
 
 import im.tox.tox4j.AliceBobTestBase;
-import im.tox.tox4j.TestConstants;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.enums.ToxConnection;

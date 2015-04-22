@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static im.tox.tox4j.TestConstants.TIMEOUT;
@@ -117,7 +118,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
       }
     }
 
-    protected static <T extends TaskBase<?>> void addTask(@NotNull List<T> tasks, @NotNull T task) {
+    protected static <T extends TaskBase<?>> void addTask(@NotNull Collection<T> tasks, @NotNull T task) {
       task.creationTrace = new Throwable().getStackTrace();
       tasks.add(task);
     }
@@ -177,7 +178,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
   private void runAliceBobTest(@NotNull ToxFactory factory) throws Exception {
-    String method = getToplevelMethod(Thread.currentThread().getStackTrace());
+    String method = getTopLevelMethod(Thread.currentThread().getStackTrace());
     logger.info("[{}] --- {}.{}", Thread.currentThread().getId(), getClass().getSimpleName(), method);
 
     ChatClient aliceChat = newAlice();
@@ -222,7 +223,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
   @NotNull
-  private static String getToplevelMethod(@NotNull StackTraceElement[] stackTrace) {
+  private static String getTopLevelMethod(@NotNull StackTraceElement[] stackTrace) {
     StackTraceElement last = stackTrace[0];
     for (StackTraceElement element : Arrays.asList(stackTrace).subList(1, stackTrace.length - 1)) {
       if (!element.getClassName().equals(AliceBobTestBase.class.getName())) {

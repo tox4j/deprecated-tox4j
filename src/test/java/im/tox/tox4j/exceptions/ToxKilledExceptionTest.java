@@ -9,6 +9,7 @@ public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
   @Test(expected = ToxKilledException.class)
   public void testUseAfterCloseInOrder() throws Exception {
     ToxCore tox1 = newTox();
+    @SuppressWarnings("UnusedAssignment")
     ToxCore tox2 = newTox();
     tox1.close();
     tox1.iterationInterval();
@@ -16,6 +17,7 @@ public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
 
   @Test(expected = ToxKilledException.class)
   public void testUseAfterCloseReverseOrder() throws Exception {
+    @SuppressWarnings("UnusedAssignment")
     ToxCore tox1 = newTox();
     ToxCore tox2 = newTox();
     tox2.close();

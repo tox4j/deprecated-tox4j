@@ -7,7 +7,6 @@ import im.tox.tox4j.core.ToxCore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ToxSetInfoExceptionTest extends ToxCoreImplTestBase {
 

@@ -26,18 +26,16 @@ public final class ToxCoreImpl extends AbstractToxCore {
 
   @NotNull
   private static byte[] notNull(@Nullable byte[] bytes) {
-    if (bytes == null) {
-      bytes = EMPTY_BYTE_ARRAY;
-    }
-    return bytes;
+    return bytes != null
+        ? bytes
+        : EMPTY_BYTE_ARRAY;
   }
 
   @NotNull
   private static int[] notNull(@Nullable int[] ints) {
-    if (ints == null) {
-      ints = EMPTY_INT_ARRAY;
-    }
-    return ints;
+    return ints != null
+        ? ints
+        : EMPTY_INT_ARRAY;
   }
 
   private static void checkInfoNotNull(byte[] info) throws ToxSetInfoException {

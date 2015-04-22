@@ -3,7 +3,7 @@ package im.tox.tox4j;
 import java.io.File;
 import java.lang.reflect.Field;
 
-public class JavaLibraryPath {
+public final class JavaLibraryPath {
 
   /**
    * Appends a path to the java.library.path property and to {@link ClassLoader}'s private static

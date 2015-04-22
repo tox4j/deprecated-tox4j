@@ -6,10 +6,11 @@ import im.tox.tox4j.core.enums.ToxStatus;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class FriendList extends AbstractListModel<Friend> {
 
-  private final ArrayList<Friend> friends = new ArrayList<>();
+  private final List<Friend> friends = new ArrayList<>();
 
   /**
    * Add a friend to the friend list with the associated public key.

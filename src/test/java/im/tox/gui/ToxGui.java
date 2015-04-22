@@ -65,7 +65,7 @@ public class ToxGui extends JFrame {
 
   private DefaultListModel<String> messageModel = new DefaultListModel<>();
   private FriendList friendListModel = new FriendList();
-  private FileTransferModel fileModel = new FileTransferModel();
+  private final FileTransferModel fileModel = new FileTransferModel();
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]");
 
   private void addMessage(Object... args) {
@@ -249,7 +249,7 @@ public class ToxGui extends JFrame {
     if (tox == null) {
       return;
     }
-    try (ObjectOutputStream saveFile = new ObjectOutputStream(new FileOutputStream("/tmp/toxgui.tox"))) {
+    try (ObjectOutput saveFile = new ObjectOutputStream(new FileOutputStream("/tmp/toxgui.tox"))) {
       SaveData saveData = new SaveData(tox.save(), friendListModel, messageModel);
       saveFile.writeObject(saveData);
     } catch (IOException e) {
@@ -259,7 +259,7 @@ public class ToxGui extends JFrame {
 
   @Nullable
   private byte[] load() {
-    try (ObjectInputStream saveFile = new ObjectInputStream(new FileInputStream("/tmp/toxgui.tox"))) {
+    try (ObjectInput saveFile = new ObjectInputStream(new FileInputStream("/tmp/toxgui.tox"))) {
       SaveData saveData = (SaveData) saveFile.readObject();
 
       if (saveData.friendList != null) {

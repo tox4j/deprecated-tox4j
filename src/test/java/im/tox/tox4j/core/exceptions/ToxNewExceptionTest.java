@@ -6,9 +6,9 @@ import im.tox.tox4j.core.enums.ToxProxyType;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ToxNewExceptionTest extends ToxCoreImplTestBase {
 
@@ -86,7 +86,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   @Test
   public void testTooManyToxCreations() throws Exception {
     try {
-      ArrayList<ToxCore> toxes = new ArrayList<>();
+      Collection<ToxCore> toxes = new ArrayList<>();
       for (int i = 0; i < 102; i++) {
         // One of these will fail.
         toxes.add(newTox());

@@ -2,7 +2,6 @@ package im.tox.tox4j.core;
 
 import im.tox.tox4j.DhtNode;
 import im.tox.tox4j.DhtNodeSelector$;
-import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.exceptions.ToxException;
 
 public final class InterruptionTest {

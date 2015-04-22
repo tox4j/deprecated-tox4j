@@ -10,27 +10,30 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-public class SocksServer implements Closeable, Runnable {
+public final class SocksServer implements Closeable, Runnable {
+
+  public static final int FIRST_PORT = 8000;
+  public static final int LAST_PORT  = 8999;
 
   private final ServerSocket server;
-  private final List<Thread> threads = new ArrayList<>();
-  private final List<Socket> sockets = new ArrayList<>();
+  private final Collection<Thread> threads = new ArrayList<>();
+  private final Collection<Socket> sockets = new ArrayList<>();
   private boolean running = true;
   private int accepted = 0;
 
   /**
-   * Create a simple SOCKS5 server on a port between 8000 and 8999.
+   * Create a simple SOCKS5 server on a port between {@link SocksServer#FIRST_PORT} and {@link SocksServer#LAST_PORT}.
    *
    * @throws IOException if no port could be bound.
    */
   public SocksServer() throws IOException {
     ServerSocket server = null;
     IOException lastException = null;
-    for (int port = 8000; port < 9000; port++) {
+    for (int port = FIRST_PORT; port <= LAST_PORT; port++) {
       try {
         server = new ServerSocket(port);
         break;
