@@ -8,25 +8,25 @@ import static org.junit.Assert.assertNotEquals;
 
 public class ConnectionStatusCallbackTest extends AliceBobTestBase {
 
-    @NotNull
+  @NotNull
+  @Override
+  protected ChatClient newAlice() {
+    return new Client();
+  }
+
+
+  private static class Client extends ChatClient {
+
+    private ToxConnection connection = ToxConnection.NONE;
+
     @Override
-    protected ChatClient newAlice() {
-        return new Client();
+    public void connectionStatus(@NotNull ToxConnection connection) {
+      super.connectionStatus(connection);
+      assertNotEquals(this.connection, connection);
+      this.connection = connection;
+      finish();
     }
 
-
-    private static class Client extends ChatClient {
-
-        private ToxConnection connection = ToxConnection.NONE;
-
-        @Override
-        public void connectionStatus(@NotNull ToxConnection connection) {
-            super.connectionStatus(connection);
-            assertNotEquals(this.connection, connection);
-            this.connection = connection;
-            finish();
-        }
-
-    }
+  }
 
 }
