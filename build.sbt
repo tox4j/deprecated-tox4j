@@ -2,7 +2,7 @@
 organization  := "im.tox"
 name          := "tox4j"
 version       := "0.0.0-SNAPSHOT"
-scalaVersion  := "2.11.4"
+scalaVersion  := "2.11.6"
 
 // Mixed project.
 compileOrder := CompileOrder.Mixed
