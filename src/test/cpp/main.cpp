@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <glog/logging.h>
+#include "tox/logging.h"
 
 #include <google/protobuf/stubs/common.h>
 
