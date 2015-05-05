@@ -1,10 +1,10 @@
-#include "tox/core.h"
+#include "util/freelist.h"
 
 #include "tox/logging.h"
 #include <gtest/gtest.h>
 
 
-TEST (ToxCore, Dummy) {
+TEST (Freelist, Dummy) {
   LOG (INFO) << "Dummy test";
   EXPECT_TRUE (true);
 }
