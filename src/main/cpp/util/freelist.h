@@ -2,6 +2,8 @@
 
 #include "util/synchronised.h"
 
+#include <algorithm>
+
 
 /**
  * Objects can conceptually have three states:
