@@ -67,28 +67,33 @@ public:
   }
 
 
-  void
+  bool
   kill (std::size_t index)
   {
-    instances_.destroy (index);
+    return instances_.destroy (index);
   }
 
 
-  void
+  bool
   finalize (std::size_t index)
   {
     if (is_live (index))
       {
         // This instance was leaked, kill it before setting it free.
         fprintf (stderr, "Leaked instance #%zu\n", index);
-        instances_.destroy (index);
+        bool destroyed = instances_.destroy (index);
+        assert (destroyed);
+        // If it's live, it cannot be free.
+        assert (!is_free (index));
       }
+    // An instance should never be on this list twice.
+    else if (is_free (index))
+      return false;
 
     assert (!is_live (index));
 
-    // An instance should never be on this list twice.
-    assert (!is_free (index));
     freelist_.push_back (index);
+    return true;
   }
 };
 
@@ -96,39 +101,35 @@ public:
 
 template<typename T>
 class synchronised_freelist
+  : synchronised<freelist<T>>
 {
   typedef typename freelist<T>::pointer pointer;
-
-  synchronised<freelist<T>> underlying_;
 
 public:
   std::size_t
   add (pointer instance)
   {
-    return underlying_.access (
+    return this->access (
       [instance = std::move (instance)] (freelist<T> &self) mutable
       { return self.add (std::move (instance)); }
     );
   }
 
-  void
+  bool
   kill (std::size_t index)
   {
-    return underlying_.access (
+    return this->access (
       [index] (freelist<T> &self)
       { return self.kill (index); }
     );
   }
 
-  void
+  bool
   finalize (std::size_t index)
   {
-    return underlying_.access (
+    return this->access (
       [index] (freelist<T> &self)
       { return self.finalize (index); }
     );
   }
 };
-
-
-template class synchronised_freelist<int>;

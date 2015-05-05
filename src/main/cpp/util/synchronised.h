@@ -28,10 +28,6 @@ class synchronised
   T value_;
 
 public:
-  explicit synchronised (T value)
-    : value_ (std::move (value))
-  { }
-
   template<typename Func>
   auto
   access (Func func)
@@ -76,7 +72,11 @@ public:
     return size () - 1;
   }
 
-  void
+  /**
+   * Returns true iff an object was destroyed. Calling destroy twice on the same
+   * index will return false the second time.
+   */
+  bool
   destroy (std::size_t index)
   {
     std::lock_guard<std::mutex> lock (*mutex_.at (index));
@@ -84,7 +84,7 @@ public:
     // ends its lifetime just before the lock_guard ends, guaranteeing that the
     // destructor is called inside the instance's critical section.
     T dying = std::move (value_.at (index));
-    assert (dying);
+    return static_cast<bool> (dying);
   }
 
   template<typename Func>
