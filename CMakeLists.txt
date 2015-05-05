@@ -12,6 +12,7 @@ include(${DEPENDENCIES_FILE})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src/main/cpp)
 
 subdirs(src/main/cpp)
+subdirs(src/test/cpp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -include cpp14compat.h")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
