@@ -55,8 +55,10 @@ object Jni extends Plugin {
 
     val checkVersion = taskKey[Unit]("Check the versionSync variable")
     val javah = taskKey[Unit]("Generates JNI header files")
+    val gtestPath = taskKey[File]("Finds the Google Test source path or downloads gtest from the internet")
     val cmakeDependenciesFile = taskKey[File]("Generates Dependencies.cmake containing C++ dependency information")
     val cmakeMainFile = taskKey[File]("Generates Main.cmake containing instructions for the main module")
+    val cmakeTestFile = taskKey[File]("Generates Test.cmake containing instructions for the test module")
     val cmakeToolchainFlags = taskKey[Seq[String]]("Optionally generates Toolchain.cmake and returns the required cmake flags")
     val runCMake = taskKey[Unit]("Configures the build with CMake")
     val jniCompile = taskKey[Unit]("Compiles JNI native sources")
@@ -308,6 +310,7 @@ object Jni extends Plugin {
 
     // Native source directory defaults to "src/main/cpp".
     nativeSource in Compile := (sourceDirectory in Compile).value / "cpp",
+    nativeSource in Test := (sourceDirectory in Test).value / "cpp",
     nativeTarget := (target in Compile).value / "cpp",
     managedNativeSource := nativeTarget.value / "source",
 
@@ -370,11 +373,13 @@ object Jni extends Plugin {
     ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-fno-exceptions")),
     ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-fno-rtti")),
     ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
+    ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-DGTEST_HAS_RTTI=0")),
 
     // Error on undefined references in shared object.
     ldOptions ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
 
     jniSourceFiles in Compile := filterNativeSources(((nativeSource in Compile).value ** "*").get),
+    jniSourceFiles in Test := filterNativeSources(((nativeSource in Test).value ** "*").get),
 
 
     javah := Def.task {
@@ -436,6 +441,66 @@ object Jni extends Plugin {
 
         out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
         out.println(s"add_library(${libraryName.value} SHARED ${mainSources.mkString(" ")})")
+      } finally {
+        out.close()
+      }
+
+      fileName
+    }.value,
+
+
+    gtestPath := Def.task {
+      val log = streams.value.log
+
+      val candidates = Seq(
+        file("/usr/src/gtest")
+      )
+
+      candidates find { candidate =>
+        (candidate / "src" / "gtest-all.cc").exists
+      } getOrElse {
+        val gtestDir = managedNativeSource.value / "gtest"
+        if (!gtestDir.exists) {
+          val command = Seq(
+            "svn", "checkout",
+            "http://googletest.googlecode.com/svn/trunk/",
+            gtestDir.getPath
+          )
+
+          log.info("Fetching gtest sources")
+          checkExitCode(command, log)
+        }
+
+        gtestDir
+      }
+    }.value,
+
+
+    cmakeTestFile := Def.task {
+      val fileName = nativeTarget.value / "Test.cmake"
+      val out = new PrintWriter(fileName)
+      try {
+        val gtestDir = gtestPath.value
+
+        out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
+        out.println(s"include_directories($gtestDir $gtestDir/include)")
+
+        out.println("link_libraries(gtest)")
+
+        val testSources = (jniSourceFiles in Test).value
+
+        out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
+        out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
+
+        testSources.foreach { source =>
+          if (source.getName != "main.cpp") {
+            import org.apache.commons.io.FilenameUtils
+
+            val testName = FilenameUtils.removeExtension(source.getName)
+            out.println(s"add_executable($testName main.cpp $source)")
+            out.println(s"add_test($testName $testName)")
+          }
+        }
       } finally {
         out.close()
       }
@@ -530,6 +595,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
             "cmake", "-G" + buildTool.value.name,
             "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
             "-DMAIN_FILE=" + cmakeMainFile.value,
+            "-DTEST_FILE=" + cmakeTestFile.value,
             baseDirectory.value.getPath
           ) ++ flags,
           buildPath,
