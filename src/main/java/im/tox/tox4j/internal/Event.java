@@ -12,7 +12,16 @@ public final class Event implements Runnable {
   }
 
   public interface Id {
+    /**
+     * The index in the callbacks list.
+     */
     int value();
+
+    /**
+     * Reset the index to an invalid value.
+     *
+     * @param permission Permission object to ensure it's not called outside the {@link Event} class.
+     */
     void reset(ResetPermission permission);
   }
 
@@ -38,11 +47,20 @@ public final class Event implements Runnable {
 
   private final List<Runnable> callbacks = new ArrayList<Runnable>();
 
+  /**
+   * Register a callback to be called on {@link #run}.
+   * @param callback A {@link Runnable} instance to be called.
+   * @return An {@link Id} that can be used to {@link #remove} the callback again.
+   */
   public Id add(Runnable callback) {
     callbacks.add(callback);
     return new IdImpl(callbacks.size() - 1);
   }
 
+  /**
+   * Unregister a callback. Requires an {@link Id} from {@link #add}.
+   * @param id The callback id object.
+   */
   public void remove(Id id) {
     int index = id.value();
     if (index == INVALID_INDEX) {
