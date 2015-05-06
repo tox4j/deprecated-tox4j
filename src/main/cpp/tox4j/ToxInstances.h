@@ -6,9 +6,9 @@
 #include <tox/core.h>
 
 #ifdef HAVE_TOXAV
-#include "im_tox_tox4j_ToxAvImpl.h"
+#include "im_tox_tox4j_impl_ToxAvNative.h"
 #endif
-#include "im_tox_tox4j_ToxCoreImpl.h"
+#include "im_tox_tox4j_impl_ToxCoreNative.h"
 
 #ifdef HAVE_TOXAV
 #include "Av.pb.h"

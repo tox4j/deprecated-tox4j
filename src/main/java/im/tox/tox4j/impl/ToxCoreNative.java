@@ -1,4 +1,4 @@
-package im.tox.tox4j;
+package im.tox.tox4j.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.annotations.NotNull;
@@ -13,9 +13,10 @@ import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.core.enums.ToxStatus;
 import im.tox.tox4j.core.exceptions.*;
 import im.tox.tox4j.core.proto.Core;
+import im.tox.tox4j.internal.Event;
 
 @SuppressWarnings("checkstyle:nofinalizer")
-public final class ToxCoreImpl extends AbstractToxCore {
+public final class ToxCoreNative extends AbstractToxCore {
 
   static {
     System.loadLibrary("tox4j");
@@ -45,13 +46,11 @@ public final class ToxCoreImpl extends AbstractToxCore {
   }
 
   /**
-   * This field has package visibility for {@link ToxAvImpl}.
+   * This field has package visibility for {@link ToxAvNative}.
    */
   final int instanceNumber;
-  /**
-   * This field is set by {@link ToxAvImpl} on construction and reset back to null on close.
-   */
-  @Nullable ToxAvImpl av = null;
+
+  private final Event onCloseCallbacks = new Event();
 
   private ConnectionStatusCallback connectionStatusCallback;
   private FriendNameCallback friendNameCallback;
@@ -70,30 +69,23 @@ public final class ToxCoreImpl extends AbstractToxCore {
   private FriendLosslessPacketCallback friendLosslessPacketCallback;
 
 
-  private static native void playground(int instanceNumber);
-
-  void playground() {
-    playground(instanceNumber);
-  }
-
-
   private static native int toxNew(
       @Nullable byte[] data,
       boolean ipv6Enabled,
       boolean udpEnabled,
       int proxyType,
-      String proxyAddress,
+      @Nullable String proxyAddress,
       int proxyPort
   ) throws ToxNewException;
 
   /**
-   * Initialises the new Tox instance with an optional save-data received from {@link ToxCoreImpl#save()}.
+   * Initialises the new Tox instance with an optional save-data received from {@link ToxCoreNative#save()}.
    *
    * @param options Connection options object.
    * @param data Optional save-data.
    * @throws ToxNewException If an error was detected in the configuration or a runtime error occurred.
    */
-  public ToxCoreImpl(@NotNull ToxOptions options, @Nullable byte[] data) throws ToxNewException {
+  public ToxCoreNative(@NotNull ToxOptions options, @Nullable byte[] data) throws ToxNewException {
     instanceNumber = toxNew(
         data,
         options.ipv6Enabled,
@@ -105,13 +97,23 @@ public final class ToxCoreImpl extends AbstractToxCore {
   }
 
 
+  /**
+   * Add an onClose callback. This event is invoked just before the instance is closed.
+   */
+  public Event.Id addOnCloseCallback(Runnable callback) {
+    return onCloseCallbacks.add(callback);
+  }
+
+  public void removeOnCloseCallback(Event.Id id) {
+    onCloseCallbacks.remove(id);
+  }
+
+
   private static native void toxKill(int instanceNumber);
 
   @Override
   public void close() {
-    if (av != null) {
-      av.close();
-    }
+    onCloseCallbacks.run();
     toxKill(instanceNumber);
   }
 

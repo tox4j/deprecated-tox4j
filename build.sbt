@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
+  "org.slf4j" % "slf4j-log4j12" % "1.6.1",
   "junit" % "junit" % "4.12"
 ) map (_ % Test)
 
@@ -49,8 +50,8 @@ versionSync := "libtoxcore"
 
 // TODO: infer this (harder).
 jniClasses := Seq(
-  "im.tox.tox4j.ToxAvImpl",
-  "im.tox.tox4j.ToxCoreImpl"
+  "im.tox.tox4j.impl.ToxAvNative",
+  "im.tox.tox4j.impl.ToxCoreNative"
 )
 
 // TODO: infer this (easy).

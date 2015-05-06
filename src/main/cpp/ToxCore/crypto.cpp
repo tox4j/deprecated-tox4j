@@ -2,7 +2,7 @@
 
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxHash
  * Signature: ([B)[B
  */

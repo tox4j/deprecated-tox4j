@@ -43,7 +43,7 @@ tox4j_fatal (JNIEnv *env, char const *message)
 
 
 #define METHOD(TYPE, NAME, ...) \
-extern "C" JNIEXPORT TYPE JNICALL CAT(Java_im_tox_tox4j_, CAT(CLASS, CAT(Impl_, NAME))) \
+extern "C" JNIEXPORT TYPE JNICALL CAT(Java_im_tox_tox4j_impl_, CAT(CLASS, CAT(Impl_, NAME))) \
   (JNIEnv *env, jclass, __VA_ARGS__)
 
 #define TOX_METHOD(TYPE, NAME, ...) METHOD(TYPE, CAT(PREFIX, NAME), __VA_ARGS__)

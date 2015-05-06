@@ -3,7 +3,7 @@
 
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvIterationInterval
  * Signature: (I)I
  */
@@ -20,7 +20,7 @@ TOX_METHOD (jint, IterationInterval,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvIteration
  * Signature: (I)[B
  */
@@ -42,7 +42,7 @@ TOX_METHOD (jbyteArray, Iteration,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvCall
  * Signature: (IIII)V
  */
@@ -68,7 +68,7 @@ TOX_METHOD (void, Call,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvAnswer
  * Signature: (IIII)V
  */
@@ -93,7 +93,7 @@ TOX_METHOD (void, Answer,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvCallControl
  * Signature: (III)V
  */
@@ -119,7 +119,7 @@ TOX_METHOD (void, CallControl,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvSetAudioBitRate
  * Signature: (III)V
  */
@@ -141,7 +141,7 @@ TOX_METHOD (void, SetAudioBitRate,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvSetVideoBitRate
  * Signature: (III)V
  */
@@ -163,7 +163,7 @@ TOX_METHOD (void, SetVideoBitRate,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvSendVideoFrame
  * Signature: (IIII[B[B[B[B)V
  */
@@ -204,7 +204,7 @@ TOX_METHOD (void, SendVideoFrame,
 }
 
 /*
- * Class:     im_tox_tox4j_ToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvSendAudioFrame
  * Signature: (II[SIII)V
  */

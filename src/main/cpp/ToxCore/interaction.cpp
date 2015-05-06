@@ -2,7 +2,7 @@
 
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfSetTyping
  * Signature: (IIZ)V
  */
@@ -42,7 +42,7 @@ handle_send_message_error (TOX_ERR_FRIEND_SEND_MESSAGE error)
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSendMessage
  * Signature: (IIII[B)I
  */
