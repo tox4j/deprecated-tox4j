@@ -5,7 +5,7 @@ import javax.swing.*;
 public final class ToxGuiClient {
 
   /**
-   * Run a Tox GUI client with Nimbus L&F.
+   * Run a Tox GUI client with Nimbus L&amp;F.
    */
   public static void main(String[] args) throws Exception {
     for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
