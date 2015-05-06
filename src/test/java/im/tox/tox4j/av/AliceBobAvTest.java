@@ -1,14 +1,14 @@
 package im.tox.tox4j.av;
 
 import im.tox.tox4j.AliceBobTestBase;
-import im.tox.tox4j.ToxAvImpl;
-import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.ToxAvEventListener;
 import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.impl.ToxAvNative;
+import im.tox.tox4j.impl.ToxCoreNative;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
     }
 
     public void setup(ToxCore tox) throws ToxException {
-      av = new ToxAvImpl((ToxCoreImpl) tox);
+      av = new ToxAvNative((ToxCoreNative) tox);
       av.callback(this);
       thread = new Thread(new Runnable() {
         @Override

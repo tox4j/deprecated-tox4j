@@ -5,7 +5,7 @@
 #include "Av.pb.h"
 
 // JNI declarations from javah.
-#include "im_tox_tox4j_ToxAvImpl.h"
+#include "im_tox_tox4j_impl_ToxAvNative.h"
 
 // Header from toxcore.
 #include <tox/av.h>

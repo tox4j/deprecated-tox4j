@@ -4,7 +4,7 @@ using namespace core;
 
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFileControl
  * Signature: (IIII)V
  */
@@ -27,7 +27,7 @@ TOX_METHOD (void, FileControl,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFileSendSeek
  * Signature: (IIII)V
  */
@@ -40,7 +40,7 @@ TOX_METHOD (void, FileSendSeek,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFileSend
  * Signature: (IIIJ[B)I
  */
@@ -65,7 +65,7 @@ TOX_METHOD (jint, FileSend,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFileSendChunk
  * Signature: (III[B)V
  */

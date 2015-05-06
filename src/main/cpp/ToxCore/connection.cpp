@@ -28,7 +28,7 @@ toxBootstrapLike (bool function (Tox *tox,
 
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxBootstrap
  * Signature: (ILjava/lang/String;I[B)V
  */
@@ -39,7 +39,7 @@ TOX_METHOD (void, Bootstrap,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxAddTcpRelay
  * Signature: (ILjava/lang/String;I[B)V
  */
@@ -50,7 +50,7 @@ TOX_METHOD (void, AddTcpRelay,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxGetUdpPort
  * Signature: (I)I
  */
@@ -64,7 +64,7 @@ TOX_METHOD (jint, GetUdpPort,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxGetTcpPort
  * Signature: (I)I
  */
@@ -78,7 +78,7 @@ TOX_METHOD (jint, GetTcpPort,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxGetDhtId
  * Signature: (I)[B
  */
@@ -96,7 +96,7 @@ TOX_METHOD (jbyteArray, GetDhtId,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxIterationInterval
  * Signature: (I)I
  */
@@ -108,7 +108,7 @@ TOX_METHOD (jint, IterationInterval,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxIteration
  * Signature: (I)[B
  */

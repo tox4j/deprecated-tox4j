@@ -3,7 +3,6 @@
 #include "util/instance_manager.h"
 #include "util/pp_cat.h"
 
-
 /*****************************************************************************
  * Identity and unused-value function.
  */
