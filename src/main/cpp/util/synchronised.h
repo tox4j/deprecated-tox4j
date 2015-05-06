@@ -1,11 +1,20 @@
 #pragma once
 
 #include <cassert>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <vector>
 
 
+/**
+ * Helper function to support calling a function with either a T& or a T const&.
+ *
+ * The value needs to be contextually convertible to bool. If after conversion
+ * it evaluates to true, the passed mutex is locked before calling the function
+ * and unlocked after it returns. If it evaluates to false, the assumption is
+ * that the object is empty/null and doesn't need locking.
+ */
 template<typename T, typename Func>
 static auto
 synchronised_access (std::mutex &mutex, T value, Func func)
@@ -21,6 +30,14 @@ synchronised_access (std::mutex &mutex, T value, Func func)
 }
 
 
+/**
+ * This class ensures that any access to the contained value is synchronised by
+ * a companion mutex.
+ *
+ * Construction and destruction of the contained object are not in a protected
+ * critical section, so client code must ensure that the object is not accessed
+ * and destroyed at the same time.
+ */
 template<typename T>
 class synchronised
 {
@@ -40,11 +57,14 @@ public:
 };
 
 
+/**
+ * Essentially a vector<synchronised>, but decouples the mutex from the object.
+ */
 template<typename T>
 class synchronised_vector
 {
-  std::vector<T>				value_;
-  std::vector<std::unique_ptr<std::mutex>>	mutex_;
+  std::vector<T> value_;
+  mutable std::deque<std::mutex> mutex_;
 
 public:
   bool
@@ -61,15 +81,25 @@ public:
     return value_.size ();
   }
 
-  // The instance is moved into this function, then moved into the vector.
-  // This function returns the index, which can be used to access or destroy
-  // the instance.
+  /**
+   * The instance is moved into this function, then moved into the vector.
+   * This function returns the index, which can be used to access or destroy
+   * the instance or to replace it with another instance.
+   */
   std::size_t
   add (T instance)
   {
     value_.emplace_back (std::move (instance));
-    mutex_.emplace_back (new std::mutex);
+    mutex_.emplace_back ();
     return size () - 1;
+  }
+
+  bool
+  replace (std::size_t index, T instance)
+  {
+    bool replaced = static_cast<bool> (value_.at (index));
+    value_.at (index) = std::move (instance);
+    return replaced;
   }
 
   /**
@@ -79,7 +109,7 @@ public:
   bool
   destroy (std::size_t index)
   {
-    std::lock_guard<std::mutex> lock (*mutex_.at (index));
+    std::lock_guard<std::mutex> lock (mutex_.at (index));
     // The instance is moved out of the vector into the local variable, which
     // ends its lifetime just before the lock_guard ends, guaranteeing that the
     // destructor is called inside the instance's critical section.
@@ -90,10 +120,10 @@ public:
   template<typename Func>
   auto
   access (std::size_t index, Func func)
-  { return synchronised_access<T &> (*mutex_.at (index), value_.at (index), std::move (func)); }
+  { return synchronised_access<T &> (mutex_.at (index), value_.at (index), std::move (func)); }
 
   template<typename Func>
   auto
   access (std::size_t index, Func func) const
-  { return synchronised_access<T const &> (*mutex_.at (index), value_.at (index), std::move (func)); }
+  { return synchronised_access<T const &> (mutex_.at (index), value_.at (index), std::move (func)); }
 };

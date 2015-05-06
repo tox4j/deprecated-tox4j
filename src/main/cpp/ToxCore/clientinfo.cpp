@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+using namespace core;
+
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
@@ -9,7 +11,7 @@
 TOX_METHOD (jbyteArray, SelfGetPublicKey,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);
@@ -27,7 +29,7 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
 TOX_METHOD (jbyteArray, SelfGetSecretKey,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);
@@ -45,13 +47,8 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
 TOX_METHOD (void, SelfSetNospam,
   jint instanceNumber, jint nospam)
 {
-  return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
-      {
-        unused (events);
-        tox_self_set_nospam (tox, nospam);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    tox_self_set_nospam, nospam);
 }
 
 /*
@@ -62,13 +59,8 @@ TOX_METHOD (void, SelfSetNospam,
 TOX_METHOD (jint, SelfGetNospam,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
-    [=] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return tox_self_get_nospam (tox);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    tox_self_get_nospam);
 }
 
 /*
@@ -79,7 +71,7 @@ TOX_METHOD (jint, SelfGetNospam,
 TOX_METHOD (jbyteArray, SelfGetAddress,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);
@@ -90,18 +82,6 @@ TOX_METHOD (jbyteArray, SelfGetAddress,
 }
 
 
-static ErrorHandling
-handle_set_info_error (TOX_ERR_SET_INFO error)
-{
-  switch (error)
-    {
-    success_case (SET_INFO);
-    failure_case (SET_INFO, NULL);
-    failure_case (SET_INFO, TOO_LONG);
-    }
-  return unhandled ();
-}
-
 /*
  * Class:     im_tox_tox4jToxCoreImpl
  * Method:    toxSelfSetName
@@ -111,8 +91,7 @@ TOX_METHOD (void, SelfSetName,
   jint instanceNumber, jbyteArray name)
 {
   ByteArray name_array (env, name);
-  return with_instance (env, instanceNumber, "SetInfo",
-    handle_set_info_error,
+  return instances.with_instance_ign (env, instanceNumber, "SetInfo",
     tox_self_set_name, name_array.data (), name_array.size ());
 }
 
@@ -124,7 +103,7 @@ TOX_METHOD (void, SelfSetName,
 TOX_METHOD (jbyteArray, SelfGetName,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);
@@ -144,8 +123,7 @@ TOX_METHOD (void, SelfSetStatusMessage,
   jint instanceNumber, jbyteArray statusMessage)
 {
   ByteArray status_message_array (env, statusMessage);
-  return with_instance (env, instanceNumber, "SetInfo",
-    handle_set_info_error,
+  return instances.with_instance_ign (env, instanceNumber, "SetInfo",
     tox_self_set_status_message, status_message_array.data (), status_message_array.size ());
 }
 
@@ -157,7 +135,7 @@ TOX_METHOD (void, SelfSetStatusMessage,
 TOX_METHOD (jbyteArray, SelfGetStatusMessage,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);
@@ -176,22 +154,18 @@ TOX_METHOD (jbyteArray, SelfGetStatusMessage,
 TOX_METHOD (void, SelfSetStatus,
   jint instanceNumber, jint status)
 {
-  return with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+  TOX_USER_STATUS const status_enum = [=] {
+    switch (status)
       {
-        unused (events);
-        TOX_USER_STATUS const status_enum = [=] {
-          switch (status)
-            {
-            case 0: return TOX_USER_STATUS_NONE;
-            case 1: return TOX_USER_STATUS_AWAY;
-            case 2: return TOX_USER_STATUS_BUSY;
-            }
-          fatal ("Invalid user status from Java");
-        } ();
-        tox_self_set_status (tox, status_enum);
+      case 0: return TOX_USER_STATUS_NONE;
+      case 1: return TOX_USER_STATUS_AWAY;
+      case 2: return TOX_USER_STATUS_BUSY;
       }
-  );
+    tox4j_fatal ("Invalid user status from Java");
+  } ();
+
+  return instances.with_instance_noerr (env, instanceNumber,
+    tox_self_set_status, status_enum);
 }
 
 /*
@@ -202,17 +176,11 @@ TOX_METHOD (void, SelfSetStatus,
 TOX_METHOD (jint, SelfGetStatus,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
-    [=] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        switch (tox_self_get_status (tox))
-          {
-          case TOX_USER_STATUS_NONE: return 0;
-          case TOX_USER_STATUS_AWAY: return 1;
-          case TOX_USER_STATUS_BUSY: return 2;
-          }
-        fatal ("Invalid result from tox_self_get_status");
-      }
-  );
+  switch (instances.with_instance_noerr (env, instanceNumber, tox_self_get_status))
+    {
+    case TOX_USER_STATUS_NONE: return 0;
+    case TOX_USER_STATUS_AWAY: return 1;
+    case TOX_USER_STATUS_BUSY: return 2;
+    }
+  tox4j_fatal ("Invalid result from tox_self_get_status");
 }

@@ -121,6 +121,7 @@ public final class ToxCoreImpl extends AbstractToxCore {
   @Override
   public void finalize() throws Throwable {
     try {
+      close();
       finalize(instanceNumber);
     } catch (Throwable e) {
       e.printStackTrace();

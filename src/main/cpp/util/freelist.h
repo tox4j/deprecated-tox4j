@@ -16,11 +16,11 @@ template<typename T>
 class freelist
 {
 public:
-  typedef std::unique_ptr<T>	pointer;
+  typedef std::unique_ptr<T>    pointer;
 
 private:
-  synchronised_vector<pointer>	instances_;
-  std::vector<std::size_t>	freelist_;
+  synchronised_vector<pointer>  instances_;
+  std::vector<std::size_t>      freelist_;
 
   bool
   is_free (std::size_t index) const
@@ -70,7 +70,7 @@ public:
 
 
   bool
-  kill (std::size_t index)
+  destroy (std::size_t index)
   {
     return instances_.destroy (index);
   }
@@ -79,17 +79,11 @@ public:
   bool
   finalize (std::size_t index)
   {
-    if (is_live (index))
-      {
-        // This instance was leaked, kill it before setting it free.
-        fprintf (stderr, "Leaked instance #%zu\n", index);
-        bool destroyed = instances_.destroy (index);
-        assert (destroyed);
-        // If it's live, it cannot be free.
-        assert (!is_free (index));
-      }
+    // finalize was called without destroy.
+    assert (!is_live (index));
+
     // An instance should never be on this list twice.
-    else if (is_free (index))
+    if (is_free (index))
       return false;
 
     assert (!is_live (index));
@@ -118,11 +112,11 @@ public:
   }
 
   bool
-  kill (std::size_t index)
+  destroy (std::size_t index)
   {
     return this->access (
       [index] (freelist<T> &self)
-      { return self.kill (index); }
+      { return self.destroy (index); }
     );
   }
 

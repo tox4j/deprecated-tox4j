@@ -1,41 +1,13 @@
 #pragma once
 
 #include "ErrorHandling.h"
+#include "ToxInstances.h"
 
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
 #include <vector>
-
-
-#if defined(__GNUC__)
-#  define TOX4J_NORETURN __attribute__((__noreturn__))
-#else
-#  define TOX4J_NORETURN
-#endif
-
-
-static inline TOX4J_NORETURN void
-tox4j_fatal (JNIEnv *env, char const *message)
-{
-  env->FatalError (message);
-  abort ();
-}
-
-#define fatal(message) tox4j_fatal (env, message)
-
-#ifdef assert
-#undef assert
-#endif
-
-
-#define STR(token) STR_(token)
-#define STR_(token) #token
-#define assert(condition) do {                                                  \
-  if (!(condition))                                                             \
-    fatal (__FILE__ ":" STR (__LINE__) ": Assertion failed: " #condition);      \
-} while (0)
 
 
 #define CAT(a, b) CAT_(a, b)

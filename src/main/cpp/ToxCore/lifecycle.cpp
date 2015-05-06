@@ -1,7 +1,6 @@
 #include "ToxCore.h"
 
-using CoreInstanceManager = instance_manager<Subsystem>;
-using CoreInstance = tox_instance<Subsystem>;
+using namespace core;
 
 
 template<typename Message>
@@ -222,10 +221,10 @@ tox_options_new_unique ()
 }
 
 
-static CoreInstance::pointer
+static tox::core_ptr
 tox_new_unique (Tox_Options const *options, uint8_t const *data, size_t length, TOX_ERR_NEW *error)
 {
-  return CoreInstance::pointer (tox_new (options, data, length, error));
+  return tox::core_ptr (tox_new (options, data, length, error));
 }
 
 
@@ -238,9 +237,9 @@ TOX_METHOD (jint, New,
   jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled,
   jint proxyType, jstring proxyHost, jint proxyPort)
 {
-  assert (proxyType >= 0);
-  assert (proxyPort >= 0);
-  assert (proxyPort <= 65535);
+  tox4j_assert (proxyType >= 0);
+  tox4j_assert (proxyPort >= 0);
+  tox4j_assert (proxyPort <= 65535);
 
 #if 0
   scope_guard {
@@ -251,7 +250,7 @@ TOX_METHOD (jint, New,
   auto opts = tox_options_new_unique ();
   if (!opts)
     {
-      throw_tox_exception (env, tox_traits<Subsystem>::module, "New", "MALLOC");
+      throw_tox_exception (env, module_name<Tox>, "New", "MALLOC");
       return 0;
     }
 
@@ -265,7 +264,7 @@ TOX_METHOD (jint, New,
       case 1: return TOX_PROXY_TYPE_HTTP;
       case 2: return TOX_PROXY_TYPE_SOCKS5;
       }
-    fatal ("Invalid proxy type from Java");
+    tox4j_fatal ("Invalid proxy type from Java");
   } ();
   UTFChars proxy_host (env, proxyHost);
   opts->proxy_host = proxy_host.data ();
@@ -273,27 +272,10 @@ TOX_METHOD (jint, New,
 
   ByteArray save_data (env, saveData);
 
-  return with_error_handling<Subsystem> (env, "New",
-    [] (TOX_ERR_NEW error)
+  return instances.with_error_handling (env, "New",
+    [env] (tox::core_ptr tox)
       {
-        switch (error)
-          {
-          success_case (NEW);
-          failure_case (NEW, NULL);
-          failure_case (NEW, MALLOC);
-          failure_case (NEW, PORT_ALLOC);
-          failure_case (NEW, PROXY_BAD_TYPE);
-          failure_case (NEW, PROXY_BAD_HOST);
-          failure_case (NEW, PROXY_BAD_PORT);
-          failure_case (NEW, PROXY_NOT_FOUND);
-          failure_case (NEW, LOAD_ENCRYPTED);
-          failure_case (NEW, LOAD_BAD_FORMAT);
-          }
-        return unhandled ();
-      },
-    [env] (CoreInstance::pointer tox)
-      {
-        assert (tox != nullptr);
+        tox4j_assert (tox != nullptr);
 
         // Create the master events object and set up our callbacks.
         auto events = tox::callbacks (std::unique_ptr<Events> (new Events))
@@ -316,11 +298,10 @@ TOX_METHOD (jint, New,
 
         // We can create the new instance outside instance_manager's critical section.
         // This call locks the instance manager.
-        return CoreInstanceManager::self.add ({
+        return instances.add (
           std::move (tox),
-          std::move (events),
-          std::unique_ptr<std::mutex> (new std::mutex)
-        });
+          std::move (events)
+        );
       },
     tox_new_unique, opts.get (), save_data.data (), save_data.size ()
   );
@@ -334,7 +315,7 @@ TOX_METHOD (jint, New,
 TOX_METHOD (void, Kill,
   jint instanceNumber)
 {
-  CoreInstanceManager::self.kill (env, instanceNumber);
+  instances.kill (env, instanceNumber);
 }
 
 /*
@@ -345,7 +326,7 @@ TOX_METHOD (void, Kill,
 METHOD (void, finalize,
   jint instanceNumber)
 {
-  CoreInstanceManager::self.finalize (env, instanceNumber);
+  instances.finalize (env, instanceNumber);
 }
 
 /*
@@ -356,14 +337,13 @@ METHOD (void, finalize,
 TOX_METHOD (jbyteArray, Save,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [=] (Tox const *tox, Events &events)
       {
         unused (events);
-        std::vector<uint8_t> buffer (tox_get_savedata_size (tox));
-        tox_get_savedata (tox, buffer.data ());
-
-        return toJavaArray (env, buffer);
+        return get_vector<uint8_t,
+          tox_get_savedata_size,
+          tox_get_savedata> (env, tox);
       }
   );
 }
