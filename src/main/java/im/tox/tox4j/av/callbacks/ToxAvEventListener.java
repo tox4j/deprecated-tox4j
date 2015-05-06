@@ -6,6 +6,5 @@ public interface ToxAvEventListener extends
     ReceiveAudioFrameCallback,
     ReceiveVideoFrameCallback,
     RequestAudioFrameCallback,
-    RequestVideoFrameCallback
-{
+    RequestVideoFrameCallback {
 }

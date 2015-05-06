@@ -10,7 +10,8 @@ import static org.junit.Assert.assertEquals;
 
 public class StatusMessageEmptyTest extends AliceBobTestBase {
 
-  @NotNull @Override protected ChatClient newAlice() {
+  @Override
+  @NotNull protected ChatClient newAlice() {
     return new Alice();
   }
 
@@ -56,7 +57,8 @@ public class StatusMessageEmptyTest extends AliceBobTestBase {
   }
 
 
-  @NotNull @Override protected ChatClient newBob() {
+  @Override
+  @NotNull protected ChatClient newBob() {
     return new Bob();
   }
 

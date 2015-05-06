@@ -93,7 +93,7 @@
                               <text value="None"/>
                             </properties>
                           </component>
-                          <component id="38572" class="javax.swing.JRadioButton" binding="HTTPRadioButton" default-binding="true">
+                          <component id="38572" class="javax.swing.JRadioButton" binding="httpRadioButton">
                             <constraints>
                               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
@@ -101,7 +101,7 @@
                               <text value="HTTP"/>
                             </properties>
                           </component>
-                          <component id="4232f" class="javax.swing.JRadioButton" binding="SOCKSRadioButton" default-binding="true">
+                          <component id="4232f" class="javax.swing.JRadioButton" binding="socksRadioButton">
                             <constraints>
                               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
@@ -163,7 +163,7 @@
                           <text value="33445"/>
                         </properties>
                       </component>
-                      <component id="8f232" class="javax.swing.JCheckBox" binding="enableUDPCheckBox" default-binding="true">
+                      <component id="8f232" class="javax.swing.JCheckBox" binding="enableUdpCheckBox">
                         <constraints>
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>

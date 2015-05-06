@@ -6,6 +6,7 @@ import im.tox.tox4j.core.enums.ToxFileControl;
 import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.core.enums.ToxStatus;
 
+@SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
 public class ToxEventAdapter implements ToxEventListener {
 
   @Override public void connectionStatus(@NotNull ToxConnection connectionStatus) { }

@@ -14,14 +14,15 @@ public final class ToxSendMessageException extends ToxException {
     EMPTY,
   }
 
-  private final @NotNull Code code;
+  @NotNull private final Code code;
 
   public ToxSendMessageException(@NotNull Code code) {
     this.code = code;
   }
 
   @Override
-  public @NotNull Code getCode() {
+  @NotNull
+  public Code getCode() {
     return code;
   }
 

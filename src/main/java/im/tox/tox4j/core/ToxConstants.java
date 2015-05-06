@@ -16,6 +16,7 @@ public interface ToxConstants {
    * The size of a Tox address in bytes. Tox addresses are in the format
    * [Public Key (TOX_PUBLIC_KEY_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
    *
+   * <p>
    * The checksum is computed over the Public Key and the nospam value. The first
    * byte is an XOR of all the odd bytes, the second byte is an XOR of all the
    * even bytes of the Public Key and nospam.

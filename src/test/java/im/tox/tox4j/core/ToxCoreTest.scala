@@ -8,7 +8,7 @@ import org.scalacheck.Gen
 import org.scalatest.junit.JUnitSuite
 import org.scalatest.prop.PropertyChecks
 
-final class ToxCoreSpec extends JUnitSuite with PropertyChecks {
+final class ToxCoreTest extends JUnitSuite with PropertyChecks {
 
   @Test
   def testHash() {

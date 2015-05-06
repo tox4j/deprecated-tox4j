@@ -36,20 +36,11 @@ object ToxCoreFactory {
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int)(f: ToxCore => R): R = {
-    val options = new ToxOptions
-    options.setIpv6Enabled(ipv6Enabled)
-    options.setUdpEnabled(udpEnabled)
-    options.enableProxy(proxyType, proxyAddress, proxyPort)
-
-    withTox(options, null)(f)
+    withTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)(f)
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => R): R = {
-    val options = new ToxOptions
-    options.setIpv6Enabled(ipv6Enabled)
-    options.setUdpEnabled(udpEnabled)
-
-    withTox(options, null)(f)
+    withTox(new ToxOptions(ipv6Enabled, udpEnabled), null)(f)
   }
 
   def withTox[R](f: ToxCore => R): R = {

@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
 
@@ -40,7 +39,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testNULL1() throws Exception {
+  public void testNull1() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(null, new byte[1]);
       fail();
@@ -50,7 +49,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testNULL2() throws Exception {
+  public void testNull2() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(validAddress, null);
       fail();
@@ -60,21 +59,21 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testNot_TOO_LONG1() throws Exception {
+  public void testNot_TooLong1() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(validAddress, new byte[ToxConstants.MAX_FRIEND_REQUEST_LENGTH - 1]);
     }
   }
 
   @Test
-  public void testNot_TOO_LONG2() throws Exception {
+  public void testNot_TooLong2() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(validAddress, new byte[ToxConstants.MAX_FRIEND_REQUEST_LENGTH]);
     }
   }
 
   @Test
-  public void testTOO_LONG() throws Exception {
+  public void testTooLong() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(validAddress, new byte[ToxConstants.MAX_FRIEND_REQUEST_LENGTH + 1]);
       fail();
@@ -84,7 +83,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testNO_MESSAGE() throws Exception {
+  public void testNoMessage() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(validAddress, new byte[0]);
       fail();
@@ -94,7 +93,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testOWN_KEY() throws Exception {
+  public void testOwnKey() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(tox.getAddress(), new byte[1]);
       fail();
@@ -104,7 +103,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testALREADY_SENT() throws Exception {
+  public void testAlreadySent() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.addFriend(validAddress, new byte[1]);
       tox.addFriend(validAddress, new byte[1]);
@@ -115,7 +114,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testBAD_CHECKSUM() throws Exception {
+  public void testBadChecksum() throws Exception {
     try (ToxCore tox = newTox()) {
       validAddress[0]++;
       tox.addFriend(validAddress, new byte[1]);
@@ -126,7 +125,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testSET_NEW_NOSPAM() throws Exception {
+  public void testSetNewNospam() throws Exception {
     try (ToxCore tox = newTox()) {
       ToxCore friend = newTox();
       friend.setNospam(12345678);
@@ -140,7 +139,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testMALLOC() throws Exception {
+  public void testMalloc() throws Exception {
     // Can't test this.
     new ToxFriendAddException(ToxFriendAddException.Code.MALLOC).getCode();
   }

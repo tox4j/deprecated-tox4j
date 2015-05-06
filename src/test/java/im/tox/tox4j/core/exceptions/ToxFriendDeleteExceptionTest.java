@@ -4,7 +4,8 @@ import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.core.ToxCore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ToxFriendDeleteExceptionTest extends ToxCoreImplTestBase {
 

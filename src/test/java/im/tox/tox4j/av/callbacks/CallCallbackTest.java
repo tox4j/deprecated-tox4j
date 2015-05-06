@@ -10,7 +10,8 @@ import static org.junit.Assert.assertEquals;
 
 public class CallCallbackTest extends AliceBobAvTest {
 
-  @NotNull @Override protected ChatClient newAlice() {
+  @Override
+  @NotNull protected ChatClient newAlice() {
     return new Alice();
   }
 
@@ -33,7 +34,8 @@ public class CallCallbackTest extends AliceBobAvTest {
   }
 
 
-  @NotNull @Override protected ChatClient newBob() {
+  @Override
+  @NotNull protected ChatClient newBob() {
     return new Bob();
   }
 

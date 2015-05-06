@@ -32,8 +32,11 @@
         <module name="FileTabCharacter">
             <property name="eachLine" value="true"/>
         </module>
+
+    <module name="SuppressWarningsFilter"/>
     
     <module name="TreeWalker">
+        <module name="SuppressWarningsHolder"/>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -46,10 +49,10 @@
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
         <module name="LineLength">
-            <property name="max" value="100"/>
+            <property name="max" value="120"/>
             <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
         </module>
-        <module name="AvoidStarImport"/>
+        <!--<module name="AvoidStarImport"/>-->
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap"/>
         <module name="EmptyBlock">
@@ -58,7 +61,7 @@
         </module>
         <module name="NeedBraces"/>
         <module name="LeftCurly">
-            <property name="maxLineLength" value="100"/>
+            <property name="maxLineLength" value="120"/>
         </module>
         <module name="RightCurly"/>
         <module name="RightCurly">
@@ -78,7 +81,7 @@
         <module name="OneStatementPerLine"/>
         <module name="MultipleVariableDeclarations"/>
         <module name="ArrayTypeStyle"/>
-        <module name="MissingSwitchDefault"/>
+        <!--<module name="MissingSwitchDefault"/>-->
         <module name="FallThrough"/>
         <module name="UpperEll"/>
         <module name="ModifierOrder"/>
@@ -154,11 +157,13 @@
         </module>
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="VariableDeclarationUsageDistance"/>
+        <!--
         <module name="CustomImportOrder">
             <property name="specialImportsRegExp" value="com.google"/>
             <property name="sortImportsInGroupAlphabetically" value="true"/>
             <property name="customImportOrderRules" value="STATIC###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE"/>
         </module>
+        -->
         <module name="MethodParamPad"/>
         <module name="OperatorWrap">
             <property name="option" value="NL"/>

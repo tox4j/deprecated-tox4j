@@ -5,12 +5,11 @@ import im.tox.tox4j.core.ToxCore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ToxFriendByPublicKeyExceptionTest extends ToxCoreImplTestBase {
 
   @Test
-  public void testNULL() throws Exception {
+  public void testNull() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.getFriendByPublicKey(null);
       fail();
@@ -20,7 +19,7 @@ public class ToxFriendByPublicKeyExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testNOT_FOUND() throws Exception {
+  public void testNotFound() throws Exception {
     try (ToxCore tox = newTox()) {
       tox.getFriendByPublicKey(tox.getPublicKey());
       fail();

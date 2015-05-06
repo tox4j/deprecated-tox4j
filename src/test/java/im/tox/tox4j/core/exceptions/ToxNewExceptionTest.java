@@ -6,9 +6,9 @@ import im.tox.tox4j.core.enums.ToxProxyType;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ToxNewExceptionTest extends ToxCoreImplTestBase {
 
@@ -62,6 +62,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
     }
   }
 
+  @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
   @Test
   public void testToxNewProxyBadAddress1() throws Exception {
     try {
@@ -85,7 +86,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   @Test
   public void testTooManyToxCreations() throws Exception {
     try {
-      ArrayList<ToxCore> toxes = new ArrayList<>();
+      Collection<ToxCore> toxes = new ArrayList<>();
       for (int i = 0; i < 102; i++) {
         // One of these will fail.
         toxes.add(newTox());
@@ -101,7 +102,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testLOAD_ENCRYPTED() throws Exception {
+  public void testLoadEncrypted() throws Exception {
     try (ToxCore tox = newTox("toxEsave blah blah blah".getBytes())) {
       fail();
     } catch (ToxNewException e) {
@@ -110,7 +111,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testLOAD_BAD_FORMAT() throws Exception {
+  public void testLoadBadFormat() throws Exception {
     try (ToxCore tox = newTox("blah blah blah".getBytes())) {
       fail();
     } catch (ToxNewException e) {

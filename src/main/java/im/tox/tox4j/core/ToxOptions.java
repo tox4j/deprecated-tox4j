@@ -1,5 +1,7 @@
 package im.tox.tox4j.core;
 
+import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
 
@@ -13,94 +15,88 @@ public class ToxOptions {
   /**
    * The type of socket to create.
    *
+   * <p>
    * If this is set to false, an IPv4 socket is created, which subsequently
    * only allows IPv4 communication.
    * If it is set to true, an IPv6 socket is created, allowing both IPv4 and
    * IPv6 communication.
    */
-  private boolean ipv6Enabled = true;
+  public final boolean ipv6Enabled;
 
   /**
    * Enable the use of UDP communication when available.
    *
+   * <p>
    * Setting this to false will force Tox to use TCP only. Communications will
    * need to be relayed through a TCP relay node, potentially slowing them down.
    * Disabling UDP support is necessary when using anonymous proxies or Tor.
    */
-  private boolean udpEnabled = true;
+  public final boolean udpEnabled;
 
   /**
    * Pass communications through a proxy.
    */
-  private ToxProxyType proxyType = ToxProxyType.NONE;
+  @NotNull
+  public final ToxProxyType proxyType;
 
   /**
    * The IP address or DNS name of the proxy to be used.
    *
+   * <p>
    * If used, this must be non-NULL and be a valid DNS name. The name must not
    * exceed 255 characters.
    *
+   * <p>
    * This member is ignored (it can be NULL) if proxyEnabled is false.
    */
-  private String proxyAddress = null;
+  @Nullable
+  public final String proxyAddress;
 
   /**
    * The port to use to connect to the proxy server.
    *
+   * <p>
    * Ports must be in the range (1, 65535). The value is ignored if
    * proxyEnabled is false.
    */
-  private int proxyPort = 0;
+  public final int proxyPort;
 
 
-  public boolean isIpv6Enabled() {
-    return ipv6Enabled;
-  }
-
-  public void setIpv6Enabled(boolean ipv6Enabled) {
+  /**
+   * Set all public members according to the parameters passed.
+   *
+   * @param ipv6Enabled See {@link ToxOptions#ipv6Enabled}.
+   * @param udpEnabled See {@link ToxOptions#udpEnabled}.
+   * @param proxyType See {@link ToxOptions#proxyType}.
+   * @param proxyAddress See {@link ToxOptions#proxyAddress}.
+   * @param proxyPort See {@link ToxOptions#proxyPort}.
+   * @throws ToxNewException if the proxy port is out of range when proxyType was not NONE.
+   */
+  public ToxOptions(
+      boolean ipv6Enabled, boolean udpEnabled,
+      @NotNull ToxProxyType proxyType, @Nullable String proxyAddress, int proxyPort
+  ) throws ToxNewException {
+    if (proxyType != ToxProxyType.NONE) {
+      if (proxyPort < 0) {
+        throw new ToxNewException(ToxNewException.Code.PROXY_BAD_PORT);
+      }
+      if (proxyPort > 65535) {
+        throw new ToxNewException(ToxNewException.Code.PROXY_BAD_PORT);
+      }
+    }
     this.ipv6Enabled = ipv6Enabled;
-  }
-
-
-  public boolean isUdpEnabled() {
-    return udpEnabled;
-  }
-
-  public void setUdpEnabled(boolean udpEnabled) {
     this.udpEnabled = udpEnabled;
+    this.proxyType = proxyType;
+    this.proxyAddress = proxyAddress;
+    this.proxyPort = proxyPort;
   }
 
-
-  public ToxProxyType getProxyType() {
-    return proxyType;
+  public ToxOptions(boolean ipv6Enabled, boolean udpEnabled) throws ToxNewException {
+    this(ipv6Enabled, udpEnabled, ToxProxyType.NONE, null, 0);
   }
 
-  public String getProxyAddress() {
-    return proxyAddress;
-  }
-
-  public int getProxyPort() {
-    return proxyPort;
-  }
-
-
-  public void enableProxy(ToxProxyType type, String address, int port) throws ToxNewException {
-    if (port < 0) {
-      throw new ToxNewException(ToxNewException.Code.PROXY_BAD_PORT);
-    }
-    if (port > 65535) {
-      throw new ToxNewException(ToxNewException.Code.PROXY_BAD_PORT);
-    }
-    // The rest is not checked here, because the C++ code already checks it, and we want to exercise that.
-    proxyType = type;
-    proxyAddress = address;
-    proxyPort = port;
-  }
-
-  public void disableProxy() {
-    proxyType = ToxProxyType.NONE;
-    proxyAddress = null;
-    proxyPort = 0;
+  public ToxOptions() throws ToxNewException {
+    this(true, true);
   }
 
 }

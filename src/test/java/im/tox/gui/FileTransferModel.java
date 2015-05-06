@@ -4,16 +4,17 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public final class FileTransferModel extends AbstractListModel<FileTransfer> {
 
-  private final ArrayList<ArrayList<FileTransfer>> transfers = new ArrayList<>();
+  private final List<List<FileTransfer>> transfers = new ArrayList<>();
 
   @Override
   public int getSize() {
     int size = 0;
-    for (ArrayList<FileTransfer> list : transfers) {
+    for (List<FileTransfer> list : transfers) {
       size += list.size();
     }
     return size;
@@ -22,7 +23,7 @@ public final class FileTransferModel extends AbstractListModel<FileTransfer> {
   @Override
   public FileTransfer getElementAt(int index) {
     int position = 0;
-    for (ArrayList<FileTransfer> list : transfers) {
+    for (List<FileTransfer> list : transfers) {
       if (position + list.size() > index) {
         return list.get(index - position);
       }
@@ -31,11 +32,11 @@ public final class FileTransferModel extends AbstractListModel<FileTransfer> {
     throw new NoSuchElementException(String.valueOf(index));
   }
 
-  private ArrayList<FileTransfer> ensureFileNumber(int friendNumber, int fileNumber) {
+  private List<FileTransfer> ensureFileNumber(int friendNumber, int fileNumber) {
     while (transfers.size() <= friendNumber) {
       transfers.add(new ArrayList<FileTransfer>());
     }
-    ArrayList<FileTransfer> list = transfers.get(friendNumber);
+    List<FileTransfer> list = transfers.get(friendNumber);
     while (list.size() <= fileNumber) {
       list.add(null);
     }
@@ -43,12 +44,12 @@ public final class FileTransferModel extends AbstractListModel<FileTransfer> {
   }
 
   public void addOutgoing(int friendNumber, File file, int fileNumber) {
-    ArrayList<FileTransfer> list = ensureFileNumber(friendNumber, fileNumber);
+    List<FileTransfer> list = ensureFileNumber(friendNumber, fileNumber);
     list.set(fileNumber, new FileTransferOutgoing(file));
   }
 
   public void addIncoming(int friendNumber, int fileNumber, int kind, long fileSize, File file) {
-    ArrayList<FileTransfer> list = ensureFileNumber(friendNumber, fileNumber);
+    List<FileTransfer> list = ensureFileNumber(friendNumber, fileNumber);
     list.set(fileNumber, new FileTransferIncoming(file));
   }
 

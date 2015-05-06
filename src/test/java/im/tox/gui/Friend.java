@@ -1,9 +1,11 @@
 package im.tox.gui;
 
+import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxStatus;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public final class Friend implements Serializable {
 
@@ -15,7 +17,8 @@ public final class Friend implements Serializable {
   private final byte[] publicKey;
 
   public Friend(byte[] publicKey) {
-    this.publicKey = publicKey;
+    assert publicKey.length == ToxConstants.PUBLIC_KEY_SIZE;
+    this.publicKey = Arrays.copyOf(publicKey, ToxConstants.PUBLIC_KEY_SIZE);
   }
 
   @Override

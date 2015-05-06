@@ -2,6 +2,7 @@ package im.tox.tox4j.av;
 
 import im.tox.tox4j.AliceBobTestBase;
 import im.tox.tox4j.ToxAvImpl;
+import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.callbacks.ToxAvEventListener;
@@ -14,7 +15,20 @@ import java.util.List;
 
 public abstract class AliceBobAvTest extends AliceBobTestBase {
 
-  protected static class AvClient extends ChatClient implements ToxAvEventListener {
+  // XXX: because we don't have mixins or multiple inheritance in java.
+  // TODO: do this better when it's in scala.
+  @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
+  private static class AvChatClient extends ChatClient implements ToxAvEventListener {
+    @Override public void call(int friendNumber, boolean audioEnabled, boolean videoEnabled) { }
+    @Override public void callState(int friendNumber, @NotNull ToxCallState state) { }
+    @Override public void receiveAudioFrame(int friendNumber, @NotNull short[] pcm, int channels, int samplingRate) { }
+    @SuppressWarnings("checkstyle:parametername")
+    @Override public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) { }
+    @Override public void requestAudioFrame(int friendNumber) { }
+    @Override public void requestVideoFrame(int friendNumber) { }
+  }
+
+  protected static class AvClient extends AvChatClient {
 
     private ToxAv av;
     private Thread thread;
@@ -39,7 +53,7 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
     }
 
     public void setup(ToxCore tox) throws ToxException {
-      av = new ToxAvImpl(tox);
+      av = new ToxAvImpl((ToxCoreImpl) tox);
       av.callback(this);
       thread = new Thread(new Runnable() {
         @Override
@@ -62,12 +76,6 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
       thread.start();
     }
 
-    @Override public void call(int friendNumber, boolean audioEnabled, boolean videoEnabled) { }
-    @Override public void callState(int friendNumber, @NotNull ToxCallState state) { }
-    @Override public void receiveAudioFrame(int friendNumber, @NotNull short[] pcm, int channels, int samplingRate) { }
-    @Override public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) { }
-    @Override public void requestAudioFrame(int friendNumber) { }
-    @Override public void requestVideoFrame(int friendNumber) { }
   }
 
 }

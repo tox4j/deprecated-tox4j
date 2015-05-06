@@ -33,11 +33,18 @@ public interface ToxAv extends Closeable {
 
   void callbackRequestVideoFrame(@Nullable RequestVideoFrameCallback callback);
 
-  void sendVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) throws ToxSendFrameException;
+  @SuppressWarnings("checkstyle:parametername")
+  void sendVideoFrame(
+      int friendNumber,
+      int width, int height,
+      @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a
+  ) throws ToxSendFrameException;
 
   void callbackRequestAudioFrame(@Nullable RequestAudioFrameCallback callback);
 
-  void sendAudioFrame(int friendNumber, @NotNull short[] pcm, int sampleCount, int channels, int samplingRate) throws ToxSendFrameException;
+  void sendAudioFrame(
+      int friendNumber, @NotNull short[] pcm, int sampleCount, int channels, int samplingRate
+  ) throws ToxSendFrameException;
 
   void callbackReceiveVideoFrame(@Nullable ReceiveVideoFrameCallback callback);
 

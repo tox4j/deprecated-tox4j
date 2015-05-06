@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
@@ -22,11 +23,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    ToxOptions options = new ToxOptions();
-    options.disableProxy();
-    options.setIpv6Enabled(true);
-    options.setUdpEnabled(true);
-    newTox(options).close();
+    newTox(new ToxOptions()).close();
   }
 
   @Test
@@ -55,6 +52,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0xffff).close();
   }
 
+  @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
   @Test
   public void testToxNewNoProxyBadAddress() throws Exception {
     // Should ignore the bad address.
@@ -74,7 +72,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testToxCreationAndDelayedDestruction() throws Exception {
     int iterations = 30;
-    ArrayList<ToxCore> toxes = new ArrayList<>();
+    List<ToxCore> toxes = new ArrayList<>();
 
     long start = System.currentTimeMillis();
     for (int i = 0; i < iterations; i++) {
@@ -111,15 +109,6 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     try (ToxCore tox = newTox()) {
       tox.bootstrap(node().ipv4(), 65535, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
     }
-  }
-
-  @Test
-  public void testFinalize() throws Exception {
-    System.gc();
-    ToxCore tox = newTox();
-    tox.close();
-    tox = null;
-    System.gc();
   }
 
   @Test
@@ -163,8 +152,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testPublicKeyEntropy() throws Exception {
     for (int i = 0; i < ITERATIONS; i++) {
       try (ToxCore tox = newTox()) {
-        double e = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey());
-        assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
+        double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey());
+        assertTrue("Entropy of public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
       }
     }
   }
@@ -173,8 +162,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testSecretKeyEntropy() throws Exception {
     for (int i = 0; i < ITERATIONS; i++) {
       try (ToxCore tox = newTox()) {
-        double e = ToxCoreTestBase$.MODULE$.entropy(tox.getSecretKey());
-        assertTrue("Entropy of secret key should be >= 0.5, but was " + e, e >= 0.5);
+        double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getSecretKey());
+        assertTrue("Entropy of secret key should be >= 0.5, but was " + entropy, entropy >= 0.5);
       }
     }
   }
@@ -424,10 +413,10 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetFriendPublicKey() throws Exception {
     try (ToxCore tox = newTox()) {
       addFriends(tox, 1);
-      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getPublicKey(0).length);
-      assertArrayEquals(tox.getPublicKey(0), tox.getPublicKey(0));
-      double e = ToxCoreTestBase$.MODULE$.entropy(tox.getPublicKey(0));
-      assertTrue("Entropy of friend's public key should be >= 0.5, but was " + e, e >= 0.5);
+      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getFriendPublicKey(0).length);
+      assertArrayEquals(tox.getFriendPublicKey(0), tox.getFriendPublicKey(0));
+      double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getFriendPublicKey(0));
+      assertTrue("Entropy of friend's public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
     }
   }
 
@@ -436,7 +425,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     try (ToxCore tox = newTox()) {
       addFriends(tox, 10);
       for (int i = 0; i < 10; i++) {
-        assertEquals(i, tox.getFriendByPublicKey(tox.getPublicKey(i)));
+        assertEquals(i, tox.getFriendByPublicKey(tox.getFriendPublicKey(i)));
       }
     }
   }
@@ -488,8 +477,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testDhtIdEntropy() throws Exception {
     for (int i = 0; i < ITERATIONS; i++) {
       try (ToxCore tox = newTox()) {
-        double e = ToxCoreTestBase$.MODULE$.entropy(tox.getDhtId());
-        assertTrue("Entropy of public key should be >= 0.5, but was " + e, e >= 0.5);
+        double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getDhtId());
+        assertTrue("Entropy of public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
       }
     }
   }

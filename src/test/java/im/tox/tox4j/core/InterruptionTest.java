@@ -2,18 +2,17 @@ package im.tox.tox4j.core;
 
 import im.tox.tox4j.DhtNode;
 import im.tox.tox4j.DhtNodeSelector$;
-import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.exceptions.ToxException;
 
 public final class InterruptionTest {
 
   public static void main(String[] args) throws Exception {
-    new InterruptionTest().causeSegfault();
+    new InterruptionTest().testCauseSegfault();
   }
 
 //  @Test
   @SuppressWarnings("deprecation")
-  public void causeSegfault() throws Exception {
+  public void testCauseSegfault() throws Exception {
     for (int i = 0; i < Integer.MAX_VALUE; i++) {
       final int cycle = i;
       Thread thread = new Thread(new Runnable() {

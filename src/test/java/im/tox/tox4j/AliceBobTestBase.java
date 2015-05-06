@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static im.tox.tox4j.TestConstants.TIMEOUT;
@@ -60,8 +61,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     }
 
     private final List<Task> tasks = new ArrayList<>();
-    private @NotNull String name = "<unnamed>";
-    private @NotNull String friendName = "<unnamed>";
+    @NotNull private String name = "<unnamed>";
+    @NotNull private String friendName = "<unnamed>";
     private byte[] friendAddress;
     private boolean connected;
     private boolean chatting = true;
@@ -78,11 +79,13 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
       return chatting;
     }
 
-    public @NotNull String getName() {
+    @NotNull
+    public String getName() {
       return name;
     }
 
-    public @NotNull String getFriendName() {
+    @NotNull
+    public String getFriendName() {
       return friendName;
     }
 
@@ -108,13 +111,14 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     @Override
     public void connectionStatus(@NotNull ToxConnection connectionStatus) {
       connected = connectionStatus != ToxConnection.NONE;
-      if (connected)
+      if (connected) {
         debug("is now connected to the network");
-      else
+      } else {
         debug("is now disconnected from the network");
+      }
     }
 
-    protected static <Task extends TaskBase<?>> void addTask(@NotNull List<Task> tasks, @NotNull Task task) {
+    protected static <T extends TaskBase<?>> void addTask(@NotNull Collection<T> tasks, @NotNull T task) {
       task.creationTrace = new Throwable().getStackTrace();
       tasks.add(task);
     }
@@ -127,7 +131,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
       performTasks(this.tasks, tox);
     }
 
-    protected final <T, TaskT extends TaskBase<T>> void performTasks(@NotNull List<TaskT> tasks, @NotNull T tox) throws ToxException {
+    protected final <T, TaskT extends TaskBase<T>> void performTasks(@NotNull List<TaskT> tasks, @NotNull T tox)
+        throws ToxException {
       Iterable<TaskT> iterationTasks = new ArrayList<>(tasks);
       tasks.clear();
       for (TaskT task : iterationTasks) {
@@ -143,8 +148,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
           List<StackTraceElement> trace = new ArrayList<>();
           for (StackTraceElement callSite : e.getStackTrace()) {
             // Until the performTasks method.
-            if (callSite.getClassName().equals(ChatClient.class.getName()) &&
-                callSite.getMethodName().equals("performTasks")) {
+            if (callSite.getClassName().equals(ChatClient.class.getName())
+                && callSite.getMethodName().equals("performTasks")) {
               break;
             }
             trace.add(callSite);
@@ -160,9 +165,11 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     }
   }
 
-  protected abstract @NotNull ChatClient newAlice() throws Exception;
+  @NotNull
+  protected abstract ChatClient newAlice() throws Exception;
 
-  protected @NotNull ChatClient newBob() throws Exception {
+  @NotNull
+  protected ChatClient newBob() throws Exception {
     return newAlice();
   }
 
@@ -171,7 +178,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
   private void runAliceBobTest(@NotNull ToxFactory factory) throws Exception {
-    String method = getToplevelMethod(Thread.currentThread().getStackTrace());
+    String method = getTopLevelMethod(Thread.currentThread().getStackTrace());
     logger.info("[{}] --- {}.{}", Thread.currentThread().getId(), getClass().getSimpleName(), method);
 
     ChatClient aliceChat = newAlice();
@@ -215,7 +222,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     }
   }
 
-  private static @NotNull String getToplevelMethod(@NotNull StackTraceElement[] stackTrace) {
+  @NotNull
+  private static String getTopLevelMethod(@NotNull StackTraceElement[] stackTrace) {
     StackTraceElement last = stackTrace[0];
     for (StackTraceElement element : Arrays.asList(stackTrace).subList(1, stackTrace.length - 1)) {
       if (!element.getClassName().equals(AliceBobTestBase.class.getName())) {
@@ -227,7 +235,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
   @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_UDP4() throws Exception {
+  public void runAliceBobTest_Udp4() throws Exception {
     runAliceBobTest(new ToxFactory() {
       @NotNull
       @Override
@@ -238,7 +246,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_UDP6() throws Exception {
+  public void runAliceBobTest_Udp6() throws Exception {
     runAliceBobTest(new ToxFactory() {
       @NotNull
       @Override
@@ -249,7 +257,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_TCP4() throws Exception {
+  public void runAliceBobTest_Tcp4() throws Exception {
     ToxCoreTestBase$.MODULE$.assumeIPv4();
     runAliceBobTest(new ToxFactory() {
       @NotNull
@@ -261,7 +269,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_TCP6() throws Exception {
+  public void runAliceBobTest_Tcp6() throws Exception {
     ToxCoreTestBase$.MODULE$.assumeIPv6();
     runAliceBobTest(new ToxFactory() {
       @NotNull
@@ -272,7 +280,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     });
   }
 
-  private void runAliceBobTest_SOCKS(final boolean ipv6Enabled, final boolean udpEnabled) throws Exception {
+  private void runAliceBobTest_Socks(final boolean ipv6Enabled, final boolean udpEnabled) throws Exception {
     if (ipv6Enabled) {
       ToxCoreTestBase$.MODULE$.assumeIPv6();
     } else {
@@ -303,23 +311,23 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_SOCKS_UDP4() throws Exception {
-    runAliceBobTest_SOCKS(false, true);
+  public void runAliceBobTest_Socks_Udp4() throws Exception {
+    runAliceBobTest_Socks(false, true);
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_SOCKS_UDP6() throws Exception {
-    runAliceBobTest_SOCKS(true, true);
+  public void runAliceBobTest_Socks_Udp6() throws Exception {
+    runAliceBobTest_Socks(true, true);
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_SOCKS_TCP4() throws Exception {
-    runAliceBobTest_SOCKS(false, false);
+  public void runAliceBobTest_Socks_Tcp4() throws Exception {
+    runAliceBobTest_Socks(false, false);
   }
 
 //  @Test(timeout = TIMEOUT)
-  public void runAliceBobTest_SOCKS_TCP6() throws Exception {
-    runAliceBobTest_SOCKS(true, false);
+  public void runAliceBobTest_Socks_Tcp6() throws Exception {
+    runAliceBobTest_Socks(true, false);
   }
 
 }
