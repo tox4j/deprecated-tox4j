@@ -112,16 +112,6 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   }
 
   @Test
-  public void testFinalize() throws Exception {
-    System.gc();
-    ToxCore tox = newTox();
-    tox.close();
-    //noinspection UnusedAssignment
-    tox = null;
-    System.gc();
-  }
-
-  @Test
   public void testIterationInterval() throws Exception {
     try (ToxCore tox = newTox()) {
       assertTrue(tox.iterationInterval() > 0);
