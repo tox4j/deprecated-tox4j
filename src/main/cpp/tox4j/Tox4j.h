@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ToxInstances.h"
+#include "jniutil.h"
 
 #define CAT(a, b) CAT_(a, b)
 #define CAT_(a, b) a##b

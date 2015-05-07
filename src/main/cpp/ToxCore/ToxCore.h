@@ -1,10 +1,13 @@
+// Instance manager, JNI utilities.
 #include "tox4j/Tox4j.h"
-#include "jniutil.h"
 
+// Protobuf classes.
 #include "Core.pb.h"
 
+// JNI declarations from javah.
 #include "im_tox_tox4j_ToxCoreImpl.h"
 
+// Header from toxcore.
 #include <tox/core.h>
 
 #define SUBSYSTEM TOX

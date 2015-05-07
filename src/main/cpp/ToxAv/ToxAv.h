@@ -1,12 +1,24 @@
+// Instance manager, JNI utilities.
 #include "tox4j/Tox4j.h"
-#include "jniutil.h"
 
-#define SUBSYSTEM TOXAV
+// Protobuf classes.
+#include "Av.pb.h"
+
+// JNI declarations from javah.
+#include "im_tox_tox4j_ToxAvImpl.h"
+
+// Header from toxcore.
+#include <tox/av.h>
+
+#define SUBSYSTEM TOXV
 #define CLASS     ToxAv
 #define PREFIX    toxav
 
-namespace proto = im::tox::tox4j::av::proto;
+namespace av
+{
+  namespace proto = im::tox::tox4j::av::proto;
 
-using proto::AvEvents;
+  using Events = proto::AvEvents;
 
-extern instance_manager<tox::av_ptr, AvEvents> av;
+  extern ToxInstances<tox::av_ptr, Events> instances;
+}
