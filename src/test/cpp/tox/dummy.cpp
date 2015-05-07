@@ -1,6 +1,6 @@
 #include "tox/core.h"
 
-#include "tox/logging.h"
+#include "util/logging.h"
 #include <gtest/gtest.h>
 
 

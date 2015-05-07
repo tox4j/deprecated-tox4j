@@ -3,7 +3,7 @@
 using namespace core;
 
 
-instance_manager<tox::core_ptr, Events> core::instances;
+ToxInstances<tox::core_ptr, Events> core::instances;
 
 template<>
 extern char const *const module_name<Tox> = "core";

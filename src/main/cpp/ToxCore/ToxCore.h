@@ -5,6 +5,8 @@
 
 #include "im_tox_tox4j_ToxCoreImpl.h"
 
+#include <tox/core.h>
+
 #define SUBSYSTEM TOX
 #define CLASS     ToxCore
 #define PREFIX    tox
@@ -15,7 +17,7 @@ namespace core
 
   using Events = proto::CoreEvents;
 
-  extern instance_manager<tox::core_ptr, Events> instances;
+  extern ToxInstances<tox::core_ptr, Events> instances;
 }
 
 

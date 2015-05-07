@@ -493,11 +493,11 @@ object Jni extends Plugin {
         out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
 
         testSources.foreach { source =>
-          if (source.getName != "main.cpp") {
+          if (source.getName != "main.cpp" && source.getName != "mock_jni.cpp") {
             import org.apache.commons.io.FilenameUtils
 
             val testName = FilenameUtils.removeExtension(source.getName)
-            out.println(s"add_executable($testName main.cpp $source)")
+            out.println(s"add_executable($testName main.cpp mock_jni.cpp $source)")
             out.println(s"add_test($testName $testName)")
           }
         }

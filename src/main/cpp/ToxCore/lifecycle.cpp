@@ -299,6 +299,7 @@ TOX_METHOD (jint, New,
         // We can create the new instance outside instance_manager's critical section.
         // This call locks the instance manager.
         return instances.add (
+          env,
           std::move (tox),
           std::move (events)
         );
