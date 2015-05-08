@@ -10,9 +10,9 @@
 // Header from toxcore.
 #include <tox/av.h>
 
-#define SUBSYSTEM TOXV
+#define SUBSYSTEM TOXAV
 #define CLASS     ToxAv
-#define PREFIX    toxav
+#define PREFIX    toxAv
 
 namespace av
 {
