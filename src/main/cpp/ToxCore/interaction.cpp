@@ -2,7 +2,7 @@
 
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfSetTyping
  * Signature: (IIZ)V
  */
@@ -12,10 +12,11 @@ TOX_METHOD (void, SelfSetTyping,
   return with_instance (env, instanceNumber, "SetTyping",
     [] (TOX_ERR_SET_TYPING error)
       {
-        switch (error) {
-          success_case (SET_TYPING);
-          failure_case (SET_TYPING, FRIEND_NOT_FOUND);
-        }
+        switch (error)
+          {
+            success_case (SET_TYPING);
+            failure_case (SET_TYPING, FRIEND_NOT_FOUND);
+          }
         return unhandled ();
       },
     tox_self_set_typing, friendNumber, isTyping
@@ -41,7 +42,7 @@ handle_send_message_error (TOX_ERR_FRIEND_SEND_MESSAGE error)
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSendMessage
  * Signature: (IIII[B)I
  */

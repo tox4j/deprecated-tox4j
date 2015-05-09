@@ -2,7 +2,7 @@
 
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetPublicKey
  * Signature: (I)[B
  */
@@ -20,7 +20,7 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetSecretKey
  * Signature: (I)[B
  */
@@ -38,7 +38,7 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfSetNospam
  * Signature: (II)V
  */
@@ -55,7 +55,7 @@ TOX_METHOD (void, SelfSetNospam,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetNospam
  * Signature: (I)I
  */
@@ -72,7 +72,7 @@ TOX_METHOD (jint, SelfGetNospam,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetAddress
  * Signature: (I)[B
  */
@@ -103,7 +103,7 @@ handle_set_info_error (TOX_ERR_SET_INFO error)
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfSetName
  * Signature: (I[B)V
  */
@@ -117,7 +117,7 @@ TOX_METHOD (void, SelfSetName,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetName
  * Signature: (I)[B
  */
@@ -136,7 +136,7 @@ TOX_METHOD (jbyteArray, SelfGetName,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfSetStatusMessage
  * Signature: (I[B)V
  */
@@ -150,7 +150,7 @@ TOX_METHOD (void, SelfSetStatusMessage,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetStatusMessage
  * Signature: (I)[B
  */
@@ -169,7 +169,7 @@ TOX_METHOD (jbyteArray, SelfGetStatusMessage,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfSetStatus
  * Signature: (II)V
  */
@@ -195,7 +195,7 @@ TOX_METHOD (void, SelfSetStatus,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxSelfGetStatus
  * Signature: (I)I
  */

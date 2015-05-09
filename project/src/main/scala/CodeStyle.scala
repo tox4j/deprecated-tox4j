@@ -7,14 +7,23 @@ import scala.language.postfixOps
 
 object CodeStyle extends Plugin {
 
-  private val fatal = false
+  object Keys {
+
+    val checkstyleFatal = settingKey[Boolean]("Whether to fail the checkstyle task on Java code style violations.")
+
+  }
+
+  import Keys._
 
   // Enable checkstyle.
   override val settings =
-    Seq(
+    Seq(Compile, Test).map { config =>
       // Scalastyle configuration.
-      scalastyleConfig in Compile := (scalaSource in Compile).value / "scalastyle-config.xml",
-      scalastyleConfig in Test    := (scalaSource in Test   ).value / "scalastyle-config.xml"
+      scalastyleConfig in config := (scalaSource in config).value / "scalastyle-config.xml"
+    } ++ Seq(
+      // Fail if production code violates the coding style.
+      checkstyleFatal in Compile := true,
+      checkstyleFatal in Test    := false
     ) ++ com.etsy.sbt.Checkstyle.checkstyleSettings ++ Seq((Compile, ""), (Test, "-test")).map {
       case (config, suffix) =>
         // Checkstyle override to fail the build on errors.
@@ -45,7 +54,7 @@ object CodeStyle extends Plugin {
               log.error(s"${e._1}:${e._2}: ${e._3} (from ${e._4})")
             }
             val message = s"Checkstyle failed with ${errors.size} errors"
-            if (fatal) {
+            if ((checkstyleFatal in config).value) {
               throw new RuntimeException(message)
             } else {
               log.warn(message)

@@ -21,7 +21,7 @@ handle_tox_friend_add_result (TOX_ERR_FRIEND_ADD error)
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendAdd
  * Signature: (I[B[B)I
  */
@@ -39,7 +39,7 @@ TOX_METHOD (jint, FriendAdd,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendAddNorequest
  * Signature: (I[B)I
  */
@@ -56,7 +56,7 @@ TOX_METHOD (jint, FriendAddNorequest,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendDelete
  * Signature: (II)V
  */
@@ -78,7 +78,7 @@ TOX_METHOD (void, FriendDelete,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendByPublicKey
  * Signature: (I[B)I
  */
@@ -104,7 +104,7 @@ TOX_METHOD (jint, FriendByPublicKey,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendGetPublicKey
  * Signature: (II)[B
  */
@@ -131,7 +131,7 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendExists
  * Signature: (II)Z
  */
@@ -148,7 +148,7 @@ TOX_METHOD (jboolean, FriendExists,
 }
 
 /*
- * Class:     im_tox_tox4jToxCoreImpl
+ * Class:     im_tox_tox4j_impl_ToxCoreNative
  * Method:    toxFriendList
  * Signature: (I)[I
  */

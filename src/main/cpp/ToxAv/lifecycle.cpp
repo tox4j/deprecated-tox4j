@@ -103,7 +103,7 @@ tox4j_receive_video_frame_cb (ToxAV *av,
 
 
 /*
- * Class:     im_tox_tox4jToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvNew
  * Signature: (ZZILjava/lang/String;I)I
  */
@@ -135,7 +135,7 @@ TOX_METHOD (jint, New,
 }
 
 /*
- * Class:     im_tox_tox4jToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    toxAvKill
  * Signature: (I)I
  */
@@ -146,7 +146,7 @@ TOX_METHOD (void, Kill,
 }
 
 /*
- * Class:     im_tox_tox4jToxAvImpl
+ * Class:     im_tox_tox4j_impl_ToxAvNative
  * Method:    finalize
  * Signature: (I)V
  */

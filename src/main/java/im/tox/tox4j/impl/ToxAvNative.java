@@ -1,4 +1,4 @@
-package im.tox.tox4j;
+package im.tox.tox4j.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.tox.tox4j.annotations.NotNull;
@@ -9,16 +9,18 @@ import im.tox.tox4j.av.enums.ToxCallControl;
 import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.av.exceptions.*;
 import im.tox.tox4j.av.proto.Av;
+import im.tox.tox4j.internal.Event;
 
 @SuppressWarnings("checkstyle:nofinalizer")
-public final class ToxAvImpl implements ToxAv {
+public final class ToxAvNative implements ToxAv {
 
   static {
     System.loadLibrary("tox4j");
   }
 
-  private final ToxCoreImpl tox;
+  private final ToxCoreNative tox;
   private final int instanceNumber;
+  private final Event.Id onClose;
   private CallCallback callCallback;
   private CallStateCallback callStateCallback;
   private RequestVideoFrameCallback requestVideoFrameCallback;
@@ -34,10 +36,16 @@ public final class ToxAvImpl implements ToxAv {
    * @param tox An instance of the C-backed ToxCore implementation.
    * @throws ToxAvNewException If there was already an A/V session.
    */
-  public ToxAvImpl(ToxCoreImpl tox) throws ToxAvNewException {
+  public ToxAvNative(ToxCoreNative tox) throws ToxAvNewException {
     this.tox = tox;
-    this.tox.av = this;
-    instanceNumber = toxAvNew(this.tox.instanceNumber);
+    this.instanceNumber = toxAvNew(this.tox.instanceNumber);
+
+    this.onClose = this.tox.addOnCloseCallback(new Runnable() {
+      @Override
+      public void run() {
+        ToxAvNative.this.close();
+      }
+    });
   }
 
 
@@ -45,7 +53,7 @@ public final class ToxAvImpl implements ToxAv {
 
   @Override
   public void close() {
-    tox.av = null;
+    tox.removeOnCloseCallback(onClose);
     toxAvKill(instanceNumber);
   }
 
