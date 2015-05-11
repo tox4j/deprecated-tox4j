@@ -2,13 +2,11 @@
 
 #include "ToxInstances.h"
 #include "jniutil.h"
-
-#define CAT(a, b) CAT_(a, b)
-#define CAT_(a, b) a##b
+#include "util/pp_cat.h"
 
 
 #define METHOD(TYPE, NAME, ...) \
-extern "C" JNIEXPORT TYPE JNICALL CAT(Java_im_tox_tox4j_, CAT(CLASS, CAT(Impl_, NAME))) \
+extern "C" JNIEXPORT TYPE JNICALL PP_CAT(Java_im_tox_tox4j_, PP_CAT(CLASS, PP_CAT(Impl_, NAME))) \
   (JNIEnv *env, jclass, __VA_ARGS__)
 
-#define TOX_METHOD(TYPE, NAME, ...) METHOD(TYPE, CAT(PREFIX, NAME), __VA_ARGS__)
+#define TOX_METHOD(TYPE, NAME, ...) METHOD(TYPE, PP_CAT(PREFIX, NAME), __VA_ARGS__)

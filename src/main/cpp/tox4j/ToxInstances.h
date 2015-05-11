@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util/instance_manager.h"
+#include "util/pp_cat.h"
 
 
 /*****************************************************************************
@@ -78,19 +79,15 @@ using tox_error_t = typename error_type_of<FuncT>::type;
 
 
 
-#define CAT(a, b) CAT_(a, b)
-#define CAT_(a, b) a##b
-
-
 #define ERROR_CODE(METHOD)                          \
-  CAT (SUBSYSTEM, _ERR_##METHOD)
+  PP_CAT (SUBSYSTEM, _ERR_##METHOD)
 
 #define success_case(METHOD)                        \
-  case CAT (ERROR_CODE (METHOD), _OK):              \
+  case PP_CAT (ERROR_CODE (METHOD), _OK):           \
     return success()
 
 #define failure_case(METHOD, ERROR)                 \
-  case CAT (ERROR_CODE (METHOD), _##ERROR):         \
+  case PP_CAT (ERROR_CODE (METHOD), _##ERROR):      \
     return failure (#ERROR)
 
 
