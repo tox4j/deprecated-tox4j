@@ -5,21 +5,10 @@
 #include <deque>
 #include <memory>
 #include <mutex>
-#include <sstream>
 #include <vector>
 
 #include "util/exceptions.h"
-
-
-template<typename T>
-std::string
-to_string (T const &v)
-{
-  std::ostringstream out;
-
-  out << v;
-  return out.str ();
-}
+#include "util/to_string.h"
 
 
 template<typename Pointer, typename Events>
