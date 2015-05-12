@@ -42,7 +42,11 @@ private:
     EventsP events_p;
 
     explicit operator bool () const
-    { return static_cast<bool> (object_p); }
+    {
+      // These come and go hand in hand.
+      assert (!object_p == !events_p);
+      return object_p != nullptr;
+    }
 
 
     /**
