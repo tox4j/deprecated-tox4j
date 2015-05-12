@@ -13,7 +13,7 @@ make_int (int i)
 }
 
 
-typedef instance_manager<std::unique_ptr<int>, int> int_manager;
+typedef instance_manager<std::unique_ptr<int>, std::unique_ptr<int>> int_manager;
 
 
 TEST (InstanceManager, Add) {

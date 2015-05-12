@@ -105,10 +105,13 @@ template<typename Subsystem>
 extern char const *const module_name;
 
 
-template<typename Pointer, typename Events>
+template<typename ObjectP, typename EventsP>
 struct ToxInstances
-  : instance_manager<Pointer, Events>
+  : instance_manager<ObjectP, EventsP>
 {
+  typedef typename instance_manager<ObjectP, EventsP>::Object Object;
+  typedef typename instance_manager<ObjectP, EventsP>::Events Events;
+
   template<typename SuccessFunc, typename ToxFunc, typename ...Args>
   auto
   with_error_handling (JNIEnv *env,
@@ -133,7 +136,7 @@ struct ToxInstances
       case ErrorHandling::SUCCESS:
         return success_func (std::move (value));
       case ErrorHandling::FAILURE:
-        throw_tox_exception (env, module_name<typename ToxInstances::Subsystem>, method, result.error);
+        throw_tox_exception (env, module_name<Object>, method, result.error);
         break;
       case ErrorHandling::UNHANDLED:
         throw_illegal_state_exception (env, error, "Unknown error code");
@@ -154,7 +157,7 @@ struct ToxInstances
                      Args ...args)
   {
     return this->with_instance (env, instanceNumber,
-      [=] (typename ToxInstances::Subsystem *tox, Events &events)
+      [=] (Object *tox, Events &events)
         {
           unused (events);
           return with_error_handling (env, method, success_func, tox_func, tox, args...);
@@ -187,7 +190,7 @@ struct ToxInstances
                        Args ...args)
   {
     return this->with_instance (env, instanceNumber,
-      [&] (typename ToxInstances::Subsystem *tox, Events &events)
+      [&] (Object *tox, Events &events)
         {
           unused (events);
           return tox_func (tox, args...);

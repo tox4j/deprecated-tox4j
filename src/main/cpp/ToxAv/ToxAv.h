@@ -20,5 +20,5 @@ namespace av
 
   using Events = proto::AvEvents;
 
-  extern ToxInstances<tox::av_ptr, Events> instances;
+  extern ToxInstances<tox::av_ptr, std::unique_ptr<Events>> instances;
 }

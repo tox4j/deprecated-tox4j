@@ -11,14 +11,53 @@
 #include "util/to_string.h"
 
 
-template<typename Pointer, typename Events>
+/**
+ * The base instance_manager class. Contains functions to add, destroy, and
+ * finalise pairs of objects. It manages an Instance and an Events object
+ * together, with
+ *
+ * The creation of an ObjectP and EventsP is the responsibility of the caller.
+ * After handing them to the manager, the manager will take care of cleaning
+ * them up. Instance numbers returned by add() are used to access and delete
+ * instances. Instance numbers may be reused after finalize() is called on them.
+ * The finalize() function may not be called before kill(). The kill() function
+ */
+template<typename ObjectP, typename EventsP>
 class instance_manager
 {
-  std::vector<Pointer>                    instance_ptrs;
-  std::vector<std::unique_ptr<Events>>    instance_events;
-  std::deque<std::mutex>                  instance_locks;
+protected:
+  typedef typename ObjectP::element_type Object;
+  typedef typename EventsP::element_type Events;
 
+private:
+  /**
+   * Holds an object and an events pointer. The choice of putting this into the
+   * instance_manager instead of just managing a single object was that this way,
+   * the client code will never need to see unique_ptrs, and can simply operate
+   * on object pointers and events references.
+   */
+  struct instance_pair
+  {
+    ObjectP object;
+    EventsP events;
+
+    explicit operator bool () const
+    {
+      // These come and go hand in hand.
+      assert (!object == !events);
+      return static_cast<bool> (object);
+    }
+  };
+
+  std::vector<instance_pair> instances;
+  // Locks are managed separately so we can use trivial move semantics to destroy
+  // and reassign instance_pairs. A deque is used so we don't need an additional
+  // indirection that vector<unique_ptr<mutex>> would have.
+  std::deque<std::mutex> locks;
+
+  // Contains indices (+1) into the instances/locks lists of finalised objects.
   std::vector<jint> freelist;
+  // The global lock for the instance manager.
   std::mutex mutex;
 
 
@@ -33,13 +72,15 @@ class instance_manager
 
     // This can happen when an exception is thrown from the constructor, giving this object
     // an invalid state, containing instanceNumber = 0.
-    if (!allow_zero && instanceNumber == 0)
+    if (instanceNumber == 0)
       {
-        throw_illegal_state_exception (env, instanceNumber, "function called on null instance");
+        if (!allow_zero)
+          throw_illegal_state_exception (env, instanceNumber, "function called on null instance");
+        // Null instances are OK, but should still not be processed.
         return false;
       }
 
-    if (static_cast<std::size_t> (instanceNumber) > instance_ptrs.size ())
+    if (static_cast<std::size_t> (instanceNumber) > instances.size ())
       {
         throw_illegal_state_exception (env, instanceNumber, "function called on invalid instance");
         return false;
@@ -50,8 +91,6 @@ class instance_manager
 
 
 public:
-  typedef typename Pointer::element_type Subsystem;
-
   instance_manager () = default;
 
   // Non-copyable.
@@ -60,12 +99,17 @@ public:
 
 
   jint
-  add (JNIEnv *env, Pointer instance, std::unique_ptr<Events> events)
+  add (JNIEnv *env, ObjectP object, EventsP events)
   {
     std::lock_guard<std::mutex> lock (mutex);
 
-    tox4j_assert (instance);
+    tox4j_assert (object);
     tox4j_assert (events);
+
+    instance_pair instance = {
+      std::move (object),
+      std::move (events),
+    };
 
     // If there are free objects we can reuse..
     if (!freelist.empty ())
@@ -74,23 +118,22 @@ public:
         jint instanceNumber = freelist.back ();
         freelist.pop_back ();    // Remove it from the free list.
 
-        tox4j_assert (!instance_ptrs[instanceNumber - 1]);
-        tox4j_assert (!instance_events[instanceNumber - 1]);
+        // The null instance should never be on the freelist.
+        tox4j_assert (instanceNumber >= 1);
+        // All instances on the freelist should be empty.
+        tox4j_assert (!instances[instanceNumber - 1]);
 
-        instance_ptrs[instanceNumber - 1] = std::move (instance);
-        instance_events[instanceNumber - 1] = std::move (events);
+        instances[instanceNumber - 1] = std::move (instance);
 
         return instanceNumber;
       }
 
     // Otherwise, add a new one.
-    instance_ptrs.push_back (std::move (instance));
-    instance_events.push_back (std::move (events));
-    instance_locks.emplace_back ();
+    instances.push_back (std::move (instance));
+    locks.emplace_back ();
 
-    tox4j_assert (instance_ptrs.size () == instance_events.size ());
-    tox4j_assert (instance_ptrs.size () == instance_locks.size ());
-    return instance_ptrs.size ();
+    tox4j_assert (instances.size () == locks.size ());
+    return instances.size ();
   }
 
 
@@ -103,11 +146,10 @@ public:
       return;
 
     // Lock before moving the pointers out.
-    std::lock_guard<std::mutex> instance_lock (instance_locks[instanceNumber - 1]);
+    std::lock_guard<std::mutex> instance_lock (locks[instanceNumber - 1]);
 
-    // The destructors of these two are called inside the critical section entered above.
-    Pointer dying_ptr = std::move (instance_ptrs[instanceNumber - 1]);
-    std::unique_ptr<Events> dying_events = std::move (instance_events[instanceNumber - 1]);
+    // The instance destructor is called inside the critical section entered above.
+    auto dying = std::move (instances[instanceNumber - 1]);
   }
 
 
@@ -116,6 +158,7 @@ public:
   {
     std::lock_guard<std::mutex> lock (mutex);
 
+    // Don't throw on null instances, but also don't put it on the freelist.
     if (!check_instance_number (env, instanceNumber, true))
       return;
 
@@ -127,12 +170,13 @@ public:
       }
 
     // The C++ side should already have been killed.
-    if (instance_ptrs[instanceNumber - 1])
+    if (instances[instanceNumber - 1])
       {
         throw_illegal_state_exception (env, instanceNumber, "Leaked Tox instance #" + to_string (instanceNumber));
         return;
       }
 
+    tox4j_assert (instanceNumber != 0);
     freelist.push_back (instanceNumber);
   }
 
@@ -141,24 +185,23 @@ public:
   auto
   with_instance (JNIEnv *env, jint instanceNumber, Func func)
   {
-    typedef typename std::result_of<Func (Subsystem *, Events &)>::type return_type;
+    typedef typename std::result_of<Func (Object *, Events &)>::type return_type;
 
     std::lock_guard<std::mutex> lock (mutex);
 
     if (!check_instance_number (env, instanceNumber, false))
       return return_type ();
 
-    std::lock_guard<std::mutex> instance_lock (instance_locks[instanceNumber - 1]);
+    std::lock_guard<std::mutex> instance_lock (locks[instanceNumber - 1]);
 
-    Pointer &ptr = instance_ptrs.at (instanceNumber - 1);
-    Events &events = *instance_events.at (instanceNumber - 1);
+    instance_pair &instance = instances.at (instanceNumber - 1);
 
-    if (!ptr)
+    if (!instance)
       {
         throw_tox_killed_exception (env, instanceNumber, "function invoked on killed instance");
         return return_type ();
       }
 
-    return func (ptr.get (), events);
+    return func (instance.object.get (), *instance.events);
   }
 };

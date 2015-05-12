@@ -20,7 +20,7 @@ namespace core
 
   using Events = proto::CoreEvents;
 
-  extern ToxInstances<tox::core_ptr, Events> instances;
+  extern ToxInstances<tox::core_ptr, std::unique_ptr<Events>> instances;
 }
 
 
