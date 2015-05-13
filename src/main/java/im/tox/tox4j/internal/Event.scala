@@ -7,10 +7,10 @@ import scala.collection.mutable.ArrayBuffer
 object Event {
   private val INVALID_INDEX: Int = -1
 
-  private object ResetPermission { }
+  private object ResetPermission {}
 
   private object EmptyCallback extends Runnable {
-    override def run(): Unit = { }
+    override def run(): Unit = {}
   }
 
   trait Id {
@@ -27,7 +27,6 @@ object Event {
     def reset(permission: ResetPermission.type)
   }
 
-
   private final class IdImpl(private var index: Int) extends Id {
     def value: Int = index
 
@@ -36,7 +35,6 @@ object Event {
     }
   }
 }
-
 
 final class Event extends Runnable {
   private val callbacks = new ArrayBuffer[Runnable]

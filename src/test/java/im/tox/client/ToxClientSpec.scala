@@ -27,7 +27,6 @@ class ToxClientSpec extends FlatSpec {
     }
   }
 
-
   "getStatus" should "return the status set by setStatus" in {
     withTox { tox =>
       assert(tox.status == ToxStatus.NONE)
@@ -41,7 +40,6 @@ class ToxClientSpec extends FlatSpec {
       assert(tox.status == ToxStatus.NONE)
     }
   }
-
 
   "getStatusMessage" should "return the status message set by setStatusMessage" in {
     withTox { tox =>

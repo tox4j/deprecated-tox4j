@@ -1,7 +1,7 @@
 package im.tox.client
 
 import im.tox.tox4j.core.enums.ToxStatus
-import im.tox.tox4j.core.{ToxCore, ToxOptions}
+import im.tox.tox4j.core.{ ToxCore, ToxOptions }
 import im.tox.tox4j.impl.ToxCoreJni
 
 class ToxClient {

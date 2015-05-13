@@ -2,14 +2,14 @@ package im.tox.tox4j.core
 
 import im.tox.tox4j.DhtNodeSelector.node
 import im.tox.tox4j.TestConstants.TIMEOUT
-import im.tox.tox4j.ToxCoreTestBase.{assumeIPv4, assumeIPv6}
+import im.tox.tox4j.ToxCoreTestBase.{ assumeIPv4, assumeIPv6 }
 import im.tox.tox4j._
 import im.tox.tox4j.core.NetworkTest.logger
-import im.tox.tox4j.core.ToxCoreFactory.{withTox, withToxes}
+import im.tox.tox4j.core.ToxCoreFactory.{ withTox, withToxes }
 import org.scalatest.FlatSpec
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
 object NetworkTest {
   private val logger: Logger = LoggerFactory.getLogger(classOf[NetworkTest])

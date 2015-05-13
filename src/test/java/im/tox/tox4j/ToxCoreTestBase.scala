@@ -1,15 +1,15 @@
 package im.tox.tox4j
 
-import java.io.{Closeable, IOException}
-import java.net.{InetAddress, Socket}
+import java.io.{ Closeable, IOException }
+import java.net.{ InetAddress, Socket }
 import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
-import im.tox.tox4j.core.enums.{ToxConnection, ToxProxyType}
-import im.tox.tox4j.core.exceptions.{ToxBootstrapException, ToxFriendAddException, ToxNewException}
-import im.tox.tox4j.core.{ToxCore, ToxCoreFactory, ToxOptions}
-import org.junit.Assume.{assumeNotNull, assumeTrue}
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxProxyType }
+import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
+import org.junit.Assume.{ assumeNotNull, assumeTrue }
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
@@ -51,7 +51,6 @@ object ToxCoreTestBase {
       })
     }
 
-
     def close() {
       toxes.foreach(_.close())
     }
@@ -67,7 +66,6 @@ object ToxCoreTestBase {
     def size: Int = toxes.length
 
   }
-
 
   private[tox4j] def entropy(@NotNull data: Array[Byte]): Double = {
     val frequencies = new Array[Int](256)

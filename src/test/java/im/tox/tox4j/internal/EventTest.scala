@@ -16,7 +16,6 @@ class EventTest extends FlatSpec {
     assert(called)
   }
 
-
   it should "not be called if it was deleted" in {
     val event = new Event
     var called = false
@@ -30,7 +29,6 @@ class EventTest extends FlatSpec {
     event.run()
     assert(!called)
   }
-
 
   "remove" should "be idempotent" in {
     val event = new Event

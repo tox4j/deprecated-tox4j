@@ -3,11 +3,11 @@
  */
 package im.tox.irc
 
-import java.io.{ByteArrayOutputStream, PrintStream}
+import java.io.{ ByteArrayOutputStream, PrintStream }
 import java.util.concurrent.TimeUnit
 
-import com.google.common.cache.{CacheBuilder, CacheLoader, RemovalListener, RemovalNotification}
-import org.jibble.pircbot.{NickAlreadyInUseException, PircBot}
+import com.google.common.cache.{ CacheBuilder, CacheLoader, RemovalListener, RemovalNotification }
+import org.jibble.pircbot.{ NickAlreadyInUseException, PircBot }
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -45,9 +45,10 @@ object EvalBot extends PircBot {
     }
 
   private def connect(): Unit =
-    CHANNELS foreach { case (server, channels) =>
-      connect(server)
-      channels foreach joinChannel
+    CHANNELS foreach {
+      case (server, channels) =>
+        connect(server)
+        channels foreach joinChannel
     }
 
   override def onDisconnect(): Unit = {
@@ -65,10 +66,9 @@ object EvalBot extends PircBot {
     }
   }
 
-
   override def handleLine(line: String): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    import scala.concurrent.{Future, Promise}
+    import scala.concurrent.{ Future, Promise }
     import scala.util.Success
 
     val timeout = Promise[Boolean]()
@@ -92,7 +92,6 @@ object EvalBot extends PircBot {
       timeout.tryComplete(Success(false))
     }
   }
-
 
   private def discardedMessage(count: Int) = {
     s"[+ $count discarded line${if (count == 1) "" else "s"}]"
@@ -182,7 +181,6 @@ object EvalBot extends PircBot {
     }
   }
 
-
   private val stdOut = System.out
   private val stdErr = System.err
   private val conOut = new ByteArrayOutputStream
@@ -242,10 +240,10 @@ object EvalBot extends PircBot {
       .softValues()
       .maximumSize(CHANNELS.size + 5)
       .removalListener(new RemovalListener[K, V] {
-      override def onRemoval(notification: RemovalNotification[K, V]) {
-        println(s"expired $notification")
-      }
-    }).build(loader)
+        override def onRemoval(notification: RemovalNotification[K, V]) {
+          println(s"expired $notification")
+        }
+      }).build(loader)
 
   private def sendLines(channel: String, message: String) = {
     val lines = message.take(10 * 1024).split("\n").filter(!_.isEmpty)

@@ -1,7 +1,7 @@
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxMessageType, ToxStatus}
-import im.tox.tox4j.core.{ToxConstants, ToxOptions}
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxStatus }
+import im.tox.tox4j.core.{ ToxConstants, ToxOptions }
 import im.tox.tox4j.impl.ToxCoreJni
 import org.slf4j.LoggerFactory
 
@@ -23,8 +23,8 @@ object TestClient extends App {
     for (i <- 0 until ToxConstants.PUBLIC_KEY_SIZE) {
       publicKey(i) = (
         (fromHexDigit(id.charAt(i * 2)) << 4) +
-          fromHexDigit(id.charAt(i * 2 + 1))
-        ).toByte
+        fromHexDigit(id.charAt(i * 2 + 1))
+      ).toByte
     }
     publicKey
   }

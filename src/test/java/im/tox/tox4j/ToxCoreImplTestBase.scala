@@ -2,7 +2,7 @@ package im.tox.tox4j
 
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.{ToxCore, ToxCoreFactory, ToxOptions}
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
 import org.junit.After
 
 abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
