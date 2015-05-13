@@ -195,7 +195,7 @@ public:
     // be modifying them.
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (!check_instance_number (env, instanceNumber, false))
+    if (!check_instance_number (env, instanceNumber, true))
       return;
 
     // Lock before moving the pointers out.
