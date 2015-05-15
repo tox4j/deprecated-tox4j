@@ -106,6 +106,8 @@ If you get an error about source and target versions not being 1.7 ("Error:java:
 
 If you get "Av" or "Core" already defined errors, try setting the Protobuf Facet output directory to target/generated and adding target/generated as a sources directory in "File > Project Structure".
 
+If SBT project import fails, try importing the IDEA modules from `project/idea-modules`.
+
 
 ## Contributing
 
