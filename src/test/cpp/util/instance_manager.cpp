@@ -21,7 +21,7 @@ TEST (InstanceManager, Add) {
 
   int_manager mgr;
   jint id = mgr.add (env, make_int (1), make_int (2));
-  CHECK_GT (id, 0);
+  ASSERT_GT (id, 0);
 }
 
 
@@ -62,8 +62,8 @@ TEST (InstanceManager, WithInstance) {
   mgr.with_instance (env, id,
     [] (int *a, int &b)
       {
-        CHECK_EQ (*a, 1);
-        CHECK_EQ (b, 2);
+        ASSERT_EQ (*a, 1);
+        ASSERT_EQ (b, 2);
       }
   );
 }
