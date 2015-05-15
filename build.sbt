@@ -24,14 +24,6 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12"
 ) map (_ % Test)
 
-// IRC bot dependencies
-libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  "pircbot" % "pircbot" % "1.5.0",
-  "com.google.guava" % "guava" % "18.0"
-) map (_ % Test)
-
 
 // JNI
 import Jni.Keys._
