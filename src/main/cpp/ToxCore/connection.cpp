@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+using namespace core;
+
 
 static void
 toxBootstrapLike (bool function (Tox *tox,
@@ -13,24 +15,13 @@ toxBootstrapLike (bool function (Tox *tox,
                   jint port,
                   jbyteArray publicKey)
 {
-  assert (port >= 0);
-  assert (port <= 65535);
+  tox4j_assert (port >= 0);
+  tox4j_assert (port <= 65535);
 
   ByteArray public_key (env, publicKey);
-  assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
+  tox4j_assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
 
-  return with_instance (env, instanceNumber, "Bootstrap",
-    [] (TOX_ERR_BOOTSTRAP error)
-      {
-        switch (error)
-          {
-          success_case (BOOTSTRAP);
-          failure_case (BOOTSTRAP, NULL);
-          failure_case (BOOTSTRAP, BAD_HOST);
-          failure_case (BOOTSTRAP, BAD_PORT);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_ign (env, instanceNumber, "Bootstrap",
     function, UTFChars (env, address).data (), port, public_key.data ()
   );
 }
@@ -66,16 +57,7 @@ TOX_METHOD (void, AddTcpRelay,
 TOX_METHOD (jint, GetUdpPort,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, "GetPort",
-    [] (TOX_ERR_GET_PORT error)
-      {
-        switch (error)
-          {
-          success_case (GET_PORT);
-          failure_case (GET_PORT, NOT_BOUND);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_err (env, instanceNumber, "GetPort",
     identity,
     tox_self_get_udp_port
   );
@@ -89,16 +71,7 @@ TOX_METHOD (jint, GetUdpPort,
 TOX_METHOD (jint, GetTcpPort,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber, "GetPort",
-    [] (TOX_ERR_GET_PORT error)
-      {
-        switch (error)
-          {
-          success_case (GET_PORT);
-          failure_case (GET_PORT, NOT_BOUND);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_err (env, instanceNumber, "GetPort",
     identity,
     tox_self_get_tcp_port
   );
@@ -112,7 +85,7 @@ TOX_METHOD (jint, GetTcpPort,
 TOX_METHOD (jbyteArray, GetDhtId,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);
@@ -130,13 +103,8 @@ TOX_METHOD (jbyteArray, GetDhtId,
 TOX_METHOD (jint, IterationInterval,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
-    [] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return tox_iteration_interval (tox);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    tox_iteration_interval);
 }
 
 /*
@@ -147,7 +115,7 @@ TOX_METHOD (jint, IterationInterval,
 TOX_METHOD (jbyteArray, Iteration,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
         tox_iterate (tox);

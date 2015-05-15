@@ -1,4 +1,6 @@
-#include "ErrorHandling.h"
+#include "util/exceptions.h"
+
+#include <sstream>
 
 
 static std::string
@@ -77,16 +79,10 @@ throw_tox_exception (JNIEnv *env, char const *module, char const *method, char c
     }
 
   jobject enumCode = env->CallStaticObjectMethod (enumClass, valueOf, env->NewStringUTF (code));
-  assert (enumCode);
+  tox4j_assert (enumCode);
 
   jobject exception = env->NewObject (exClass, constructor, enumCode);
-  assert (exception);
+  tox4j_assert (exception);
 
   env->Throw ((jthrowable)exception);
 }
-
-
-#ifdef HAVE_TOXAV
-char const *const tox_traits<ToxAV>::module = "av";
-#endif
-char const *const tox_traits<Tox  >::module = "core";

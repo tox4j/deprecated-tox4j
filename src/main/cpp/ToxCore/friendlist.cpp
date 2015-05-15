@@ -1,24 +1,7 @@
 #include "ToxCore.h"
 
+using namespace core;
 
-static ErrorHandling
-handle_tox_friend_add_result (TOX_ERR_FRIEND_ADD error)
-{
-  switch (error)
-    {
-    success_case (FRIEND_ADD);
-    failure_case (FRIEND_ADD, NULL);
-    failure_case (FRIEND_ADD, TOO_LONG);
-    failure_case (FRIEND_ADD, NO_MESSAGE);
-    failure_case (FRIEND_ADD, OWN_KEY);
-    failure_case (FRIEND_ADD, ALREADY_SENT);
-    failure_case (FRIEND_ADD, BAD_CHECKSUM);
-    failure_case (FRIEND_ADD, SET_NEW_NOSPAM);
-    failure_case (FRIEND_ADD, MALLOC);
-    }
-
-  return unhandled ();
-}
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
@@ -30,9 +13,8 @@ TOX_METHOD (jint, FriendAdd,
 {
   ByteArray messageData (env, message);
   ByteArray addressData (env, address);
-  assert (!address || addressData.size () == TOX_ADDRESS_SIZE);
-  return with_instance (env, instanceNumber, "FriendAdd",
-    handle_tox_friend_add_result,
+  tox4j_assert (!address || addressData.size () == TOX_ADDRESS_SIZE);
+  return instances.with_instance_err (env, instanceNumber, "FriendAdd",
     identity,
     tox_friend_add, addressData.data (), messageData.data (), messageData.size ()
   );
@@ -47,9 +29,8 @@ TOX_METHOD (jint, FriendAddNorequest,
   jint instanceNumber, jbyteArray publicKey)
 {
   ByteArray public_key (env, publicKey);
-  assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendAdd",
-    handle_tox_friend_add_result,
+  tox4j_assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
+  return instances.with_instance_err (env, instanceNumber, "FriendAdd",
     identity,
     tox_friend_add_norequest, public_key.data ()
   );
@@ -63,16 +44,7 @@ TOX_METHOD (jint, FriendAddNorequest,
 TOX_METHOD (void, FriendDelete,
   jint instanceNumber, jint friendNumber)
 {
-  return with_instance (env, instanceNumber, "FriendDelete",
-    [] (TOX_ERR_FRIEND_DELETE error)
-      {
-        switch (error)
-          {
-          success_case (FRIEND_DELETE);
-          failure_case (FRIEND_DELETE, FRIEND_NOT_FOUND);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_ign (env, instanceNumber, "FriendDelete",
     tox_friend_delete, friendNumber
   );
 }
@@ -86,18 +58,8 @@ TOX_METHOD (jint, FriendByPublicKey,
   jint instanceNumber, jbyteArray publicKey)
 {
   ByteArray public_key (env, publicKey);
-  assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendByPublicKey",
-    [] (TOX_ERR_FRIEND_BY_PUBLIC_KEY error)
-      {
-        switch (error)
-          {
-          success_case (FRIEND_BY_PUBLIC_KEY);
-          failure_case (FRIEND_BY_PUBLIC_KEY, NULL);
-          failure_case (FRIEND_BY_PUBLIC_KEY, NOT_FOUND);
-          }
-        return unhandled ();
-      },
+  tox4j_assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
+  return instances.with_instance_err (env, instanceNumber, "FriendByPublicKey",
     identity,
     tox_friend_by_public_key, public_key.data ()
   );
@@ -112,16 +74,7 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
   jint instanceNumber, jint friendNumber)
 {
   std::vector<uint8_t> buffer (TOX_PUBLIC_KEY_SIZE);
-  return with_instance (env, instanceNumber, "FriendGetPublicKey",
-    [] (TOX_ERR_FRIEND_GET_PUBLIC_KEY error)
-      {
-        switch (error)
-          {
-          success_case (FRIEND_GET_PUBLIC_KEY);
-          failure_case (FRIEND_GET_PUBLIC_KEY, FRIEND_NOT_FOUND);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_err (env, instanceNumber, "FriendGetPublicKey",
     [&] (bool)
       {
         return toJavaArray (env, buffer);
@@ -138,13 +91,8 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
 TOX_METHOD (jboolean, FriendExists,
   jint instanceNumber, jint friendNumber)
 {
-  return with_instance (env, instanceNumber,
-    [=] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return tox_friend_exists (tox, friendNumber);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    tox_friend_exists, friendNumber);
 }
 
 /*
@@ -155,7 +103,7 @@ TOX_METHOD (jboolean, FriendExists,
 TOX_METHOD (jintArray, FriendList,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
+  return instances.with_instance (env, instanceNumber,
     [env] (Tox const *tox, Events &events)
       {
         unused (events);

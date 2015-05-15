@@ -9,6 +9,16 @@
 
 namespace tox
 {
+  struct core_deleter
+  {
+    void operator () (Tox *tox)
+    {
+      tox_kill (tox);
+    }
+  };
+
+  typedef std::unique_ptr<Tox, core_deleter> core_ptr;
+
 
   namespace detail
   {

@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+using namespace core;
+
 
 /*
  * Class:     im_tox_tox4jToxCoreImpl
@@ -12,6 +14,6 @@ TOX_METHOD (jbyteArray, Hash,
   ByteArray array (env, data);
   std::vector<uint8_t> hash (TOX_HASH_LENGTH);
   bool result = tox_hash (hash.data (), array.data (), array.size ());
-  assert (result);
+  tox4j_assert (result);
   return toJavaArray (env, hash);
 }
