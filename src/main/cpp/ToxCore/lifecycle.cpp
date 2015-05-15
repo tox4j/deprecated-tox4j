@@ -229,7 +229,7 @@ tox_new_unique (Tox_Options const *options, uint8_t const *data, size_t length, 
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxNew
  * Signature: (ZZILjava/lang/String;I)I
  */
@@ -309,7 +309,7 @@ TOX_METHOD (jint, New,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxKill
  * Signature: (I)I
  */
@@ -320,7 +320,7 @@ TOX_METHOD (void, Kill,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    finalize
  * Signature: (I)V
  */
@@ -331,7 +331,7 @@ METHOD (void, finalize,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSave
  * Signature: (I)[B
  */

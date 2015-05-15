@@ -12,13 +12,13 @@ import im.tox.tox4j.av.proto.Av;
 import im.tox.tox4j.internal.Event;
 
 @SuppressWarnings("checkstyle:nofinalizer")
-public final class ToxAvNative implements ToxAv {
+public final class ToxAvJni implements ToxAv {
 
   static {
     System.loadLibrary("tox4j");
   }
 
-  private final ToxCoreNative tox;
+  private final ToxCoreJni tox;
   private final int instanceNumber;
   private final Event.Id onClose;
   private CallCallback callCallback;
@@ -36,14 +36,14 @@ public final class ToxAvNative implements ToxAv {
    * @param tox An instance of the C-backed ToxCore implementation.
    * @throws ToxAvNewException If there was already an A/V session.
    */
-  public ToxAvNative(ToxCoreNative tox) throws ToxAvNewException {
+  public ToxAvJni(ToxCoreJni tox) throws ToxAvNewException {
     this.tox = tox;
     this.instanceNumber = toxAvNew(this.tox.instanceNumber);
 
     this.onClose = this.tox.addOnCloseCallback(new Runnable() {
       @Override
       public void run() {
-        ToxAvNative.this.close();
+        ToxAvJni.this.close();
       }
     });
   }

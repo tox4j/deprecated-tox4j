@@ -4,7 +4,7 @@ using namespace core;
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfSetTyping
  * Signature: (IIZ)V
  */
@@ -18,7 +18,7 @@ TOX_METHOD (void, SelfSetTyping,
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSendMessage
  * Signature: (IIII[B)I
  */

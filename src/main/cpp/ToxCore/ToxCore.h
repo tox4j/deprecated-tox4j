@@ -5,7 +5,7 @@
 #include "Core.pb.h"
 
 // JNI declarations from javah.
-#include "im_tox_tox4j_impl_ToxCoreNative.h"
+#include "im_tox_tox4j_impl_ToxCoreJni.h"
 
 // Header from toxcore.
 #include <tox/core.h>

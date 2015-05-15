@@ -4,7 +4,7 @@ using namespace core;
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSendLossyPacket
  * Signature: (II[B)V
  */
@@ -18,7 +18,7 @@ TOX_METHOD (void, SendLossyPacket,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSendLosslessPacket
  * Signature: (II[B)V
  */

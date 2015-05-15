@@ -16,7 +16,7 @@ import im.tox.tox4j.core.proto.Core;
 import im.tox.tox4j.internal.Event;
 
 @SuppressWarnings("checkstyle:nofinalizer")
-public final class ToxCoreNative extends AbstractToxCore {
+public final class ToxCoreJni extends AbstractToxCore {
 
   static {
     System.loadLibrary("tox4j");
@@ -46,7 +46,7 @@ public final class ToxCoreNative extends AbstractToxCore {
   }
 
   /**
-   * This field has package visibility for {@link ToxAvNative}.
+   * This field has package visibility for {@link ToxAvJni}.
    */
   final int instanceNumber;
 
@@ -79,13 +79,13 @@ public final class ToxCoreNative extends AbstractToxCore {
   ) throws ToxNewException;
 
   /**
-   * Initialises the new Tox instance with an optional save-data received from {@link ToxCoreNative#save()}.
+   * Initialises the new Tox instance with an optional save-data received from {@link ToxCoreJni#save()}.
    *
    * @param options Connection options object.
    * @param data Optional save-data.
    * @throws ToxNewException If an error was detected in the configuration or a runtime error occurred.
    */
-  public ToxCoreNative(@NotNull ToxOptions options, @Nullable byte[] data) throws ToxNewException {
+  public ToxCoreJni(@NotNull ToxOptions options, @Nullable byte[] data) throws ToxNewException {
     instanceNumber = toxNew(
         data,
         options.ipv6Enabled,

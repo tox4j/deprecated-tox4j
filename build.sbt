@@ -50,8 +50,8 @@ versionSync := "libtoxcore"
 
 // TODO: infer this (harder).
 jniClasses := Seq(
-  "im.tox.tox4j.impl.ToxAvNative",
-  "im.tox.tox4j.impl.ToxCoreNative"
+  "im.tox.tox4j.impl.ToxAvJni",
+  "im.tox.tox4j.impl.ToxCoreJni"
 )
 
 // TODO: infer this (easy).

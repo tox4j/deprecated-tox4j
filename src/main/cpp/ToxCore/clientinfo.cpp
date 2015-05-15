@@ -4,7 +4,7 @@ using namespace core;
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetPublicKey
  * Signature: (I)[B
  */
@@ -22,7 +22,7 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetSecretKey
  * Signature: (I)[B
  */
@@ -40,7 +40,7 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfSetNospam
  * Signature: (II)V
  */
@@ -52,7 +52,7 @@ TOX_METHOD (void, SelfSetNospam,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetNospam
  * Signature: (I)I
  */
@@ -64,7 +64,7 @@ TOX_METHOD (jint, SelfGetNospam,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetAddress
  * Signature: (I)[B
  */
@@ -83,7 +83,7 @@ TOX_METHOD (jbyteArray, SelfGetAddress,
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfSetName
  * Signature: (I[B)V
  */
@@ -96,7 +96,7 @@ TOX_METHOD (void, SelfSetName,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetName
  * Signature: (I)[B
  */
@@ -115,7 +115,7 @@ TOX_METHOD (jbyteArray, SelfGetName,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfSetStatusMessage
  * Signature: (I[B)V
  */
@@ -128,7 +128,7 @@ TOX_METHOD (void, SelfSetStatusMessage,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetStatusMessage
  * Signature: (I)[B
  */
@@ -147,7 +147,7 @@ TOX_METHOD (jbyteArray, SelfGetStatusMessage,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfSetStatus
  * Signature: (II)V
  */
@@ -169,7 +169,7 @@ TOX_METHOD (void, SelfSetStatus,
 }
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetStatus
  * Signature: (I)I
  */

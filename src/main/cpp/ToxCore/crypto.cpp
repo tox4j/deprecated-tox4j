@@ -4,7 +4,7 @@ using namespace core;
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCoreNative
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxHash
  * Signature: ([B)[B
  */
