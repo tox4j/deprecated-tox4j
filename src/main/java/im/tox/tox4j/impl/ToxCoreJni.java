@@ -258,12 +258,16 @@ public final class ToxCoreJni extends AbstractToxCore {
     throw new IllegalStateException("Bad enumerator: " + type);
   }
 
-  @NotNull
+  @Nullable
   private static native byte[] toxIteration(int instanceNumber);
 
   @Override
   public void iteration() {
     byte[] events = toxIteration(instanceNumber);
+    if (events == null) {
+      return;
+    }
+
     Core.CoreEvents toxEvents;
     try {
       toxEvents = Core.CoreEvents.parseFrom(events);
