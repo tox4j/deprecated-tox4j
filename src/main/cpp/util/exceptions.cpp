@@ -1,6 +1,15 @@
 #include "util/exceptions.h"
 
+#include <cstdlib>
 #include <sstream>
+
+
+TOX4J_NORETURN void
+tox4j_fatal_error (JNIEnv *env, char const *message)
+{
+  env->FatalError (message);
+  std::abort ();
+}
 
 
 static std::string
