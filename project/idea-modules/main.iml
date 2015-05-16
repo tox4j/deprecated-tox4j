@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="protobuf" name="Protobuf Facet">
+      <configuration>
+        <option name="COMPILER_OUTPUT_SOURCE_DIRECTORY" value="$MODULE_DIR$/../../target/scala-2.11/src_managed/main/compiled_protobuf" />
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../src/main">
@@ -7,10 +14,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-sdk-2.11.6" level="project" />
     <orderEntry type="library" name="com.google.protobuf:protobuf-java:2.6.1" level="application" />
     <orderEntry type="library" name="com.typesafe.scala-logging:scala-logging_2.11:3.1.0" level="application" />
     <orderEntry type="library" name="org.json:json:20131018" level="application" />
     <orderEntry type="module" module-name="generated" />
+    <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
   </component>
 </module>
