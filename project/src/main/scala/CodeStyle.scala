@@ -1,3 +1,5 @@
+package src.main.scala
+
 import com.etsy.sbt.Checkstyle.CheckstyleTasks
 import org.scalastyle.sbt.ScalastylePlugin.scalastyleConfig
 import sbt.Keys._

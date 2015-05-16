@@ -1,32 +1,33 @@
-import Jni.Keys._
+package src.main.scala
+
+import java.io.File
+
 import sbt.Keys._
 import sbt._
+import src.main.scala.Jni.Keys._
 
 import scala.language.postfixOps
 
 object ProtobufPlugin extends Plugin {
-  val protobufConfig = config("protobuf")
+
+  val Protobuf = config("protobuf")
 
   object Keys {
-    val includePaths = taskKey[Seq[File]]("The paths that contain *.proto dependencies.")
     val generate = taskKey[Seq[File]]("Compile the protobuf sources.")
-    val unpackDependencies = taskKey[UnpackedDependencies]("Unpack dependencies.")
 
-    val protoc = settingKey[String]("The path+name of the protoc executable.")
-    val externalIncludePath = settingKey[File]("The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
-    val generatedTargets = settingKey[Seq[(File,String)]]("Targets for protoc: target directory and glob for generated source files")
-    val protocOptions = settingKey[Seq[String]]("Additional options to be passed to protoc")
+    val protoc = settingKey[File]("The path+name of the protoc executable.")
+    val generatedTargets = settingKey[Seq[(File, String)]]("Targets for protoc: target directory and glob for generated source files")
+
+    val scalabuffVersion =  SettingKey[String]("ScalaBuff version.")
   }
 
-  import ProtobufPlugin.Keys._
+  import Keys._
 
-  override val settings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
+  override val settings = inConfig(Protobuf)(Seq[Setting[_]](
+    sourceDirectory := (sourceDirectory in Compile).value / "protobuf",
+    javaSource := (sourceManaged in Compile).value / "compiled_protobuf",
 
-    sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
-    sourceDirectories <<= sourceDirectory apply (_ :: Nil),
-    javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
-    externalIncludePath <<= target(_ / "protobuf_external"),
-    protoc := "protoc",
+    protoc := file("protoc"),
     version := {
       object versionLog extends ProcessLogger {
         import scala.collection.mutable
@@ -41,108 +42,134 @@ object ProtobufPlugin extends Plugin {
           result ++= s
         }
       }
-      Seq(protoc.value, "--version") !< versionLog
+      Seq(protoc.value.getPath, "--version") !< versionLog
 
       versionLog.result.mkString.split(" ")(1).trim
     },
 
-    generatedTargets := Nil,
-    generatedTargets <+= javaSource((_, "*.java")), // add javaSource to the list of patterns
-    generatedTargets <+= (managedNativeSource in Compile)((_, "*.pb.cpp")),
-
-    protocOptions := Nil,
-    protocOptions <++= generatedTargets{ generatedTargets =>
-      val java_out =
-        generatedTargets.find(_._2.endsWith(".java")) match {
-          case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.absolutePath))
-          case None => Nil
-        }
-      val cpp_out =
-        generatedTargets.find(_._2.endsWith(".pb.cpp")) match {
-          case Some(targetForCpp) => Seq("--cpp_out=%s".format(targetForCpp._1.absolutePath))
-          case None => Nil
-        }
-      java_out ++ cpp_out
-    },
+    scalabuffVersion := "1.4.0",
 
     managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
-      Classpaths.managedJars(protobufConfig, ct, report)
+      Classpaths.managedJars(Protobuf, ct, report)
     },
 
-    unpackDependencies <<= unpackDependenciesTask,
-
-    includePaths <<= sourceDirectory map (identity(_) :: Nil),
-    includePaths <+= externalIncludePath map (identity(_)),
-
-    generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
+    generate <<= (
+      streams,
+      managedClasspath,
+      javaHome,
+      javaSource,
+      managedNativeSource in Compile,
+      sourceDirectory,
+      protoc
+    ) map sourceGeneratorTask
 
   )) ++ Seq[Setting[_]](
-    sourceGenerators in Compile <+= generate in protobufConfig,
-    cleanFiles <++= (generatedTargets in protobufConfig){_.map{_._1}},
-    cleanFiles <+= (externalIncludePath in protobufConfig),
-    managedSourceDirectories in Compile <++= (generatedTargets in protobufConfig){_.map{_._1}},
-    libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
-    ivyConfigurations += protobufConfig,
+    libraryDependencies <++= (scalabuffVersion in Protobuf)(version =>
+      Seq(
+        "net.sandrogrzicic" %% "scalabuff-compiler" % version % Protobuf.name,
+        "net.sandrogrzicic" %% "scalabuff-runtime" % version
+      )
+    ),
+    libraryDependencies <+= (version in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
 
-    jniSourceFiles in Compile <++= (generatedTargets in protobufConfig){ generatedTargets =>
-      generatedTargets.find(_._2.endsWith(".pb.cpp")) match {
-        case Some(targetForCpp) => (targetForCpp._1 ** targetForCpp._2).get
-        case None => Nil
-      }
-    }
+    sourceGenerators in Compile <+= generate in Protobuf,
+    managedSourceDirectories in Compile += (javaSource in Protobuf).value,
+    jniSourceFiles in Compile ++= ((managedNativeSource in Compile).value ** "*.pb.cpp").get
   )
 
-  case class UnpackedDependencies(dir: File, files: Seq[File])
+  private def sourceGeneratorTask(
+    streams: TaskStreams,
+    managedClasspath: Classpath,
+    javaHome: Option[File],
+    javaSource: File,
+    managedNativeSource: File,
+    sourceDirectory: File,
+    protoc: File
+  ) = {
+    val schemas = (sourceDirectory ** "*.proto").get.map(_.getAbsoluteFile).toSet
+    val cachedCompile =
+      FileFunction.cached(
+        streams.cacheDirectory / "protobuf",
+        inStyle = FilesInfo.lastModified,
+        outStyle = FilesInfo.exists
+      ) { (in: Set[File]) =>
+        schemas.foreach(schema => streams.log.info(s"Compiling schema $schema"))
 
-  private def executeProtoc(protocCommand: String, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) =
-    try {
-      val incPath = includePaths.map("-I" + _.absolutePath)
-      val command = Seq(protocCommand) ++ incPath ++ protocOptions ++ schemas.map(_.absolutePath)
-      command ! log
-    } catch { case e: Exception =>
-      throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
-    }
+        // Compile to Scala sources.
+        val scalaBuffOutputs = compileScalaBuff(in, managedClasspath, javaHome, javaSource, sourceDirectory, streams.log)
 
+        // Compile to C++ and Java sources.
+        val protocOutputs = compileProtoc(protoc, in, javaSource, managedNativeSource, sourceDirectory, streams.log)
 
-  private def compile(protocCommand: String, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
-    val generatedTargetDirs = generatedTargets.map(_._1)
+        (scalaBuffOutputs ++ protocOutputs).toSet
+      }
+    cachedCompile(schemas).toSeq
+  }
 
-    generatedTargetDirs.foreach(_.mkdirs())
+  private def compileScalaBuff(
+    schemas: Set[File],
+    managedClasspath: Classpath,
+    javaHome: Option[File],
+    javaSource: File,
+    sourceDirectory: File,
+    log: Logger
+  ) = {
+    val scalaOut = javaSource
 
-    log.info("Compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
+    scalaOut.mkdirs()
+
+    val arguments = Seq(
+      "-cp", managedClasspath.map(_.data).mkString(File.pathSeparator),
+      "net.sandrogrzicic.scalabuff.compiler.ScalaBuff",
+      "--scala_out=" + scalaOut.getAbsolutePath
+    ) ++ schemas.toSeq.map(_.toString)
+
+    log.debug("scalabuff options:")
+    arguments.map("\t" + _).foreach(log.debug(_))
+
+//    val exitCode = Fork.java(ForkOptions(javaHome), arguments)
+//    if (exitCode != 0) {
+//      throw new RuntimeException(s"scalabuff-compiler returned exit code: $exitCode")
+//    }
+
+    (scalaOut ** "*.scala").get
+  }
+
+  private def compileProtoc(
+    protoc: File,
+    schemas: Set[File],
+    javaSource: File,
+    managedNativeSource: File,
+    sourceDirectory: File,
+    log: Logger
+  ) = {
+    val javaOut = javaSource
+    val cppOut = managedNativeSource
+
+    javaOut.mkdirs()
+    cppOut.mkdirs()
+
+    val protocOptions = Seq(
+      s"--java_out=${javaOut.absolutePath}",
+      s"--cpp_out=${cppOut.absolutePath}"
+    )
+
     log.debug("protoc options:")
     protocOptions.map("\t" + _).foreach(log.debug(_))
-    schemas.foreach(schema => log.info("Compiling schema %s" format schema))
 
-    val exitCode = executeProtoc(protocCommand, schemas, includePaths, protocOptions, log)
-    if (exitCode != 0)
-      sys.error("protoc returned exit code: %d" format exitCode)
-
-    (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
-  }
-
-  private def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {
-    IO.createDirectory(extractTarget)
-    deps.flatMap { dep =>
-      val seq = IO.unzip(dep, extractTarget, "*.proto").toSeq
-      if (!seq.isEmpty) log.debug("Extracted " + seq.mkString("\n * ", "\n * ", ""))
-      seq
-    }
-  }
-
-  private def sourceGeneratorTask =
-    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, protoc) map {
-    (out, srcDirs, includePaths, protocOpts, otherTargets, protocCommand) =>
-      val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** "*.proto").get.map(_.getAbsoluteFile))
-      val cachedCompile = FileFunction.cached(out.cacheDirectory / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(protocCommand, schemas, includePaths, protocOpts, otherTargets, out.log)
+    val exitCode =
+      try {
+        val command = Seq(protoc.getPath) ++ Seq("-I" + sourceDirectory.absolutePath) ++ protocOptions ++ schemas.map(_.absolutePath)
+        command ! log
+      } catch {
+        case e: Exception =>
+          throw new RuntimeException(s"error occured while compiling protobuf files: ${e.getMessage}", e)
       }
-      cachedCompile(schemas).toSeq
+    if (exitCode != 0) {
+      throw new RuntimeException(s"protoc returned exit code: $exitCode")
+    }
+
+    (javaOut ** "*.java").get
   }
 
-  private def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
-    (out, deps, extractTarget) =>
-      val extractedFiles = unpack(deps.map(_.data), extractTarget, out.log)
-      UnpackedDependencies(extractTarget, extractedFiles)
-  }
 }

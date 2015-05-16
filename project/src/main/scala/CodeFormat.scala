@@ -1,3 +1,5 @@
+package src.main.scala
+
 import com.typesafe.sbt.SbtScalariform.{ScalariformKeys, scalariformSettings}
 import sbt._
 

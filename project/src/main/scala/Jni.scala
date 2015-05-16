@@ -1,3 +1,5 @@
+package src.main.scala
+
 import sbt.Keys._
 import sbt._
 
