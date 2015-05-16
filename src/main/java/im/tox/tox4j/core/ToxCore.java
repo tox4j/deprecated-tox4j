@@ -73,7 +73,7 @@ public interface ToxCore extends Closeable {
    *
    * @param callback the callback.
    */
-  void callbackConnectionStatus(@Nullable ConnectionStatusCallback callback);
+  void callbackConnectionStatus(@NotNull ConnectionStatusCallback callback);
 
   /**
    * Get the UDP port this instance is bound to.
@@ -294,35 +294,35 @@ public interface ToxCore extends Closeable {
    *
    * @param callback the callback.
    */
-  void callbackFriendName(@Nullable FriendNameCallback callback);
+  void callbackFriendName(@NotNull FriendNameCallback callback);
 
   /**
    * Set the callback for friend status message changes.
    *
    * @param callback the callback.
    */
-  void callbackFriendStatusMessage(@Nullable FriendStatusMessageCallback callback);
+  void callbackFriendStatusMessage(@NotNull FriendStatusMessageCallback callback);
 
   /**
    * Set the callback for friend message changes.
    *
    * @param callback the callback.
    */
-  void callbackFriendStatus(@Nullable FriendStatusCallback callback);
+  void callbackFriendStatus(@NotNull FriendStatusCallback callback);
 
   /**
    * Set the callback for friend connection changes.
    *
    * @param callback the callback.
    */
-  void callbackFriendConnected(@Nullable FriendConnectionStatusCallback callback);
+  void callbackFriendConnected(@NotNull FriendConnectionStatusCallback callback);
 
   /**
    * Set the callback for friend typing changes.
    *
    * @param callback the callback.
    */
-  void callbackFriendTyping(@Nullable FriendTypingCallback callback);
+  void callbackFriendTyping(@NotNull FriendTypingCallback callback);
 
   /**
    * Tell friend number whether or not we are currently typing.
@@ -336,15 +336,15 @@ public interface ToxCore extends Closeable {
   int sendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message)
       throws ToxSendMessageException;
 
-  void callbackReadReceipt(@Nullable ReadReceiptCallback callback);
+  void callbackReadReceipt(@NotNull ReadReceiptCallback callback);
 
-  void callbackFriendRequest(@Nullable FriendRequestCallback callback);
+  void callbackFriendRequest(@NotNull FriendRequestCallback callback);
 
-  void callbackFriendMessage(@Nullable FriendMessageCallback callback);
+  void callbackFriendMessage(@NotNull FriendMessageCallback callback);
 
   void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) throws ToxFileControlException;
 
-  void callbackFileControl(@Nullable FileControlCallback callback);
+  void callbackFileControl(@NotNull FileControlCallback callback);
 
   void fileSendSeek(int friendNumber, int fileNumber, long position) throws ToxFileSendSeekException;
 
@@ -356,26 +356,26 @@ public interface ToxCore extends Closeable {
 
   byte[] fileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException;
 
-  void callbackFileRequestChunk(@Nullable FileRequestChunkCallback callback);
+  void callbackFileRequestChunk(@NotNull FileRequestChunkCallback callback);
 
-  void callbackFileReceive(@Nullable FileReceiveCallback callback);
+  void callbackFileReceive(@NotNull FileReceiveCallback callback);
 
-  void callbackFileReceiveChunk(@Nullable FileReceiveChunkCallback callback);
+  void callbackFileReceiveChunk(@NotNull FileReceiveChunkCallback callback);
 
   void sendLossyPacket(int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException;
 
-  void callbackFriendLossyPacket(@Nullable FriendLossyPacketCallback callback);
+  void callbackFriendLossyPacket(@NotNull FriendLossyPacketCallback callback);
 
   void sendLosslessPacket(int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException;
 
-  void callbackFriendLosslessPacket(@Nullable FriendLosslessPacketCallback callback);
+  void callbackFriendLosslessPacket(@NotNull FriendLosslessPacketCallback callback);
 
   /**
    * Convenience method to set all event handlers at once.
    *
    * @param handler An event handler capable of handling all Tox events.
    */
-  void callback(@Nullable ToxEventListener handler);
+  void callback(@NotNull ToxEventListener handler);
 
   @NotNull byte[] hash(@NotNull byte[] data);
 
