@@ -16,4 +16,6 @@ public interface ToxEventListener extends
     FriendLosslessPacketCallback,
     FriendLossyPacketCallback,
     ReadReceiptCallback {
+
+  ToxEventListener IGNORE = new ToxEventAdapter();
 }
