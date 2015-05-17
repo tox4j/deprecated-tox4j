@@ -15,4 +15,4 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.0.0.BETA1")
 scalacOptions ++= Seq("-feature", "-deprecation")
 
 // Dependencies for SBT code.
-libraryDependencies += "org.apache.commons" % "commons-io" % "1.3.2"
+libraryDependencies += "commons-io" % "commons-io" % "2.4"
