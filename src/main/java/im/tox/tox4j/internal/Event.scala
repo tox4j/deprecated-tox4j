@@ -24,13 +24,13 @@ object Event {
      *
      * @param permission Permission object to ensure it's not called outside the [[Event]] class.
      */
-    def reset(permission: ResetPermission.type)
+    def reset(permission: ResetPermission.type): Unit
   }
 
   private final class IdImpl(private var index: Int) extends Id {
     def value: Int = index
 
-    def reset(permission: ResetPermission.type) {
+    def reset(permission: ResetPermission.type): Unit = {
       index = INVALID_INDEX
     }
   }
@@ -55,7 +55,7 @@ final class Event extends Runnable {
    *
    * @param id The callback id object.
    */
-  def remove(id: Event.Id) {
+  def remove(id: Event.Id): Unit = {
     val index = id.value
     if (index != Event.INVALID_INDEX) {
       id.reset(Event.ResetPermission)
@@ -69,7 +69,7 @@ final class Event extends Runnable {
   /**
    * Invoke all callbacks.
    */
-  def run() {
+  def run(): Unit = {
     callbacks.foreach(_.run())
   }
 }
