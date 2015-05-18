@@ -30,24 +30,26 @@ object TestClient extends App {
   }
 
   private def fromHexDigit(c: Char): Byte = {
-    if (c >= '0' && c <= '9') {
-      (c - '0').toByte
-    } else if (c >= 'a' && c <= 'f') {
-      (c - 'A' + 10).toByte
-    } else if (c >= 'A' && c <= 'F') {
-      (c - 'A' + 10).toByte
-    } else {
-      throw new IllegalArgumentException("Non-hex digit character: " + c)
-    }
+    val subtract =
+      if (c >= '0' && c <= '9') {
+        '0'
+      } else if (c >= 'a' && c <= 'f') {
+        'A' + 10
+      } else if (c >= 'A' && c <= 'F') {
+        'A' + 10
+      } else {
+        throw new IllegalArgumentException("Non-hex digit character: " + c)
+      }
+    (c - subtract).toByte
   }
 
   (args match {
     case Array("--bootstrap", host, port, key, count) =>
-      (Some(host, Integer.parseInt(port), key), Integer.parseInt(count))
+      (Some((host, Integer.parseInt(port), key)), Integer.parseInt(count))
     case Array("--bootstrap", host, port, key) =>
-      (Some(host, Integer.parseInt(port), key), 1)
+      (Some((host, Integer.parseInt(port), key)), 1)
     case Array("--bootstrap", count) =>
-      (Some("144.76.60.215", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F"), Integer.parseInt(count))
+      (Some(("144.76.60.215", 33445, "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F")), Integer.parseInt(count))
     case Array(count) =>
       (None, Integer.parseInt(count))
     case _ =>
