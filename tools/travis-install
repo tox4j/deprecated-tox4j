@@ -69,3 +69,7 @@ case "$TOX4J_TARGET" in
     INSTALL https://github.com/irungentoo toxcore
     ;;
 esac
+
+# Install the required java/scala packages.
+cd `cat $HOME/.pushd`
+sbt update
