@@ -16,8 +16,8 @@ arch-x86
 */platforms/android-8
 */sources/cxx-stl/llvm-libc++*
 */tests
-*/toolchains/*-4.8
-*/toolchains/*-clang*
+*/toolchains/*-4.9
+*/toolchains/*-clang3.5
 */toolchains/aarch64*
 */toolchains/llvm-3.5
 */toolchains/mips*

@@ -2,7 +2,7 @@
 
 set -ex
 
-COMPILER=4.9
+COMPILER=clang3.6
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
   export ANDROID_NDK_HOME=$HOME/usr/android-ndk
