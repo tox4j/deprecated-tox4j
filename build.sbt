@@ -67,24 +67,7 @@ scalacOptions in Test += "-target:jvm-" + javaVersion
 ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
 
-// Disable method name inspection, since we use things like name_=.
-scapegoatDisabledInspections := Seq("MethodNames")
-
-wartremoverErrors in (Compile, compile) := Warts.allBut(
-  Wart.NonUnitStatements,
-  Wart.Var
-)
-wartremoverErrors in (Test, compile) := Warts.allBut(
-  Wart.Any,
-  Wart.AsInstanceOf,
-  Wart.NonUnitStatements,
-  Wart.Null,
-  Wart.Throw,
-  Wart.Var
-)
-
+// Add Scala linter.
 resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
 addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1.9")
 scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssignedUnusedValue"
-
-scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation")
