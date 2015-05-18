@@ -210,7 +210,7 @@ object Jni extends Plugin {
   private def findTool(toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: String*) = {
     mkToolchain(toolchainPath, candidates) find { cc =>
       try {
-        val flagsOpt = Seq() +: flags
+        val flagsOpt = Seq[String]() +: flags
         //println(s"Trying $cc")
         Seq(cc, "--version") !< nullLog == 0 && findCcOptions(cc, false, code)(flagsOpt:_*) != None
       } catch {
@@ -605,7 +605,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
         )
       }
 
-      log.info(s"Configuring C++ build")
+      log.info("Configuring C++ build")
       checkExitCode(cmake, log)
     }.dependsOn(javah)
      .tag(Tags.Compile, Tags.CPU)

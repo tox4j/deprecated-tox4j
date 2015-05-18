@@ -18,7 +18,8 @@ object ProtobufPlugin extends Plugin {
     val protoc = settingKey[File]("The path+name of the protoc executable.")
     val generatedTargets = settingKey[Seq[(File, String)]]("Targets for protoc: target directory and glob for generated source files")
 
-    val scalabuffVersion =  SettingKey[String]("ScalaBuff version.")
+    val scalabuffVersion = SettingKey[String]("ScalaBuff version.")
+    val scalabuffEnabled = false
   }
 
   import Keys._
@@ -127,10 +128,12 @@ object ProtobufPlugin extends Plugin {
     log.debug("scalabuff options:")
     arguments.map("\t" + _).foreach(log.debug(_))
 
-//    val exitCode = Fork.java(ForkOptions(javaHome), arguments)
-//    if (exitCode != 0) {
-//      throw new RuntimeException(s"scalabuff-compiler returned exit code: $exitCode")
-//    }
+    if (scalabuffEnabled) {
+      val exitCode = Fork.java(ForkOptions(javaHome), arguments)
+      if (exitCode != 0) {
+        throw new RuntimeException(s"scalabuff-compiler returned exit code: $exitCode")
+      }
+    }
 
     (scalaOut ** "*.scala").get
   }
