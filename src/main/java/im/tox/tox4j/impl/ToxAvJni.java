@@ -61,7 +61,7 @@ public final class ToxAvJni implements ToxAv {
   private static native void finalize(int instanceNumber);
 
   @Override
-  public void finalize() throws Throwable {
+  protected void finalize() throws Throwable {
     try {
       finalize(instanceNumber);
     } catch (Throwable e) {
