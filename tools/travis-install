@@ -1,0 +1,68 @@
+#!/bin/sh
+
+set -ex
+
+# Disable overrides.
+unset CC
+unset CXX
+
+CACHEDIR=$1
+mkdir -p "$CACHEDIR"
+
+pwd > $HOME/.pushd
+
+# Package dependencies.
+sudo apt-get install libstdc++-4.8-dev libvpx-dev libprotobuf-dev protobuf-compiler
+wget https://dl.bintray.com/sbt/debian/sbt-0.13.8.deb
+sudo dpkg -i sbt-0.13.8.deb
+protoc --version || true
+
+# Do the whole thing for Android.
+if [ -n "$BUILD_ANDROID" ]; then
+  sudo apt-get install p7zip swig maven2
+  cd $HOME
+  wget http://dl.google.com/android/ndk/android-ndk-r10e-linux-x86_64.bin
+  NDK_EXCLUDES=`cat $HOME/.pushd`/tools/ndk-excludes.txt
+  7zr x android-ndk-r10e-linux-x86_64.bin `sed 's/^/ -xr!/g' $NDK_EXCLUDES` | awk '/^Extracting/ { i++; if (i > 50) {print; i = 0}}'
+  rm android-ndk-r10e-linux-x86_64.bin
+
+  export ANDROID_NDK_HOME=$HOME/android-ndk-r10e
+  cd `cat $HOME/.pushd`/android
+  ./build-deps.sh
+fi
+
+# Then for the local platform.
+INSTALL() {
+  cd "$CACHEDIR"
+  if [ -d $2 ]; then
+    cd $2
+    git fetch
+    git clean -fdx
+    git reset --hard
+    git checkout master
+    git reset --hard origin/master
+  else
+    git clone $1/$2.git
+    cd $2
+  fi
+
+  ./autogen.sh
+  mkdir _build
+  cd _build
+  ../configure --prefix=/usr
+  make -j4
+
+  sudo make install
+  git clean -fdx
+}
+
+if [ -n "$BUILD_HOST" ]; then
+  # opus
+  INSTALL git://git.opus-codec.org opus
+
+  # libsodium
+  INSTALL https://github.com/jedisct1 libsodium
+
+  # toxcore
+  INSTALL https://github.com/irungentoo toxcore
+fi
