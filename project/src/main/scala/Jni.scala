@@ -3,7 +3,7 @@ package src.main.scala
 import sbt.Keys._
 import sbt._
 
-import java.io.{File, PrintWriter}
+import java.io.{ File, PrintWriter }
 
 import scala.language.postfixOps
 
@@ -12,7 +12,7 @@ object Jni extends Plugin {
   object BuildTool {
     sealed trait T { def name: String; def command: String }
     case object Ninja extends T { def name = "Ninja"; def command = "ninja" }
-    case object Make  extends T { def name = "Unix Makefiles"; def command = "make"  }
+    case object Make extends T { def name = "Unix Makefiles"; def command = "make" }
   }
 
   object Keys {
@@ -48,8 +48,7 @@ object Jni extends Plugin {
 
   import Keys._
 
-
-  private val jniConfig = config("native")
+  private val Native = config("native")
 
   private object PrivateKeys {
 
@@ -74,11 +73,10 @@ object Jni extends Plugin {
 
   import PrivateKeys._
 
-
   private object nullLog extends AnyRef with ProcessLogger {
     def buffer[T](f: => T): T = f
-    def error(s: => String) = { }
-    def info(s: => String) = { }
+    def error(s: => String) = {}
+    def info(s: => String) = {}
   }
 
   private object stdoutLog extends AnyRef with ProcessLogger {
@@ -129,9 +127,7 @@ object Jni extends Plugin {
       Process(
         Seq("pkg-config") ++ args,
         None,
-        (
-          ("PKG_CONFIG_PATH", (paths ++ origPath).mkString(File.pathSeparator))
-        )
+        ("PKG_CONFIG_PATH", (paths ++ origPath).mkString(File.pathSeparator))
       )
     }
 
@@ -156,7 +152,6 @@ object Jni extends Plugin {
     pkgConfig("modversion", Seq(pkg), paths).head
   }
 
-
   private def findCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
     val sourceFile = File.createTempFile("configtest", cppExtensions(0))
     val targetFile = File.createTempFile("configtest", ".out")
@@ -179,7 +174,7 @@ object Jni extends Plugin {
         }
 
       if (found == None && required) {
-        sys.error(s"No valid flags found with compiler ${compiler}; tried [${flags.map(_.mkString).mkString("; ")}]")
+        sys.error(s"No valid flags found with compiler $compiler; tried [${flags.map(_.mkString).mkString("; ")}]")
       }
 
       found
@@ -189,13 +184,11 @@ object Jni extends Plugin {
     }
   }
 
-
   private def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) =
-    findCcOptions(compiler, required, code)(flags:_*) match {
-      case None => Nil
+    findCcOptions(compiler, required, code)(flags: _*) match {
+      case None        => Nil
       case Some(flags) => flags
     }
-
 
   private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
     toolchainPath match {
@@ -212,22 +205,25 @@ object Jni extends Plugin {
       try {
         val flagsOpt = Seq[String]() +: flags
         //println(s"Trying $cc")
-        Seq(cc, "--version") !< nullLog == 0 && findCcOptions(cc, false, code)(flagsOpt:_*) != None
+        Seq(cc, "--version") !< nullLog == 0 && findCcOptions(cc, false, code)(flagsOpt: _*) != None
       } catch {
         case _: java.io.IOException => false
       }
     } getOrElse "false"
   }
 
-  private def findCc(toolchainPath: Option[File]) = findTool(toolchainPath,
+  private def findCc(toolchainPath: Option[File]) = findTool(
+    toolchainPath,
     // Check for a working C89 compiler.
     """
     int foo(void);
-    """)(
+    """
+  )(
       Seq("-std=c89")
     )("clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc")
 
-  private def findCxx(toolchainPath: Option[File]) = findTool(toolchainPath,
+  private def findCxx(toolchainPath: Option[File]) = findTool(
+    toolchainPath,
     // Check for a working C++14 compiler.
     """
     auto f = [](auto i) mutable { return i; };
@@ -239,11 +235,11 @@ object Jni extends Plugin {
     auto foo (Args ...args) {
       return [&] { return bar (args...); };
     }
-    """)(
+    """
+  )(
       Seq("-std=c++14"),
       Seq("-std=c++1y")
     )("clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++")
-
 
   private def checkExitCode(command: ProcessBuilder, log: Logger) = {
     command ! log match {
@@ -252,7 +248,6 @@ object Jni extends Plugin {
         sys.error(s"command failed with exit code $exitCode:\n  $command")
     }
   }
-
 
   private def mkPkgConfigPath(pkgConfigPath: Seq[File], toolchainPath: Option[File]) = {
     pkgConfigPath ++ {
@@ -268,7 +263,6 @@ object Jni extends Plugin {
       }
     }
   }
-
 
   object Platform {
     sealed trait T
@@ -321,7 +315,7 @@ object Jni extends Plugin {
 
     def jniSettings(target: T) =
       target match {
-        case Android(platform) => androidSettings(platform)
+        case Android(platform)      => androidSettings(platform)
         case Host(dependencyPrefix) => hostSettings(dependencyPrefix)
       }
 
@@ -339,8 +333,7 @@ object Jni extends Plugin {
     val settings = jniSettings(platform)
   }
 
-
-  override val settings = inConfig(jniConfig)(Seq(
+  override val settings = inConfig(Native)(Seq(
 
     // Target for javah-generated headers.
     headersPath := nativeTarget.value / "include",
@@ -455,7 +448,7 @@ object Jni extends Plugin {
 
     cleanFiles ++= Seq(
       binPath.value,
-      (headersPath in jniConfig).value
+      (headersPath in Native).value
     ),
 
     // Make shared lib available at runtime. Must be used with forked JVM to work.
@@ -467,145 +460,139 @@ object Jni extends Plugin {
     // Required in order to have a separate JVM to set Java options.
     fork := true
 
-  ) ++ Platform.settings ++ Seq(
+  ) ++ Platform.settings ++ inConfig(Native)(Seq(
 
-    javah := Def.task {
-      val log = streams.value.log
+      javah := Def.task {
+        val log = streams.value.log
 
-      val classpath = (
-        (dependencyClasspath in Compile).value.files ++
-        Seq((classDirectory in Compile).value)
-      ).mkString(File.pathSeparator)
+        val classpath = (
+          (dependencyClasspath in Compile).value.files ++
+          Seq((classDirectory in Compile).value)
+        ).mkString(File.pathSeparator)
 
-      val command = Seq(
-        "javah",
-        "-d", (headersPath in jniConfig).value.getPath,
-        "-classpath", classpath
-      ) ++ jniClasses.value
+        val command = Seq(
+          "javah",
+          "-d", (headersPath in Native).value.getPath,
+          "-classpath", classpath
+        ) ++ jniClasses.value
 
-      log.info(s"Running javah to generate ${jniClasses.value.size} JNI headers")
-      checkExitCode(command, log)
-    }.dependsOn(compile in Compile)
-     .dependsOn(checkVersion in jniConfig)
-     .tag(Tags.Compile, Tags.CPU)
-     .value,
+        log.info(s"Running javah to generate ${jniClasses.value.size} JNI headers")
+        checkExitCode(command, log)
+      }.dependsOn(compileIncremental in Compile, checkVersion in Native)
+        .tag(Tags.Compile, Tags.CPU)
+        .value,
 
+      cmakeDependenciesFile := Def.task {
+        val fileName = nativeTarget.value / "Dependencies.cmake"
+        val out = new PrintWriter(fileName)
+        try {
+          for (dir <- (includes in Native).value)
+            out.println(s"include_directories($dir)")
 
-    cmakeDependenciesFile := Def.task {
-      val fileName = nativeTarget.value / "Dependencies.cmake"
-      val out = new PrintWriter(fileName)
-      try {
-        for (dir <- (includes in jniConfig).value)
-          out.println(s"include_directories($dir)")
-
-        if (packageDependencies.value.nonEmpty) {
-          out.println("find_package(PkgConfig REQUIRED)")
-        }
-        packageDependencies.value foreach { pkg =>
-          val PKG = pkg.toUpperCase.replace('-', '_')
-          out.println(s"pkg_check_modules($PKG REQUIRED $pkg)")
-          out.println(s"include_directories($${${PKG}_INCLUDE_DIRS})")
-          out.println(s"link_directories($${${PKG}_LIBRARY_DIRS})")
-          out.println(s"link_libraries($${${PKG}_LIBRARIES})")
-        }
-
-        Seq((nativeSource in Compile).value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
-          out.println(s"include_directories($dir)")
-        }
-      } finally {
-        out.close()
-      }
-
-      fileName
-    }.value,
-
-
-    cmakeMainFile := Def.task {
-      val fileName = nativeTarget.value / "Main.cmake"
-      val out = new PrintWriter(fileName)
-      try {
-        val mainSources = (jniSourceFiles in Compile).value
-
-        out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
-        out.println(s"add_library(${libraryName.value} SHARED ${mainSources.mkString(" ")})")
-      } finally {
-        out.close()
-      }
-
-      fileName
-    }.value,
-
-
-    gtestPath := Def.task {
-      val log = streams.value.log
-
-      val candidates = Seq(
-        file("/usr/src/gtest")
-      )
-
-      candidates find { candidate =>
-        (candidate / "src" / "gtest-all.cc").exists
-      } getOrElse {
-        val gtestDir = managedNativeSource.value / "gtest"
-        if (!gtestDir.exists) {
-          val command = Seq(
-            "svn", "checkout",
-            "http://googletest.googlecode.com/svn/trunk/",
-            gtestDir.getPath
-          )
-
-          log.info("Fetching gtest sources")
-          checkExitCode(command, log)
-        }
-
-        gtestDir
-      }
-    }.value,
-
-
-    cmakeTestFile := Def.task {
-      val fileName = nativeTarget.value / "Test.cmake"
-      val out = new PrintWriter(fileName)
-      try {
-        val gtestDir = gtestPath.value
-
-        out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
-        out.println(s"include_directories($gtestDir $gtestDir/include)")
-
-        out.println("link_libraries(gtest)")
-
-        val testSources = (jniSourceFiles in Test).value
-
-        out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
-        out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
-
-        testSources.foreach { source =>
-          if (source.getName != "main.cpp" && source.getName != "mock_jni.cpp") {
-            import org.apache.commons.io.FilenameUtils
-
-            val testName = FilenameUtils.removeExtension(source.getName)
-            out.println(s"add_executable($testName main.cpp mock_jni.cpp $source)")
-            out.println(s"add_test($testName $testName)")
+          if (packageDependencies.value.nonEmpty) {
+            out.println("find_package(PkgConfig REQUIRED)")
           }
+          packageDependencies.value foreach { pkg =>
+            val PKG = pkg.toUpperCase.replace('-', '_')
+            out.println(s"pkg_check_modules($PKG REQUIRED $pkg)")
+            out.println(s"include_directories($${${PKG}_INCLUDE_DIRS})")
+            out.println(s"link_directories($${${PKG}_LIBRARY_DIRS})")
+            out.println(s"link_libraries($${${PKG}_LIBRARIES})")
+          }
+
+          Seq((nativeSource in Compile).value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
+            out.println(s"include_directories($dir)")
+          }
+        } finally {
+          out.close()
         }
-      } finally {
-        out.close()
-      }
 
-      fileName
-    }.value,
+        fileName
+      }.value,
 
+      cmakeMainFile := Def.task {
+        val fileName = nativeTarget.value / "Main.cmake"
+        val out = new PrintWriter(fileName)
+        try {
+          val mainSources = (jniSourceFiles in Compile).value
 
-    cmakeToolchainFlags := Def.task {
-      toolchainPath.value match {
-        case None =>
-          Nil
+          out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
+          out.println(s"add_library(${libraryName.value} SHARED ${mainSources.mkString(" ")})")
+        } finally {
+          out.close()
+        }
 
-        case Some(toolchainPath) =>
-          val toolchainFile = nativeTarget.value / "Toolchain.cmake"
-          val out = new PrintWriter(toolchainFile)
-          try {
-            out.println(s"""
+        fileName
+      }.value,
+
+      gtestPath := Def.task {
+        val log = streams.value.log
+
+        val candidates = Seq(
+          file("/usr/src/gtest")
+        )
+
+        candidates find { candidate =>
+          (candidate / "src" / "gtest-all.cc").exists
+        } getOrElse {
+          val gtestDir = managedNativeSource.value / "gtest"
+          if (!gtestDir.exists) {
+            val command = Seq(
+              "svn", "checkout",
+              "http://googletest.googlecode.com/svn/trunk/",
+              gtestDir.getPath
+            )
+
+            log.info("Fetching gtest sources")
+            checkExitCode(command, log)
+          }
+
+          gtestDir
+        }
+      }.value,
+
+      cmakeTestFile := Def.task {
+        val fileName = nativeTarget.value / "Test.cmake"
+        val out = new PrintWriter(fileName)
+        try {
+          val gtestDir = gtestPath.value
+
+          out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
+          out.println(s"include_directories($gtestDir $gtestDir/include)")
+
+          out.println("link_libraries(gtest)")
+
+          val testSources = (jniSourceFiles in Test).value
+
+          out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
+          out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
+
+          testSources.foreach { source =>
+            if (source.getName != "main.cpp" && source.getName != "mock_jni.cpp") {
+              import org.apache.commons.io.FilenameUtils
+
+              val testName = FilenameUtils.removeExtension(source.getName)
+              out.println(s"add_executable($testName main.cpp mock_jni.cpp $source)")
+              out.println(s"add_test($testName $testName)")
+            }
+          }
+        } finally {
+          out.close()
+        }
+
+        fileName
+      }.value,
+
+      cmakeToolchainFlags := Def.task {
+        toolchainPath.value match {
+          case None =>
+            Nil
+
+          case Some(toolchainPath) =>
+            val toolchainFile = nativeTarget.value / "Toolchain.cmake"
+            val out = new PrintWriter(toolchainFile)
+            try {
+              out.println(s"""
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_C_COMPILER ${nativeCC.value})
 SET(CMAKE_CXX_COMPILER ${nativeCXX.value})
@@ -613,106 +600,107 @@ SET(CMAKE_FIND_ROOT_PATH ${toolchainPath / "sysroot"})
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
-          } finally {
-            out.close()
-          }
+            } finally {
+              out.close()
+            }
 
-          val jniPath = toolchainPath / "sysroot" / "usr" / "include"
-          if (!(jniPath / "jni.h").exists) {
-            sys.error("JNI path does not contain jni.h: " + jniPath)
-          }
+            val jniPath = toolchainPath / "sysroot" / "usr" / "include"
+            if (!(jniPath / "jni.h").exists) {
+              sys.error("JNI path does not contain jni.h: " + jniPath)
+            }
 
-          val needJniMd =
-            if ((jniPath / "jni_md.h").exists)
-              "y"
-            else
-              "n"
+            val needJniMd =
+              if ((jniPath / "jni_md.h").exists)
+                "y"
+              else
+                "n"
 
-          Seq(
-            "-DCMAKE_TOOLCHAIN_FILE=" + toolchainFile,
-            "-DJNI_H=" + jniPath,
-            "-DNEED_JNI_MD=" + needJniMd
+            Seq(
+              "-DCMAKE_TOOLCHAIN_FILE=" + toolchainFile,
+              "-DJNI_H=" + jniPath,
+              "-DNEED_JNI_MD=" + needJniMd
+            )
+        }
+      }.value,
+
+      runCMake := Def.task {
+        val log = streams.value.log
+
+        // Make sure the output directory exists.
+        binPath.value.mkdirs()
+
+        val cxxflags = ccOptions.value.distinct
+        val ldflags = ldOptions.value.distinct
+
+        val pkgConfigDirs =
+          mkPkgConfigPath(pkgConfigPath.value, toolchainPath.value).mkString(File.pathSeparator)
+
+        val buildPath = nativeTarget.value / "_build"
+        buildPath.mkdirs()
+
+        val env = toolchainPath.value match {
+          case None =>
+            Seq(
+              ("CC", nativeCC.value),
+              ("CXX", nativeCXX.value),
+              ("CXXFLAGS", cxxflags.mkString(" ")),
+              ("LDFLAGS", ldflags.mkString(" ")),
+              ("PKG_CONFIG_PATH", pkgConfigDirs)
+            )
+
+          case Some(toolchainPath) =>
+            Seq(
+              ("CXXFLAGS", cxxflags.mkString(" ")),
+              ("LDFLAGS", ldflags.mkString(" ")),
+              ("PATH",
+                System.getenv("PATH") +
+                File.pathSeparator +
+                (toolchainPath / "bin")),
+              ("PKG_CONFIG_PATH", pkgConfigDirs)
+            )
+        }
+
+        val flags = cmakeToolchainFlags.value
+
+        val cmake = {
+          Process(
+            Seq(
+              "cmake", "-G" + buildTool.value.name,
+              "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
+              "-DMAIN_FILE=" + cmakeMainFile.value,
+              "-DTEST_FILE=" + cmakeTestFile.value,
+              baseDirectory.value.getPath
+            ) ++ flags,
+            buildPath,
+            env: _*
           )
-      }
-    }.value,
+        }
 
+        log.info("Configuring C++ build")
+        checkExitCode(cmake, log)
+      }.dependsOn(javah)
+        .tag(Tags.Compile, Tags.CPU)
+        .value,
 
-    runCMake := Def.task {
-      val log = streams.value.log
+      jniCompile := Def.task {
+        val log = streams.value.log
 
-      // Make sure the output directory exists.
-      binPath.value.mkdirs()
+        val buildPath = nativeTarget.value / "_build"
+        val mainSources = (jniSourceFiles in Compile).value
 
-      val cxxflags = ccOptions.value.distinct
-      val ldflags = ldOptions.value.distinct
+        val command = Process(buildTool.value.command +: buildFlags.value, buildPath)
 
-      val pkgConfigDirs =
-        mkPkgConfigPath(pkgConfigPath.value, toolchainPath.value).mkString(File.pathSeparator)
+        log.info(s"Compiling ${mainSources.size} C++ sources to ${binPath.value}")
+        checkExitCode(command, log)
+      }.dependsOn(javah, runCMake)
+        .tag(Tags.Compile, Tags.CPU)
+        .value
 
-      val buildPath = nativeTarget.value / "_build"
-      buildPath.mkdirs()
+    )) ++ Seq(
 
-      val env = toolchainPath.value match {
-        case None =>
-          Seq(
-            ("CC", nativeCC.value),
-            ("CXX", nativeCXX.value),
-            ("CXXFLAGS", cxxflags.mkString(" ")),
-            ("LDFLAGS", ldflags.mkString(" ")),
-            ("PKG_CONFIG_PATH", pkgConfigDirs)
-          )
+      (compile in Compile) <<= (compile in Compile).dependsOn(jniCompile in Native),
+      (test in Test) <<= (test in Test).dependsOn(jniCompile in Native)
 
-        case Some(toolchainPath) =>
-          Seq(
-            ("CXXFLAGS", cxxflags.mkString(" ")),
-            ("LDFLAGS", ldflags.mkString(" ")),
-            ("PATH",
-              System.getenv("PATH") +
-              File.pathSeparator +
-              (toolchainPath / "bin")),
-            ("PKG_CONFIG_PATH", pkgConfigDirs)
-          )
-      }
-
-      val flags = cmakeToolchainFlags.value
-
-      val cmake = {
-        Process(
-          Seq(
-            "cmake", "-G" + buildTool.value.name,
-            "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
-            "-DMAIN_FILE=" + cmakeMainFile.value,
-            "-DTEST_FILE=" + cmakeTestFile.value,
-            baseDirectory.value.getPath
-          ) ++ flags,
-          buildPath,
-          env:_*
-        )
-      }
-
-      log.info("Configuring C++ build")
-      checkExitCode(cmake, log)
-    }.dependsOn(javah)
-     .tag(Tags.Compile, Tags.CPU)
-     .value,
-
-
-    jniCompile := Def.task {
-      val log = streams.value.log
-
-      val buildPath = nativeTarget.value / "_build"
-      val mainSources = (jniSourceFiles in Compile).value
-
-      val command = Process(buildTool.value.command +: buildFlags.value, buildPath)
-
-      log.info(s"Compiling ${mainSources.size} C++ sources to ${binPath.value}")
-      checkExitCode(command, log)
-    }.dependsOn(javah, runCMake)
-     .tag(Tags.Compile, Tags.CPU)
-     .value,
-
-
-    compile <<= (compile in Compile, jniCompile).map((result, _) => result)
-  )
+    )
 
 }

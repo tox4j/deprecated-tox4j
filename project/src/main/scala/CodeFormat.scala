@@ -1,6 +1,6 @@
 package src.main.scala
 
-import com.typesafe.sbt.SbtScalariform.{ScalariformKeys, scalariformSettings}
+import com.typesafe.sbt.SbtScalariform.{ ScalariformKeys, scalariformSettings }
 import sbt._
 
 import scala.language.postfixOps
@@ -12,6 +12,6 @@ object CodeFormat extends Plugin {
     ScalariformKeys.preferences := ScalariformKeys.preferences.value
       .setPreference(AlignSingleLineCaseStatements, true)
       .setPreference(DoubleIndentClassDeclaration, true)
-    )
+  )
 
 }

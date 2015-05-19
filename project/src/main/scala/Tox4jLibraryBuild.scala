@@ -34,7 +34,6 @@ exec "java", "%s", "-classpath", "%s", "%s", @ARGV
       javaOptions in Test,
       fullClasspath in Test,
       discoveredMainClasses in Test
-    ) map mkrunTask
-  ).configs(ProtobufPlugin.Protobuf)
+    ) map mkrunTask).configs(ProtobufPlugin.Protobuf)
 
 }
