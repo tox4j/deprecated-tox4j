@@ -1,9 +1,9 @@
 package src.main.scala
 
+import java.io.{ File, PrintWriter }
+
 import sbt.Keys._
 import sbt._
-
-import java.io.{ File, PrintWriter }
 
 import scala.language.postfixOps
 
