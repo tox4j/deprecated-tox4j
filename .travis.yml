@@ -1,10 +1,26 @@
 language: cpp
 compiler: clang
 
+cache:
+  directories:
+    - $HOME/.ivy2
+    - $HOME/.m2
+    - $HOME/travis-cache
+
 env:
   - TOX4J_TARGET=arm-linux-androideabi
   #- TOX4J_TARGET=i686-linux-android
   - TOX4J_TARGET=host
+
+before_install:
+  - java -version
+  - javac -version
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+
+install:
+  - ls -a $HOME
+  - tools/travis-install "$HOME/travis-cache"
 
 script:
   # Compile first, so a compile error fails the build.
@@ -14,20 +30,6 @@ script:
 
 after_success:
   - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coveralls; fi
-
-before_install:
-  - java -version
-  - javac -version
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update -qq
-
-install:
-  - tools/travis-install "$HOME/travis-cache"
-
-cache:
-  directories:
-    - $HOME/.ivy2
-    - $HOME/travis-cache
 
 # whitelist
 branches:
