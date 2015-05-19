@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxSendFrameException extends ToxException {
+public final class ToxSendFrameException extends ToxException<ToxSendFrameException.Code> {
 
   public enum Code {
     NULL,
@@ -14,16 +14,12 @@ public final class ToxSendFrameException extends ToxException {
     BAD_LENGTH,
   }
 
-  @NotNull private final Code code;
-
   public ToxSendFrameException(@NotNull Code code) {
-    this.code = code;
+    this(code, "");
   }
 
-  @Override
-  @NotNull
-  public Code getCode() {
-    return code;
+  public ToxSendFrameException(@NotNull Code code, String message) {
+    super(code, message);
   }
 
 }

@@ -20,22 +20,18 @@ package im.tox.tox4j.$package.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class Tox${type}Exception extends ToxException {
+public final class Tox${type}Exception extends ToxException<Tox${type}Exception.Code> {
 
   public enum Code {
 $codes,
   }
 
-  \@NotNull private final Code code;
-
   public Tox${type}Exception(\@NotNull Code code) {
-    this.code = code;
+    this(code, "");
   }
 
-  \@Override
-  \@NotNull
-  public Code getCode() {
-    return code;
+  public Tox${type}Exception(\@NotNull Code code, String message) {
+    super(code, message);
   }
 
 }

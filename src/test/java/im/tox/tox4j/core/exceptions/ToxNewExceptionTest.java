@@ -18,7 +18,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, null, 1).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
     }
   }
 
@@ -28,7 +28,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, "", 1).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
     }
   }
 
@@ -38,7 +38,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
     }
   }
 
@@ -48,7 +48,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
     }
   }
 
@@ -58,7 +58,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
     }
   }
 
@@ -69,7 +69,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, "\u2639", 1).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
     }
   }
 
@@ -79,7 +79,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       newTox(true, true, ToxProxyType.SOCKS5, ".", 1).close();
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.getCode());
+      assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
     }
   }
 
@@ -97,7 +97,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
       }
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PORT_ALLOC, e.getCode());
+      assertEquals(ToxNewException.Code.PORT_ALLOC, e.code());
     }
   }
 
@@ -106,7 +106,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
     try (ToxCore tox = newTox("toxEsave blah blah blah".getBytes())) {
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.LOAD_ENCRYPTED, e.getCode());
+      assertEquals(ToxNewException.Code.LOAD_ENCRYPTED, e.code());
     }
   }
 
@@ -115,7 +115,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
     try (ToxCore tox = newTox("blah blah blah".getBytes())) {
       fail();
     } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.LOAD_BAD_FORMAT, e.getCode());
+      assertEquals(ToxNewException.Code.LOAD_BAD_FORMAT, e.code());
     }
   }
 

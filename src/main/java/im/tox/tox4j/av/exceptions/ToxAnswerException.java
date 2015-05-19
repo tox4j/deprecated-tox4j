@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxAnswerException extends ToxException {
+public final class ToxAnswerException extends ToxException<ToxAnswerException.Code> {
 
   public enum Code {
     MALLOC,
@@ -12,16 +12,12 @@ public final class ToxAnswerException extends ToxException {
     INVALID_BIT_RATE,
   }
 
-  @NotNull private final Code code;
-
   public ToxAnswerException(@NotNull Code code) {
-    this.code = code;
+    this(code, "");
   }
 
-  @Override
-  @NotNull
-  public Code getCode() {
-    return code;
+  public ToxAnswerException(@NotNull Code code, String message) {
+    super(code, message);
   }
 
 }

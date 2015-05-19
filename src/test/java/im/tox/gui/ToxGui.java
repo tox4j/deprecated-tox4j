@@ -365,7 +365,7 @@ public class ToxGui extends JFrame {
           setConnectSettingsEnabled(false);
           addMessage("Created Tox instance; started event loop");
         } catch (ToxException e) {
-          addMessage("Error creating Tox instance: " + e.getCode());
+          addMessage("Error creating Tox instance: " + e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
         }
@@ -407,7 +407,7 @@ public class ToxGui extends JFrame {
           tox.bootstrap(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
               parsePublicKey(bootstrapKey.getText().trim()));
         } catch (ToxBootstrapException e) {
-          addMessage("Bootstrap failed: ", e.getCode());
+          addMessage("Bootstrap failed: ", e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
         }
@@ -430,7 +430,7 @@ public class ToxGui extends JFrame {
           addMessage("Added friend number " + friendNumber);
           save();
         } catch (ToxFriendAddException e) {
-          addMessage("Add friend failed: ", e.getCode());
+          addMessage("Add friend failed: ", e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
         }
@@ -455,7 +455,7 @@ public class ToxGui extends JFrame {
           }
           messageText.setText("");
         } catch (ToxSendMessageException e) {
-          addMessage("Send message failed: ", e.getCode());
+          addMessage("Send message failed: ", e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
         }
@@ -489,7 +489,7 @@ public class ToxGui extends JFrame {
           fileModel.addOutgoing(friendNumber, file,
               tox.fileSend(friendNumber, ToxFileKind.DATA, file.length(), null, file.getName().getBytes()));
         } catch (ToxFileSendException e) {
-          addMessage("Send file failed: ", e.getCode());
+          addMessage("Send file failed: ", e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
         }

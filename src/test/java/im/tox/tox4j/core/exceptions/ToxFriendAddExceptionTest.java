@@ -44,7 +44,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(null, new byte[1]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.NULL, e.getCode());
+      assertEquals(ToxFriendAddException.Code.NULL, e.code());
     }
   }
 
@@ -54,7 +54,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(validAddress, null);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.NULL, e.getCode());
+      assertEquals(ToxFriendAddException.Code.NULL, e.code());
     }
   }
 
@@ -78,7 +78,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(validAddress, new byte[ToxConstants.MAX_FRIEND_REQUEST_LENGTH + 1]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.TOO_LONG, e.getCode());
+      assertEquals(ToxFriendAddException.Code.TOO_LONG, e.code());
     }
   }
 
@@ -88,7 +88,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(validAddress, new byte[0]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.NO_MESSAGE, e.getCode());
+      assertEquals(ToxFriendAddException.Code.NO_MESSAGE, e.code());
     }
   }
 
@@ -98,7 +98,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(tox.getAddress(), new byte[1]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.OWN_KEY, e.getCode());
+      assertEquals(ToxFriendAddException.Code.OWN_KEY, e.code());
     }
   }
 
@@ -109,7 +109,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(validAddress, new byte[1]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.ALREADY_SENT, e.getCode());
+      assertEquals(ToxFriendAddException.Code.ALREADY_SENT, e.code());
     }
   }
 
@@ -120,7 +120,7 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(validAddress, new byte[1]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.BAD_CHECKSUM, e.getCode());
+      assertEquals(ToxFriendAddException.Code.BAD_CHECKSUM, e.code());
     }
   }
 
@@ -134,14 +134,14 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
       tox.addFriend(friend.getAddress(), new byte[1]);
       fail();
     } catch (ToxFriendAddException e) {
-      assertEquals(ToxFriendAddException.Code.SET_NEW_NOSPAM, e.getCode());
+      assertEquals(ToxFriendAddException.Code.SET_NEW_NOSPAM, e.code());
     }
   }
 
   @Test
   public void testMalloc() throws Exception {
     // Can't test this.
-    new ToxFriendAddException(ToxFriendAddException.Code.MALLOC).getCode();
+    new ToxFriendAddException(ToxFriendAddException.Code.MALLOC).code();
   }
 
 }

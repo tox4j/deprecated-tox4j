@@ -20,7 +20,7 @@ public class ToxFriendDeleteExceptionTest extends ToxCoreImplTestBase {
         tox.deleteFriend(2);
         fail();
       } catch (ToxFriendDeleteException e) {
-        assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.getCode());
+        assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.code());
       }
     }
   }
@@ -34,7 +34,7 @@ public class ToxFriendDeleteExceptionTest extends ToxCoreImplTestBase {
         tox.deleteFriend(5);
         fail();
       } catch (ToxFriendDeleteException e) {
-        assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.getCode());
+        assertEquals(ToxFriendDeleteException.Code.FRIEND_NOT_FOUND, e.code());
       }
     }
   }

@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxFileSendChunkException extends ToxException {
+public final class ToxFileSendChunkException extends ToxException<ToxFileSendChunkException.Code> {
 
   public enum Code {
     NULL,
@@ -16,16 +16,12 @@ public final class ToxFileSendChunkException extends ToxException {
     WRONG_POSITION,
   }
 
-  @NotNull private final Code code;
-
   public ToxFileSendChunkException(@NotNull Code code) {
-    this.code = code;
+    this(code, "");
   }
 
-  @Override
-  @NotNull
-  public Code getCode() {
-    return code;
+  public ToxFileSendChunkException(@NotNull Code code, String message) {
+    super(code, message);
   }
 
 }

@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxCallControlException extends ToxException {
+public final class ToxCallControlException extends ToxException<ToxCallControlException.Code> {
 
   public enum Code {
     FRIEND_NOT_FOUND,
@@ -13,16 +13,12 @@ public final class ToxCallControlException extends ToxException {
     ALREADY_PAUSED,
   }
 
-  @NotNull private final Code code;
-
   public ToxCallControlException(@NotNull Code code) {
-    this.code = code;
+    this(code, "");
   }
 
-  @Override
-  @NotNull
-  public Code getCode() {
-    return code;
+  public ToxCallControlException(@NotNull Code code, String message) {
+    super(code, message);
   }
 
 }
