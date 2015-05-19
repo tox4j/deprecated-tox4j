@@ -88,7 +88,7 @@ object CodeStyle extends Plugin {
                 }
                 val message = s"Checkstyle failed with ${errors.size} errors"
                 if ((checkstyleFatal in config).value) {
-                  throw new RuntimeException(message)
+                  sys.error(message)
                 } else {
                   log.warn(message)
                 }

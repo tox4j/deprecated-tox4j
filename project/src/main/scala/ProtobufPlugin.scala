@@ -130,7 +130,7 @@ object ProtobufPlugin extends Plugin {
     if (scalabuffEnabled) {
       val exitCode = Fork.java(ForkOptions(javaHome), arguments)
       if (exitCode != 0) {
-        throw new RuntimeException(s"scalabuff-compiler returned exit code: $exitCode")
+        sys.error(s"scalabuff-compiler returned exit code: $exitCode")
       }
     }
 
@@ -168,7 +168,7 @@ object ProtobufPlugin extends Plugin {
           throw new RuntimeException(s"error occured while compiling protobuf files: ${e.getMessage}", e)
       }
     if (exitCode != 0) {
-      throw new RuntimeException(s"protoc returned exit code: $exitCode")
+      sys.error(s"protoc returned exit code: $exitCode")
     }
 
     (javaOut ** "*.java").get
