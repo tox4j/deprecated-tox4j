@@ -10,7 +10,7 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
   private val toxes = (0 until count) map { i =>
     val instance = Instance(newTox(), ToxConnection.NONE)
     instance.tox.callbackConnectionStatus(new ConnectionStatusCallback {
-      override def connectionStatus(connectionStatus: ToxConnection) {
+      override def connectionStatus(connectionStatus: ToxConnection): Unit = {
         instance.connected = connectionStatus
       }
     })

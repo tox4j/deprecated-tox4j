@@ -47,17 +47,17 @@ object ToxCoreTestBase {
 
       toxes(i) = factory.newTox()
       toxes(i).callbackConnectionStatus(new ConnectionStatusCallback {
-        override def connectionStatus(connectionStatus: ToxConnection) {
+        override def connectionStatus(connectionStatus: ToxConnection): Unit = {
           connected(i) = connectionStatus
         }
       })
     }
 
-    def close() {
+    def close(): Unit = {
       toxes.foreach(_.close())
     }
 
-    def isAllConnected: Boolean = connected.forall(_ != ToxConnection.NONE)
+    def isAllConnected: Boolean = !connected.contains(ToxConnection.NONE)
     def isAnyConnected: Boolean = connected.exists(_ != ToxConnection.NONE)
 
     def iteration(): Unit = toxes.foreach(_.iteration())
@@ -84,37 +84,42 @@ object ToxCoreTestBase {
     entropy
   }
 
-  @NotNull protected def randomBytes(length: Int): Array[Byte] = {
+  @NotNull
+  protected def randomBytes(length: Int): Array[Byte] = {
     val array = new Array[Byte](length)
     new Random().nextBytes(array)
     array
   }
 
-  @NotNull def readablePublicKey(@NotNull id: Array[Byte]): String = {
+  @NotNull
+  def readablePublicKey(@NotNull id: Array[Byte]): String = {
     val str = new StringBuilder
     id foreach { c => str.append(f"$c%02X") }
     str.toString()
   }
 
-  @NotNull def parsePublicKey(@NotNull id: String): Array[Byte] = {
+  @NotNull
+  def parsePublicKey(@NotNull id: String): Array[Byte] = {
     val publicKey = new Array[Byte](id.length / 2)
-    (0 until publicKey.length) foreach { i =>
-      publicKey(i) = ((fromHexDigit(id.charAt(i * 2)) << 4) + fromHexDigit(id.charAt(i * 2 + 1))).toByte
+    publicKey.indices foreach { i =>
+      publicKey(i) =
+        ((fromHexDigit(id.charAt(i * 2)) << 4) +
+          fromHexDigit(id.charAt(i * 2 + 1))).toByte
     }
     publicKey
   }
 
   private def fromHexDigit(c: Char): Byte = {
-    (c match {
-      case _ if c >= '0' && c <= '9' => c - '0'
-      case _ if c >= 'A' && c <= 'F' => c - 'A' + 10
-      case _ if c >= 'a' && c <= 'f' => c - 'a' + 10
-      case _ =>
-        throw new IllegalArgumentException("Non-hex digit character: " + c)
-    }).toByte
+    val digit =
+      if (false) { 0 }
+      else if ('0' to '9' contains c) { c - '0' }
+      else if ('A' to 'F' contains c) { c - 'A' + 10 }
+      else if ('a' to 'f' contains c) { c - 'a' + 10 }
+      else { throw new IllegalArgumentException("Non-hex digit character: " + c) }
+    digit.toByte
   }
 
-  protected def assumeConnection(ip: String, port: Int) {
+  protected def assumeConnection(ip: String, port: Int): Unit = {
     var socket: Socket = null
     try {
       socket = new Socket(InetAddress.getByName(ip), port)
@@ -129,18 +134,18 @@ object ToxCoreTestBase {
     }
   }
 
-  protected[tox4j] def assumeIPv4() {
+  protected[tox4j] def assumeIPv4(): Unit =
     assumeConnection("8.8.8.8", 53)
-  }
 
-  protected[tox4j] def assumeIPv6() {
+  protected[tox4j] def assumeIPv6(): Unit =
     assumeConnection("2001:4860:4860::8888", 53)
-  }
+
 }
 
 abstract class ToxCoreTestBase extends JUnitSuite {
 
-  @NotNull protected def node: DhtNode
+  @NotNull
+  protected def node: DhtNode
 
   @NotNull
   @throws(classOf[ToxNewException])

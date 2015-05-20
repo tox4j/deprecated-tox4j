@@ -8,7 +8,7 @@ final class ConnectedListener extends ConnectionStatusCallback {
 
   @NotNull private var value = ToxConnection.NONE
 
-  override def connectionStatus(@NotNull connectionStatus: ToxConnection) {
+  override def connectionStatus(@NotNull connectionStatus: ToxConnection): Unit = {
     value = connectionStatus
   }
 
