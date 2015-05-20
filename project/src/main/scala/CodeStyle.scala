@@ -25,8 +25,13 @@ object CodeStyle extends Plugin {
 
     } ++ Seq(
 
-      // Disable method name inspection, since we use things like name_=.
-      scapegoatDisabledInspections := Seq("MethodNames"),
+      scapegoatDisabledInspections := Seq(
+        // Disable method name inspection, since we use things like name_=.
+        "MethodNames",
+        // This is simply wrong. Case classes can be extended, but it's a bad idea, so
+        // we would like to make all of them final. WartRemover checks this.
+        "RedundantFinalModifierOnCaseClass"
+      ),
       scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/.*Impl\\.scala"),
 
       wartremoverErrors in (Compile, compile) := Warts.allBut(
