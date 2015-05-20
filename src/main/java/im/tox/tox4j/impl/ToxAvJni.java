@@ -5,6 +5,7 @@ import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.av.exceptions.*;
 import scala.MatchError;
 
+@SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
 final class ToxAvJni {
 
   static {
