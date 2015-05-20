@@ -1,6 +1,5 @@
 package im.tox.gui;
 
-import im.tox.tox4j.ToxCoreImpl;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.ToxConstants;
@@ -10,6 +9,7 @@ import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
 import im.tox.tox4j.core.exceptions.*;
 import im.tox.tox4j.exceptions.ToxException;
+import im.tox.tox4j.impl.ToxCoreJni;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,12 +338,12 @@ public class ToxGui extends JFrame {
 
           byte[] toxSave = load();
           if (toxSave != null) {
-            tox = new ToxCoreImpl(options, toxSave);
+            tox = new ToxCoreJni(options, toxSave);
             for (int friendNumber : tox.getFriendList()) {
               friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
             }
           } else {
-            tox = new ToxCoreImpl(options, null);
+            tox = new ToxCoreJni(options, null);
           }
           selfPublicKey.setText(readablePublicKey(tox.getAddress()));
           tox.callback(toxEvents);
