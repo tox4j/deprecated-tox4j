@@ -73,7 +73,7 @@ final class ToxCoreJni {
   static native byte[] toxHash(@NotNull byte[] data);
 
   static <T> T conversionError(@NotNull String className, @NotNull String name) {
-    throw new MatchError("ToxCore: Could not convert " + className + "." + name);
+    throw new MatchError("ToxCore: Could not convert " + className + '.' + name);
   }
 
 }
