@@ -682,10 +682,11 @@ public final class ToxCoreJni extends AbstractToxCore {
   }
 
 
-  private static native byte[] toxFileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException;
+  private static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber)
+      throws ToxFileGetInfoException;
 
   public byte[] fileGetFileId(int friendNumber, int fileNumber) throws ToxFileGetInfoException {
-    return toxFileGetFileId(friendNumber, fileNumber);
+    return toxFileGetFileId(instanceNumber, friendNumber, fileNumber);
   }
 
 
