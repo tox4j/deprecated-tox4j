@@ -11,7 +11,7 @@ object Event {
 
   trait Id {
     /**
-     * The index in the callbacks list.
+     * @return The index in the callbacks list.
      */
     def value: Int
 
