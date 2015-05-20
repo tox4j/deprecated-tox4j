@@ -1,4 +1,4 @@
-package im.tox.tox4j.internal
+package im.tox.tox4j.impl.internal
 
 import org.scalatest.FlatSpec
 

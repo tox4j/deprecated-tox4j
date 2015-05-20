@@ -7,7 +7,7 @@ import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, 
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.proto._
 import im.tox.tox4j.core.{ AbstractToxCore, ToxConstants, ToxOptions }
-import im.tox.tox4j.internal.Event
+import im.tox.tox4j.impl.internal.Event
 
 // scalastyle:off
 private object ToxCoreImpl {
