@@ -18,14 +18,9 @@ void throw_tox_exception (JNIEnv *env, char const *module, char const *method, c
 #endif
 
 
-static inline TOX4J_NORETURN void
-tox4j_fatal (JNIEnv *env, char const *message)
-{
-  env->FatalError (message);
-  abort ();
-}
+TOX4J_NORETURN void tox4j_fatal_error (JNIEnv *env, char const *message);
 
-#define tox4j_fatal(message) tox4j_fatal (env, message)
+#define tox4j_fatal(message) tox4j_fatal_error (env, message)
 
 
 #define STR(token) STR_(token)
