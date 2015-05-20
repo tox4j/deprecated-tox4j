@@ -2,8 +2,6 @@ package im.tox.tox4j.av;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.av.callbacks.ToxAvEventListener;
-import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.callbacks.ToxEventListener;
 
 public abstract class AbstractToxAv implements ToxAv {
 

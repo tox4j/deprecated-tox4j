@@ -11,6 +11,8 @@ import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 import org.slf4j.{ Logger, LoggerFactory }
 
+import scala.language.postfixOps
+
 object NetworkTest {
   private val logger: Logger = LoggerFactory.getLogger(classOf[NetworkTest])
   private val TOX_COUNT: Int = 10
@@ -18,7 +20,7 @@ object NetworkTest {
 
 final class NetworkTest extends FlatSpec with Timeouts {
 
-  private def testBootstrap(ipv6Enabled: Boolean, udpEnabled: Boolean, ip: String, port: Int, dhtId: Array[Byte]) {
+  private def testBootstrap(ipv6Enabled: Boolean, udpEnabled: Boolean, ip: String, port: Int, dhtId: Array[Byte]): Unit = {
     val action = s"bootstrap to remote node on $ip:$port with ${if (udpEnabled) "UDP" else "TCP"}${if (ipv6Enabled) 6 else 4}"
 
     withTox(ipv6Enabled, udpEnabled) { tox =>

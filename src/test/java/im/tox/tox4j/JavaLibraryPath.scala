@@ -11,7 +11,7 @@ object JavaLibraryPath {
    * @throws IllegalAccessException If the security context did not allow writing to private fields.
    */
   @throws(classOf[IllegalAccessException])
-  def addLibraryPath(path: String) {
+  def addLibraryPath(path: String): Unit = {
     val field =
       try {
         classOf[ClassLoader].getDeclaredField("usr_paths")

@@ -79,7 +79,7 @@ object TestClient extends App {
       if (count > 0) {
         logger.info("Starting event loop")
         while (true) {
-          toxes.foreach(_.iteration)
+          toxes.foreach(_.iteration())
           Thread.sleep(toxes.map(_.iterationInterval).max)
         }
       }
