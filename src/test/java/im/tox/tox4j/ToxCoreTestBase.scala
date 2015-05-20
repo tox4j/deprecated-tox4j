@@ -148,47 +148,47 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   protected def node: DhtNode
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   @Deprecated
   protected def newTox(options: ToxOptions, data: Array[Byte]): ToxCore
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   @Deprecated
   protected final def newTox(): ToxCore = {
     newTox(new ToxOptions, null)
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   @Deprecated
   protected final def newTox(data: Array[Byte]): ToxCore = {
     newTox(new ToxOptions, data)
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   @Deprecated
   protected final def newTox(options: ToxOptions): ToxCore = {
     newTox(options, null)
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   @Deprecated
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled), null)
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   @Deprecated
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)
   }
 
-  @throws(classOf[ToxNewException])
-  @throws(classOf[ToxFriendAddException])
+  @throws[ToxNewException]
+  @throws[ToxFriendAddException]
   protected def addFriends(@NotNull tox: ToxCore, count: Int): Int = {
     if (count < 1) {
       throw new IllegalArgumentException("Cannot add less than 1 friend: " + count)
@@ -202,7 +202,7 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   }
 
   @NotNull
-  @throws(classOf[ToxBootstrapException])
+  @throws[ToxBootstrapException]
   private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
     tox.bootstrap(
       if (useIPv6) node.ipv6 else node.ipv4,

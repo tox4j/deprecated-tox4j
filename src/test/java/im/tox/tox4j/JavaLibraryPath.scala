@@ -10,7 +10,7 @@ object JavaLibraryPath {
    * @param path Path to add to the property and ClassLoader search path.
    * @throws IllegalAccessException If the security context did not allow writing to private fields.
    */
-  @throws(classOf[IllegalAccessException])
+  @throws[IllegalAccessException]
   def addLibraryPath(path: String): Unit = {
     val field =
       try {
