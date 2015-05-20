@@ -3,6 +3,7 @@
   <component name="FacetManager">
     <facet type="protobuf" name="Protobuf Facet">
       <configuration>
+        <option name="COMPILE_PROTO" value="false" />
         <option name="COMPILER_OUTPUT_SOURCE_DIRECTORY" value="$MODULE_DIR$/../../target/scala-2.11/src_managed/main/compiled_protobuf" />
       </configuration>
     </facet>
@@ -19,5 +20,6 @@
     <orderEntry type="library" name="org.json:json:20131018" level="application" />
     <orderEntry type="module" module-name="generated" />
     <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
+    <orderEntry type="library" name="net.sandrogrzicic:scalabuff-runtime_2.11:1.4.0" level="application" />
   </component>
 </module>

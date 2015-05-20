@@ -2,7 +2,7 @@ import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxStatus }
 import im.tox.tox4j.core.{ ToxConstants, ToxOptions }
-import im.tox.tox4j.impl.ToxCoreJni
+import im.tox.tox4j.impl.ToxCoreImpl
 import org.slf4j.LoggerFactory
 
 object TestClient extends App {
@@ -59,7 +59,7 @@ object TestClient extends App {
       logger.info(s"Creating $count toxes")
 
       val toxes = (1 to count) map { id =>
-        val tox = new ToxCoreJni({
+        val tox = new ToxCoreImpl({
           val options = new ToxOptions(true, bootstrap.isEmpty)
           options
         }, null)

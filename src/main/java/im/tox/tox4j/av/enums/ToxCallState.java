@@ -1,12 +1,10 @@
 package im.tox.tox4j.av.enums;
 
 public enum ToxCallState {
-  RINGING,
-  SENDING_NONE,
+  ERROR,
+  FINISHED,
   SENDING_A,
   SENDING_V,
-  SENDING_AV,
-  PAUSED,
-  END,
-  ERROR,
+  RECEIVING_A,
+  RECEIVING_V,
 }

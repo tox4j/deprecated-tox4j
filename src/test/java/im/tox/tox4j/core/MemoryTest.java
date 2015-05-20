@@ -1,7 +1,7 @@
 package im.tox.tox4j.core;
 
 import im.tox.tox4j.core.exceptions.ToxNewException;
-import im.tox.tox4j.impl.ToxCoreJni;
+import im.tox.tox4j.impl.ToxCoreImpl;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -23,7 +23,7 @@ public class MemoryTest extends JUnitSuite {
 
     Runtime runtime = Runtime.getRuntime();
     for (int iterations = 5; iterations <= 15; iterations++) {
-      try (ToxCore tox = new ToxCoreJni(new ToxOptions(), null)) {
+      try (ToxCore tox = new ToxCoreImpl(new ToxOptions(), null)) {
         runtime.gc();
         long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
         for (int i = 0; i < iterations * 10000; i++) {

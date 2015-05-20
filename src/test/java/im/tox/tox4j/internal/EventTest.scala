@@ -8,11 +8,9 @@ class EventTest extends FlatSpec {
     val event = new Event
     var called = false
 
-    val id = event.add(new Runnable {
-      override def run(): Unit = called = true
-    })
+    val id = event += (() => called = true)
 
-    event.run()
+    event()
     assert(called)
   }
 
@@ -20,13 +18,11 @@ class EventTest extends FlatSpec {
     val event = new Event
     var called = false
 
-    val id = event.add(new Runnable {
-      override def run(): Unit = called = true
-    })
+    val id = event += (() => called = true)
 
-    event.remove(id)
+    event -= id
 
-    event.run()
+    event()
     assert(!called)
   }
 
@@ -34,17 +30,13 @@ class EventTest extends FlatSpec {
     val event = new Event
     var called = 0
 
-    val id1 = event.add(new Runnable {
-      override def run(): Unit = called = 1
-    })
-    val id2 = event.add(new Runnable {
-      override def run(): Unit = called = 2
-    })
+    val id1 = event += (() => called = 1)
+    val id2 = event += (() => called = 2)
 
-    event.remove(id1)
-    event.remove(id1)
+    event -= id1
+    event -= id1
 
-    event.run()
+    event()
     assert(called == 2)
   }
 

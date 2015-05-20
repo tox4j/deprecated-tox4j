@@ -1,6 +1,6 @@
 package im.tox.tox4j.core;
 
-import im.tox.tox4j.impl.ToxCoreJni;
+import im.tox.tox4j.impl.ToxCoreImpl;
 import org.junit.Test;
 
 /**
@@ -17,14 +17,14 @@ public final class FinalizerTest {
   @Test
   public void testFinalize_AfterClose() throws Exception {
     System.gc();
-    new ToxCoreJni(new ToxOptions(), null).close();
+    new ToxCoreImpl(new ToxOptions(), null).close();
     System.gc();
   }
 
   @Test
   public void testFinalize_WithoutClose() throws Exception {
     System.gc();
-    new ToxCoreJni(new ToxOptions(), null);
+    new ToxCoreImpl(new ToxOptions(), null);
     System.gc();
   }
 

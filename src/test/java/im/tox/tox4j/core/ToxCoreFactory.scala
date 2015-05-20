@@ -1,7 +1,7 @@
 package im.tox.tox4j.core
 
 import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.impl.ToxCoreJni
+import im.tox.tox4j.impl.ToxCoreImpl
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -10,10 +10,10 @@ object ToxCoreFactory {
   private final val toxes = new ArrayBuffer[ToxCore]
 
   private def make(options: ToxOptions, data: Array[Byte]): ToxCore = {
-    new ToxCoreJni(options, data)
+    new ToxCoreImpl(options, data)
   }
 
-  def destroyAll() {
+  def destroyAll(): Unit = {
     toxes.foreach(_.close())
     toxes.clear()
     System.gc()

@@ -1,15 +1,12 @@
-#ifdef HAVE_TOXAV
 #include "ToxAv.h"
 
-using AvInstanceManager = instance_manager<tox_traits>;
-using AvInstance = tox_instance<tox_traits>;
+using namespace av;
 
 
 static void
-tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, void *user_data)
+tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, Events &events)
 {
   unused (av);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_call ();
   msg->set_friendnumber (friend_number);
   msg->set_audioenabled (audio_enabled);
@@ -17,49 +14,26 @@ tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video
 }
 
 static void
-tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, TOXAV_CALL_STATE state, void *user_data)
+tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &events)
 {
   unused (av);
-  Events &events = *static_cast<Events *> (user_data);
   auto msg = events.add_callstate ();
   msg->set_friendnumber (friend_number);
 
   using proto::CallState;
-  switch (state) {
-#define call_state_case(STATE)          \
-    case TOXAV_CALL_STATE_##STATE:      \
-      msg->set_state (CallState::STATE);\
-      break
-    call_state_case (RINGING);
-    call_state_case (SENDING_NONE);
+#define call_state_case(STATE)            \
+    if (state & TOXAV_CALL_STATE_##STATE) \
+      msg->add_state (CallState::STATE)
+    call_state_case (ERROR);
+    call_state_case (FINISHED);
     call_state_case (SENDING_A);
     call_state_case (SENDING_V);
-    call_state_case (SENDING_AV);
-    call_state_case (PAUSED);
-    call_state_case (END);
-    call_state_case (ERROR);
+    call_state_case (RECEIVING_A);
+    call_state_case (RECEIVING_V);
 #undef call_state_case
-  }
 }
 
-static void
-tox4j_request_audio_frame_cb (ToxAV *av, uint32_t friend_number, void *user_data)
-{
-  unused (av);
-  Events &events = *static_cast<Events *> (user_data);
-  auto msg = events.add_requestaudioframe ();
-  msg->set_friendnumber (friend_number);
-}
-
-static void
-tox4j_request_video_frame_cb (ToxAV *av, uint32_t friend_number, void *user_data)
-{
-  unused (av);
-  Events &events = *static_cast<Events *> (user_data);
-  auto msg = events.add_requestvideoframe ();
-  msg->set_friendnumber (friend_number);
-}
-
+#if 0
 static void
 tox4j_receive_audio_frame_cb (ToxAV *av,
                               uint32_t friend_number,
