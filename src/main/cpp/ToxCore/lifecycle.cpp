@@ -281,7 +281,7 @@ TOX_METHOD (jint, New,
         tox4j_assert (tox != nullptr);
 
         // Create the master events object and set up our callbacks.
-        auto events = tox::callbacks (std::unique_ptr<Events> (new Events))
+        auto events = tox::callbacks<Tox> (std::unique_ptr<Events> (new Events))
           .set<tox::callback_self_connection_status,    tox4j_self_connection_status_cb  > ()
           .set<tox::callback_friend_name,               tox4j_friend_name_cb             > ()
           .set<tox::callback_friend_status_message,     tox4j_friend_status_message_cb   > ()

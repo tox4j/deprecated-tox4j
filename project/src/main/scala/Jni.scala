@@ -472,13 +472,13 @@ object Jni extends Plugin {
 
         val command = Seq(
           "javah",
-          "-d", (headersPath in Native).value.getPath,
+          "-d", headersPath.value.getPath,
           "-classpath", classpath
         ) ++ jniClasses.value
 
         log.info(s"Running javah to generate ${jniClasses.value.size} JNI headers")
         checkExitCode(command, log)
-      }.dependsOn(compileIncremental in Compile, checkVersion in Native)
+      }.dependsOn(compileIncremental in Compile, checkVersion)
         .tag(Tags.Compile, Tags.CPU)
         .value,
 
@@ -486,7 +486,7 @@ object Jni extends Plugin {
         val fileName = nativeTarget.value / "Dependencies.cmake"
         val out = new PrintWriter(fileName)
         try {
-          for (dir <- (includes in Native).value)
+          for (dir <- includes.value)
             out.println(s"include_directories($dir)")
 
           if (packageDependencies.value.nonEmpty) {

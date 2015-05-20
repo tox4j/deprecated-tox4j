@@ -9,7 +9,7 @@ import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
 import im.tox.tox4j.core.exceptions.*;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.impl.ToxCoreJni;
+import im.tox.tox4j.impl.ToxCoreImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,12 +338,12 @@ public class ToxGui extends JFrame {
 
           byte[] toxSave = load();
           if (toxSave != null) {
-            tox = new ToxCoreJni(options, toxSave);
+            tox = new ToxCoreImpl(options, toxSave);
             for (int friendNumber : tox.getFriendList()) {
               friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
             }
           } else {
-            tox = new ToxCoreJni(options, null);
+            tox = new ToxCoreImpl(options, null);
           }
           selfPublicKey.setText(readablePublicKey(tox.getAddress()));
           tox.callback(toxEvents);

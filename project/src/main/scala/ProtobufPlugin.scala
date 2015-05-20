@@ -19,7 +19,7 @@ object ProtobufPlugin extends Plugin {
     val generatedTargets = settingKey[Seq[(File, String)]]("Targets for protoc: target directory and glob for generated source files")
 
     val scalabuffVersion = SettingKey[String]("ScalaBuff version.")
-    val scalabuffEnabled = false
+    val scalabuffEnabled = true
   }
 
   import Keys._
@@ -151,9 +151,9 @@ object ProtobufPlugin extends Plugin {
     javaOut.mkdirs()
     cppOut.mkdirs()
 
-    val protocOptions = Seq(
-      s"--java_out=${javaOut.absolutePath}",
-      s"--cpp_out=${cppOut.absolutePath}"
+    val protocOptions = (
+      (if (scalabuffEnabled) Seq () else Seq(s"--java_out=${javaOut.absolutePath}")) ++
+      Seq(s"--cpp_out=${cppOut.absolutePath}")
     )
 
     log.debug("protoc options:")

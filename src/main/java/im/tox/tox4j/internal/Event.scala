@@ -7,9 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 object Event {
   private val INVALID_INDEX = -1
 
-  private object EmptyCallback extends Runnable {
-    override def run(): Unit = {}
-  }
+  private val EmptyCallback = () => ()
 
   trait Id {
     /**
@@ -32,26 +30,26 @@ object Event {
   }
 }
 
-final class Event extends Runnable {
-  private val callbacks = new ArrayBuffer[Runnable]
+final class Event extends (() => Unit) {
+  private val callbacks = new ArrayBuffer[() => Unit]
 
   /**
-   * Register a callback to be called on [[run]].
+   * Register a callback to be called on [[apply]].
    *
    * @param callback A [[Runnable]] instance to be called.
-   * @return An [[Event.Id]] that can be used to [[run]] the callback again.
+   * @return An [[Event.Id]] that can be used to [[apply]] the callback again.
    */
-  def add(callback: Runnable): Event.Id = {
+  def +=(callback: () => Unit): Event.Id = {
     callbacks += callback
     new Event.IdImpl(callbacks.size - 1)
   }
 
   /**
-   * Unregister a callback. Requires an [[Event.Id]] from [[add]].
+   * Unregister a callback. Requires an [[Event.Id]] from [[+=]].
    *
    * @param id The callback id object.
    */
-  def remove(id: Event.Id): Unit = {
+  def -=(id: Event.Id): Unit = {
     val index = id.value
     if (index != Event.INVALID_INDEX) {
       id.reset()
@@ -65,7 +63,5 @@ final class Event extends Runnable {
   /**
    * Invoke all callbacks.
    */
-  def run(): Unit = {
-    callbacks.foreach(_.run())
-  }
+  override def apply(): Unit = callbacks.foreach(_())
 }
