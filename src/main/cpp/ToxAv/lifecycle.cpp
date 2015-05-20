@@ -1,3 +1,4 @@
+#ifdef HAVE_TOXAV
 #include "ToxAv.h"
 
 using namespace av;
@@ -129,4 +130,5 @@ METHOD (void, finize,
 {
   AvInstanceManager::self.finalize (env, instanceNumber);
 }
+#endif
 #endif

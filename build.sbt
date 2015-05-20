@@ -66,6 +66,7 @@ scalacOptions in Test += "-target:jvm-" + javaVersion
 // Require 100% test coverage.
 ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
+ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := ".*\\.proto"
 
 // Add Scala linter.
 resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
