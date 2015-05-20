@@ -29,9 +29,8 @@ private object ToxAvImpl {
  * Initialise an A/V session for the existing Tox instance.
  *
  * @param tox An instance of the C-backed ToxCore implementation.
- * @throws ToxAvNewException If there was already an A/V session.
  */
-@throws(classOf[ToxAvNewException])
+@throws[ToxAvNewException]("If there was already an A/V session.")
 final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
 
   private val instanceNumber = ToxAvJni.toxAvNew(this.tox.instanceNumber)
@@ -97,31 +96,31 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
     }
   }
 
-  @throws(classOf[ToxCallException])
+  @throws[ToxCallException]
   override def call(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
     ToxAvJni.toxAvCall(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
-  @throws(classOf[ToxAnswerException])
+  @throws[ToxAnswerException]
   override def answer(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
     ToxAvJni.toxAvAnswer(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
-  @throws(classOf[ToxCallControlException])
+  @throws[ToxCallControlException]
   override def callControl(friendNumber: Int, control: ToxCallControl): Unit =
     ToxAvJni.toxAvCallControl(instanceNumber, friendNumber, control.ordinal)
 
-  @throws(classOf[ToxBitRateException])
+  @throws[ToxBitRateException]
   override def setAudioBitRate(friendNumber: Int, bitRate: Int): Unit =
     ToxAvJni.toxAvSetAudioBitRate(instanceNumber, friendNumber, bitRate)
 
-  @throws(classOf[ToxBitRateException])
+  @throws[ToxBitRateException]
   override def setVideoBitRate(friendNumber: Int, bitRate: Int): Unit =
     ToxAvJni.toxAvSetVideoBitRate(instanceNumber, friendNumber, bitRate)
 
-  @throws(classOf[ToxSendFrameException])
+  @throws[ToxSendFrameException]
   override def sendVideoFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], @Nullable a: Array[Byte]): Unit =
     ToxAvJni.toxAvSendVideoFrame(instanceNumber, friendNumber, width, height, y, u, v, a)
 
-  @throws(classOf[ToxSendFrameException])
+  @throws[ToxSendFrameException]
   override def sendAudioFrame(friendNumber: Int, pcm: Array[Short], sampleCount: Int, channels: Int, samplingRate: Int): Unit =
     ToxAvJni.toxAvSendAudioFrame(instanceNumber, friendNumber, pcm, sampleCount, channels, samplingRate)
 

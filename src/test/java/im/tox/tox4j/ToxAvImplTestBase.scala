@@ -27,14 +27,14 @@ abstract class ToxAvImplTestBase extends ToxAvTestBase {
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   protected final def newTox(options: ToxOptions, data: Array[Byte]): ToxCore = {
     val tox = new ToxCoreImpl(options, data)
     toxes += tox
     tox
   }
 
-  @throws(classOf[ToxAvNewException])
+  @throws[ToxAvNewException]
   protected final def newToxAv(tox: ToxCore): ToxAv = {
     val av = new ToxAvImpl(tox.asInstanceOf[ToxCoreImpl])
     avs += av
