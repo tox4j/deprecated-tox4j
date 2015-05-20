@@ -23,7 +23,7 @@
    <check level="error" class="org.scalastyle.file.HeaderMatchesChecker" enabled="false"></check>
 
    Checks that lines are indented by a multiple of the tab size
-   <check level="error" class="org.scalastyle.file.IndentationChecker" enabled="true"></check>
+   <check level="error" class="org.scalastyle.file.IndentationChecker" enabled="false"></check>
 
    Checks that a file ends with a newline character
    <check level="error" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"></check>
