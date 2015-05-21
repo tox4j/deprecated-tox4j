@@ -149,40 +149,40 @@ abstract class ToxCoreTestBase extends JUnitSuite {
 
   @NotNull
   @throws[ToxNewException]
-  @deprecated
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected def newTox(options: ToxOptions, data: Array[Byte]): ToxCore
 
   @NotNull
   @throws[ToxNewException]
-  @deprecated
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(): ToxCore = {
     newTox(new ToxOptions, null)
   }
 
   @NotNull
   @throws[ToxNewException]
-  @deprecated
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(data: Array[Byte]): ToxCore = {
     newTox(new ToxOptions, data)
   }
 
   @NotNull
   @throws[ToxNewException]
-  @deprecated
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(options: ToxOptions): ToxCore = {
     newTox(options, null)
   }
 
   @NotNull
   @throws[ToxNewException]
-  @deprecated
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled), null)
   }
 
   @NotNull
   @throws[ToxNewException]
-  @deprecated
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)
   }

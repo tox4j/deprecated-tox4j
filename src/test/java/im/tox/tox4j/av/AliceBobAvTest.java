@@ -51,7 +51,7 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
       thread.join();
     }
 
-    public void setup(ToxCore tox) throws ToxException {
+    public final void setup(ToxCore tox) {
       av = new ToxAvImpl((ToxCoreImpl) tox);
       av.callback(this);
       thread = new Thread(new Runnable() {

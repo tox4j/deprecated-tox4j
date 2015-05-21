@@ -92,19 +92,6 @@ private object ToxCoreImpl {
 @throws[ToxNewException]("If an error was detected in the configuration or a runtime error occurred.")
 final class ToxCoreImpl(options: ToxOptions, @Nullable saveData: Array[Byte]) extends AbstractToxCore {
 
-  /**
-   * This field has package visibility for [[ToxAvImpl]].
-   */
-  private[impl] val instanceNumber =
-    ToxCoreJni.toxNew(
-      saveData,
-      options.ipv6Enabled,
-      options.udpEnabled,
-      options.proxyType.ordinal,
-      options.proxyAddress,
-      options.proxyPort
-    )
-
   private val onCloseCallbacks = new Event
 
   private var connectionStatusCallback = ConnectionStatusCallback.IGNORE
@@ -122,6 +109,19 @@ final class ToxCoreImpl(options: ToxOptions, @Nullable saveData: Array[Byte]) ex
   private var fileReceiveChunkCallback = FileReceiveChunkCallback.IGNORE
   private var friendLossyPacketCallback = FriendLossyPacketCallback.IGNORE
   private var friendLosslessPacketCallback = FriendLosslessPacketCallback.IGNORE
+
+  /**
+   * This field has package visibility for [[ToxAvImpl]].
+   */
+  private[impl] val instanceNumber =
+    ToxCoreJni.toxNew(
+      saveData,
+      options.ipv6Enabled,
+      options.udpEnabled,
+      options.proxyType.ordinal,
+      options.proxyAddress,
+      options.proxyPort
+    )
 
   /**
    * Add an onClose callback. This event is invoked just before the instance is closed.
