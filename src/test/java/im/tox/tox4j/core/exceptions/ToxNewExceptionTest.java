@@ -32,34 +32,19 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
     }
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testToxNewProxyBadPort0() throws Exception {
-    try {
-      newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
-      fail();
-    } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
-    }
+    newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
   }
 
-  @Test
-  public void testToxNewProxyBadPortNegative() {
-    try {
-      newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
-      fail();
-    } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testToxNewProxyBadPortNegative() throws Exception {
+    newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testToxNewProxyBadPortTooLarge() throws Exception {
-    try {
-      newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
-      fail();
-    } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
-    }
+    newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
   }
 
   @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")

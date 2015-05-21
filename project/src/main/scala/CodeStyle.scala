@@ -35,12 +35,14 @@ object CodeStyle extends Plugin {
       scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/.*Impl\\.scala"),
 
       wartremoverErrors in (Compile, compile) := Warts.allBut(
+        Wart.DefaultArguments,
         Wart.NonUnitStatements,
         Wart.Var
       ),
       wartremoverErrors in (Test, compile) := Warts.allBut(
         Wart.Any,
         Wart.AsInstanceOf,
+        Wart.DefaultArguments,
         Wart.NonUnitStatements,
         Wart.Null,
         Wart.Throw,

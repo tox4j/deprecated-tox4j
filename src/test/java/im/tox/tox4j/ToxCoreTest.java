@@ -23,7 +23,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions()).close();
+    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, new byte[0])).close();
   }
 
   @Test

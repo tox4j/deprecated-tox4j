@@ -10,7 +10,7 @@ object ToxCoreFactory {
   private final val toxes = new ArrayBuffer[ToxCore]
 
   private def make(options: ToxOptions, data: Array[Byte]): ToxCore = {
-    new ToxCoreImpl(options, data)
+    new ToxCoreImpl(options.copy(saveData = data))
   }
 
   def destroyAll(): Unit = {

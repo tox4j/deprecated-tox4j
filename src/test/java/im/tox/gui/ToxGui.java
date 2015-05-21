@@ -285,7 +285,7 @@ public class ToxGui extends JFrame {
   private static ToxOptions enableProxy(
       @NotNull ToxOptions options, @NotNull ToxProxyType proxyType, @NotNull String proxyAddress, int proxyPort
   ) throws ToxNewException {
-    return new ToxOptions(options.ipv6Enabled, options.udpEnabled, proxyType, proxyAddress, proxyPort);
+    return new ToxOptions(options.ipv6Enabled(), options.udpEnabled(), proxyType, proxyAddress, proxyPort, options.saveData());
   }
 
   /**
@@ -325,26 +325,32 @@ public class ToxGui extends JFrame {
 
       private void connect() {
         try {
-          ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUdpCheckBox.isSelected());
+          byte[] toxSave = load();
+
+          ToxProxyType proxyType;
           if (httpRadioButton.isSelected()) {
-            options = enableProxy(options,
-                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
-            );
+            proxyType = ToxProxyType.HTTP;
           } else if (socksRadioButton.isSelected()) {
-            options = enableProxy(options,
-                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
-            );
+            proxyType = ToxProxyType.SOCKS5;
+          } else {
+            proxyType = ToxProxyType.NONE;
           }
 
-          byte[] toxSave = load();
-          if (toxSave != null) {
-            tox = new ToxCoreImpl(options, toxSave);
-            for (int friendNumber : tox.getFriendList()) {
-              friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
-            }
-          } else {
-            tox = new ToxCoreImpl(options, null);
+          ToxOptions options = new ToxOptions(
+              enableIPv6CheckBox.isSelected(),
+              enableUdpCheckBox.isSelected(),
+              proxyType,
+              proxyHost.getText(),
+              Integer.parseInt(proxyPort.getText()),
+              toxSave
+          );
+
+          tox = new ToxCoreImpl(options);
+
+          for (int friendNumber : tox.getFriendList()) {
+            friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
           }
+
           selfPublicKey.setText(readablePublicKey(tox.getAddress()));
           tox.callback(toxEvents);
           eventLoop = new Thread(new Runnable() {

@@ -18,34 +18,51 @@ import java.io.Closeable;
  * will result in {@link im.tox.tox4j.exceptions.ToxKilledException} being thrown. When one thread invokes
  * {@link #close()}, all other threads with pending calls will throw. The exception is unchecked, as it should not occur
  * in a normal execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads
- * should be stopped before one thread invokes {@link #close()}, or appropriate exception handlers should be installed
- * in all threads.
+ * should be stopped or stop using the instance before one thread invokes {@link #close()} on it, or appropriate
+ * exception handlers should be installed in all threads.
  */
 public interface ToxCore extends Closeable {
 
   /**
+   * Store all information associated with the tox instance to a byte array.
+   *
+   * <p/>
+   * The data in the byte array can be used to create a new instance with {@link #load} by passing it to the
+   * {@link ToxOptions} constructor. The concrete format in this serialised instance is implementation-defined. Passing
+   * save data created by one class to a different class may not work.
+   *
+   * @return a byte array containing the serialised tox instance.
+   */
+  @NotNull
+  byte[] save();
+
+  /**
+   * Create a new {@link ToxCore} instance with different options. The implementation may choose to create an object of
+   * its own class or a different class.
+   *
+   * @return a new {@link ToxCore} instance.
+   */
+  @NotNull ToxCore load(@NotNull ToxOptions options) throws ToxNewException;
+
+  /**
    * Shut down the tox instance.
    *
-   * <p>
+   * <p/>
+   * Releases all resources associated with the Tox instance and disconnects from
+   * the network.
+   *
+   * <p/>
    * Once this method has been called, all other calls on this instance will throw
-   * {@link im.tox.tox4j.exceptions.ToxKilledException}. A closed instance cannot be reused, a new instance must be
+   * {@link im.tox.tox4j.exceptions.ToxKilledException}. A closed instance cannot be reused; a new instance must be
    * created.
    */
   @Override
   void close();
 
   /**
-   * Save the current tox instance (friend list etc).
-   *
-   * @return a byte array containing the tox instance
-   */
-  @NotNull
-  byte[] save();
-
-  /**
    * Bootstrap into the tox network.
    *
-   * <p>
+   * <p/>
    * May connect via UDP and/or TCP, depending of the settings of the Tox instance.
    *
    * @param address    the hostname, or an IPv4/IPv6 address of the node.
@@ -58,7 +75,7 @@ public interface ToxCore extends Closeable {
   /**
    * Add another TCP relay in addition to the one passed to bootstrap.
    *
-   * <p>
+   * <p/>
    * Can also be used to add the same node the instance was bootstrapped with, but with a different port.
    *
    * @param address    the hostname, or an IPv4/IPv6 address of the node.
@@ -109,7 +126,7 @@ public interface ToxCore extends Closeable {
   /**
    * The main tox loop.
    *
-   * <p>
+   * <p/>
    * This should be invoked every {@link #iterationInterval()} milliseconds.
    */
   void iteration();
@@ -133,7 +150,7 @@ public interface ToxCore extends Closeable {
   /**
    * Set the nospam number for our address.
    *
-   * <p>
+   * <p/>
    * Setting the nospam makes it impossible for others to send us friend requests that contained the old nospam number.
    *
    * @param noSpam the new nospam number.
@@ -150,7 +167,7 @@ public interface ToxCore extends Closeable {
   /**
    * Get our current tox address to give to friends.
    *
-   * <p>
+   * <p/>
    * The format is the following: [Public Key (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
    * {@link #setNospam(int)}, the old address can no longer be used to send friend requests to this instance.
    *
@@ -162,7 +179,7 @@ public interface ToxCore extends Closeable {
   /**
    * Set our nickname.
    *
-   * <p>
+   * <p/>
    * Cannot be longer than {@link ToxConstants#MAX_NAME_LENGTH} bytes.
    *
    * @param name our name.
@@ -181,7 +198,7 @@ public interface ToxCore extends Closeable {
   /**
    * Set our status message.
    *
-   * <p>
+   * <p/>
    * Cannot be longer than {@link ToxConstants#MAX_STATUS_MESSAGE_LENGTH} bytes.
    *
    * @param message the status message to set.
@@ -266,7 +283,7 @@ public interface ToxCore extends Closeable {
   /**
    * Checks whether a friend with the specified friend number exists.
    *
-   * <p>
+   * <p/>
    * If this function returns <code>true</code>, the return value is valid until the friend is deleted. If
    * <code>false</code> is returned, the return value is valid until either of {@link #addFriend(byte[], byte[])}
    * {@link #addFriendNoRequest(byte[])} is invoked.
@@ -279,7 +296,7 @@ public interface ToxCore extends Closeable {
   /**
    * Get an array of currently valid friend numbers.
    *
-   * <p>
+   * <p/>
    * This list is valid until either of the following is invoked: {@link #deleteFriend(int)},
    * {@link #addFriend(byte[], byte[])}, {@link #addFriendNoRequest(byte[])}.
    *
