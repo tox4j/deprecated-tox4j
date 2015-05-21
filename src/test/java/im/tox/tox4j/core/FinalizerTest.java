@@ -1,5 +1,6 @@
 package im.tox.tox4j.core;
 
+import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.impl.ToxCoreImpl;
 import org.junit.Test;
 
@@ -14,17 +15,19 @@ import org.junit.Test;
 @SuppressWarnings("ResultOfObjectAllocationIgnored")
 public final class FinalizerTest {
 
+  private static final ToxOptions toxOptions = new ToxOptions(true, true, ToxProxyType.NONE, "", 0, new byte[0]);
+
   @Test
   public void testFinalize_AfterClose() throws Exception {
     System.gc();
-    new ToxCoreImpl(new ToxOptions(), null).close();
+    new ToxCoreImpl(toxOptions).close();
     System.gc();
   }
 
   @Test
   public void testFinalize_WithoutClose() throws Exception {
     System.gc();
-    new ToxCoreImpl(new ToxOptions(), null);
+    new ToxCoreImpl(toxOptions);
     System.gc();
   }
 

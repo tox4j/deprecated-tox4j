@@ -86,11 +86,10 @@ private object ToxCoreImpl {
 /**
  * Initialises the new Tox instance with an optional save-data received from [[save]].
  *
- * @param options Connection options object.
- * @param saveData Optional save-data.
+ * @param options Connection options object with optional save-data.
  */
 @throws[ToxNewException]("If an error was detected in the configuration or a runtime error occurred.")
-final class ToxCoreImpl(options: ToxOptions, @Nullable saveData: Array[Byte]) extends AbstractToxCore {
+final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
 
   private val onCloseCallbacks = new Event
 
@@ -115,7 +114,7 @@ final class ToxCoreImpl(options: ToxOptions, @Nullable saveData: Array[Byte]) ex
    */
   private[impl] val instanceNumber =
     ToxCoreJni.toxNew(
-      saveData,
+      options.saveData,
       options.ipv6Enabled,
       options.udpEnabled,
       options.proxyType.ordinal,
@@ -131,6 +130,9 @@ final class ToxCoreImpl(options: ToxOptions, @Nullable saveData: Array[Byte]) ex
 
   def removeOnCloseCallback(id: Event.Id): Unit =
     onCloseCallbacks -= id
+
+  override def load(options: ToxOptions) =
+    new ToxCoreImpl(options)
 
   override def close(): Unit = {
     onCloseCallbacks()

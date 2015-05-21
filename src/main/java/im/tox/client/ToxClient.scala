@@ -9,7 +9,7 @@ class ToxClient {
   // XXX: None.orNull is a hacky way to write null that scalastyle doesn't know
   // about. This is just for this initial implementation. Actually this file
   // shouldn't currently be production code, but it will go away soon, anyway.
-  private val tox: ToxCore = new ToxCoreImpl(new ToxOptions, None.orNull)
+  private val tox: ToxCore = new ToxCoreImpl(new ToxOptions)
 
   def name: String = new String(tox.getName)
   def name_=(name: String): Unit = tox.setName(name.getBytes)

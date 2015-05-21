@@ -59,10 +59,7 @@ object TestClient extends App {
       logger.info(s"Creating $count toxes")
 
       val toxes = (1 to count) map { id =>
-        val tox = new ToxCoreImpl({
-          val options = new ToxOptions(true, bootstrap.isEmpty)
-          options
-        }, null)
+        val tox = new ToxCoreImpl(new ToxOptions(true, bootstrap.isEmpty))
 
         tox.callback(new TestEventListener(id))
         logger.info(s"[$id] Key: ${readablePublicKey(tox.getPublicKey)}")
