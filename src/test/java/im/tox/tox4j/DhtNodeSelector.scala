@@ -44,13 +44,13 @@ object DhtNodeSelector {
       tox.bootstrap(node.ipv4, port, node.dhtId)
 
       // Try bootstrapping for 10 seconds.
-      (0 to 10000 / tox.iterationInterval()) find { _ =>
+      (0 to 10000 / tox.iterationInterval) find { _ =>
         tox.iteration()
         Thread.sleep(tox.iterationInterval)
         status.isConnected
       } match {
         case Some(time) =>
-          logger.info(s"Bootstrapped successfully after ${time * tox.iterationInterval()}ms using $protocol")
+          logger.info(s"Bootstrapped successfully after ${time * tox.iterationInterval}ms using $protocol")
           Some(node)
         case None =>
           logger.info(s"Unable to bootstrap with $protocol")

@@ -24,7 +24,7 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
 
   def iteration(): Unit = toxes.foreach(_.tox.iteration())
 
-  def iterationInterval: Int = toxes.map(_.tox.iterationInterval()).max
+  def iterationInterval: Int = toxes.map(_.tox.iterationInterval).max
 
   def get(index: Int): ToxCore = toxes(index).tox
   def size: Int = toxes.length

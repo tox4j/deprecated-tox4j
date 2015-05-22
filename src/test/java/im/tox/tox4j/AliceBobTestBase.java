@@ -43,7 +43,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     public abstract void perform(@NotNull T tox) throws ToxException;
   }
 
-  protected static class ChatClient extends ToxEventAdapter {
+  public static class ChatClient extends ToxEventAdapter {
 
     protected static final int FRIEND_NUMBER = 10;
 
