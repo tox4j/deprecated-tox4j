@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
 
-#use common::sense;
+use strict;
+use warnings FATAL => 'all';
+use utf8;
+
 use JSON::PP;
 
 my $data = do { local $/; open my $fh, '<', 'exceptions.json' or die $!; decode_json <$fh> };
