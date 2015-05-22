@@ -65,6 +65,11 @@ public interface ToxConstants {
   int HASH_LENGTH                 = /*crypto_hash_sha256_BYTES*/ 32;
 
   /**
+   * The number of bytes in a file id.
+   */
+  int FILE_ID_LENGTH              = 32;
+
+  /**
    * Default port for HTTP proxies.
    */
   int DEFAULT_PROXY_PORT          = 8080;

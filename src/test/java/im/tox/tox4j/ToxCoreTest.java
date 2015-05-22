@@ -187,11 +187,11 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         0x7fffffff,
     };
     try (ToxCore tox = newTox()) {
-      assertEquals(tox.getNospam(), tox.getNospam());
+      assertEquals(tox.getNoSpam(), tox.getNoSpam());
       for (int test : tests) {
-        tox.setNospam(test);
-        assertEquals(test, tox.getNospam());
-        assertEquals(tox.getNospam(), tox.getNospam());
+        tox.setNoSpam(test);
+        assertEquals(test, tox.getNoSpam());
+        assertEquals(tox.getNoSpam(), tox.getNoSpam());
         byte[] check = {
             (byte)(test >> 8 * 0),
             (byte)(test >> 8 * 1),

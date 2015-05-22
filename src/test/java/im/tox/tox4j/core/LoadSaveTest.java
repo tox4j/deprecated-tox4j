@@ -105,13 +105,13 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
 
       @Override
       public boolean change(ToxCore tox) throws ToxException {
-        tox.setNospam(++expected);
+        tox.setNoSpam(++expected);
         return expected < 100;
       }
 
       @Override
       public void check(ToxCore tox) {
-        assertEquals(expected, tox.getNospam());
+        assertEquals(expected, tox.getNoSpam());
       }
     });
   }

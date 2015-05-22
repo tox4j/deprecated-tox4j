@@ -6,13 +6,35 @@ import im.tox.tox4j.exceptions.ToxException;
 public final class ToxSendCustomPacketException extends ToxException<ToxSendCustomPacketException.Code> {
 
   public enum Code {
-    NULL,
-    FRIEND_NOT_FOUND,
-    FRIEND_NOT_CONNECTED,
-    INVALID,
+    /**
+     * Attempted to send an empty packet.
+     */
     EMPTY,
-    TOO_LONG,
+    /**
+     * This client is currently not connected to the friend.
+     */
+    FRIEND_NOT_CONNECTED,
+    /**
+     * The friendNumber passed did not designate a valid friend.
+     */
+    FRIEND_NOT_FOUND,
+    /**
+     * The first byte of data was not in the specified range for the packet type.
+     * This range is 200-254 for lossy, and 160-191 for lossless packets.
+     */
+    INVALID,
+    /**
+     * An argument was null.
+     */
+    NULL,
+    /**
+     * An allocation error occurred while increasing the send queue size.
+     */
     SENDQ,
+    /**
+     * Packet data length exceeded {@link ToxConstants#MAX_CUSTOM_PACKET_SIZE}.
+     */
+    TOO_LONG,
   }
 
   public ToxSendCustomPacketException(@NotNull Code code) {

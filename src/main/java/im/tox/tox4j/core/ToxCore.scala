@@ -35,6 +35,14 @@ trait ToxCore extends Closeable {
    * Create a new [[ToxCore]] instance with different options. The implementation may choose to create an object of
    * its own class or a different class.
    *
+   * This function will bring the instance into a valid state. Running the event
+   * loop with a new instance will operate correctly.
+   *
+   * If the [[ToxOptions.saveData]] field is not empty, this function will load the Tox instance
+   * from a byte array previously filled by [[save]].
+   *
+   * If loading failed or succeeded only partially, an exception will be thrown.
+   *
    * @return a new [[ToxCore]] instance.
    */
   @NotNull
@@ -56,19 +64,30 @@ trait ToxCore extends Closeable {
   /**
    * Bootstrap into the tox network.
    *
-   * May connect via UDP and/or TCP, depending of the settings of the Tox instance.
+   * Sends a "get nodes" request to the given bootstrap node with IP, port, and
+   * public key to setup connections.
+   *
+   * This function will attempt to connect to the node using UDP and TCP at the
+   * same time.
+   *
+   * Tox will use the node as a TCP relay in case [[ToxOptions.udpEnabled]] was
+   * false, and also to connect to friends that are in TCP-only mode. Tox will
+   * also use the TCP connection when NAT hole punching is slow, and later switch
+   * to UDP if hole punching succeeds.
    *
    * @param address   the hostname, or an IPv4/IPv6 address of the node.
    * @param port      the port of the node.
    * @param publicKey the public key of the node.
    */
-  @throws[ToxBootstrapException]("if an error occurred.")
+  @throws[ToxBootstrapException]
   def bootstrap(@NotNull address: String, port: Int, @NotNull publicKey: Array[Byte]): Unit
 
   /**
    * Add another TCP relay in addition to the one passed to bootstrap.
    *
-   * Can also be used to add the same node the instance was bootstrapped with, but with a different port.
+   * This function can be used to initiate TCP connections to different ports on
+   * the same bootstrap node, or to add TCP relays without using them as
+   * bootstrap nodes.
    *
    * @param address   the hostname, or an IPv4/IPv6 address of the node.
    * @param port      the TCP port the node is running a relay on.
@@ -80,99 +99,101 @@ trait ToxCore extends Closeable {
   /**
    * Get the UDP port this instance is bound to.
    *
-   * @return the UDP port this instance is bound to.
+   * @return a port number between 1 and 65535.
    */
   @throws[ToxGetPortException]
   def getUdpPort: Int
 
   /**
-   * Get the port this instance is serving as a TCP relay on.
+   * Return the TCP port this Tox instance is bound to. This is only relevant if
+   * the instance is acting as a TCP relay.
    *
-   * @return the TCP port this instance is bound to.
+   * @return a port number between 1 and 65535.
    */
   @throws[ToxGetPortException]
   def getTcpPort: Int
 
   /**
-   * Get the temporary DHT public key for this instance.
+   * Writes the temporary DHT public key of this instance to a byte array.
    *
-   * @return the temporary DHT public key.
+   * This can be used in combination with an externally accessible IP address and
+   * the bound port (from ${udp_port.get}) to run a temporary bootstrap node.
+   *
+   * Be aware that every time a new instance is created, the DHT public key
+   * changes, meaning this cannot be used to run a permanent bootstrap node.
+   *
+   * @return a byte array of size [[ToxConstants.PUBLIC_KEY_SIZE]]
    */
   @NotNull
   def getDhtId: Array[Byte]
 
   /**
-   * Get the time in milliseconds until [[iteration]] should be called again.
+   * Get the time in milliseconds until [[iteration]] should be called again for optimal performance.
    *
    * @return the time in milliseconds until [[iteration]] should be called again.
    */
   def iterationInterval: Int
 
   /**
-   * The main tox loop.
+   * The main loop.
    *
-   * <p/>
    * This should be invoked every [[iterationInterval]] milliseconds.
    */
   def iteration(): Unit
 
   /**
-   * Gets our own public key.
-   *
-   * @return our own public key.
+   * Copy the Tox Public Key (long term) from the Tox object.
+   * @return a byte array of size [[ToxConstants.PUBLIC_KEY_SIZE]]
    */
   @NotNull
   def getPublicKey: Array[Byte]
 
   /**
-   * Gets our own secret key.
-   *
-   * @return our own secret key.
+   * Copy the Tox Secret Key from the Tox object.
+   * @return a byte array of size [[ToxConstants.SECRET_KEY_SIZE]]
    */
   @NotNull
   def getSecretKey: Array[Byte]
 
   /**
-   * Set the nospam number for our address.
+   * Set the 4-byte noSpam part of the address.
    *
-   * Setting the nospam makes it impossible for others to send us friend requests that contained the old nospam number.
+   * Setting the noSpam makes it impossible for others to send us friend requests that contained the old nospam number.
    *
-   * @param noSpam the new nospam number.
+   * @param noSpam the new noSpam number.
    */
-  def setNospam(noSpam: Int): Unit
+  def setNoSpam(noSpam: Int): Unit
 
   /**
-   * Get our current nospam number.
-   *
-   * @return the current nospam number.
+   * Get our current noSpam number.
    */
-  def getNospam: Int
+  def getNoSpam: Int
 
   /**
    * Get our current tox address to give to friends.
    *
-   * The format is the following: [Public Key (32 bytes)][nospam number (4 bytes)][checksum (2 bytes)]. After a call to
-   * [[setNospam]], the old address can no longer be used to send friend requests to this instance.
+   * The format is the following: [Public Key (32 bytes)][noSpam number (4 bytes)][checksum (2 bytes)]. After a call to
+   * [[setNoSpam]], the old address can no longer be used to send friend requests to this instance.
    *
-   * @return our current tox address.
+   * Note that it is not in a human-readable format. To display it to users, it needs to be formatted.
+   *
+   * @return a byte array of size [[ToxConstants.ADDRESS_SIZE]]
    */
   @NotNull
   def getAddress: Array[Byte]
 
   /**
-   * Set our nickname.
+   * Set the nickname for the Tox client.
    *
-   * Cannot be longer than [[ToxConstants.MAX_NAME_LENGTH]] bytes.
+   * Cannot be longer than [[ToxConstants.MAX_NAME_LENGTH]] bytes. Can be empty (zero-length).
    *
-   * @param name our name.
+   * @param name A byte array containing the new nickname..
    */
   @throws[ToxSetInfoException]
   def setName(@NotNull name: Array[Byte]): Unit
 
   /**
-   * Get our own nickname. May be null if the nickname was empty.
-   *
-   * @return our nickname.
+   * Get our own nickname.
    */
   @NotNull
   def getName: Array[Byte]
@@ -189,8 +210,6 @@ trait ToxCore extends Closeable {
 
   /**
    * Gets our own status message. May be null if the status message was empty.
-   *
-   * @return our status message.
    */
   @NotNull
   def getStatusMessage: Array[Byte]
@@ -204,16 +223,28 @@ trait ToxCore extends Closeable {
 
   /**
    * Get our status.
-   *
-   * @return our status.
    */
   @NotNull
   def getStatus: ToxUserStatus
 
   /**
-   * Adds a new friend by Friend Address.
+   * Add a friend to the friend list and send a friend request.
    *
-   * @param address the address to add as a friend ({ @link ToxConstants#ADDRESS_SIZE} bytes).
+   * A friend request message must be at least 1 byte long and at most
+   * [[ToxConstants.MAX_FRIEND_REQUEST_LENGTH]].
+   *
+   * Friend numbers are unique identifiers used in all functions that operate on
+   * friends. Once added, a friend number is stable for the lifetime of the Tox
+   * object. After saving the state and reloading it, the friend numbers may not
+   * be the same as before. Deleting a friend creates a gap in the friend number
+   * set, which is filled by the next adding of a friend. Any pattern in friend
+   * numbers should not be relied on.
+   *
+   * If more than [[Integer.MAX_VALUE]] friends are added, this function throws
+   * an exception.
+   *
+   * @param address the address to add as a friend ([[ToxConstants.ADDRESS_SIZE]] bytes).
+   *                This is the byte array the friend got from their own [[getAddress]].
    * @param message the message to send with the friend request (must not be empty).
    * @return the new friend's friend number.
    */
@@ -222,11 +253,18 @@ trait ToxCore extends Closeable {
   def addFriend(@NotNull address: Array[Byte], @NotNull message: Array[Byte]): Int
 
   /**
-   * Add the specified Public Key as friend without sending a friend request.
+   * Add a friend without sending a friend request.
    *
-   * This is mostly used for confirming incoming friend requests.
+   * This function is used to add a friend in response to a friend request. If the
+   * client receives a friend request, it can be reasonably sure that the other
+   * client added this client as a friend, eliminating the need for a friend
+   * request.
    *
-   * @param publicKey the Public Key to add as a friend ({ @link ToxConstants#PUBLIC_KEY_SIZE} bytes).
+   * This function is also useful in a situation where both instances are
+   * controlled by the same entity, so that this entity can perform the mutual
+   * friend adding. In this case, there is no need for a friend request, either.
+   *
+   * @param publicKey the Public Key to add as a friend ([[ToxConstants.PUBLIC_KEY_SIZE]] bytes).
    * @return the new friend's friend number.
    */
   @throws[ToxFriendAddException]
@@ -234,7 +272,11 @@ trait ToxCore extends Closeable {
   def addFriendNoRequest(@NotNull publicKey: Array[Byte]): Int
 
   /**
-   * Deletes the specified friend.
+   * Remove a friend from the friend list.
+   *
+   * This does not notify the friend of their deletion. After calling this
+   * function, this client will appear offline to the friend and no communication
+   * can occur between the two.
    *
    * @param friendNumber the friend number to delete.
    */
@@ -286,97 +328,213 @@ trait ToxCore extends Closeable {
   /**
    * Tell friend number whether or not we are currently typing.
    *
+   * The client is responsible for turning it on or off.
+   *
    * @param friendNumber the friend number to set typing status for.
    * @param typing       <code>true</code> if we are currently typing.
    */
   @throws[ToxSetTypingException]
   def setTyping(friendNumber: Int, typing: Boolean): Unit
 
+  /**
+   * Send a text chat message to an online friend.
+   *
+   * This function creates a chat message packet and pushes it into the send
+   * queue.
+   *
+   * The message length may not exceed $MAX_MESSAGE_LENGTH. Larger messages
+   * must be split by the client and sent as separate messages. Other clients can
+   * then reassemble the fragments. Messages may not be empty.
+   *
+   * The return value of this function is the message ID. If a read receipt is
+   * received, the triggered [[ReadReceiptCallback]] event will be passed this message ID.
+   *
+   * Message IDs are unique per friend per instance. The first message ID is 0. Message IDs
+   * are incremented by 1 each time a message is sent. If [[Integer.MAX_VALUE]] messages were
+   * sent, the next message ID is [[Integer.MIN_VALUE]].
+   *
+   * Message IDs are not stored in the [[save]] data.
+   *
+   * @param friendNumber The friend number of the friend to send the message to.
+   * @param messageType Message type (normal, action, ...).
+   * @param timeDelta The time between composition (user created the message) and calling this function.
+   * @param message The message text
+   * @return the message ID.
+   */
   @throws[ToxSendMessageException]
   def sendMessage(friendNumber: Int, @NotNull messageType: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Int
 
+  /**
+   * Sends a file control command to a friend for a given file transfer.
+   *
+   * @param friendNumber The friend number of the friend the file is being transferred to or received from.
+   * @param fileNumber The friend-specific identifier for the file transfer.
+   * @param control The control command to send.
+   */
   @throws[ToxFileControlException]
   def fileControl(friendNumber: Int, fileNumber: Int, @NotNull control: ToxFileControl): Unit
 
+  /**
+   * Sends a file seek control command to a friend for a given file transfer.
+   *
+   * This function can only be called to resume a file transfer right before
+   * [[ToxFileControl.RESUME]] is sent.
+   *
+   * @param friendNumber The friend number of the friend the file is being received from.
+   * @param fileNumber The friend-specific identifier for the file transfer.
+   * @param position The position that the file should be seeked to.
+   */
   @throws[ToxFileSendSeekException]
   def fileSendSeek(friendNumber: Int, fileNumber: Int, position: Long): Unit
 
-  @throws[ToxFileSendException]
-  def fileSend(friendNumber: Int, kind: Int, fileSize: Long, @NotNull fileId: Array[Byte], @NotNull filename: Array[Byte]): Int
-
-  @throws[ToxFileSendChunkException]
-  def fileSendChunk(friendNumber: Int, fileNumber: Int, position: Long, @NotNull data: Array[Byte]): Unit
-
+  /**
+   * Return the file id associated to the file transfer as a byte array.
+   *
+   * @param friendNumber The friend number of the friend the file is being transferred to or received from.
+   * @param fileNumber The friend-specific identifier for the file transfer.
+   */
   @throws[ToxFileGetInfoException]
   def fileGetFileId(friendNumber: Int, fileNumber: Int): Array[Byte]
 
+  /**
+   * Send a file transmission request.
+   *
+   * Maximum filename length is [[ToxConstants.MAX_FILENAME_LENGTH]] bytes. The filename
+   * should generally just be a file name, not a path with directory names.
+   *
+   * If a non-negative file size is provided, it can be used by both sides to
+   * determine the sending progress. File size can be set to a negative value for streaming
+   * data of unknown size.
+   *
+   * File transmission occurs in chunks, which are requested through the
+   * [[FileRequestChunkCallback]] event.
+   *
+   * When a friend goes offline, all file transfers associated with the friend are
+   * purged from core.
+   *
+   * If the file contents change during a transfer, the behaviour is unspecified
+   * in general. What will actually happen depends on the mode in which the file
+   * was modified and how the client determines the file size.
+   *
+   * - If the file size was increased
+   *   - and sending mode was streaming (fileSize = -1), the behaviour
+   *     will be as expected.
+   *   - and sending mode was file (fileSize != -1), the
+   *     [[FileRequestChunkCallback]] callback will receive length = 0 when Core thinks
+   *     the file transfer has finished. If the client remembers the file size as
+   *     it was when sending the request, it will terminate the transfer normally.
+   *     If the client re-reads the size, it will think the friend cancelled the
+   *     transfer.
+   * - If the file size was decreased
+   *   - and sending mode was streaming, the behaviour is as expected.
+   *   - and sending mode was file, the callback will return 0 at the new
+   *     (earlier) end-of-file, signalling to the friend that the transfer was
+   *     cancelled.
+   * - If the file contents were modified
+   *   - at a position before the current read, the two files (local and remote)
+   *     will differ after the transfer terminates.
+   *   - at a position after the current read, the file transfer will succeed as
+   *     expected.
+   *   - In either case, both sides will regard the transfer as complete and
+   *     successful.
+   *
+   * @param friendNumber The friend number of the friend the file send request should be sent to.
+   * @param kind The meaning of the file to be sent.
+   * @param fileSize Size in bytes of the file the client wants to send, -1 if unknown or streaming.
+   * @param fileId A file identifier of length [[ToxConstants.FILE_ID_LENGTH]] that can be used to
+   *               uniquely identify file transfers across core restarts. If empty, a random one will
+   *               be generated by core. It can then be obtained by using [[fileGetFileId]]
+   * @param filename Name of the file. Does not need to be the actual name. This
+   *                 name will be sent along with the file send request.
+   * @return A file number used as an identifier in subsequent callbacks. This
+   *         number is per friend. File numbers are reused after a transfer terminates.
+   *         Any pattern in file numbers should not be relied on.
+   */
+  @throws[ToxFileSendException]
+  def fileSend(friendNumber: Int, kind: Int, fileSize: Long, @NotNull fileId: Array[Byte], @NotNull filename: Array[Byte]): Int
+
+  /**
+   * Send a chunk of file data to a friend.
+   *
+   * This function is called in response to the [[FileRequestChunkCallback]] callback. The
+   * length parameter should be equal to the one received though the callback.
+   * If it is zero, the transfer is assumed complete. For files with known size,
+   * Core will know that the transfer is complete after the last byte has been
+   * received, so it is not necessary (though not harmful) to send a zero-length
+   * chunk to terminate. For streams, core will know that the transfer is finished
+   * if a chunk with length less than the length requested in the callback is sent.
+   *
+   * @param friendNumber The friend number of the receiving friend for this file.
+   * @param fileNumber The file transfer identifier returned by [[fileSend]].
+   * @param position The file or stream position from which the friend should continue writing.
+   * @param data The chunk data.
+   */
+  @throws[ToxFileSendChunkException]
+  def fileSendChunk(friendNumber: Int, fileNumber: Int, position: Long, @NotNull data: Array[Byte]): Unit
+
+  /**
+   * Send a custom lossy packet to a friend.
+   *
+   * The first byte of data must be in the range 200-254. Maximum length of a
+   * custom packet is [[ToxConstants.MAX_CUSTOM_PACKET_SIZE]].
+   *
+   * Lossy packets behave like UDP packets, meaning they might never reach the
+   * other side or might arrive more than once (if someone is messing with the
+   * connection) or might arrive in the wrong order.
+   *
+   * Unless latency is an issue, it is recommended that you use lossless custom
+   * packets instead.
+   *
+   * @param friendNumber The friend number of the friend this lossy packet should be sent to.
+   * @param data A byte array containing the packet data including packet id.
+   */
   @throws[ToxSendCustomPacketException]
   def sendLossyPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit
 
+  /**
+   * Send a custom lossless packet to a friend.
+   *
+   * The first byte of data must be in the range 160-191. Maximum length of a
+   * custom packet is [[ToxConstants.MAX_CUSTOM_PACKET_SIZE]].
+   *
+   * Lossless packet behaviour is comparable to TCP (reliability, arrive in order)
+   * but with packets instead of a stream.
+   *
+   * @param friendNumber The friend number of the friend this lossless packet should be sent to.
+   * @param data A byte array containing the packet data including packet id.
+   */
   @throws[ToxSendCustomPacketException]
   def sendLosslessPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit
 
+  /**
+   * Generates a cryptographic hash of the given data.
+   *
+   * This function may be used by clients for any purpose, but is provided
+   * primarily for validating cached avatars. This use is highly recommended to
+   * avoid unnecessary avatar updates.
+   *
+   * This function is a wrapper to internal message-digest functions.
+   *
+   * @param data Data to be hashed.
+   * @return
+   */
   @NotNull
   def hash(@NotNull data: Array[Byte]): Array[Byte]
 
-  /**
-   * Set the callback for friend name changes.
-   *
-   * @param callback the callback.
-   */
   def callbackFriendName(@NotNull callback: FriendNameCallback): Unit
-
-  /**
-   * Set the callback for friend status message changes.
-   *
-   * @param callback the callback.
-   */
   def callbackFriendStatusMessage(@NotNull callback: FriendStatusMessageCallback): Unit
-
-  /**
-   * Set the callback for friend message changes.
-   *
-   * @param callback the callback.
-   */
   def callbackFriendStatus(@NotNull callback: FriendStatusCallback): Unit
-
-  /**
-   * Set the callback for friend connection changes.
-   *
-   * @param callback the callback.
-   */
   def callbackFriendConnected(@NotNull callback: FriendConnectionStatusCallback): Unit
-
-  /**
-   * Set the callback for friend typing changes.
-   *
-   * @param callback the callback.
-   */
   def callbackFriendTyping(@NotNull callback: FriendTypingCallback): Unit
-
   def callbackReadReceipt(@NotNull callback: ReadReceiptCallback): Unit
-
   def callbackFriendRequest(@NotNull callback: FriendRequestCallback): Unit
-
   def callbackFriendMessage(@NotNull callback: FriendMessageCallback): Unit
-
   def callbackFileControl(@NotNull callback: FileControlCallback): Unit
-
   def callbackFileRequestChunk(@NotNull callback: FileRequestChunkCallback): Unit
-
   def callbackFileReceive(@NotNull callback: FileReceiveCallback): Unit
-
   def callbackFileReceiveChunk(@NotNull callback: FileReceiveChunkCallback): Unit
-
   def callbackFriendLossyPacket(@NotNull callback: FriendLossyPacketCallback): Unit
-
   def callbackFriendLosslessPacket(@NotNull callback: FriendLosslessPacketCallback): Unit
-
-  /**
-   * Sets the callback for connection status changes.
-   *
-   * @param callback the callback.
-   */
   def callbackConnectionStatus(@NotNull callback: ConnectionStatusCallback): Unit
 
   /**
