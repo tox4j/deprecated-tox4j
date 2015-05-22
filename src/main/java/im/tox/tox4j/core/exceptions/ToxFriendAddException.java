@@ -6,14 +6,41 @@ import im.tox.tox4j.exceptions.ToxException;
 public final class ToxFriendAddException extends ToxException<ToxFriendAddException.Code> {
 
   public enum Code {
-    NULL,
-    TOO_LONG,
-    NO_MESSAGE,
-    OWN_KEY,
+    /**
+     * A friend request has already been sent, or the address belongs to a friend
+     * that is already on the friend list. To resend a friend request, first remove
+     * the friend, and then call addFriend again.
+     */
     ALREADY_SENT,
+    /**
+     * The friend address checksum failed.
+     */
     BAD_CHECKSUM,
-    SET_NEW_NOSPAM,
+    /**
+     * A memory allocation failed when trying to increase the friend list size.
+     */
     MALLOC,
+    /**
+     * The friend request message was empty. This, and the TOO_LONG code will
+     * never be returned from {@link ToxCore#addFriendNoRequest}.
+     */
+    NO_MESSAGE,
+    /**
+     * An argument was null.
+     */
+    NULL,
+    /**
+     * The friend address belongs to the sending client.
+     */
+    OWN_KEY,
+    /**
+     * The friend was already on the friend list, but the noSpam value was different.
+     */
+    SET_NEW_NOSPAM,
+    /**
+     * The length of the friend request message exceeded {@link ToxConstants#MAX_FRIEND_REQUEST_LENGTH}.
+     */
+    TOO_LONG,
   }
 
   public ToxFriendAddException(@NotNull Code code) {

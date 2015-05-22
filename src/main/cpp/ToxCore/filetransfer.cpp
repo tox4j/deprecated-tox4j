@@ -58,6 +58,11 @@ TOX_METHOD (jint, FileSend,
     tox4j_fatal ("Invalid file kind from Java");
   } ();
 
+  // In Java, we only have 63 bit positive file sizes, so all negative values
+  // are streaming.
+  if (fileSize < 0)
+    fileSize = -1;
+
   return instances.with_instance_err (env, instanceNumber, "FileSend",
     identity,
     tox_file_send, friendNumber, file_kind, fileSize, fileIdData.data (), filenameData.data (), filenameData.size ()

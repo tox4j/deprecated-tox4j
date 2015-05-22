@@ -270,10 +270,10 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def getSecretKey: Array[Byte] =
     ToxCoreJni.toxSelfGetSecretKey(instanceNumber)
 
-  override def setNospam(nospam: Int): Unit =
+  override def setNoSpam(nospam: Int): Unit =
     ToxCoreJni.toxSelfSetNospam(instanceNumber, nospam)
 
-  override def getNospam: Int =
+  override def getNoSpam: Int =
     ToxCoreJni.toxSelfGetNospam(instanceNumber)
 
   override def getAddress: Array[Byte] =
