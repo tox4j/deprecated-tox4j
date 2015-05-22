@@ -60,5 +60,7 @@ final case class ToxOptions(
   require(startPort <= endPort)
   requireValidPort("Start", startPort)
   requireValidPort("End", endPort)
-  requireValidPort("TCP", tcpPort)
+  if (tcpPort != 0) {
+    requireValidPort("TCP", tcpPort)
+  }
 }
