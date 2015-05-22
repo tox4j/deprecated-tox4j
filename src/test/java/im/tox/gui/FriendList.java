@@ -1,7 +1,7 @@
 package im.tox.gui;
 
 import im.tox.tox4j.core.enums.ToxConnection;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public final class FriendList extends AbstractListModel<Friend> {
     fireContentsChanged(this, friendNumber, friendNumber);
   }
 
-  public void setStatus(int friendNumber, ToxStatus status) {
+  public void setStatus(int friendNumber, ToxUserStatus status) {
     friends.get(friendNumber).setStatus(status);
     fireContentsChanged(this, friendNumber, friendNumber);
   }

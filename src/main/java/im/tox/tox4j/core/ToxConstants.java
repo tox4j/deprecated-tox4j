@@ -64,4 +64,24 @@ public interface ToxConstants {
    */
   int HASH_LENGTH                 = /*crypto_hash_sha256_BYTES*/ 32;
 
+  /**
+   * Default port for HTTP proxies.
+   */
+  int DEFAULT_PROXY_PORT          = 8080;
+
+  /**
+   * Default start port for Tox UDP sockets.
+   */
+  int DEFAULT_START_PORT          = 33445;
+
+  /**
+   * Default end port for Tox UDP sockets.
+   */
+  int DEFAULT_END_PORT            = 33545;
+
+  /**
+   * Default port for Tox TCP relays. A value of 0 means disabled.
+   */
+  int DEFAULT_TCP_PORT            = 0;
+
 }

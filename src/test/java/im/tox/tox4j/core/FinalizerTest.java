@@ -15,7 +15,7 @@ import org.junit.Test;
 @SuppressWarnings("ResultOfObjectAllocationIgnored")
 public final class FinalizerTest {
 
-  private static final ToxOptions toxOptions = new ToxOptions(true, true, ToxProxyType.NONE, "", 0, new byte[0]);
+  private static final ToxOptions toxOptions = new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, new byte[0]);
 
   @Test
   public void testFinalize_AfterClose() throws Exception {

@@ -4,7 +4,7 @@ import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.enums.ToxProxyType;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, new byte[0])).close();
+    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, new byte[0])).close();
   }
 
   @Test
@@ -309,9 +309,9 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testGetAndSetStatus() throws Exception {
     try (ToxCore tox = newTox()) {
-      assertEquals(ToxStatus.NONE, tox.getStatus());
+      assertEquals(ToxUserStatus.NONE, tox.getStatus());
       for (int i = 0; i < 2; i++) {
-        for (ToxStatus status : ToxStatus.values()) {
+        for (ToxUserStatus status : ToxUserStatus.values()) {
           tox.setStatus(status);
           assertEquals(status, tox.getStatus());
         }

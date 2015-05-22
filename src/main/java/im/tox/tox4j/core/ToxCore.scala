@@ -4,7 +4,7 @@ import java.io.Closeable
 
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks._
-import im.tox.tox4j.core.enums.{ ToxFileControl, ToxMessageType, ToxStatus }
+import im.tox.tox4j.core.enums.{ ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
 
 /**
@@ -200,7 +200,7 @@ trait ToxCore extends Closeable {
    *
    * @param status status to set.
    */
-  def setStatus(@NotNull status: ToxStatus): Unit
+  def setStatus(@NotNull status: ToxUserStatus): Unit
 
   /**
    * Get our status.
@@ -208,7 +208,7 @@ trait ToxCore extends Closeable {
    * @return our status.
    */
   @NotNull
-  def getStatus: ToxStatus
+  def getStatus: ToxUserStatus
 
   /**
    * Adds a new friend by Friend Address.
