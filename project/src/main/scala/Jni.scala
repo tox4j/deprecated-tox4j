@@ -56,10 +56,10 @@ object Jni extends Plugin {
 
     val checkVersion = taskKey[Unit]("Check the versionSync variable")
     val javah = taskKey[Unit]("Generates JNI header files")
-    val gtestPath = taskKey[File]("Finds the Google Test source path or downloads gtest from the internet")
+    val gtestPath = taskKey[Option[File]]("Finds the Google Test source path or downloads gtest from the internet")
     val cmakeDependenciesFile = taskKey[File]("Generates Dependencies.cmake containing C++ dependency information")
     val cmakeMainFile = taskKey[File]("Generates Main.cmake containing instructions for the main module")
-    val cmakeTestFile = taskKey[File]("Generates Test.cmake containing instructions for the test module")
+    val cmakeTestFile = taskKey[Option[File]]("Generates Test.cmake containing instructions for the test module")
     val cmakeToolchainFlags = taskKey[Seq[String]]("Optionally generates Toolchain.cmake and returns the required cmake flags")
     val runCMake = taskKey[Unit]("Configures the build with CMake")
     val jniCompile = taskKey[Unit]("Compiles JNI native sources")
@@ -534,53 +534,61 @@ object Jni extends Plugin {
 
         candidates find { candidate =>
           (candidate / "src" / "gtest-all.cc").exists
-        } getOrElse {
-          val gtestDir = managedNativeSource.value / "gtest"
-          if (!gtestDir.exists) {
-            val command = Seq(
-              "svn", "checkout",
-              "http://googletest.googlecode.com/svn/trunk/",
-              gtestDir.getPath
-            )
+        } match {
+          case Some(gtestDir) => Some(gtestDir)
+          case None =>
+            val gtestDir = managedNativeSource.value / "gtest"
+            if (!gtestDir.exists) {
+              val command = Seq(
+                "svn", "checkout",
+                "http://googletest.googlecode.com/svn/trunk/",
+                gtestDir.getPath
+              )
 
-            log.info("Fetching gtest sources")
-            checkExitCode(command, log)
-          }
-
-          gtestDir
+              log.info("Fetching gtest sources")
+              command ! log match {
+                case 0 =>
+                  Some(gtestDir)
+                case exitCode =>
+                  log.info(s"command failed with exit code $exitCode:\n  $command")
+                  None
+              }
+            } else {
+              Some(gtestDir)
+            }
         }
       }.value,
 
       cmakeTestFile := Def.task {
-        val fileName = nativeTarget.value / "Test.cmake"
-        val out = new PrintWriter(fileName)
-        try {
-          val gtestDir = gtestPath.value
+        gtestPath.value.map { gtestDir =>
+          val fileName = nativeTarget.value / "Test.cmake"
+          val out = new PrintWriter(fileName)
+          try {
+            out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
+            out.println(s"include_directories($gtestDir $gtestDir/include)")
 
-          out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
-          out.println(s"include_directories($gtestDir $gtestDir/include)")
+            out.println("link_libraries(gtest)")
 
-          out.println("link_libraries(gtest)")
+            val testSources = (jniSourceFiles in Test).value
 
-          val testSources = (jniSourceFiles in Test).value
+            out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
+            out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
 
-          out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
-          out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
+            testSources.foreach { source =>
+              if (source.getName != "main.cpp" && source.getName != "mock_jni.cpp") {
+                import org.apache.commons.io.FilenameUtils
 
-          testSources.foreach { source =>
-            if (source.getName != "main.cpp" && source.getName != "mock_jni.cpp") {
-              import org.apache.commons.io.FilenameUtils
-
-              val testName = FilenameUtils.removeExtension(source.getName)
-              out.println(s"add_executable($testName main.cpp mock_jni.cpp $source)")
-              out.println(s"add_test($testName $testName)")
+                val testName = FilenameUtils.removeExtension(source.getName)
+                out.println(s"add_executable($testName main.cpp mock_jni.cpp $source)")
+                out.println(s"add_test($testName $testName)")
+              }
             }
+          } finally {
+            out.close()
           }
-        } finally {
-          out.close()
-        }
 
-        fileName
+          fileName
+        }
       }.value,
 
       cmakeToolchainFlags := Def.task {
@@ -668,9 +676,8 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
               "cmake", "-G" + buildTool.value.name,
               "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
               "-DMAIN_FILE=" + cmakeMainFile.value,
-              "-DTEST_FILE=" + cmakeTestFile.value,
               baseDirectory.value.getPath
-            ) ++ flags,
+            ) ++ flags ++ cmakeTestFile.value.map("-DTEST_FILE=" + _).toSeq,
             buildPath,
             env: _*
           )
