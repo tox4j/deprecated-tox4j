@@ -55,7 +55,7 @@ public class ToxEventAdapterTest {
 
   @Test
   public void testFriendStatus() throws Exception {
-    listener.friendStatus(0, ToxStatus.NONE);
+    listener.friendStatus(0, ToxUserStatus.NONE);
   }
 
   @Test

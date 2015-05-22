@@ -3,7 +3,7 @@ package im.tox.tox4j.impl
 import com.google.protobuf.ByteString
 import im.tox.tox4j.annotations.Nullable
 import im.tox.tox4j.core.callbacks._
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxStatus }
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.proto._
 import im.tox.tox4j.core.{ AbstractToxCore, ToxConstants, ToxOptions }
@@ -38,11 +38,11 @@ private object ToxCoreImpl {
     }
   }
 
-  private def convert(status: FriendStatus.Kind.EnumVal): ToxStatus = {
+  private def convert(status: FriendStatus.Kind.EnumVal): ToxUserStatus = {
     status match {
-      case FriendStatus.Kind.NONE => ToxStatus.NONE
-      case FriendStatus.Kind.AWAY => ToxStatus.AWAY
-      case FriendStatus.Kind.BUSY => ToxStatus.BUSY
+      case FriendStatus.Kind.NONE => ToxUserStatus.NONE
+      case FriendStatus.Kind.AWAY => ToxUserStatus.AWAY
+      case FriendStatus.Kind.BUSY => ToxUserStatus.BUSY
       case invalid                => ToxCoreJni.conversionError(invalid.getClass.getName, invalid.name)
     }
   }
@@ -119,7 +119,10 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
       options.udpEnabled,
       options.proxyType.ordinal,
       options.proxyAddress,
-      options.proxyPort
+      options.proxyPort,
+      options.startPort,
+      options.endPort,
+      options.tcpPort
     )
 
   /**
@@ -293,11 +296,11 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def getStatusMessage: Array[Byte] =
     ToxCoreJni.toxSelfGetStatusMessage(instanceNumber)
 
-  override def setStatus(status: ToxStatus): Unit =
+  override def setStatus(status: ToxUserStatus): Unit =
     ToxCoreJni.toxSelfSetStatus(instanceNumber, status.ordinal)
 
-  override def getStatus: ToxStatus =
-    ToxStatus.values()(ToxCoreJni.toxSelfGetStatus(instanceNumber))
+  override def getStatus: ToxUserStatus =
+    ToxUserStatus.values()(ToxCoreJni.toxSelfGetStatus(instanceNumber))
 
   @throws[ToxFriendAddException]
   override def addFriend(address: Array[Byte], message: Array[Byte]): Int = {

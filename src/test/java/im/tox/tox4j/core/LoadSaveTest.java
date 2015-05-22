@@ -2,7 +2,7 @@ package im.tox.tox4j.core;
 
 import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.ToxCoreTestBase$;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 import im.tox.tox4j.exceptions.ToxException;
 import org.junit.Test;
 
@@ -83,7 +83,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
   @Test
   public void testStatus() throws Exception {
     testLoadSave(new Check() {
-      private final List<ToxStatus> expected = new ArrayList<>(Arrays.asList(ToxStatus.values()));
+      private final List<ToxUserStatus> expected = new ArrayList<>(Arrays.asList(ToxUserStatus.values()));
 
       @Override
       public boolean change(ToxCore tox) throws ToxException {

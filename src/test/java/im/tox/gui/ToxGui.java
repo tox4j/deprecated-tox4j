@@ -209,7 +209,7 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void friendStatus(int friendNumber, @NotNull ToxStatus status) {
+    public void friendStatus(int friendNumber, @NotNull ToxUserStatus status) {
       addMessage("friendStatus", friendNumber, status);
       friendListModel.setStatus(friendNumber, status);
     }
@@ -285,7 +285,17 @@ public class ToxGui extends JFrame {
   private static ToxOptions enableProxy(
       @NotNull ToxOptions options, @NotNull ToxProxyType proxyType, @NotNull String proxyAddress, int proxyPort
   ) throws ToxNewException {
-    return new ToxOptions(options.ipv6Enabled(), options.udpEnabled(), proxyType, proxyAddress, proxyPort, options.saveData());
+    return new ToxOptions(
+        options.ipv6Enabled(),
+        options.udpEnabled(),
+        proxyType,
+        proxyAddress,
+        proxyPort,
+        options.startPort(),
+        options.endPort(),
+        options.tcpPort(),
+        options.saveData()
+    );
   }
 
   /**
@@ -342,6 +352,9 @@ public class ToxGui extends JFrame {
               proxyType,
               proxyHost.getText(),
               Integer.parseInt(proxyPort.getText()),
+              33445,
+              33545,
+              0,
               toxSave
           );
 

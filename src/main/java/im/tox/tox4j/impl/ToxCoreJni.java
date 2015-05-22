@@ -18,7 +18,10 @@ final class ToxCoreJni {
       boolean udpEnabled,
       int proxyType,
       @Nullable String proxyAddress,
-      int proxyPort
+      int proxyPort,
+      int startPort,
+      int endPort,
+      int tcpPort
   ) throws ToxNewException;
 
   static native void toxKill(int instanceNumber);

@@ -20,7 +20,7 @@ public class MemoryTest extends JUnitSuite {
 
     Runtime runtime = Runtime.getRuntime();
     for (int iterations = 5; iterations <= 15; iterations++) {
-      try (ToxCore tox = new ToxCoreImpl(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, null))) {
+      try (ToxCore tox = new ToxCoreImpl(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, null))) {
         runtime.gc();
         long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
         for (int i = 0; i < iterations * 10000; i++) {
