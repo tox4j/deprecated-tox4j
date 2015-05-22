@@ -6,7 +6,7 @@ import im.tox.tox4j.core.enums.ToxConnection
 import org.junit.Assert.assertNotEquals
 
 class ConnectionStatusCallbackTest extends AliceBobTestBase {
-  def newAlice = new ChatClient {
+  def newAlice: ChatClient = new ChatClient {
     private var connection = ToxConnection.NONE
 
     override def connectionStatus(connection: ToxConnection): Unit = {
