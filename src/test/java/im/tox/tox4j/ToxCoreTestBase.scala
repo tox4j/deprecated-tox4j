@@ -62,7 +62,7 @@ object ToxCoreTestBase {
 
     def iteration(): Unit = toxes.foreach(_.iteration())
 
-    def iterationInterval: Int = toxes.map(_.iterationInterval()).max
+    def iterationInterval: Int = toxes.map(_.iterationInterval).max
 
     def get(index: Int): ToxCore = toxes(index)
     def size: Int = toxes.length
