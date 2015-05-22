@@ -237,16 +237,6 @@ TOX_METHOD (jint, New,
   jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled,
   jint proxyType, jstring proxyHost, jint proxyPort, jint startPort, jint endPort, jint tcpPort)
 {
-  auto assert_valid_port = [env](int port) {
-    tox4j_assert (port > 0);
-    tox4j_assert (port <= 65535);
-  };
-  tox4j_assert (proxyType >= 0);
-  assert_valid_port (proxyPort);
-  assert_valid_port (startPort);
-  assert_valid_port (endPort);
-  assert_valid_port (tcpPort);
-
 #if 0
   scope_guard {
     [&]{ printf ("creating new instance"); },
@@ -279,6 +269,18 @@ TOX_METHOD (jint, New,
   opts->start_port = startPort;
   opts->end_port = endPort;
   opts->tcp_port = tcpPort;
+
+  auto assert_valid_port = [env](int port) {
+    tox4j_assert (port > 0);
+    tox4j_assert (port <= 65535);
+  };
+  if (opts->proxy_type != TOX_PROXY_TYPE_NONE)
+    assert_valid_port (proxyPort);
+  assert_valid_port (startPort);
+  assert_valid_port (endPort);
+  // TCP port can be 0, meaning the TCP relay is disabled.
+  if (tcpPort != 0)
+    assert_valid_port (tcpPort);
 
   ByteArray save_data (env, saveData);
   opts->savedata_type = save_data.empty () ? TOX_SAVEDATA_TYPE_NONE : TOX_SAVEDATA_TYPE_TOX_SAVE;
