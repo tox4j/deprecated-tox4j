@@ -20,7 +20,6 @@ class MemoryTest extends JUnitSuite {
     }).sorted
 
     val median = values(values.size / 2)
-    println(values)
     assertEquals(0, median)
   }
 }
