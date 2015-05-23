@@ -4,6 +4,7 @@ import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.enums.ToxSaveDataType;
 import im.tox.tox4j.core.enums.ToxUserStatus;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, new byte[0])).close();
+    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, ToxSaveDataType.NONE, null)).close();
   }
 
   @Test

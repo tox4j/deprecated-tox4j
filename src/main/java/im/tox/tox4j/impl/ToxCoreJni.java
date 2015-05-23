@@ -13,15 +13,16 @@ final class ToxCoreJni {
   }
 
   static native int toxNew(
-      @Nullable byte[] data,
       boolean ipv6Enabled,
       boolean udpEnabled,
       int proxyType,
-      @Nullable String proxyAddress,
+      @NotNull String proxyAddress,
       int proxyPort,
       int startPort,
       int endPort,
-      int tcpPort
+      int tcpPort,
+      int saveDataType,
+      @NotNull byte[] saveData
   ) throws ToxNewException;
 
   static native void toxKill(int instanceNumber);
@@ -66,7 +67,7 @@ final class ToxCoreJni {
   static native int toxSendMessage(int instanceNumber, int friendNumber, int type, int timeDelta, @NotNull byte[] message) throws ToxSendMessageException;
   static native void toxFileControl(int instanceNumber, int friendNumber, int fileNumber, int control) throws ToxFileControlException;
   static native void toxFileSendSeek(int instanceNumber, int friendNumber, int fileNumber, long position) throws ToxFileSendSeekException;
-  static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @Nullable byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException;
+  static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @NotNull byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException;
   static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
   @NotNull
   static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber) throws ToxFileGetInfoException;

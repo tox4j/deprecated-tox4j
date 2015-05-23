@@ -294,6 +294,7 @@ public class ToxGui extends JFrame {
         options.startPort(),
         options.endPort(),
         options.tcpPort(),
+        options.saveDataType(),
         options.saveData()
     );
   }
@@ -355,6 +356,7 @@ public class ToxGui extends JFrame {
               33445,
               33545,
               0,
+              toxSave != null ? ToxSaveDataType.TOX_SAVE : ToxSaveDataType.NONE,
               toxSave
           );
 
