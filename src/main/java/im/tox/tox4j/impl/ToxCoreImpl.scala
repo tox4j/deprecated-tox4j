@@ -1,7 +1,7 @@
 package im.tox.tox4j.impl
 
 import com.google.protobuf.ByteString
-import im.tox.tox4j.annotations.Nullable
+import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
@@ -114,7 +114,6 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
    */
   private[impl] val instanceNumber =
     ToxCoreJni.toxNew(
-      options.saveData,
       options.ipv6Enabled,
       options.udpEnabled,
       options.proxyType.ordinal,
@@ -122,7 +121,9 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
       options.proxyPort,
       options.startPort,
       options.endPort,
-      options.tcpPort
+      options.tcpPort,
+      options.saveDataType.ordinal,
+      options.saveData
     )
 
   /**
@@ -349,7 +350,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxFileSendSeek(instanceNumber, friendNumber, fileNumber, position)
 
   @throws[ToxFileSendException]
-  override def fileSend(friendNumber: Int, kind: Int, fileSize: Long, @Nullable fileId: Array[Byte], filename: Array[Byte]): Int =
+  override def fileSend(friendNumber: Int, kind: Int, fileSize: Long, @NotNull fileId: Array[Byte], filename: Array[Byte]): Int =
     ToxCoreJni.toxFileSend(instanceNumber, friendNumber, kind, fileSize, fileId, filename)
 
   @throws[ToxFileSendChunkException]

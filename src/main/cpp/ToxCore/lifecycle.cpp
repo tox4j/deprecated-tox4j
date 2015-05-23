@@ -234,8 +234,10 @@ tox_new_unique (Tox_Options const *options, TOX_ERR_NEW *error)
  * Signature: (ZZILjava/lang/String;IIII)I
  */
 TOX_METHOD (jint, New,
-  jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled,
-  jint proxyType, jstring proxyHost, jint proxyPort, jint startPort, jint endPort, jint tcpPort)
+  jboolean ipv6Enabled, jboolean udpEnabled,
+  jint proxyType, jstring proxyHost, jint proxyPort,
+  jint startPort, jint endPort, jint tcpPort,
+  jint saveDataType, jbyteArray saveData)
 {
 #if 0
   scope_guard {
