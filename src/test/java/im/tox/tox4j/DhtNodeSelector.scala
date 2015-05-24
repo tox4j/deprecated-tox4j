@@ -42,6 +42,9 @@ object DhtNodeSelector {
     try {
       val status = new ConnectedListener
       tox.callbackConnectionStatus(status)
+      if (!udpEnabled) {
+        tox.addTcpRelay(node.ipv4, port, node.dhtId)
+      }
       tox.bootstrap(node.ipv4, port, node.dhtId)
 
       // Try bootstrapping for 10 seconds.

@@ -272,17 +272,15 @@ TOX_METHOD (jint, New,
   opts->end_port = endPort;
   opts->tcp_port = tcpPort;
 
-  auto assert_valid_port = [env](int port) {
-    tox4j_assert (port > 0);
+  auto assert_valid_uint16 = [env](int port) {
+    tox4j_assert (port >= 0);
     tox4j_assert (port <= 65535);
   };
   if (opts->proxy_type != TOX_PROXY_TYPE_NONE)
-    assert_valid_port (proxyPort);
-  assert_valid_port (startPort);
-  assert_valid_port (endPort);
-  // TCP port can be 0, meaning the TCP relay is disabled.
-  if (tcpPort != 0)
-    assert_valid_port (tcpPort);
+    assert_valid_uint16 (proxyPort);
+  assert_valid_uint16 (startPort);
+  assert_valid_uint16 (endPort);
+  assert_valid_uint16 (tcpPort);
 
   ByteArray save_data (env, saveData);
   opts->savedata_type = [=] {

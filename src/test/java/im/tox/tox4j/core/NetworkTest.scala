@@ -27,11 +27,10 @@ final class NetworkTest extends FlatSpec with Timeouts {
       logger.info(s"Attempting to $action")
       val start = System.currentTimeMillis
 
-      if (udpEnabled) {
-        tox.bootstrap(ip, port, dhtId)
-      } else {
+      if (!udpEnabled) {
         tox.addTcpRelay(ip, port, dhtId)
       }
+      tox.bootstrap(ip, port, dhtId)
 
       val status = new ConnectedListener
       tox.callbackConnectionStatus(status)

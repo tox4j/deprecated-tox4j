@@ -198,6 +198,9 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   @NotNull
   @throws[ToxBootstrapException]
   private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
+    if (!udpEnabled) {
+      tox.addTcpRelay(node.ipv4, node.tcpPort, node.dhtId)
+    }
     tox.bootstrap(
       if (useIPv6) node.ipv6 else node.ipv4,
       if (udpEnabled) node.udpPort else node.tcpPort,
