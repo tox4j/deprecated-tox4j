@@ -1,6 +1,9 @@
 package im.tox.tox4j.av;
 
 import im.tox.tox4j.ToxAvImplTestBase;
+import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.exceptions.ToxNewException;
+import im.tox.tox4j.core.options.ToxOptions;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotEquals;

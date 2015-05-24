@@ -5,8 +5,9 @@ import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
+import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.proto._
-import im.tox.tox4j.core.{ AbstractToxCore, ToxConstants, ToxOptions }
+import im.tox.tox4j.core.{ AbstractToxCore, ToxConstants }
 import im.tox.tox4j.impl.internal.Event
 
 // scalastyle:off
@@ -122,8 +123,8 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
       options.startPort,
       options.endPort,
       options.tcpPort,
-      options.saveDataType.ordinal,
-      options.saveData
+      options.saveData.kind.ordinal,
+      options.saveData.data
     )
 
   /**

@@ -8,7 +8,8 @@ import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxProxyType }
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
+import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.exceptions.ToxException
 import org.junit.Assert._
 import org.junit.Assume.{ assumeNotNull, assumeTrue }
@@ -150,41 +151,34 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected def newTox(options: ToxOptions, data: Array[Byte]): ToxCore
+  protected def newTox(options: ToxOptions): ToxCore
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(): ToxCore = {
-    newTox(new ToxOptions, null)
+    newTox(new ToxOptions)
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(data: Array[Byte]): ToxCore = {
-    newTox(new ToxOptions, data)
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(options: ToxOptions): ToxCore = {
-    newTox(options, null)
+    newTox(new ToxOptions(saveData = SaveDataOptions.ToxSave(data)))
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled), null)
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled))
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort))
   }
 
   @throws[ToxNewException]
