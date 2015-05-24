@@ -1,7 +1,6 @@
 package im.tox.tox4j.core.options
 
 import im.tox.tox4j.core.{ ToxConstants, ToxCore }
-import im.tox.tox4j.core.enums.ToxProxyType
 
 /**
  * This class contains all the startup options for Tox.
@@ -18,17 +17,7 @@ import im.tox.tox4j.core.enums.ToxProxyType
  * need to be relayed through a TCP relay node, potentially slowing them down.
  * Disabling UDP support is necessary when using anonymous proxies or Tor.
  *
- * @param proxyType Pass communications through a proxy.
- *
- * @param proxyAddress The IP address or DNS name of the proxy to be used.
- *
- * If used, this must be a valid DNS name. The name must not exceed [[ToxConstants.MAX_HOSTNAME_LENGTH]] characters.
- * This member is ignored (it can be anything) if [[proxyType]] is [[ToxProxyType.NONE]].
- *
- * @param proxyPort The port to use to connect to the proxy server.
- *
- * Ports must be in the range (1, 65535). The value is ignored if [[proxyType]] is [[ToxProxyType.NONE]].
- *
+ * @param proxy Pass communications through a proxy.
  * @param startPort The start port of the inclusive port range to attempt to use.
  *
  * If both startPort and endPort are 0, the default port range will be
@@ -44,24 +33,17 @@ import im.tox.tox4j.core.enums.ToxProxyType
 final case class ToxOptions(
     ipv6Enabled: Boolean = true,
     udpEnabled: Boolean = true,
-    proxyType: ToxProxyType = ToxProxyType.NONE,
-    proxyAddress: String = "localhost",
-    proxyPort: Int = ToxConstants.DEFAULT_PROXY_PORT,
+    proxy: ProxyOptions.Type = ProxyOptions.None,
     startPort: Int = ToxConstants.DEFAULT_START_PORT,
     endPort: Int = ToxConstants.DEFAULT_END_PORT,
     tcpPort: Int = ToxConstants.DEFAULT_TCP_PORT,
     saveData: SaveDataOptions.Type = SaveDataOptions.None
 ) {
   private def requireValidPort(name: String, port: Int): Unit = {
-    require(port > 0 && port <= 65535, s"$name port should be a valid 16 bit positive integer")
-  }
-  if (proxyType != ToxProxyType.NONE) {
-    requireValidPort("Proxy", proxyPort)
+    require(port >= 0 && port <= 65535, s"$name port should be a valid 16 bit positive integer")
   }
   require(startPort <= endPort)
   requireValidPort("Start", startPort)
   requireValidPort("End", endPort)
-  if (tcpPort != 0) {
-    requireValidPort("TCP", tcpPort)
-  }
+  requireValidPort("TCP", tcpPort)
 }

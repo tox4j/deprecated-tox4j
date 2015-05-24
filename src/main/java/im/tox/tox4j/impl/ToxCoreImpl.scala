@@ -117,9 +117,9 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxNew(
       options.ipv6Enabled,
       options.udpEnabled,
-      options.proxyType.ordinal,
-      options.proxyAddress,
-      options.proxyPort,
+      options.proxy.proxyType.ordinal,
+      options.proxy.proxyAddress,
+      options.proxy.proxyPort,
       options.startPort,
       options.endPort,
       options.tcpPort,

@@ -294,7 +294,7 @@ TOX_METHOD (jint, New,
       }
     tox4j_fatal ("Invalid savedata type type from Java");
   } ();
-  opts->savedata_data = save_data.data ();
+  opts->savedata_data   = save_data.data ();
   opts->savedata_length = save_data.size ();
 
   return instances.with_error_handling (env, "New",

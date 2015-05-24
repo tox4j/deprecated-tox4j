@@ -6,9 +6,9 @@ import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxProxyType }
+import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
-import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.exceptions.ToxException
 import org.junit.Assert._
@@ -177,8 +177,8 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort))
+  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore = {
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
   }
 
   @throws[ToxNewException]

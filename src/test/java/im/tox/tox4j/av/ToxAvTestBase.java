@@ -5,6 +5,7 @@ import im.tox.tox4j.av.exceptions.ToxAvNewException;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
+import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.core.options.ToxOptions;
 
 public abstract class ToxAvTestBase extends ToxCoreTestBase {
@@ -27,10 +28,9 @@ public abstract class ToxAvTestBase extends ToxCoreTestBase {
     return newToxAv(newTox(ipv6Enabled, udpEnabled));
   }
 
-  protected final ToxAv newToxAv(
-      boolean ipv6Enabled, boolean udpEnabled, ToxProxyType proxyType, String proxyAddress, int proxyPort
-  ) throws ToxNewException, ToxAvNewException {
-    return newToxAv(newTox(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort));
+  protected final ToxAv newToxAv(boolean ipv6Enabled, boolean udpEnabled, ProxyOptions.Type proxy)
+      throws ToxNewException, ToxAvNewException {
+    return newToxAv(newTox(ipv6Enabled, udpEnabled, proxy));
   }
 
 }

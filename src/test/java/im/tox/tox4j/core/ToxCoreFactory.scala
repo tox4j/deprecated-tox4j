@@ -1,7 +1,6 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
 import im.tox.tox4j.impl.ToxCoreImpl
 
 import scala.collection.mutable.ArrayBuffer
@@ -35,8 +34,8 @@ object ToxCoreFactory {
     }
   }
 
-  def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int)(f: ToxCore => R): R = {
-    withTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort))(f)
+  def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type)(f: ToxCore => R): R = {
+    withTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))(f)
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => R): R = {
