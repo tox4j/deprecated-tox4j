@@ -5,6 +5,10 @@ import im.tox.tox4j.core.enums.ToxProxyType
 
 object ProxyOptions {
 
+  private def requireValidUInt16(port: Int) = {
+    require(port >= 0 && port <= 0xffff, "Proxy port should be a valid 16 bit positive integer")
+  }
+
   sealed trait Type {
     def proxyType: ToxProxyType
 
@@ -31,12 +35,12 @@ object ProxyOptions {
   }
 
   final case class Http(proxyAddress: String, proxyPort: Int) extends Type {
-    require(proxyPort >= 0 && proxyPort <= 65535, "Proxy port should be a valid 16 bit positive integer")
+    requireValidUInt16(proxyPort)
     override def proxyType: ToxProxyType = ToxProxyType.HTTP
   }
 
   final case class Socks5(proxyAddress: String, proxyPort: Int) extends Type {
-    require(proxyPort >= 0 && proxyPort <= 65535, "Proxy port should be a valid 16 bit positive integer")
+    requireValidUInt16(proxyPort)
     override def proxyType: ToxProxyType = ToxProxyType.HTTP
   }
 
