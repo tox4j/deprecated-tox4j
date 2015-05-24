@@ -285,7 +285,15 @@ TOX_METHOD (jint, New,
     assert_valid_port (tcpPort);
 
   ByteArray save_data (env, saveData);
-  opts->savedata_type = save_data.empty () ? TOX_SAVEDATA_TYPE_NONE : TOX_SAVEDATA_TYPE_TOX_SAVE;
+  opts->savedata_type = [=] {
+    switch (saveDataType)
+      {
+      case 0: return TOX_SAVEDATA_TYPE_NONE;
+      case 1: return TOX_SAVEDATA_TYPE_TOX_SAVE;
+      case 2: return TOX_SAVEDATA_TYPE_SECRET_KEY;
+      }
+    tox4j_fatal ("Invalid savedata type type from Java");
+  } ();
   opts->savedata_data = save_data.data ();
   opts->savedata_length = save_data.size ();
 
