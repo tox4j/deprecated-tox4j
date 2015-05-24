@@ -1,6 +1,7 @@
-package im.tox.tox4j.core
+package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.enums.{ ToxSaveDataType, ToxProxyType }
+import im.tox.tox4j.core.{ ToxConstants, ToxCore }
+import im.tox.tox4j.core.enums.ToxProxyType
 
 /**
  * This class contains all the startup options for Tox.
@@ -38,7 +39,6 @@ import im.tox.tox4j.core.enums.{ ToxSaveDataType, ToxProxyType }
  *
  * @param endPort The end port of the inclusive port range to attempt to use.
  * @param tcpPort The port to use for the TCP server. If 0, the tcp server is disabled.
- * @param saveDataType Optional serialised instance data from [[ToxCore.load]].
  * @param saveData Optional serialised instance data from [[ToxCore.load]] or secret key from [[ToxCore.getSecretKey]].
  */
 final case class ToxOptions(
@@ -50,8 +50,7 @@ final case class ToxOptions(
     startPort: Int = ToxConstants.DEFAULT_START_PORT,
     endPort: Int = ToxConstants.DEFAULT_END_PORT,
     tcpPort: Int = ToxConstants.DEFAULT_TCP_PORT,
-    saveDataType: ToxSaveDataType = ToxSaveDataType.NONE,
-    saveData: Array[Byte] = Array.ofDim(0)
+    saveData: SaveDataOptions.Type = SaveDataOptions.None
 ) {
   private def requireValidPort(name: String, port: Int): Unit = {
     require(port > 0 && port <= 65535, s"$name port should be a valid 16 bit positive integer")

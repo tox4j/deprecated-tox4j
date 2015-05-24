@@ -2,10 +2,12 @@ package im.tox.tox4j;
 
 import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.enums.ToxSaveDataType;
 import im.tox.tox4j.core.enums.ToxUserStatus;
+import im.tox.tox4j.core.options.SaveDataOptions;
+import im.tox.tox4j.core.options.SaveDataOptions$;
+import im.tox.tox4j.core.options.ToxOptions;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, ToxSaveDataType.NONE, null)).close();
+    newTox(new ToxOptions(true, true, ToxProxyType.NONE, "", 0, 33445, 33545, 0, SaveDataOptions.None$.MODULE$)).close();
   }
 
   @Test

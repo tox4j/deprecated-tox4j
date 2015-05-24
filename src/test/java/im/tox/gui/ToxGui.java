@@ -4,10 +4,11 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
 import im.tox.tox4j.core.exceptions.*;
+import im.tox.tox4j.core.options.SaveDataOptions;
+import im.tox.tox4j.core.options.ToxOptions;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.impl.ToxCoreImpl;
 import org.slf4j.Logger;
@@ -294,7 +295,6 @@ public class ToxGui extends JFrame {
         options.startPort(),
         options.endPort(),
         options.tcpPort(),
-        options.saveDataType(),
         options.saveData()
     );
   }
@@ -356,8 +356,7 @@ public class ToxGui extends JFrame {
               33445,
               33545,
               0,
-              toxSave != null ? ToxSaveDataType.TOX_SAVE : ToxSaveDataType.NONE,
-              toxSave
+              toxSave != null ? new SaveDataOptions.ToxSave(toxSave) : SaveDataOptions.None$.MODULE$
           );
 
           tox = new ToxCoreImpl(options);

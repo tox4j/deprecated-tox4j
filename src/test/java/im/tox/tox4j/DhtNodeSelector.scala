@@ -4,7 +4,8 @@ import java.io.IOException
 import java.net.{ InetAddress, Socket }
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
+import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import org.junit.Assume.assumeNotNull
 import org.junit.AssumptionViolatedException
 import org.slf4j.LoggerFactory
@@ -85,7 +86,7 @@ object DhtNodeSelector {
 
   def node: DhtNode = findNode({
     (ipv6Enabled: Boolean, udpEnabled: Boolean) =>
-      ToxCoreFactory(new ToxOptions(ipv6Enabled, udpEnabled), null)
+      ToxCoreFactory(new ToxOptions(ipv6Enabled, udpEnabled))
   })
 
 }
