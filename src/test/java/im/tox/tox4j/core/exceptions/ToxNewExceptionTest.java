@@ -33,9 +33,14 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testToxNewProxyBadPort0() throws Exception {
-    newTox(true, true, new ProxyOptions.Socks5("localhost", 0)).close();
+    try {
+      newTox(true, true, new ProxyOptions.Socks5("localhost", 0)).close();
+      fail();
+    } catch (ToxNewException e) {
+      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
+    }
   }
 
   @Test(expected = IllegalArgumentException.class)

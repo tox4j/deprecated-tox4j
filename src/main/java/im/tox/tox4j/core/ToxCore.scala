@@ -68,13 +68,9 @@ trait ToxCore extends Closeable {
    * Sends a "get nodes" request to the given bootstrap node with IP, port, and
    * public key to setup connections.
    *
-   * This function will attempt to connect to the node using UDP and TCP at the
-   * same time.
-   *
-   * Tox will use the node as a TCP relay in case [[ToxOptions.udpEnabled]] was
-   * false, and also to connect to friends that are in TCP-only mode. Tox will
-   * also use the TCP connection when NAT hole punching is slow, and later switch
-   * to UDP if hole punching succeeds.
+   * This function will only attempt to connect to the node using UDP. If you want
+   * to additionally attempt to connect using TCP, use [[addTcpRelay]] together with
+   * this function.
    *
    * @param address   the hostname, or an IPv4/IPv6 address of the node.
    * @param port      the port of the node.
@@ -84,7 +80,7 @@ trait ToxCore extends Closeable {
   def bootstrap(@NotNull address: String, port: Int, @NotNull publicKey: Array[Byte]): Unit
 
   /**
-   * Add another TCP relay in addition to the one passed to bootstrap.
+   * Connect to a TCP relay to forward traffic.
    *
    * This function can be used to initiate TCP connections to different ports on
    * the same bootstrap node, or to add TCP relays without using them as

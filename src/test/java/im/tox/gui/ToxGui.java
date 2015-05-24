@@ -406,6 +406,8 @@ public class ToxGui extends JFrame {
       @Override
       public void actionPerformed(ActionEvent event) {
         try {
+          tox.addTcpRelay(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
+              parsePublicKey(bootstrapKey.getText().trim()));
           tox.bootstrap(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
               parsePublicKey(bootstrapKey.getText().trim()));
         } catch (ToxBootstrapException e) {
