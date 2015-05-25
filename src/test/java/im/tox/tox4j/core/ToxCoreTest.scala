@@ -24,7 +24,7 @@ final class ToxCoreTest extends JUnitSuite with PropertyChecks {
 
   @Test
   def testFriendList() {
-    forAll (Gen.choose(0, 500), arbitrary[Array[Byte]]) { (count, message) =>
+    forAll(Gen.choose(0, 500), arbitrary[Array[Byte]]) { (count, message) =>
       whenever(message.length >= 1 && message.length <= ToxConstants.MAX_FRIEND_REQUEST_LENGTH) {
         withTox { tox =>
           (0 until count) foreach { i =>

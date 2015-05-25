@@ -1,10 +1,10 @@
 package im.tox.tox4j
 
 import java.io.IOException
-import java.net.{InetAddress, Socket}
+import java.net.{ InetAddress, Socket }
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.core.{ToxCore, ToxCoreFactory, ToxOptions}
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
 import org.junit.Assume.assumeNotNull
 import org.junit.AssumptionViolatedException
 import org.slf4j.LoggerFactory
@@ -13,7 +13,6 @@ object DhtNodeSelector {
 
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private var selectedNode: Option[DhtNode] = Some(ToxCoreTestBase.nodeCandidates(1))
-
 
   private def tryConnect(node: DhtNode) = {
     var socket: Socket = null
@@ -31,7 +30,6 @@ object DhtNodeSelector {
       }
     }
   }
-
 
   private def tryBootstrap(factory: (Boolean, Boolean) => ToxCore, node: DhtNode, udpEnabled: Boolean) = {
     val protocol = if (udpEnabled) "UDP" else "TCP"
@@ -63,7 +61,6 @@ object DhtNodeSelector {
     }
   }
 
-
   private def findNode(factory: (Boolean, Boolean) => ToxCore): DhtNode = {
     DhtNodeSelector.selectedNode match {
       case Some(node) => node
@@ -85,7 +82,6 @@ object DhtNodeSelector {
         )
     }
   }
-
 
   def node: DhtNode = findNode({
     (ipv6Enabled: Boolean, udpEnabled: Boolean) =>

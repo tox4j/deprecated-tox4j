@@ -25,7 +25,6 @@ object ToxCoreFactory {
     tox
   }
 
-
   def withTox[R](options: ToxOptions, data: Array[Byte])(f: ToxCore => R): R = {
     val tox = make(options, data)
     try {

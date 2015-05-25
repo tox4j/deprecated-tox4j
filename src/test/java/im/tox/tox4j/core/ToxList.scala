@@ -17,7 +17,6 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
     instance
   }
 
-
   def close(): Unit = toxes.foreach(_.tox.close())
 
   def isAllConnected: Boolean = toxes.forall(_.connected != ToxConnection.NONE)

@@ -3,9 +3,9 @@
  */
 package im.tox.irc
 
-import java.io.{File, FilePermission}
-import java.net.{NetPermission, SocketPermission}
-import java.security.{Permission, SecurityPermission}
+import java.io.{ File, FilePermission }
+import java.net.{ NetPermission, SocketPermission }
+import java.security.{ Permission, SecurityPermission }
 import java.util.PropertyPermission
 
 object ScriptSecurityManager extends SecurityManager {
@@ -20,8 +20,7 @@ object ScriptSecurityManager extends SecurityManager {
       try {
         activate()
         f
-      }
-      catch {
+      } catch {
         case e: Exception => throw e
         case e: Throwable => e.printStackTrace(); sys.exit(-1)
       } finally {
@@ -143,14 +142,12 @@ object ScriptSecurityManager extends SecurityManager {
     }
   }
 
-
   private def deactivate(): Unit = {
     activated = false
     if (System.getSecurityManager == this) {
       sm.foreach(System.setSecurityManager)
     }
   }
-
 
   private def activate(): Unit = {
     if (System.getSecurityManager != this) {

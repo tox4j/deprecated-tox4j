@@ -222,9 +222,9 @@ tox_options_new_unique ()
 
 
 static tox::core_ptr
-tox_new_unique (Tox_Options const *options, uint8_t const *data, size_t length, TOX_ERR_NEW *error)
+tox_new_unique (Tox_Options const *options, TOX_ERR_NEW *error)
 {
-  return tox::core_ptr (tox_new (options, data, length, error));
+  return tox::core_ptr (tox_new (options, error));
 }
 
 
@@ -271,6 +271,9 @@ TOX_METHOD (jint, New,
   opts->proxy_port = proxyPort;
 
   ByteArray save_data (env, saveData);
+  opts->savedata_type = save_data.empty () ? TOX_SAVEDATA_TYPE_NONE : TOX_SAVEDATA_TYPE_TOX_SAVE;
+  opts->savedata_data = save_data.data ();
+  opts->savedata_length = save_data.size ();
 
   return instances.with_error_handling (env, "New",
     [env] (tox::core_ptr tox)
@@ -304,7 +307,7 @@ TOX_METHOD (jint, New,
           std::move (events)
         );
       },
-    tox_new_unique, opts.get (), save_data.data (), save_data.size ()
+    tox_new_unique, opts.get ()
   );
 }
 
