@@ -19,7 +19,6 @@
 
 # IDEA meta files.
 /.idea
-*.iml
 
 # VIM temporary files.
 *.swp

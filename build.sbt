@@ -18,18 +18,10 @@ libraryDependencies ++= Seq(
 
 // Test dependencies
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.1",
+  "org.scalatest" %% "scalatest" % "2.2.4",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
-  "org.slf4j" % "slf4j-log4j12" % "1.6.1",
+  "org.slf4j" % "slf4j-log4j12" % "1.7.12",
   "junit" % "junit" % "4.12"
-) map (_ % Test)
-
-// IRC bot dependencies
-libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  "pircbot" % "pircbot" % "1.5.0",
-  "com.google.guava" % "guava" % "18.0"
 ) map (_ % Test)
 
 
