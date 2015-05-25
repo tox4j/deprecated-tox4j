@@ -11,7 +11,7 @@ import org.scalatest.prop.PropertyChecks
 final class ToxCoreTest extends JUnitSuite with PropertyChecks {
 
   @Test
-  def testHash() {
+  def testHash(): Unit = {
     forAll { (data: Array[Byte]) =>
       withTox { tox =>
         val hash = tox.hash(data)
@@ -23,7 +23,7 @@ final class ToxCoreTest extends JUnitSuite with PropertyChecks {
   }
 
   @Test
-  def testFriendList() {
+  def testFriendList(): Unit = {
     forAll(Gen.choose(0, 500), arbitrary[Array[Byte]]) { (count, message) =>
       whenever(message.length >= 1 && message.length <= ToxConstants.MAX_FRIEND_REQUEST_LENGTH) {
         withTox { tox =>

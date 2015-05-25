@@ -116,9 +116,11 @@ TOX_METHOD (jbyteArray, Iteration,
   jint instanceNumber)
 {
   return instances.with_instance (env, instanceNumber,
-    [=] (Tox *tox, Events &events)
+    [=] (Tox *tox, Events &events) -> jbyteArray
       {
         tox_iterate (tox);
+        if (events.ByteSize () == 0)
+          return nullptr;
 
         std::vector<char> buffer (events.ByteSize ());
         events.SerializeToArray (buffer.data (), buffer.size ());
