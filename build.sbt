@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 
 
 // JNI
-import Jni.Keys._
+import src.main.scala.Jni.Keys._
 
 packageDependencies ++= Seq(
   "protobuf-lite",
@@ -66,3 +66,8 @@ scalacOptions in Test += "-target:jvm-" + javaVersion
 // Require 100% test coverage.
 ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
+
+// Add Scala linter.
+resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
+addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1.9")
+scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssignedUnusedValue"

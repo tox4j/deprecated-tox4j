@@ -5,9 +5,7 @@ import im.tox.tox4j.internal.Event.EmptyCallback
 import scala.collection.mutable.ArrayBuffer
 
 object Event {
-  private val INVALID_INDEX: Int = -1
-
-  private object ResetPermission {}
+  private val INVALID_INDEX = -1
 
   private object EmptyCallback extends Runnable {
     override def run(): Unit = {}
@@ -21,16 +19,14 @@ object Event {
 
     /**
      * Reset the index to an invalid value.
-     *
-     * @param permission Permission object to ensure it's not called outside the [[Event]] class.
      */
-    def reset(permission: ResetPermission.type)
+    private[internal] def reset(): Unit
   }
 
   private final class IdImpl(private var index: Int) extends Id {
     def value: Int = index
 
-    def reset(permission: ResetPermission.type) {
+    def reset(): Unit = {
       index = INVALID_INDEX
     }
   }
@@ -55,10 +51,10 @@ final class Event extends Runnable {
    *
    * @param id The callback id object.
    */
-  def remove(id: Event.Id) {
+  def remove(id: Event.Id): Unit = {
     val index = id.value
     if (index != Event.INVALID_INDEX) {
-      id.reset(Event.ResetPermission)
+      id.reset()
       callbacks(index) = EmptyCallback
       while (callbacks.nonEmpty && callbacks.last == EmptyCallback) {
         callbacks.remove(callbacks.size - 1)
@@ -69,7 +65,7 @@ final class Event extends Runnable {
   /**
    * Invoke all callbacks.
    */
-  def run() {
+  def run(): Unit = {
     callbacks.foreach(_.run())
   }
 }

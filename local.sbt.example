@@ -1,4 +1,4 @@
-import Jni.Platform._
+import src.main.scala.Jni.Platform._
 
 //val platform = Android("arm-linux-androideabi")
 //val platform = Android("i686-linux-android")

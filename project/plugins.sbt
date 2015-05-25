@@ -3,6 +3,9 @@ resolvers += Classpaths.sbtPluginReleases
 // Code style.
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.6.0")
 addSbtPlugin("com.etsy" % "sbt-checkstyle-plugin" % "0.4.3")
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "0.94.6")
+addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.13")
+addSbtPlugin("de.johoop" % "findbugs4sbt" % "1.4.0")
 
 // Code formatting.
 addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.3.0")
@@ -15,4 +18,4 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.0.0.BETA1")
 scalacOptions ++= Seq("-feature", "-deprecation")
 
 // Dependencies for SBT code.
-libraryDependencies += "org.apache.commons" % "commons-io" % "1.3.2"
+libraryDependencies += "commons-io" % "commons-io" % "2.4"
