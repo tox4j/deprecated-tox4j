@@ -15,11 +15,15 @@ New and improved java wrapper for Tox.
 
 ### Native code
 
-* CMake (>= 2.8.7)
 * Toxcore
 * Toxav
+  * We require the latest git version of these libraries, so you will need to build them yourself.
+* CMake (>= 2.8.7)
+  * Debian/Ubuntu: cmake
 * protobuf (The version used in development is currently 2.6.1, other versions might work as well)
-* clang-3.5 (older versions of clang segfault. G++ support is untested, the build script enforces clang-3.5 for now. If you do not have clang 3.5 installed, your build may fail.)
+  * Debian/Ubuntu: protobuf-compiler, libprotobuf-dev
+* Clang 3.5 (older versions of clang segfault. G++ support is untested, the build script enforces clang-3.5 for now. If you do not have clang 3.5 installed, your build may fail.)
+  * Debian/Ubuntu: clang-3.5
 
 ## Building
 
