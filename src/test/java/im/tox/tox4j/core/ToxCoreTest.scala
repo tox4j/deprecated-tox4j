@@ -1,6 +1,5 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import org.junit.Test
 import org.scalacheck.{ Arbitrary, Gen }
@@ -12,18 +11,6 @@ final class ToxCoreTest extends JUnitSuite with PropertyChecks {
   private final case class SmallInt(value: Int)
 
   private implicit val arbSmallInt: Arbitrary[SmallInt] = Arbitrary(Gen.choose(0, 500).map(SmallInt))
-
-  @Test
-  def testHash(): Unit = {
-    forAll { (data: Array[Byte]) =>
-      withTox { tox =>
-        val hash = tox.hash(data)
-        assert(hash.length == ToxCoreConstants.HASH_LENGTH)
-        assert(hash.deep == tox.hash(data).deep)
-        assert(ToxCoreTestBase.entropy(hash) > 0.5)
-      }
-    }
-  }
 
   @Test
   def testFriendList(): Unit = {

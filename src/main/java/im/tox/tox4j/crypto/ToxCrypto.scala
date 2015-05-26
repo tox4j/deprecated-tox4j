@@ -1,5 +1,6 @@
 package im.tox.tox4j.crypto
 
+import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.crypto.exceptions.{ ToxKeyDerivationException, ToxDecryptionException, ToxEncryptionException }
 
 /**
@@ -37,8 +38,9 @@ trait ToxCrypto {
    *
    * @return the encrypted output array.
    */
+  @NotNull
   @throws[ToxEncryptionException]
-  def passEncrypt(data: Array[Byte], passphrase: Array[Byte]): Array[Byte]
+  def passEncrypt(@NotNull data: Array[Byte], @NotNull passphrase: Array[Byte]): Array[Byte]
 
   /**
    * Decrypts the given data with the given passphrase. The output array will be
@@ -47,8 +49,9 @@ trait ToxCrypto {
    *
    * @return the decrypted output array.
    */
+  @NotNull
   @throws[ToxDecryptionException]
-  def passDecrypt(data: Array[Byte], passphrase: Array[Byte]): Array[Byte]
+  def passDecrypt(@NotNull data: Array[Byte], @NotNull passphrase: Array[Byte]): Array[Byte]
 
   /**
    * ***************************** BEGIN PART 1 *******************************
@@ -72,14 +75,16 @@ trait ToxCrypto {
    *
    * @return the generated symmetric key.
    */
+  @NotNull
   @throws[ToxKeyDerivationException]
-  def deriveKeyFromPass(passphrase: Array[Byte]): PassKey
+  def deriveKeyFromPass(@NotNull passphrase: Array[Byte]): PassKey
 
   /**
    * Same as above, except use the given salt for deterministic key derivation.
    * The salt must be [[ToxCryptoConstants.SALT_LENGTH]] bytes in length.
    */
-  def deriveKeyWithSalt(passphrase: Array[Byte], salt: Array[Byte]): PassKey
+  @NotNull
+  def deriveKeyWithSalt(@NotNull passphrase: Array[Byte], @NotNull salt: Array[Byte]): PassKey
 
   /**
    * This retrieves the salt used to encrypt the given data, which can then be passed to
@@ -90,7 +95,8 @@ trait ToxCrypto {
    * Success does not say anything about the validity of the data, only that data of
    * the appropriate size was copied.
    */
-  def getSalt(data: Array[Byte]): Array[Byte]
+  @NotNull
+  def getSalt(@NotNull data: Array[Byte]): Array[Byte]
 
   /* Now come the functions that are analogous to the part 2 functions. */
 
@@ -101,8 +107,9 @@ trait ToxCrypto {
    *
    * @return the encrypted output array.
    */
+  @NotNull
   @throws[ToxEncryptionException]
-  def passKeyEncrypt(data: Array[Byte], passKey: PassKey): Array[Byte]
+  def passKeyEncrypt(@NotNull data: Array[Byte], @NotNull passKey: PassKey): Array[Byte]
 
   /**
    * This is the inverse of [[passKeyEncrypt]], also using only keys produced by
@@ -112,12 +119,28 @@ trait ToxCrypto {
    *
    * @return the decrypted output array.
    */
+  @NotNull
   @throws[ToxDecryptionException]
-  def passKeyDecrypt(data: Array[Byte], passKey: PassKey): Array[Byte]
+  def passKeyDecrypt(@NotNull data: Array[Byte], @NotNull passKey: PassKey): Array[Byte]
 
   /**
    *  Determines whether or not the given data is encrypted (by checking the magic number)
    */
   def isDataEncrypted(data: Array[Byte]): Boolean
+
+  /**
+   * Generates a cryptographic hash of the given data.
+   *
+   * This function may be used by clients for any purpose, but is provided
+   * primarily for validating cached avatars. This use is highly recommended to
+   * avoid unnecessary avatar updates.
+   *
+   * This function is a wrapper to internal message-digest functions.
+   *
+   * @param data Data to be hashed.
+   * @return hash of the data.
+   */
+  @NotNull
+  def hash(@NotNull data: Array[Byte]): Array[Byte]
 
 }
