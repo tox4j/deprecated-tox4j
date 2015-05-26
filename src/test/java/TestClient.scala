@@ -2,7 +2,7 @@ import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.core.ToxConstants
+import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.impl.ToxCoreImpl
 import org.slf4j.LoggerFactory
 
@@ -19,9 +19,9 @@ object TestClient extends App {
   }
 
   private def parsePublicKey(id: String): Array[Byte] = {
-    val publicKey = Array.ofDim[Byte](ToxConstants.PUBLIC_KEY_SIZE)
+    val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
 
-    for (i <- 0 until ToxConstants.PUBLIC_KEY_SIZE) {
+    for (i <- 0 until ToxCoreConstants.PUBLIC_KEY_SIZE) {
       publicKey(i) = (
         (fromHexDigit(id.charAt(i * 2)) << 4) +
         fromHexDigit(id.charAt(i * 2 + 1))

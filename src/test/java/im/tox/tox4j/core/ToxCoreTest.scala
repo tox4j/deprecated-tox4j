@@ -18,7 +18,7 @@ final class ToxCoreTest extends JUnitSuite with PropertyChecks {
     forAll { (data: Array[Byte]) =>
       withTox { tox =>
         val hash = tox.hash(data)
-        assert(hash.length == ToxConstants.HASH_LENGTH)
+        assert(hash.length == ToxCoreConstants.HASH_LENGTH)
         assert(hash.deep == tox.hash(data).deep)
         assert(ToxCoreTestBase.entropy(hash) > 0.5)
       }
@@ -28,7 +28,7 @@ final class ToxCoreTest extends JUnitSuite with PropertyChecks {
   @Test
   def testFriendList(): Unit = {
     forAll { (count: SmallInt, message: Array[Byte]) =>
-      whenever(message.length >= 1 && message.length <= ToxConstants.MAX_FRIEND_REQUEST_LENGTH) {
+      whenever(message.length >= 1 && message.length <= ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH) {
         withTox { tox =>
           (0 until count.value) foreach { i =>
             withTox { friend =>

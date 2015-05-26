@@ -1,11 +1,10 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.callbacks.ToxEventAdapter;
 import im.tox.tox4j.core.enums.ToxConnection;
-import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
 import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.exceptions.ToxException;
@@ -95,7 +94,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     }
 
     public byte[] getFriendPublicKey() {
-      return Arrays.copyOf(friendAddress, ToxConstants.PUBLIC_KEY_SIZE);
+      return Arrays.copyOf(friendAddress, ToxCoreConstants.PUBLIC_KEY_SIZE);
     }
 
     public void setup(ToxCore tox) throws ToxException {

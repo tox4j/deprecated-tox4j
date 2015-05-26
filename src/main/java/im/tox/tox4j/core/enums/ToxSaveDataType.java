@@ -1,5 +1,7 @@
 package im.tox.tox4j.core.enums;
 
+import im.tox.tox4j.core.ToxCoreConstants;
+
 /**
  * Type of savedata to create the Tox instance from.
  */
@@ -13,7 +15,7 @@ public enum ToxSaveDataType {
    */
   TOX_SAVE,
   /**
-   * Savedata is a secret key of length {@link im.tox.tox4j.core.ToxConstants#SECRET_KEY_SIZE}.
+   * Savedata is a secret key of length {@link ToxCoreConstants#SECRET_KEY_SIZE}.
    */
   SECRET_KEY,
 }

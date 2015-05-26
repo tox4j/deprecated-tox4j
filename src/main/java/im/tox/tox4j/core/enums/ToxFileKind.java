@@ -1,5 +1,7 @@
 package im.tox.tox4j.core.enums;
 
+import im.tox.tox4j.core.ToxCoreConstants;
+
 public class ToxFileKind {
   /**
    * Arbitrary file data. Clients can choose to handle it based on the file name
@@ -20,8 +22,8 @@ public class ToxFileKind {
    * Clients who receive avatar send requests can reject it (by sending
    * {@link im.tox.tox4j.core.enums.ToxFileControl#CANCEL} before any other controls),
    * or accept it (by sending {@link im.tox.tox4j.core.enums.ToxFileControl#RESUME}).
-   * The file_id of length {@link im.tox.tox4j.core.ToxConstants#HASH_LENGTH} bytes
-   * (same length as {@link im.tox.tox4j.core.ToxConstants#FILE_ID_LENGTH}) will
+   * The file_id of length {@link ToxCoreConstants#HASH_LENGTH} bytes
+   * (same length as {@link ToxCoreConstants#FILE_ID_LENGTH}) will
    * contain the hash. A client can compare this hash with a saved hash and send
    * {@link im.tox.tox4j.core.enums.ToxFileControl#CANCEL} to terminate the avatar
    * transfer if it matches.

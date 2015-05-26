@@ -1,6 +1,6 @@
 package im.tox.tox4j.core;
 
-public interface ToxConstants {
+public interface ToxCoreConstants {
 
   /**
    * The size of a Tox Public Key in bytes.

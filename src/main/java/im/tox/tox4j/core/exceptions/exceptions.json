@@ -49,7 +49,7 @@
     "NULL": ["An argument was null."],
     "FRIEND_NOT_FOUND": ["The friendNumber passed did not designate a valid friend."],
     "FRIEND_NOT_CONNECTED": ["This client is currently not connected to the friend."],
-    "NAME_TOO_LONG": ["Filename length exceeded {@link ToxConstants#MAX_FILENAME_LENGTH} bytes."],
+    "NAME_TOO_LONG": ["Filename length exceeded {@link ToxCoreConstants#MAX_FILENAME_LENGTH} bytes."],
     "TOO_MANY": [
       "Too many ongoing transfers. The maximum number of concurrent file transfers",
       "is 256 per friend per direction (sending and receiving, so 512 total)."
@@ -61,7 +61,7 @@
   },
   "FriendAdd": {
     "NULL": ["An argument was null."],
-    "TOO_LONG": ["The length of the friend request message exceeded {@link ToxConstants#MAX_FRIEND_REQUEST_LENGTH}."],
+    "TOO_LONG": ["The length of the friend request message exceeded {@link ToxCoreConstants#MAX_FRIEND_REQUEST_LENGTH}."],
     "NO_MESSAGE": [
       "The friend request message was empty. This, and the TOO_LONG code will",
       "never be returned from {@link ToxCore#addFriendNoRequest}."
@@ -129,7 +129,7 @@
       "This range is 200-254 for lossy, and 160-191 for lossless packets."
     ],
     "EMPTY": ["Attempted to send an empty packet."],
-    "TOO_LONG": ["Packet data length exceeded {@link ToxConstants#MAX_CUSTOM_PACKET_SIZE}."],
+    "TOO_LONG": ["Packet data length exceeded {@link ToxCoreConstants#MAX_CUSTOM_PACKET_SIZE}."],
     "SENDQ": ["An allocation error occurred while increasing the send queue size."]
   },
   "SendMessage": {
@@ -137,7 +137,7 @@
     "FRIEND_NOT_FOUND": ["The friend number did not designate a valid friend."],
     "FRIEND_NOT_CONNECTED": ["This client is currently not connected to the friend."],
     "SENDQ": ["An allocation error occurred while increasing the send queue size."],
-    "TOO_LONG": ["Message length exceeded {@link ToxConstants#MAX_MESSAGE_LENGTH}."],
+    "TOO_LONG": ["Message length exceeded {@link ToxCoreConstants#MAX_MESSAGE_LENGTH}."],
     "EMPTY": ["Attempted to send a zero-length message."]
   },
   "SetInfo": {

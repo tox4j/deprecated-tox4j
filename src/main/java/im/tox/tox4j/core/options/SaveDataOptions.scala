@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.ToxConstants
+import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.core.enums.ToxSaveDataType
 
 object SaveDataOptions {

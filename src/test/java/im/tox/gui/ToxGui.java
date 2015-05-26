@@ -2,7 +2,7 @@ package im.tox.gui;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
-import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
@@ -430,7 +430,7 @@ public class ToxGui extends JFrame {
           } else {
             friendNumber = tox.addFriend(publicKey, friendRequest.getText().getBytes());
           }
-          friendListModel.add(friendNumber, Arrays.copyOf(publicKey, ToxConstants.PUBLIC_KEY_SIZE));
+          friendListModel.add(friendNumber, Arrays.copyOf(publicKey, ToxCoreConstants.PUBLIC_KEY_SIZE));
           addMessage("Added friend number " + friendNumber);
           save();
         } catch (ToxFriendAddException e) {

@@ -47,7 +47,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
           expected = ToxCoreTestBase$.MODULE$.randomBytes(expected.length + 1);
         }
         tox.setName(expected);
-        return expected.length < ToxConstants.MAX_NAME_LENGTH;
+        return expected.length < ToxCoreConstants.MAX_NAME_LENGTH;
       }
 
       @Override
@@ -70,7 +70,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
           expected = ToxCoreTestBase$.MODULE$.randomBytes(expected.length + 1);
         }
         tox.setStatusMessage(expected);
-        return expected.length < ToxConstants.MAX_NAME_LENGTH;
+        return expected.length < ToxCoreConstants.MAX_NAME_LENGTH;
       }
 
       @Override

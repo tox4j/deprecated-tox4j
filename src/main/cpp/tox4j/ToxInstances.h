@@ -104,6 +104,41 @@ template<typename Subsystem>
 extern char const *const module_name;
 
 
+template<typename Object, typename SuccessFunc, typename ToxFunc, typename ...Args>
+auto
+with_error_handling (JNIEnv *env,
+                     char const *method,
+                     SuccessFunc success_func,
+                     ToxFunc tox_func,
+                     Args ...args)
+{
+  using result_type =
+    typename std::result_of<
+      SuccessFunc (
+        typename std::result_of<
+          ToxFunc (Args..., tox_error_t<ToxFunc> *)
+        >::type
+      )>::type;
+
+  tox_error_t<ToxFunc> error;
+  auto value = tox_func (args..., &error);
+  ErrorHandling result = handle_error_enum<tox_error_t<ToxFunc>> (error);
+  switch (result.result)
+    {
+    case ErrorHandling::SUCCESS:
+      return success_func (std::move (value));
+    case ErrorHandling::FAILURE:
+      throw_tox_exception (env, module_name<Object>, method, result.error);
+      break;
+    case ErrorHandling::UNHANDLED:
+      throw_illegal_state_exception (env, error, "Unknown error code");
+      break;
+    }
+
+  return result_type ();
+}
+
+
 template<typename ObjectP, typename EventsP>
 struct ToxInstances
   : instance_manager<ObjectP, EventsP>
@@ -119,30 +154,7 @@ struct ToxInstances
                        ToxFunc tox_func,
                        Args ...args)
   {
-    using result_type =
-      typename std::result_of<
-        SuccessFunc (
-          typename std::result_of<
-            ToxFunc (Args..., tox_error_t<ToxFunc> *)
-          >::type
-        )>::type;
-
-    tox_error_t<ToxFunc> error;
-    auto value = tox_func (args..., &error);
-    ErrorHandling result = handle_error_enum<tox_error_t<ToxFunc>> (error);
-    switch (result.result)
-      {
-      case ErrorHandling::SUCCESS:
-        return success_func (std::move (value));
-      case ErrorHandling::FAILURE:
-        throw_tox_exception (env, module_name<Object>, method, result.error);
-        break;
-      case ErrorHandling::UNHANDLED:
-        throw_illegal_state_exception (env, error, "Unknown error code");
-        break;
-      }
-
-    return result_type ();
+    return ::with_error_handling<Object> (env, method, success_func, tox_func, args...);
   }
 
 
