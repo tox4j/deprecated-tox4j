@@ -458,7 +458,7 @@ public class ToxGui extends JFrame {
             addMessage("Sent action to ", friendNumber + ": " + messageText.getText());
           }
           messageText.setText("");
-        } catch (ToxSendMessageException e) {
+        } catch (ToxFriendSendMessageException e) {
           addMessage("Send message failed: ", e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));

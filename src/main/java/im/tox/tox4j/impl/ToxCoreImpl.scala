@@ -147,7 +147,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   protected override def finalize(): Unit = {
     try {
       close()
-      ToxCoreJni.finalize(instanceNumber)
+      ToxCoreJni.toxFinalize(instanceNumber)
     } catch {
       case e: Throwable =>
         e.printStackTrace()
@@ -168,7 +168,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   }
 
   override def save: Array[Byte] =
-    ToxCoreJni.toxSave(instanceNumber)
+    ToxCoreJni.toxGetSavedata(instanceNumber)
 
   @throws[ToxGetPortException]
   override def getUdpPort: Int =
@@ -185,7 +185,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxIterationInterval(instanceNumber)
 
   override def iteration(): Unit = {
-    Option(ToxCoreJni.toxIteration(instanceNumber)).map(ByteString.copyFrom).map(CoreEvents.parseFrom) match {
+    Option(ToxCoreJni.toxIterate(instanceNumber)).map(ByteString.copyFrom).map(CoreEvents.parseFrom) match {
       case None =>
       case Some(CoreEvents(
         connectionStatus,
@@ -332,15 +332,15 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxFriendExists(instanceNumber, friendNumber)
 
   override def getFriendList: Array[Int] =
-    ToxCoreJni.toxFriendList(instanceNumber)
+    ToxCoreJni.toxSelfGetFriendList(instanceNumber)
 
   @throws[ToxSetTypingException]
   override def setTyping(friendNumber: Int, typing: Boolean): Unit =
     ToxCoreJni.toxSelfSetTyping(instanceNumber, friendNumber, typing)
 
-  @throws[ToxSendMessageException]
+  @throws[ToxFriendSendMessageException]
   override def sendMessage(friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]): Int =
-    ToxCoreJni.toxSendMessage(instanceNumber, friendNumber, messageType.ordinal, timeDelta, message)
+    ToxCoreJni.toxFriendSendMessage(instanceNumber, friendNumber, messageType.ordinal, timeDelta, message)
 
   @throws[ToxFileControlException]
   override def fileControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl): Unit =
@@ -348,7 +348,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
 
   @throws[ToxFileSendSeekException]
   override def fileSendSeek(friendNumber: Int, fileNumber: Int, position: Long): Unit =
-    ToxCoreJni.toxFileSendSeek(instanceNumber, friendNumber, fileNumber, position)
+    ToxCoreJni.toxFileSeek(instanceNumber, friendNumber, fileNumber, position)
 
   @throws[ToxFileSendException]
   override def fileSend(friendNumber: Int, kind: Int, fileSize: Long, @NotNull fileId: Array[Byte], filename: Array[Byte]): Int =
@@ -362,11 +362,11 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def fileGetFileId(friendNumber: Int, fileNumber: Int): Array[Byte] =
     ToxCoreJni.toxFileGetFileId(instanceNumber, friendNumber, fileNumber)
 
-  @throws[ToxSendCustomPacketException]
+  @throws[ToxFriendCustomPacketException]
   override def sendLossyPacket(friendNumber: Int, data: Array[Byte]): Unit =
     ToxCoreJni.toxSendLossyPacket(instanceNumber, friendNumber, data)
 
-  @throws[ToxSendCustomPacketException]
+  @throws[ToxFriendCustomPacketException]
   override def sendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
     ToxCoreJni.toxSendLosslessPacket(instanceNumber, friendNumber, data)
 

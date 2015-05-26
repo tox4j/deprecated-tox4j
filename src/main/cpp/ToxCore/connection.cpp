@@ -109,10 +109,10 @@ TOX_METHOD (jint, IterationInterval,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxIteration
+ * Method:    toxIterate
  * Signature: (I)[B
  */
-TOX_METHOD (jbyteArray, Iteration,
+TOX_METHOD (jbyteArray, Iterate,
   jint instanceNumber)
 {
   return instances.with_instance (env, instanceNumber,

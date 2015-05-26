@@ -97,10 +97,10 @@ TOX_METHOD (jboolean, FriendExists,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxFriendList
+ * Method:    toxSelfGetFriendList
  * Signature: (I)[I
  */
-TOX_METHOD (jintArray, FriendList,
+TOX_METHOD (jintArray, SelfGetFriendList,
   jint instanceNumber)
 {
   return instances.with_instance (env, instanceNumber,

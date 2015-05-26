@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxSendMessageException extends ToxException<ToxSendMessageException.Code> {
+public final class ToxFriendSendMessageException extends ToxException<ToxFriendSendMessageException.Code> {
 
   public enum Code {
     /**
@@ -27,16 +27,16 @@ public final class ToxSendMessageException extends ToxException<ToxSendMessageEx
      */
     SENDQ,
     /**
-     * Message length exceeded {@link ToxConstants#MAX_MESSAGE_LENGTH}.
+     * Message length exceeded {@link ToxCoreConstants#MAX_MESSAGE_LENGTH}.
      */
     TOO_LONG,
   }
 
-  public ToxSendMessageException(@NotNull Code code) {
+  public ToxFriendSendMessageException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxSendMessageException(@NotNull Code code, String message) {
+  public ToxFriendSendMessageException(@NotNull Code code, String message) {
     super(code, message);
   }
 

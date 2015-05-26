@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ToxSendCustomPacketExceptionTest extends ToxCoreImplTestBase {
+public class ToxFriendCustomPacketExceptionTest extends ToxCoreImplTestBase {
 
   @Test
   public void testSendLossyPacketNotConnected() throws Exception {
@@ -15,8 +15,8 @@ public class ToxSendCustomPacketExceptionTest extends ToxCoreImplTestBase {
       try {
         tox.sendLossyPacket(friendNumber, new byte[]{(byte) 200, 0, 1, 2, 3});
         fail();
-      } catch (ToxSendCustomPacketException e) {
-        assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.code());
+      } catch (ToxFriendCustomPacketException e) {
+        assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.code());
       }
     }
   }
@@ -28,8 +28,8 @@ public class ToxSendCustomPacketExceptionTest extends ToxCoreImplTestBase {
       try {
         tox.sendLosslessPacket(friendNumber, new byte[]{(byte) 160, 0, 1, 2, 3});
         fail();
-      } catch (ToxSendCustomPacketException e) {
-        assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.code());
+      } catch (ToxFriendCustomPacketException e) {
+        assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.code());
       }
     }
   }
@@ -40,8 +40,8 @@ public class ToxSendCustomPacketExceptionTest extends ToxCoreImplTestBase {
       try {
         tox.sendLossyPacket(0, new byte[]{(byte) 200, 0, 1, 2, 3});
         fail();
-      } catch (ToxSendCustomPacketException e) {
-        assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_FOUND, e.code());
+      } catch (ToxFriendCustomPacketException e) {
+        assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_FOUND, e.code());
       }
     }
   }
@@ -52,8 +52,8 @@ public class ToxSendCustomPacketExceptionTest extends ToxCoreImplTestBase {
       try {
         tox.sendLosslessPacket(0, new byte[]{(byte) 160, 0, 1, 2, 3});
         fail();
-      } catch (ToxSendCustomPacketException e) {
-        assertEquals(ToxSendCustomPacketException.Code.FRIEND_NOT_FOUND, e.code());
+      } catch (ToxFriendCustomPacketException e) {
+        assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_FOUND, e.code());
       }
     }
   }

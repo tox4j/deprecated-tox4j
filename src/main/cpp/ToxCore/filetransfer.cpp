@@ -28,10 +28,10 @@ TOX_METHOD (void, FileControl,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxFileSendSeek
+ * Method:    toxFileSeek
  * Signature: (IIII)V
  */
-TOX_METHOD (void, FileSendSeek,
+TOX_METHOD (void, FileSeek,
   jint instanceNumber, jint friendNumber, jint fileNumber, jlong position)
 {
   return instances.with_instance_ign (env, instanceNumber,

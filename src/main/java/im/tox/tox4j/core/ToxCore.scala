@@ -358,7 +358,7 @@ trait ToxCore extends Closeable {
    * @param message The message text
    * @return the message ID.
    */
-  @throws[ToxSendMessageException]
+  @throws[ToxFriendSendMessageException]
   def sendMessage(friendNumber: Int, @NotNull messageType: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Int
 
   /**
@@ -485,7 +485,7 @@ trait ToxCore extends Closeable {
    * @param friendNumber The friend number of the friend this lossy packet should be sent to.
    * @param data A byte array containing the packet data including packet id.
    */
-  @throws[ToxSendCustomPacketException]
+  @throws[ToxFriendCustomPacketException]
   def sendLossyPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit
 
   /**
@@ -500,7 +500,7 @@ trait ToxCore extends Closeable {
    * @param friendNumber The friend number of the friend this lossless packet should be sent to.
    * @param data A byte array containing the packet data including packet id.
    */
-  @throws[ToxSendCustomPacketException]
+  @throws[ToxFriendCustomPacketException]
   def sendLosslessPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit
 
   def callbackFriendName(@NotNull callback: FriendNameCallback): Unit
