@@ -10,9 +10,11 @@
 // Header from toxcore.
 #include <tox/core.h>
 
+#ifndef SUBSYSTEM
 #define SUBSYSTEM TOX
 #define CLASS     ToxCore
 #define PREFIX    tox
+#endif
 
 namespace core
 {

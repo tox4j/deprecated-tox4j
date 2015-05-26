@@ -10,10 +10,13 @@
 // Header from toxcore.
 #include <tox/av.h>
 
+#ifndef SUBSYSTEM
 #define SUBSYSTEM TOXAV
 #define CLASS     ToxAv
-#define PREFIX    toxAv
+#define PREFIX    toxav
+#endif
 
+#ifdef TOXAV_VERSION_MAJOR
 namespace av
 {
   namespace proto = im::tox::tox4j::av::proto;
@@ -22,3 +25,4 @@ namespace av
 
   extern ToxInstances<tox::av_ptr, std::unique_ptr<Events>> instances;
 }
+#endif

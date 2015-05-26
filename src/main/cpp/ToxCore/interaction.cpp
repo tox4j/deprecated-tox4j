@@ -19,10 +19,10 @@ TOX_METHOD (void, SelfSetTyping,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSendMessage
+ * Method:    toxFriendSendMessage
  * Signature: (IIII[B)I
  */
-TOX_METHOD (jint, SendMessage,
+TOX_METHOD (jint, FriendSendMessage,
   jint instanceNumber, jint friendNumber, jint type, jint timeDelta, jbyteArray message)
 {
   ByteArray const message_array (env, message);

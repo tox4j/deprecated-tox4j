@@ -344,10 +344,10 @@ TOX_METHOD (void, Kill,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    finalize
+ * Method:    toxFinalize
  * Signature: (I)V
  */
-METHOD (void, finalize,
+TOX_METHOD (void, Finalize,
   jint instanceNumber)
 {
   instances.finalize (env, instanceNumber);
@@ -355,10 +355,10 @@ METHOD (void, finalize,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSave
+ * Method:    toxGetSavedata
  * Signature: (I)[B
  */
-TOX_METHOD (jbyteArray, Save,
+TOX_METHOD (jbyteArray, GetSavedata,
   jint instanceNumber)
 {
   return instances.with_instance (env, instanceNumber,

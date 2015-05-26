@@ -24,7 +24,8 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
     @Override public void callState(int friendNumber, @NotNull Collection<ToxCallState> state) { }
     @Override public void receiveAudioFrame(int friendNumber, @NotNull short[] pcm, int channels, int samplingRate) { }
     @SuppressWarnings("checkstyle:parametername")
-    @Override public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) { }
+    @Override
+    public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a, int yStride, int uStride, int vStride, int aStride) { }
   }
 
   protected static class AvClient extends AvChatClient {
@@ -58,7 +59,7 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
         @Override
         public void run() {
           while (isRunning()) {
-            av.iteration();
+            av.iterate();
             try {
               performTasks(av);
             } catch (ToxException e) {

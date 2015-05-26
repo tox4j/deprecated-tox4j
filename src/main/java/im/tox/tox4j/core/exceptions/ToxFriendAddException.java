@@ -38,7 +38,7 @@ public final class ToxFriendAddException extends ToxException<ToxFriendAddExcept
      */
     SET_NEW_NOSPAM,
     /**
-     * The length of the friend request message exceeded {@link ToxConstants#MAX_FRIEND_REQUEST_LENGTH}.
+     * The length of the friend request message exceeded {@link ToxCoreConstants#MAX_FRIEND_REQUEST_LENGTH}.
      */
     TOO_LONG,
   }

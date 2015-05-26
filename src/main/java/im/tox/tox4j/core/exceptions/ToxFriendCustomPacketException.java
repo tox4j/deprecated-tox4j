@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxSendCustomPacketException extends ToxException<ToxSendCustomPacketException.Code> {
+public final class ToxFriendCustomPacketException extends ToxException<ToxFriendCustomPacketException.Code> {
 
   public enum Code {
     /**
@@ -32,16 +32,16 @@ public final class ToxSendCustomPacketException extends ToxException<ToxSendCust
      */
     SENDQ,
     /**
-     * Packet data length exceeded {@link ToxConstants#MAX_CUSTOM_PACKET_SIZE}.
+     * Packet data length exceeded {@link ToxCoreConstants#MAX_CUSTOM_PACKET_SIZE}.
      */
     TOO_LONG,
   }
 
-  public ToxSendCustomPacketException(@NotNull Code code) {
+  public ToxFriendCustomPacketException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxSendCustomPacketException(@NotNull Code code, String message) {
+  public ToxFriendCustomPacketException(@NotNull Code code, String message) {
     super(code, message);
   }
 

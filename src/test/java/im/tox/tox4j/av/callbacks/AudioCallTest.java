@@ -187,7 +187,7 @@ public final class AudioCallTest extends AliceBobAvTest {
         public void perform(@NotNull ToxAv av) throws ToxException {
           short[] frame = new short[FRAME_SIZE];
           t = AUDIO.nextFrame16(t, frame);
-          av.sendAudioFrame(friendNumber, frame, FRAME_SIZE, CHANNELS, SAMPLING_RATE);
+          av.audioSendFrame(friendNumber, frame, FRAME_SIZE, CHANNELS, SAMPLING_RATE);
 
           if (t >= AUDIO.length()) {
             finish();

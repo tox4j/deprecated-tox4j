@@ -15,7 +15,7 @@ public final class ToxFileSendException extends ToxException<ToxFileSendExceptio
      */
     FRIEND_NOT_FOUND,
     /**
-     * Filename length exceeded {@link ToxConstants#MAX_FILENAME_LENGTH} bytes.
+     * Filename length exceeded {@link ToxCoreConstants#MAX_FILENAME_LENGTH} bytes.
      */
     NAME_TOO_LONG,
     /**

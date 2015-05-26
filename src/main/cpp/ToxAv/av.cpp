@@ -1,36 +1,35 @@
-#ifdef HAVE_TOXAV
 #include "ToxAv.h"
 
+#ifdef TOXAV_VERSION_MAJOR
+
+using namespace av;
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvIterationInterval
+ * Method:    toxavIterationInterval
  * Signature: (I)I
  */
 TOX_METHOD (jint, IterationInterval,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
-    [=] (ToxAV *av, Events &events)
-      {
-        unused (events);
-        return toxav_iteration_interval (av);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    toxav_iteration_interval);
 }
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvIteration
+ * Method:    toxavIterate
  * Signature: (I)[B
  */
-TOX_METHOD (jbyteArray, Iteration,
+TOX_METHOD (jbyteArray, Iterate,
   jint instanceNumber)
 {
-  return with_instance (env, instanceNumber,
-    [=] (ToxAV *av, Events &events)
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events) -> jbyteArray
       {
-        toxav_iteration (av);
+        toxav_iterate (av);
+        if (events.ByteSize () == 0)
+          return nullptr;
 
         std::vector<char> buffer (events.ByteSize ());
         events.SerializeToArray (buffer.data (), buffer.size ());
@@ -43,131 +42,113 @@ TOX_METHOD (jbyteArray, Iteration,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvCall
+ * Method:    toxavCall
  * Signature: (IIII)V
  */
 TOX_METHOD (void, Call,
   jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
 {
-  return with_instance (env, instanceNumber, "Call",
-    [] (TOXAV_ERR_CALL error)
-      {
-        switch (error)
-          {
-          success_case (CALL);
-          failure_case (CALL, MALLOC);
-          failure_case (CALL, FRIEND_NOT_FOUND);
-          failure_case (CALL, FRIEND_NOT_CONNECTED);
-          failure_case (CALL, FRIEND_ALREADY_IN_CALL);
-          failure_case (CALL, INVALID_BIT_RATE);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_ign (env, instanceNumber,
     toxav_call, friendNumber, audioBitRate, videoBitRate
   );
 }
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvAnswer
+ * Method:    toxavAnswer
  * Signature: (IIII)V
  */
 TOX_METHOD (void, Answer,
   jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
 {
-  return with_instance (env, instanceNumber, "Answer",
-    [] (TOXAV_ERR_ANSWER error)
-      {
-        switch (error)
-          {
-          success_case (ANSWER);
-          failure_case (ANSWER, MALLOC);
-          failure_case (ANSWER, FRIEND_NOT_FOUND);
-          failure_case (ANSWER, FRIEND_NOT_CALLING);
-          failure_case (ANSWER, INVALID_BIT_RATE);
-          }
-        return unhandled ();
-      },
+  return instances.with_instance_ign (env, instanceNumber,
     toxav_answer, friendNumber, audioBitRate, videoBitRate
   );
 }
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvCallControl
+ * Method:    toxavCallControl
  * Signature: (III)V
  */
 TOX_METHOD (void, CallControl,
   jint instanceNumber, jint friendNumber, jint control)
 {
-  return with_instance (env, instanceNumber, "CallControl",
-    [] (TOXAV_ERR_CALL_CONTROL error)
+  TOXAV_CALL_CONTROL call_control = [=] {
+    switch (control)
       {
-        switch (error)
-          {
-          success_case (CALL_CONTROL);
-          failure_case (CALL_CONTROL, FRIEND_NOT_FOUND);
-          failure_case (CALL_CONTROL, FRIEND_NOT_IN_CALL);
-          failure_case (CALL_CONTROL, NOT_PAUSED);
-          failure_case (CALL_CONTROL, DENIED);
-          failure_case (CALL_CONTROL, ALREADY_PAUSED);
-          }
-        return unhandled ();
-      },
-    toxav_call_control, friendNumber, (TOXAV_CALL_CONTROL) control
+      case 0: return TOXAV_CALL_CONTROL_RESUME;
+      case 1: return TOXAV_CALL_CONTROL_PAUSE;
+      case 2: return TOXAV_CALL_CONTROL_CANCEL;
+      case 3: return TOXAV_CALL_CONTROL_MUTE_AUDIO;
+      case 4: return TOXAV_CALL_CONTROL_UNMUTE_AUDIO;
+      case 5: return TOXAV_CALL_CONTROL_HIDE_VIDEO;
+      case 6: return TOXAV_CALL_CONTROL_SHOW_VIDEO;
+      }
+    tox4j_fatal ("Invalid call control from Java");
+  } ();
+  return instances.with_instance_ign (env, instanceNumber,
+    toxav_call_control, friendNumber, call_control
   );
 }
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvSetAudioBitRate
- * Signature: (III)V
+ * Method:    toxavAudioBitRateSet
+ * Signature: (IIIZ)V
  */
-TOX_METHOD (void, SetAudioBitRate,
-  jint instanceNumber, jint friendNumber, jint audioBitRate)
+TOX_METHOD (void, AudioBitRateSet,
+  jint instanceNumber, jint friendNumber, jint audioBitRate, jboolean force)
 {
-  return with_instance (env, instanceNumber, "BitRate",
-    [] (TOXAV_ERR_BIT_RATE error)
-      {
-        switch (error)
-          {
-          success_case (BIT_RATE);
-          failure_case (BIT_RATE, INVALID);
-          }
-        return unhandled ();
-      },
-    toxav_set_audio_bit_rate, friendNumber, audioBitRate
+  return instances.with_instance_ign (env, instanceNumber,
+    toxav_audio_bit_rate_set, friendNumber, audioBitRate, force
   );
 }
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvSetVideoBitRate
- * Signature: (III)V
+ * Method:    toxavVideoBitRateSet
+ * Signature: (IIIZ)V
  */
-TOX_METHOD (void, SetVideoBitRate,
-  jint instanceNumber, jint friendNumber, jint videoBitRate)
+TOX_METHOD (void, VideoBitRateSet,
+  jint instanceNumber, jint friendNumber, jint videoBitRate, jboolean force)
 {
-  return with_instance (env, instanceNumber, "BitRate",
-    [] (TOXAV_ERR_BIT_RATE error)
-      {
-        switch (error)
-          {
-          success_case (BIT_RATE);
-          failure_case (BIT_RATE, INVALID);
-          }
-        return unhandled ();
-      },
-    toxav_set_video_bit_rate, friendNumber, videoBitRate
+  return instances.with_instance_ign (env, instanceNumber,
+    toxav_video_bit_rate_set, friendNumber, videoBitRate, force
   );
 }
 
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvSendVideoFrame
+ * Method:    toxavAudioSendFrame
+ * Signature: (II[SIII)V
+ */
+TOX_METHOD (void, AudioSendFrame,
+  jint instanceNumber, jint friendNumber, jshortArray pcm, jint sampleCount, jint channels, jint samplingRate)
+{
+  tox4j_assert (sampleCount >= 0);
+  tox4j_assert (channels >= 0);
+  tox4j_assert (channels <= 255);
+  tox4j_assert (samplingRate >= 0);
+
+  ShortArray pcmData (env, pcm);
+  if (pcmData.size () != size_t (sampleCount * channels))
+    {
+      throw_tox_exception (env, module_name<ToxAV>, method_name<TOXAV_ERR_SEND_FRAME>, "BAD_LENGTH");
+      return;
+    }
+
+  return instances.with_instance_ign (env, instanceNumber,
+    toxav_audio_send_frame, friendNumber, pcmData.data (), sampleCount, channels, samplingRate
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_ToxAvJni
+ * Method:    toxavVideoSendFrame
  * Signature: (IIII[B[B[B[B)V
  */
-TOX_METHOD (void, SendVideoFrame,
+TOX_METHOD (void, VideoSendFrame,
   jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jbyteArray a)
 {
   size_t pixel_count = width * height;
@@ -181,63 +162,12 @@ TOX_METHOD (void, SendVideoFrame,
       vData.size () != pixel_count ||
       (!aData.empty () && aData.size () != pixel_count))
     {
-      throw_tox_exception (env, tox_traits::module, "SendFrame", "BAD_LENGTH");
+      throw_tox_exception (env, module_name<ToxAV>, method_name<TOXAV_ERR_SEND_FRAME>, "BAD_LENGTH");
       return;
     }
 
-  return with_instance (env, instanceNumber, "SendFrame",
-    [] (TOXAV_ERR_SEND_FRAME error)
-      {
-        switch (error)
-          {
-          success_case (SEND_FRAME);
-          failure_case (SEND_FRAME, NULL);
-          failure_case (SEND_FRAME, FRIEND_NOT_FOUND);
-          failure_case (SEND_FRAME, FRIEND_NOT_IN_CALL);
-          failure_case (SEND_FRAME, NOT_REQUESTED);
-          failure_case (SEND_FRAME, INVALID);
-          }
-        return unhandled ();
-      },
-    toxav_send_video_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data (), aData.data ()
-  );
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxAvJni
- * Method:    toxAvSendAudioFrame
- * Signature: (II[SIII)V
- */
-TOX_METHOD (void, SendAudioFrame,
-  jint instanceNumber, jint friendNumber, jshortArray pcm, jint sampleCount, jint channels, jint samplingRate)
-{
-  assert (sampleCount >= 0);
-  assert (channels >= 0);
-  assert (channels <= 255);
-  assert (samplingRate >= 0);
-
-  ShortArray pcmData (env, pcm);
-  if (pcmData.size () != size_t (sampleCount * channels))
-    {
-      throw_tox_exception (env, tox_traits::module, "SendFrame", "BAD_LENGTH");
-      return;
-    }
-
-  return with_instance (env, instanceNumber, "SendFrame",
-    [] (TOXAV_ERR_SEND_FRAME error)
-      {
-        switch (error)
-          {
-          success_case (SEND_FRAME);
-          failure_case (SEND_FRAME, NULL);
-          failure_case (SEND_FRAME, FRIEND_NOT_FOUND);
-          failure_case (SEND_FRAME, FRIEND_NOT_IN_CALL);
-          failure_case (SEND_FRAME, NOT_REQUESTED);
-          failure_case (SEND_FRAME, INVALID);
-          }
-        return unhandled ();
-      },
-    toxav_send_audio_frame, friendNumber, pcmData.data (), sampleCount, channels, samplingRate
+  return instances.with_instance_ign (env, instanceNumber,
+    toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data (), aData.data ()
   );
 }
 #endif
