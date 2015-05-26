@@ -1,9 +1,9 @@
 package src.main.scala
 
+import java.io.{ File, PrintWriter }
+
 import sbt.Keys._
 import sbt._
-
-import java.io.{ File, PrintWriter }
 
 import scala.language.postfixOps
 
@@ -308,7 +308,7 @@ object Jni extends Plugin {
             }
             cpufeatures
           case None =>
-            throw new RuntimeException("Could not find Android NDK (you may need to set the ANDROID_NDK_HOME env var)")
+            sys.error("Could not find Android NDK (you may need to set the ANDROID_NDK_HOME env var)")
         }
       }
     )
@@ -327,7 +327,7 @@ object Jni extends Plugin {
           if (target.contains("android"))
             Android(target)
           else
-            throw new RuntimeException("Unknown target: " + target)
+            sys.error("Unknown target: " + target)
       }
 
     val settings = jniSettings(platform)

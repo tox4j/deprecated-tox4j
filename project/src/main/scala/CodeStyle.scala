@@ -2,13 +2,12 @@ package src.main.scala
 
 import com.etsy.sbt.Checkstyle.CheckstyleTasks
 import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._
-import de.johoop.findbugs4sbt._
 import de.johoop.findbugs4sbt.FindBugs._
+import de.johoop.findbugs4sbt._
 import org.scalastyle.sbt.ScalastylePlugin.scalastyleConfig
-import wartremover.WartRemover.autoImport._
-
 import sbt.Keys._
 import sbt._
+import wartremover.WartRemover.autoImport._
 
 object CodeStyle extends Plugin {
 
@@ -25,6 +24,7 @@ object CodeStyle extends Plugin {
       scalastyleConfig in config := (scalaSource in config).value / "scalastyle-config.xml"
 
     } ++ Seq(
+
       // Disable method name inspection, since we use things like name_=.
       scapegoatDisabledInspections := Seq("MethodNames"),
 
@@ -48,47 +48,40 @@ object CodeStyle extends Plugin {
 
     ) ++ findbugsSettings ++ Seq(
         findbugsReportType := Some(ReportType.Html),
-        findbugsExcludeFilters := Some(<FindBugsFilter>
-                                         <Match>
-                                           <Package name="im.tox.tox4j.av.proto"/>
-                                         </Match>
-                                         <Match>
-                                           <Package name="im.tox.tox4j.core.proto"/>
-                                         </Match>
-                                       </FindBugsFilter>)
+        findbugsExcludeFilters := Some(
+          <FindBugsFilter>
+            <Match>
+              <Package name="im.tox.tox4j.av.proto"/>
+            </Match>
+            <Match>
+              <Package name="im.tox.tox4j.core.proto"/>
+            </Match>
+          </FindBugsFilter>
+        )
 
       ) ++ com.etsy.sbt.Checkstyle.checkstyleSettings ++ Seq((Compile, ""), (Test, "-test")).map {
           case (config, suffix) =>
             // Checkstyle override to fail the build on errors.
             CheckstyleTasks.checkstyle in config := {
-              val log = streams.value.log
               (CheckstyleTasks.checkstyle in config).value
-              val resultFile = (target in config).value / s"checkstyle$suffix-report.xml"
-              val results = scala.xml.XML.loadFile(resultFile)
-              val errorFiles = results \\ "checkstyle" \\ "file"
 
-              def errorFromXml(node: scala.xml.NodeSeq) = {
-                val line = (node \ "@line").text
-                val msg = (node \ "@message").text
-                val source = (node \ "@source").text
-                (line, msg, source)
+              val log = streams.value.log
+
+              val errors = {
+                val resultFile = (target in config).value / s"checkstyle$suffix-report.xml"
+                val results = scala.xml.XML.loadFile(resultFile)
+                val errorFiles = results \\ "checkstyle" \\ "file"
+                errorFiles flatMap errorsFromXml
               }
-
-              def errorsFromXml(fileNode: scala.xml.NodeSeq) = {
-                val name = (fileNode \ "@name").text
-                val errors = (fileNode \\ "error") map errorFromXml
-                errors map { case (line, error, source) => (name, line, error, source) }
-              }
-
-              val errors = errorFiles flatMap errorsFromXml
 
               if (errors.nonEmpty) {
-                for (e <- errors) {
-                  log.error(s"${e._1}:${e._2}: ${e._3} (from ${e._4})")
+                for ((name, line, error, source) <- errors) {
+                  log.error(s"$name:$line: $error (from $source)")
                 }
+
                 val message = s"Checkstyle failed with ${errors.size} errors"
                 if ((checkstyleFatal in config).value) {
-                  throw new RuntimeException(message)
+                  sys.error(message)
                 } else {
                   log.warn(message)
                 }
@@ -97,5 +90,18 @@ object CodeStyle extends Plugin {
               }
             }
         }
+
+  private def errorsFromXml(fileNode: scala.xml.NodeSeq) = {
+    val name = (fileNode \ "@name").text
+    val errors = (fileNode \\ "error") map errorFromXml
+    errors map { case (line, error, source) => (name, line, error, source) }
+  }
+
+  private def errorFromXml(node: scala.xml.NodeSeq) = {
+    val line = (node \ "@line").text
+    val msg = (node \ "@message").text
+    val source = (node \ "@source").text
+    (line, msg, source)
+  }
 
 }
