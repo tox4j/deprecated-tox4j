@@ -58,7 +58,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passEncr
   ByteArray passphrase (env, passphraseArray);
   std::vector<uint8_t> out (data.size () + TOX_PASS_ENCRYPTION_EXTRA_LENGTH);
 
-  return with_error_handling<ToxCrypto> (env, "Encryption",
+  return with_error_handling<ToxCrypto> (env,
     [env, &out] (bool)
       {
         return toJavaArray (env, out);
@@ -108,7 +108,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passDecr
     )
   );
 
-  return with_error_handling<ToxCrypto> (env, "Decryption",
+  return with_error_handling<ToxCrypto> (env,
     [env, &out] (bool)
       {
         return toJavaArray (env, out);
@@ -148,7 +148,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_deriveKe
   ByteArray salt (env, saltArray);
   TOX_PASS_KEY out_key;
 
-  return with_error_handling<ToxCrypto> (env, "Decryption",
+  return with_error_handling<ToxCrypto> (env,
     [env, &out_key] (bool)
       {
         return pass_key_to_java (env, out_key);
@@ -172,7 +172,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_deriveKe
   ByteArray passphrase (env, passphraseArray);
   TOX_PASS_KEY out_key;
 
-  return with_error_handling<ToxCrypto> (env, "Decryption",
+  return with_error_handling<ToxCrypto> (env,
     [env, &out_key] (bool)
       {
         return pass_key_to_java (env, out_key);
@@ -204,7 +204,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passKeyD
 
   TOX_PASS_KEY const pass_key = pass_key_from_java (env, passKeyArray);
 
-  return with_error_handling<ToxCrypto> (env, "Decryption",
+  return with_error_handling<ToxCrypto> (env,
     [env, &out] (bool)
       {
         return toJavaArray (env, out);
@@ -230,7 +230,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passKeyE
 
   TOX_PASS_KEY const pass_key = pass_key_from_java (env, passKeyArray);
 
-  return with_error_handling<ToxCrypto> (env, "Encryption",
+  return with_error_handling<ToxCrypto> (env,
     [env, &out] (bool)
       {
         return toJavaArray (env, out);

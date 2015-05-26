@@ -21,7 +21,7 @@ TOX_METHOD (void, FileControl,
     tox4j_fatal ("Invalid file control from Java");
   } ();
 
-  return instances.with_instance_ign (env, instanceNumber, "FileControl",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_file_control, friendNumber, fileNumber, file_control
   );
 }
@@ -34,7 +34,7 @@ TOX_METHOD (void, FileControl,
 TOX_METHOD (void, FileSendSeek,
   jint instanceNumber, jint friendNumber, jint fileNumber, jlong position)
 {
-  return instances.with_instance_ign (env, instanceNumber, "FileControl",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_file_seek, friendNumber, fileNumber, position
   );
 }
@@ -63,7 +63,7 @@ TOX_METHOD (jint, FileSend,
   if (fileSize < 0)
     fileSize = -1;
 
-  return instances.with_instance_err (env, instanceNumber, "FileSend",
+  return instances.with_instance_err (env, instanceNumber,
     identity,
     tox_file_send, friendNumber, file_kind, fileSize, fileIdData.data (), filenameData.data (), filenameData.size ()
   );
@@ -78,7 +78,7 @@ TOX_METHOD (void, FileSendChunk,
   jint instanceNumber, jint friendNumber, jint fileNumber, jlong position, jbyteArray chunk)
 {
   ByteArray chunkData (env, chunk);
-  return instances.with_instance_ign (env, instanceNumber, "FileSendChunk",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_file_send_chunk, friendNumber, fileNumber, position, chunkData.data (), chunkData.size ()
   );
 }
@@ -92,7 +92,7 @@ TOX_METHOD (jbyteArray, FileGetFileId,
   jint instanceNumber, jint friendNumber, jint fileNumber)
 {
   std::vector<uint8_t> file_id;
-  return instances.with_instance_err (env, instanceNumber, "FileGetInfo",
+  return instances.with_instance_err (env, instanceNumber,
     [env, &file_id] (bool)
       {
         return toJavaArray (env, file_id);

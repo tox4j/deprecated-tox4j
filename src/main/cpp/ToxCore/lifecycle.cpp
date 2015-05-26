@@ -248,7 +248,7 @@ TOX_METHOD (jint, New,
   auto opts = tox_options_new_unique ();
   if (!opts)
     {
-      throw_tox_exception (env, module_name<Tox>, "New", "MALLOC");
+      throw_tox_exception (env, module_name<Tox>, method_name<TOX_ERR_NEW>, "MALLOC");
       return 0;
     }
 
@@ -295,7 +295,7 @@ TOX_METHOD (jint, New,
   opts->savedata_data   = save_data.data ();
   opts->savedata_length = save_data.size ();
 
-  return instances.with_error_handling (env, "New",
+  return instances.with_error_handling (env,
     [env] (tox::core_ptr tox)
       {
         tox4j_assert (tox != nullptr);
