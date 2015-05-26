@@ -1,7 +1,0 @@
-import src.main.scala.Jni.Platform._
-
-//val platform = Android("arm-linux-androideabi")
-//val platform = Android("i686-linux-android")
-val platform = Host(file(System.getenv("HOME")) / "code/git/_install")
-
-jniSettings(platform)

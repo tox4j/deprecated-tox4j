@@ -270,6 +270,76 @@ object Jni extends Plugin {
   }
 
 
+  object Platform {
+    sealed trait T
+    case class Android(platform: String) extends T
+    case class Host(dependencyPrefix: File) extends T
+
+    // Host build:
+    private def hostSettings(dependencyPrefix: File) = Seq(
+      pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
+    )
+
+    // Android build:
+    private def androidSettings(platform: String) = Seq(
+      toolchainPath := {
+        val candidates = Seq(
+          baseDirectory.value / "android" / platform,
+          baseDirectory.value.getParentFile / "android" / platform
+        )
+        // Try $TOOLCHAIN first, then try some other possible candidate paths.
+        Option(System.getenv("TOOLCHAIN")).map(file).orElse(candidates.find(_.exists))
+      },
+      pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
+      jniSourceFiles in Compile += {
+        def ifExists(file: File): Option[File] = {
+          if (file.exists) {
+            Some(file)
+          } else {
+            None
+          }
+        }
+
+        val candidates = Seq(
+          Option(System.getenv("ANDROID_NDK_HOME")).map(file).flatMap(ifExists),
+          ifExists(file(System.getenv("HOME")) / "usr/android-ndk"),
+          ifExists(file(System.getenv("HOME")) / "android-ndk")
+        )
+
+        candidates.find(_.nonEmpty).flatten match {
+          case Some(ndkHome) =>
+            val cpufeatures = ndkHome / "sources/android/cpufeatures/cpu-features.c"
+            if (!cpufeatures.exists) {
+              sys.error("Could not find cpu-features.c required for the Android build")
+            }
+            cpufeatures
+          case None =>
+            throw new RuntimeException("Could not find Android NDK (you may need to set the ANDROID_NDK_HOME env var)")
+        }
+      }
+    )
+
+    def jniSettings(target: T) =
+      target match {
+        case Android(platform) => androidSettings(platform)
+        case Host(dependencyPrefix) => hostSettings(dependencyPrefix)
+      }
+
+    private val platform =
+      Option(System.getenv("TOX4J_TARGET")) match {
+        case Some("host") | None =>
+          Host(file(System.getenv("HOME")) / "code/git/_install")
+        case Some(target) =>
+          if (target.contains("android"))
+            Android(target)
+          else
+            throw new RuntimeException("Unknown target: " + target)
+      }
+
+    val settings = jniSettings(platform)
+  }
+
+
   override val settings = inConfig(jniConfig)(Seq(
 
     // Target for javah-generated headers.
@@ -383,6 +453,21 @@ object Jni extends Plugin {
     jniSourceFiles in Compile := filterNativeSources(((nativeSource in Compile).value ** "*").get),
     jniSourceFiles in Test := filterNativeSources(((nativeSource in Test).value ** "*").get),
 
+    cleanFiles ++= Seq(
+      binPath.value,
+      (headersPath in jniConfig).value
+    ),
+
+    // Make shared lib available at runtime. Must be used with forked JVM to work.
+    javaOptions ++= Seq(
+      s"-Djava.library.path=${binPath.value}",
+      "-Xmx1g"
+    ),
+    initialCommands in console := "im.tox.tox4j.JavaLibraryPath.addLibraryPath(\"" + binPath.value + "\")",
+    // Required in order to have a separate JVM to set Java options.
+    fork := true
+
+  ) ++ Platform.settings ++ Seq(
 
     javah := Def.task {
       val log = streams.value.log
@@ -627,64 +712,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
      .value,
 
 
-    compile <<= (compile in Compile, jniCompile).map((result, _) => result),
-
-    cleanFiles ++= Seq(
-      binPath.value,
-      (headersPath in jniConfig).value
-    ),
-
-    // Make shared lib available at runtime. Must be used with forked JVM to work.
-    javaOptions ++= Seq(
-      s"-Djava.library.path=${binPath.value}",
-      "-Xmx1g"
-    ),
-    initialCommands in console := "im.tox.tox4j.JavaLibraryPath.addLibraryPath(\"" + binPath.value + "\")",
-    // Required in order to have a separate JVM to set Java options.
-    fork := true
+    compile <<= (compile in Compile, jniCompile).map((result, _) => result)
   )
-
-
-  object Platform {
-
-    sealed trait T
-    case class Android(platform: String) extends T
-    case class Host(dependencyPrefix: File) extends T
-
-    // Host build:
-    private def hostSettings(dependencyPrefix: File) = Seq(
-      pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
-    )
-
-    // Android build:
-    private def androidSettings(platform: String) = Seq(
-      toolchainPath := {
-        val candidates = Seq(
-          baseDirectory.value / "android" / platform,
-          baseDirectory.value.getParentFile / "android" / platform
-        )
-        // Try $TOOLCHAIN first, then try some other possible candidate paths.
-        Option(System.getenv("TOOLCHAIN")).map(file).orElse(candidates.find(_.exists))
-      },
-      pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
-      jniSourceFiles in Compile += {
-        val ndkHome = Option(System.getenv("ANDROID_NDK_HOME"))
-          .map(file)
-          .getOrElse(file(System.getenv("HOME")) / "usr/android-ndk")
-        val cpufeatures = ndkHome / "sources/android/cpufeatures/cpu-features.c"
-        if (!cpufeatures.exists) {
-          sys.error("Could not find cpu-features.c required for Android")
-        }
-        cpufeatures
-      }
-    )
-
-    def jniSettings(target: T) =
-      target match {
-        case Android(platform) => androidSettings(platform)
-        case Host(dependencyPrefix) => hostSettings(dependencyPrefix)
-      }
-
-  }
 
 }

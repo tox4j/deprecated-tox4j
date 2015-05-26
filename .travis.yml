@@ -1,86 +1,38 @@
 language: cpp
 compiler: clang
+
+env:
+  - TOX4J_TARGET=arm-linux-androideabi
+  #- TOX4J_TARGET=i686-linux-android
+  - TOX4J_TARGET=host
+
 script:
-   # Compile first, so a compile error fails the build.
-   - yes q | sbt compile test:compile scalastyle test:scalastyle checkstyle test:checkstyle
-   # Compile again, because sbt coverage deleted our native library.
-   - yes q | sbt coverage compile test || true
+  # Compile first, so a compile error fails the build.
+  - yes q | sbt compile test:compile scalastyle test:scalastyle checkstyle test:checkstyle
+  # Compile again, because sbt coverage deleted our native library.
+  - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coverage compile test || true; fi
 
 after_success:
-   - yes q | sbt coveralls
+  - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coveralls; fi
 
 before_install:
-   - java -version
-   - javac -version
-   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-   - sudo apt-get update -qq
+  - java -version
+  - javac -version
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
 
 install:
-   - sudo apt-get install libstdc++-4.8-dev
-   - pwd > $HOME/.pushd
-   # Package dependencies.
-   - sudo apt-get install libvpx-dev libprotobuf-dev protobuf-compiler libboost-dev libev-dev
-   - wget https://dl.bintray.com/sbt/debian/sbt-0.13.7.deb
-   - sudo dpkg -i sbt-0.13.7.deb
-   - protoc --version || true
-   # opus
-   - cd $HOME
-   - git clone --depth=1 git://git.opus-codec.org/opus.git
-   - cd opus
-   - ./autogen.sh
-   - mkdir _build
-   - cd _build
-   - ../configure --prefix=/usr
-   - make -j4
-   - sudo make install
-   # libsodium
-   - cd $HOME
-   - git clone --depth=1 https://github.com/jedisct1/libsodium
-   - cd libsodium
-   - ./autogen.sh
-   - mkdir _build
-   - cd _build
-   - ../configure --prefix=/usr
-   - make -j4
-   - sudo make install
-   # toxcore
-   - cd $HOME
-   - git clone --depth=1 https://github.com/irungentoo/toxcore
-   - cd toxcore
-   - ./autogen.sh
-   - mkdir _build
-   - cd _build
-   - ../configure --prefix=/usr
-   - make -j4
-   #- sudo make install
-   - sudo mkdir -p /usr/include/tox
-   - sudo mkdir -p /usr/lib/pkgconfig
-   - sudo cp *.pc /usr/lib/pkgconfig/
-   - sudo cp ../toxav/toxav.h /usr/include/tox/
-   - sudo cp ../toxcore/tox.h /usr/include/tox/
-   - sudo cp ../toxcore/tox_old.h /usr/include/tox/
-   - sudo cp ../toxdns/toxdns.h /usr/include/tox/
-   - sudo cp ../toxencryptsave/toxencryptsave.h /usr/include/tox/
-   - sudo cp build/.libs/libtoxav.so /usr/lib/libtoxav.so.0.0.0
-   - sudo cp build/.libs/libtoxcore.so /usr/lib/libtoxcore.so.0.0.0
-   - sudo cp build/.libs/libtoxdns.so /usr/lib/libtoxdns.so.0.0.0
-   - sudo cp build/.libs/libtoxencryptsave.so /usr/lib/libtoxencryptsave.so.0.0.0
-   - sudo ln -s libtoxav.so.0.0.0 /usr/lib/libtoxav.so
-   - sudo ln -s libtoxav.so.0.0.0 /usr/lib/libtoxav.so.0
-   - sudo ln -s libtoxcore.so.0.0.0 /usr/lib/libtoxcore.so
-   - sudo ln -s libtoxcore.so.0.0.0 /usr/lib/libtoxcore.so.0
-   - sudo ln -s libtoxdns.so.0.0.0 /usr/lib/libtoxdns.so
-   - sudo ln -s libtoxdns.so.0.0.0 /usr/lib/libtoxdns.so.0
-   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/lib/libtoxencryptsave.so
-   - sudo ln -s libtoxencryptsave.so.0.0.0 /usr/lib/libtoxencryptsave.so.0
-   - cd `cat $HOME/.pushd`
-   # Trigger installation of SBT.
-   - yes q | sbt update
+  - tools/travis-install "$HOME/travis-cache"
+
+cache:
+  directories:
+    - $HOME/.ivy2
+    - $HOME/travis-cache
 
 # whitelist
 branches:
-   only:
-      - auto
+  only:
+    - auto
 
 notifications:
-   webhooks: http://slevermann.de:54856/travis
+  webhooks: http://slevermann.de:54856/travis

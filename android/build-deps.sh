@@ -2,7 +2,7 @@
 
 set -ex
 
-COMPILER=4.9
+COMPILER=clang3.6
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
   export ANDROID_NDK_HOME=$HOME/usr/android-ndk
@@ -122,7 +122,8 @@ INSTALL() {
 (
   CLONE https://github.com/google protobuf
   #git checkout tags/v2.6.1
-  git checkout 0c995c930067241b40b10b0b01504c784cade03e
+  #git checkout tags/v2.5.0
+  git checkout tags/v2.4.1
   patch -p1 < ../protobuf.patch
   INSTALL protobuf --with-protoc=protoc
 )
