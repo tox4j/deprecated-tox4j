@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.{ ToxConstants, ToxCore }
+import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
 
 /**
  * This class contains all the startup options for Tox.
@@ -34,9 +34,9 @@ final case class ToxOptions(
     ipv6Enabled: Boolean = true,
     udpEnabled: Boolean = true,
     proxy: ProxyOptions.Type = ProxyOptions.None,
-    startPort: Int = ToxConstants.DEFAULT_START_PORT,
-    endPort: Int = ToxConstants.DEFAULT_END_PORT,
-    tcpPort: Int = ToxConstants.DEFAULT_TCP_PORT,
+    startPort: Int = ToxCoreConstants.DEFAULT_START_PORT,
+    endPort: Int = ToxCoreConstants.DEFAULT_END_PORT,
+    tcpPort: Int = ToxCoreConstants.DEFAULT_TCP_PORT,
     saveData: SaveDataOptions.Type = SaveDataOptions.None
 ) {
   private def requireValidPort(name: String, port: Int): Unit = {

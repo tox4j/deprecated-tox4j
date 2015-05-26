@@ -1,0 +1,38 @@
+["crypto", {
+  "KeyDerivation": {
+    "NULL": ["Some input data, or maybe the output pointer, was null."],
+    "FAILED": [
+      "The crypto lib was unable to derive a key from the given passphrase,",
+      "which is usually a lack of memory issue. The functions accepting keys",
+      "do not produce this error."
+    ]
+  },
+  "Encryption": {
+    "NULL": ["Some input data, or maybe the output pointer, was null."],
+    "KEY_DERIVATION_FAILED": [
+      "The crypto lib was unable to derive a key from the given passphrase,",
+      "which is usually a lack of memory issue. The functions accepting keys",
+      "do not produce this error."
+    ],
+    "FAILED": ["The encryption itself failed."]
+  },
+  "Decryption": {
+    "NULL": ["Some input data, or maybe the output pointer, was null."],
+    "INVALID_LENGTH": [
+      "The input data was shorter than {@link ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH} bytes."
+    ],
+    "BAD_FORMAT": [
+      "The input data is missing the magic number (i.e. wasn't created by this",
+      "module, or is corrupted)"
+    ],
+    "KEY_DERIVATION_FAILED": [
+      "The crypto lib was unable to derive a key from the given passphrase,",
+      "which is usually a lack of memory issue. The functions accepting keys",
+      "do not produce this error."
+    ],
+    "FAILED": [
+      "The encrypted byte array could not be decrypted. Either the data was",
+      "corrupt or the password/key was incorrect."
+    ]
+  }
+}]

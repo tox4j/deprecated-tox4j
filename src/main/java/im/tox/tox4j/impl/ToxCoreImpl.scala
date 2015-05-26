@@ -7,7 +7,7 @@ import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, 
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.proto._
-import im.tox.tox4j.core.{ AbstractToxCore, ToxConstants }
+import im.tox.tox4j.core.{ AbstractToxCore, ToxCoreConstants }
 import im.tox.tox4j.impl.internal.Event
 
 // scalastyle:off
@@ -21,10 +21,10 @@ private object ToxCoreImpl {
       throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_PORT, "Port cannot exceed 65535")
     }
     if (publicKey ne null) {
-      if (publicKey.length < ToxConstants.PUBLIC_KEY_SIZE) {
+      if (publicKey.length < ToxCoreConstants.PUBLIC_KEY_SIZE) {
         throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_KEY, "Key too short")
       }
-      if (publicKey.length > ToxConstants.PUBLIC_KEY_SIZE) {
+      if (publicKey.length > ToxCoreConstants.PUBLIC_KEY_SIZE) {
         throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_KEY, "Key too long")
       }
     }
@@ -306,13 +306,13 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
 
   @throws[ToxFriendAddException]
   override def addFriend(address: Array[Byte], message: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Friend Address", address, ToxConstants.ADDRESS_SIZE)
+    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.ADDRESS_SIZE)
     ToxCoreJni.toxFriendAdd(instanceNumber, address, message)
   }
 
   @throws[ToxFriendAddException]
   override def addFriendNoRequest(publicKey: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Public Key", publicKey, ToxConstants.PUBLIC_KEY_SIZE)
+    ToxCoreImpl.checkLength("Public Key", publicKey, ToxCoreConstants.PUBLIC_KEY_SIZE)
     ToxCoreJni.toxFriendAddNorequest(instanceNumber, publicKey)
   }
 
