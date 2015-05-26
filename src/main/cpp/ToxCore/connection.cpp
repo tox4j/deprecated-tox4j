@@ -21,7 +21,7 @@ toxBootstrapLike (bool function (Tox *tox,
   ByteArray public_key (env, publicKey);
   tox4j_assert (!publicKey || public_key.size () == TOX_PUBLIC_KEY_SIZE);
 
-  return instances.with_instance_ign (env, instanceNumber, "Bootstrap",
+  return instances.with_instance_ign (env, instanceNumber,
     function, UTFChars (env, address).data (), port, public_key.data ()
   );
 }
@@ -57,7 +57,7 @@ TOX_METHOD (void, AddTcpRelay,
 TOX_METHOD (jint, GetUdpPort,
   jint instanceNumber)
 {
-  return instances.with_instance_err (env, instanceNumber, "GetPort",
+  return instances.with_instance_err (env, instanceNumber,
     identity,
     tox_self_get_udp_port
   );
@@ -71,7 +71,7 @@ TOX_METHOD (jint, GetUdpPort,
 TOX_METHOD (jint, GetTcpPort,
   jint instanceNumber)
 {
-  return instances.with_instance_err (env, instanceNumber, "GetPort",
+  return instances.with_instance_err (env, instanceNumber,
     identity,
     tox_self_get_tcp_port
   );

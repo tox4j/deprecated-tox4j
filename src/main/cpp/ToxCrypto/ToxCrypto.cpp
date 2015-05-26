@@ -5,7 +5,7 @@ template<>
 extern char const *const module_name<ToxCrypto> = "crypto";
 
 
-HANDLE (KEY_DERIVATION)
+HANDLE ("KeyDerivation", KEY_DERIVATION)
 {
   switch (error)
     {
@@ -17,7 +17,7 @@ HANDLE (KEY_DERIVATION)
 }
 
 
-HANDLE (ENCRYPTION)
+HANDLE ("Encryption", ENCRYPTION)
 {
   switch (error)
     {
@@ -30,7 +30,7 @@ HANDLE (ENCRYPTION)
 }
 
 
-HANDLE (DECRYPTION)
+HANDLE ("Decryption", DECRYPTION)
 {
   switch (error)
     {
