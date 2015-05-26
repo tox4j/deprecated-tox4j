@@ -69,8 +69,7 @@ object ProtobufPlugin extends Plugin {
       Seq(
         "net.sandrogrzicic" %% "scalabuff-compiler" % version % Protobuf.name,
         "net.sandrogrzicic" %% "scalabuff-runtime" % version
-      )
-    ),
+      )),
     libraryDependencies <+= (version in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
 
     sourceGenerators in Compile <+= generate in Protobuf,
@@ -94,16 +93,16 @@ object ProtobufPlugin extends Plugin {
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { (in: Set[File]) =>
-        schemas.foreach(schema => streams.log.info(s"Compiling schema $schema"))
+          schemas.foreach(schema => streams.log.info(s"Compiling schema $schema"))
 
-        // Compile to Scala sources.
-        val scalaBuffOutputs = compileScalaBuff(in, managedClasspath, javaHome, javaSource, sourceDirectory, streams.log)
+          // Compile to Scala sources.
+          val scalaBuffOutputs = compileScalaBuff(in, managedClasspath, javaHome, javaSource, sourceDirectory, streams.log)
 
-        // Compile to C++ and Java sources.
-        val protocOutputs = compileProtoc(protoc, in, javaSource, managedNativeSource, sourceDirectory, streams.log)
+          // Compile to C++ and Java sources.
+          val protocOutputs = compileProtoc(protoc, in, javaSource, managedNativeSource, sourceDirectory, streams.log)
 
-        (scalaBuffOutputs ++ protocOutputs).toSet
-      }
+          (scalaBuffOutputs ++ protocOutputs).toSet
+        }
     cachedCompile(schemas).toSeq
   }
 

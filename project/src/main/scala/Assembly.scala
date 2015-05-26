@@ -40,17 +40,17 @@ object Assembly extends Plugin {
 
       val (outputs, jars) =
         classpath.foldLeft(0, Map[File, File]()) { (result, path) =>
-            path.get(analysis) match {
-              case Some(analysisInfo) =>
-                (result._1 + analysisInfo.stamps.allProducts.size, result._2)
-              case None =>
-                val stamp = stampPath / path.data.getName
-                if (!stamp.exists()) {
-                  (result._1, result._2 + ((path.data, stamp)))
-                } else {
-                  result
-                }
-            }
+          path.get(analysis) match {
+            case Some(analysisInfo) =>
+              (result._1 + analysisInfo.stamps.allProducts.size, result._2)
+            case None =>
+              val stamp = stampPath / path.data.getName
+              if (!stamp.exists()) {
+                (result._1, result._2 + ((path.data, stamp)))
+              } else {
+                result
+              }
+          }
         }
 
       log.info(s"Copying $outputs project outputs to assembly cache")
@@ -87,8 +87,8 @@ object Assembly extends Plugin {
       log.info(s"Assembling ${mappings.size} files into standalone jar")
       IO.zip(mappings, outputJar)
     }.dependsOn(compile)
-     .tag(Tags.Compile, Tags.CPU)
-     .value
+      .tag(Tags.Compile, Tags.CPU)
+      .value
 
   ))
 }
