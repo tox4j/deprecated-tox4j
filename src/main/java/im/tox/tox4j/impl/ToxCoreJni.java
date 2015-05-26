@@ -73,8 +73,6 @@ final class ToxCoreJni {
   static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber) throws ToxFileGetInfoException;
   static native void toxSendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException;
   static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxSendCustomPacketException;
-  @NotNull
-  static native byte[] toxHash(@NotNull byte[] data);
 
   static <T> T conversionError(@NotNull String className, @NotNull String name) {
     throw new MatchError("ToxCore: Could not convert " + className + '.' + name);

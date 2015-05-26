@@ -503,21 +503,6 @@ trait ToxCore extends Closeable {
   @throws[ToxSendCustomPacketException]
   def sendLosslessPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit
 
-  /**
-   * Generates a cryptographic hash of the given data.
-   *
-   * This function may be used by clients for any purpose, but is provided
-   * primarily for validating cached avatars. This use is highly recommended to
-   * avoid unnecessary avatar updates.
-   *
-   * This function is a wrapper to internal message-digest functions.
-   *
-   * @param data Data to be hashed.
-   * @return
-   */
-  @NotNull
-  def hash(@NotNull data: Array[Byte]): Array[Byte]
-
   def callbackFriendName(@NotNull callback: FriendNameCallback): Unit
   def callbackFriendStatusMessage(@NotNull callback: FriendStatusMessageCallback): Unit
   def callbackFriendStatus(@NotNull callback: FriendStatusCallback): Unit

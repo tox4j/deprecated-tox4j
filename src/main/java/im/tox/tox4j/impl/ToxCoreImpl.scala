@@ -370,9 +370,6 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def sendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
     ToxCoreJni.toxSendLosslessPacket(instanceNumber, friendNumber, data)
 
-  override def hash(data: Array[Byte]): Array[Byte] =
-    ToxCoreJni.toxHash(data)
-
   override def callbackFriendName(callback: FriendNameCallback): Unit = this.friendNameCallback = callback
   override def callbackFriendStatusMessage(callback: FriendStatusMessageCallback): Unit = this.friendStatusMessageCallback = callback
   override def callbackFriendStatus(callback: FriendStatusCallback): Unit = this.friendStatusCallback = callback
