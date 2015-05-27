@@ -17,7 +17,7 @@ public final class ToxDecryptionException extends ToxException<ToxDecryptionExce
      */
     FAILED,
     /**
-     * The input data was shorter than {@link ToxConstants.PASS_ENCRYPTION_EXTRA_LENGTH} bytes.
+     * The input data was shorter than {@link ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH} bytes.
      */
     INVALID_LENGTH,
     /**
@@ -27,7 +27,7 @@ public final class ToxDecryptionException extends ToxException<ToxDecryptionExce
      */
     KEY_DERIVATION_FAILED,
     /**
-     * Some input data, or maybe the output pointer, was null.
+     * The passphrase or input data was null or empty.
      */
     NULL,
   }

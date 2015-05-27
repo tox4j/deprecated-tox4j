@@ -48,31 +48,6 @@ pass_key_from_java (JNIEnv *env, jbyteArray passKeyArray)
 
 /*
  * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
- * Method:    passEncrypt
- * Signature: ([B[B)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passEncrypt
-  (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passphraseArray)
-{
-  ByteArray data (env, dataArray);
-  ByteArray passphrase (env, passphraseArray);
-  std::vector<uint8_t> out (data.size () + TOX_PASS_ENCRYPTION_EXTRA_LENGTH);
-
-  return with_error_handling<ToxCrypto> (env,
-    [env, &out] (bool)
-      {
-        return toJavaArray (env, out);
-      },
-    tox_pass_encrypt,
-    data.data (), data.size (),
-    (unsigned char *)passphrase.data (), passphrase.size (),
-    out.data ()
-  );
-}
-
-
-/*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    getSalt
  * Signature: ([B)[B
  */
@@ -91,38 +66,6 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_getS
 
 /*
  * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
- * Method:    passDecrypt
- * Signature: ([B[B)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passDecrypt
-  (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passphraseArray)
-{
-  ByteArray data (env, dataArray);
-  ByteArray passphrase (env, passphraseArray);
-  std::vector<uint8_t> out (
-    // If size is too small, the library will throw INVALID_LENGTH, but we need
-    // to ensure that we don't end up with negative (or very large) output arrays here.
-    std::max (
-      0l,
-      static_cast<long> (data.size ()) - TOX_PASS_ENCRYPTION_EXTRA_LENGTH
-    )
-  );
-
-  return with_error_handling<ToxCrypto> (env,
-    [env, &out] (bool)
-      {
-        return toJavaArray (env, out);
-      },
-    tox_pass_decrypt,
-    data.data (), data.size (),
-    (unsigned char *)passphrase.data (), passphrase.size (),
-    out.data ()
-  );
-}
-
-
-/*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    isDataEncrypted
  * Signature: ([B)Z
  */
@@ -130,7 +73,7 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_isData
   (JNIEnv *env, jobject, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);
-  if (data.size () < 8 /*TOX_ENC_SAVE_MAGIC_LENGTH*/)
+  if (data.size () < TOX_PASS_ENCRYPTION_EXTRA_LENGTH)
     return false;
   return tox_is_data_encrypted (data.data ());
 }
@@ -147,6 +90,12 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deri
   ByteArray passphrase (env, passphraseArray);
   ByteArray salt (env, saltArray);
   TOX_PASS_KEY out_key;
+
+  if (salt.size () != TOX_PASS_SALT_LENGTH)
+    {
+      throw_tox_exception (env, module_name<ToxCrypto>, method_name<TOX_ERR_KEY_DERIVATION>, "INVALID_LENGTH");
+      return nullptr;
+    }
 
   return with_error_handling<ToxCrypto> (env,
     [env, &out_key] (bool)
@@ -186,10 +135,10 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deri
 
 /*
  * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
- * Method:    passKeyDecrypt
+ * Method:    decrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passKeyDecrypt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_decrypt
   (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passKeyArray)
 {
   ByteArray data (env, dataArray);
@@ -219,10 +168,10 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_pass
 
 /*
  * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
- * Method:    passKeyEncrypt
+ * Method:    encrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passKeyEncrypt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_encrypt
   (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passKeyArray)
 {
   ByteArray data (env, dataArray);

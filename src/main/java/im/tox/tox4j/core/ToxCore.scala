@@ -11,11 +11,11 @@ import im.tox.tox4j.core.options.ToxOptions
 /**
  * Interface for a basic wrapper of tox chat functionality.
  *
- * This interface is designed to be thread-safe. However, once [[ToxCore#close]] has been called, all subsequent calls
+ * This interface is designed to be thread-safe. However, once [[ToxCore.close]] has been called, all subsequent calls
  * will result in [[im.tox.tox4j.exceptions.ToxKilledException]] being thrown. When one thread invokes
- * [[ToxCore#close]], all other threads with pending calls will throw. The exception is unchecked, as it should not occur
+ * [[ToxCore.close]], all other threads with pending calls will throw. The exception is unchecked, as it should not occur
  * in a normal execution flow. To prevent it from occurring in a multi-threaded environment, all additional threads
- * should be stopped or stop using the instance before one thread invokes [[ToxCore#close]] on it, or appropriate
+ * should be stopped or stop using the instance before one thread invokes [[ToxCore.close]] on it, or appropriate
  * exception handlers should be installed in all threads.
  */
 trait ToxCore extends Closeable {

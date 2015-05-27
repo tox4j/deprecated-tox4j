@@ -13,7 +13,11 @@ public final class ToxKeyDerivationException extends ToxException<ToxKeyDerivati
      */
     FAILED,
     /**
-     * Some input data, or maybe the output pointer, was null.
+     * The salt was of incorrect length.
+     */
+    INVALID_LENGTH,
+    /**
+     * The passphrase was null or empty.
      */
     NULL,
   }
