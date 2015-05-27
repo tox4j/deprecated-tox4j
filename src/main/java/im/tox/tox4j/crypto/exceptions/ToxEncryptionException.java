@@ -17,7 +17,7 @@ public final class ToxEncryptionException extends ToxException<ToxEncryptionExce
      */
     KEY_DERIVATION_FAILED,
     /**
-     * Some input data, or maybe the output pointer, was null.
+     * The passphrase or input data was null or empty.
      */
     NULL,
   }
