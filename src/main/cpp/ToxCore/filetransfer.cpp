@@ -77,3 +77,21 @@ TOX_METHOD (void, FileSendChunk,
     tox_file_send_chunk, friendNumber, fileNumber, position, chunkData.data (), chunkData.size ()
   );
 }
+
+/*
+ * Class:     im_tox_tox4j_impl_ToxCoreJni
+ * Method:    toxFileGetFileId
+ * Signature: (II)[B
+ */
+TOX_METHOD (jbyteArray, FileGetFileId,
+  jint instanceNumber, jint friendNumber, jint fileNumber)
+{
+  std::vector<uint8_t> file_id;
+  return instances.with_instance_err (env, instanceNumber, "FileGetInfo",
+    [env, &file_id] (bool)
+      {
+        return toJavaArray (env, file_id);
+      },
+    tox_file_get_file_id, friendNumber, fileNumber, file_id.data ()
+  );
+}
