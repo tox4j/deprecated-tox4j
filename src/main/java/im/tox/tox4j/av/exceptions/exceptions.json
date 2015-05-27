@@ -8,7 +8,7 @@
     "MULTIPLE": ["Attempted to create a second session for the same Tox instance."]
   },
   "Call": {
-    "MALLOC": [""],
+    "MALLOC": ["A memory allocation error occurred."],
     "FRIEND_NOT_FOUND": ["The friend number did not designate a valid friend."],
     "FRIEND_NOT_CONNECTED": ["The friend was valid, but not currently connected."],
     "FRIEND_ALREADY_IN_CALL": ["Attempted to call a friend while already in an audio or video call with them."],
@@ -31,7 +31,7 @@
     ],
     "INVALID_TRANSITION": [
       "Happens if user tried to pause an already paused call or if trying to",
-      "resume a call that is not paused"
+      "resume a call that is not paused."
     ]
   },
   "BitRate": {

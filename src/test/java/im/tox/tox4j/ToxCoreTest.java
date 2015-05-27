@@ -24,7 +24,13 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions(true, true, ProxyOptions.None$.MODULE$, 33445, 33545, 0, SaveDataOptions.None$.MODULE$)).close();
+    newTox(new ToxOptions(
+        true, true,
+        ProxyOptions.None$.MODULE$,
+        33445, 33545,
+        0,
+        SaveDataOptions.None$.MODULE$
+    )).close();
   }
 
   @Test
