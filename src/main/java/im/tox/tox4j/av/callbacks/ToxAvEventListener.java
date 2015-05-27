@@ -3,7 +3,9 @@ package im.tox.tox4j.av.callbacks;
 public interface ToxAvEventListener extends
     CallCallback,
     CallStateCallback,
+    AudioBitRateStatusCallback,
+    VideoBitRateStatusCallback,
     AudioReceiveFrameCallback,
     VideoReceiveFrameCallback {
-  ToxAvEventListener EMPTY = new ToxAvEventAdapter();
+  ToxAvEventListener IGNORE = new ToxAvEventAdapter();
 }

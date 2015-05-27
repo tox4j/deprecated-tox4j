@@ -24,8 +24,9 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
     @Override public void callState(int friendNumber, @NotNull Collection<ToxCallState> state) { }
     @Override public void receiveAudioFrame(int friendNumber, @NotNull short[] pcm, int channels, int samplingRate) { }
     @SuppressWarnings("checkstyle:parametername")
-    @Override
-    public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a, int yStride, int uStride, int vStride, int aStride) { }
+    @Override public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a, int yStride, int uStride, int vStride, int aStride) { }
+    @Override public void audioBitRateStatus(int friendNumber, boolean stable, int bitRate) {}
+    @Override public void videoBitRateStatus(int friendNumber, boolean stable, int bitRate) {}
   }
 
   protected static class AvClient extends AvChatClient {

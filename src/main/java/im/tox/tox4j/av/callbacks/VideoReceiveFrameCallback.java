@@ -7,7 +7,7 @@ import im.tox.tox4j.annotations.Nullable;
  * Triggered when a video frame is received.
  */
 public interface VideoReceiveFrameCallback {
-  VideoReceiveFrameCallback EMPTY = new VideoReceiveFrameCallback() {
+  VideoReceiveFrameCallback IGNORE = new VideoReceiveFrameCallback() {
     @SuppressWarnings("checkstyle:parametername")
     @Override
     public void receiveVideoFrame(

@@ -4,7 +4,7 @@ package im.tox.tox4j.av.callbacks;
  * Called after setting the audio bit rate to report on success or failure.
  */
 public interface AudioBitRateStatusCallback {
-  AudioBitRateStatusCallback EMPTY = new AudioBitRateStatusCallback() {
+  AudioBitRateStatusCallback IGNORE = new AudioBitRateStatusCallback() {
     @Override
     public void audioBitRateStatus(int friendNumber, boolean stable, int bitRate) {
     }
