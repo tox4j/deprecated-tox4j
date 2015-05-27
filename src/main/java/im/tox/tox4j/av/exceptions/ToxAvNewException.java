@@ -7,6 +7,10 @@ public final class ToxAvNewException extends ToxException<ToxAvNewException.Code
 
   public enum Code {
     /**
+     * The ToxCore implementation passed was not compatible with this ToxAv implementation.
+     */
+    INCOMPATIBLE,
+    /**
      * Memory allocation failure while trying to allocate structures required for
      * the A/V session.
      */

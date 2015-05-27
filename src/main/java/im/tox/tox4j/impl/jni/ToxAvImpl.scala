@@ -45,8 +45,14 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
   private var audioReceiveFrameCallback = AudioReceiveFrameCallback.IGNORE
   private var videoReceiveFrameCallback = VideoReceiveFrameCallback.IGNORE
 
-  override def create(tox: ToxCore): ToxAv =
-    new ToxAvImpl(tox.asInstanceOf[ToxCoreImpl])
+  override def create(tox: ToxCore): ToxAv = {
+    try {
+      new ToxAvImpl(tox.asInstanceOf[ToxCoreImpl])
+    } catch {
+      case _: ClassCastException =>
+        throw new ToxAvNewException(ToxAvNewException.Code.INCOMPATIBLE, tox.getClass.getCanonicalName)
+    }
+  }
 
   override def close(): Unit = {
     tox.removeOnCloseCallback(onClose)
