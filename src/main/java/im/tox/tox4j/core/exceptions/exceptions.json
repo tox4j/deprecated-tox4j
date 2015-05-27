@@ -2,7 +2,8 @@
    "Bootstrap": [
       "NULL",
       "BAD_HOST",
-      "BAD_PORT"
+      "BAD_PORT",
+      "BAD_KEY"
    ],
    "FileControl": [
       "FRIEND_NOT_FOUND",

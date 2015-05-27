@@ -164,19 +164,19 @@ public final class ToxCoreJni extends AbstractToxCore {
       int instanceNumber, @NotNull String address, int port, @NotNull byte[] publicKey
   ) throws ToxBootstrapException;
 
-  private static void checkBootstrapArguments(int port, @Nullable byte[] publicKey) {
+  private static void checkBootstrapArguments(int port, @Nullable byte[] publicKey) throws ToxBootstrapException {
     if (port < 0) {
-      throw new IllegalArgumentException("Ports cannot be negative");
+      throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_PORT, "Port cannot be negative");
     }
     if (port > 65535) {
-      throw new IllegalArgumentException("Ports cannot be larger than 65535");
+      throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_PORT, "Port cannot exceed 65535");
     }
     if (publicKey != null) {
       if (publicKey.length < ToxConstants.PUBLIC_KEY_SIZE) {
-        throw new IllegalArgumentException("Key too short, must be " + ToxConstants.PUBLIC_KEY_SIZE + " bytes");
+        throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_KEY, "Key too short");
       }
       if (publicKey.length > ToxConstants.PUBLIC_KEY_SIZE) {
-        throw new IllegalArgumentException("Key too long, must be " + ToxConstants.PUBLIC_KEY_SIZE + " bytes");
+        throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_KEY, "Key too long");
       }
     }
   }

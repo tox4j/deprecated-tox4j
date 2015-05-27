@@ -17,7 +17,7 @@ public class ToxFileSendExceptionTest extends ToxCoreImplTestBase {
         tox.fileSend(friendNumber, ToxFileKind.DATA, 123, null, "filename".getBytes());
         fail();
       } catch (ToxFileSendException e) {
-        assertEquals(ToxFileSendException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+        assertEquals(ToxFileSendException.Code.FRIEND_NOT_CONNECTED, e.code());
       }
     }
   }

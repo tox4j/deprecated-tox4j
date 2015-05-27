@@ -16,7 +16,7 @@ public class ToxSetTypingExceptionTest extends ToxCoreImplTestBase {
         tox.setTyping(1, true);
         fail();
       } catch (ToxSetTypingException e) {
-        assertEquals(ToxSetTypingException.Code.FRIEND_NOT_FOUND, e.getCode());
+        assertEquals(ToxSetTypingException.Code.FRIEND_NOT_FOUND, e.code());
       }
     }
   }

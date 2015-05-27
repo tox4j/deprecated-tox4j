@@ -16,7 +16,7 @@ public class ToxSendMessageExceptionTest extends ToxCoreImplTestBase {
         tox.sendMessage(0, ToxMessageType.NORMAL, 0, "hello".getBytes());
         fail();
       } catch (ToxSendMessageException e) {
-        assertEquals(ToxSendMessageException.Code.FRIEND_NOT_FOUND, e.getCode());
+        assertEquals(ToxSendMessageException.Code.FRIEND_NOT_FOUND, e.code());
       }
     }
   }
@@ -29,7 +29,7 @@ public class ToxSendMessageExceptionTest extends ToxCoreImplTestBase {
         tox.sendMessage(friendNumber, ToxMessageType.ACTION, 0, "hello".getBytes());
         fail();
       } catch (ToxSendMessageException e) {
-        assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.getCode());
+        assertEquals(ToxSendMessageException.Code.FRIEND_NOT_CONNECTED, e.code());
       }
     }
   }
@@ -42,7 +42,7 @@ public class ToxSendMessageExceptionTest extends ToxCoreImplTestBase {
         tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, null);
         fail();
       } catch (ToxSendMessageException e) {
-        assertEquals(ToxSendMessageException.Code.NULL, e.getCode());
+        assertEquals(ToxSendMessageException.Code.NULL, e.code());
       }
     }
   }
@@ -55,7 +55,7 @@ public class ToxSendMessageExceptionTest extends ToxCoreImplTestBase {
         tox.sendMessage(friendNumber, ToxMessageType.ACTION, 0, new byte[0]);
         fail();
       } catch (ToxSendMessageException e) {
-        assertEquals(ToxSendMessageException.Code.EMPTY, e.getCode());
+        assertEquals(ToxSendMessageException.Code.EMPTY, e.code());
       }
     }
   }

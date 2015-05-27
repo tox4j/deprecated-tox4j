@@ -9,6 +9,8 @@ import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxProxyType }
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
+import im.tox.tox4j.exceptions.ToxException
+import org.junit.Assert._
 import org.junit.Assume.{ assumeNotNull, assumeTrue }
 import org.scalatest.junit.JUnitSuite
 
@@ -203,6 +205,16 @@ abstract class ToxCoreTestBase extends JUnitSuite {
       node.dhtId
     )
     tox
+  }
+
+  protected def expectException(code: Enum[_])(f: ToxCore => Unit) = {
+    try {
+      ToxCoreFactory.withTox(f)
+      fail("Expected exception with code " + code.name())
+    } catch {
+      case e: ToxException[_] =>
+        assertEquals(code, e.code)
+    }
   }
 
 }

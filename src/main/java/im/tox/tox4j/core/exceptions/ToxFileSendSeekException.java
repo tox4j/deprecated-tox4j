@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxFileSendSeekException extends ToxException {
+public final class ToxFileSendSeekException extends ToxException<ToxFileSendSeekException.Code> {
 
   public enum Code {
     FRIEND_NOT_FOUND,
@@ -14,16 +14,12 @@ public final class ToxFileSendSeekException extends ToxException {
     SENDQ,
   }
 
-  @NotNull private final Code code;
-
   public ToxFileSendSeekException(@NotNull Code code) {
-    this.code = code;
+    this(code, "");
   }
 
-  @Override
-  @NotNull
-  public Code getCode() {
-    return code;
+  public ToxFileSendSeekException(@NotNull Code code, String message) {
+    super(code, message);
   }
 
 }

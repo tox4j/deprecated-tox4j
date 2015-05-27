@@ -17,7 +17,7 @@ public class ToxSetInfoExceptionTest extends ToxCoreImplTestBase {
       tox.setName(array);
       fail();
     } catch (ToxSetInfoException e) {
-      assertEquals(ToxSetInfoException.Code.TOO_LONG, e.getCode());
+      assertEquals(ToxSetInfoException.Code.TOO_LONG, e.code());
     }
   }
 
@@ -28,7 +28,7 @@ public class ToxSetInfoExceptionTest extends ToxCoreImplTestBase {
       tox.setStatusMessage(array);
       fail();
     } catch (ToxSetInfoException e) {
-      assertEquals(ToxSetInfoException.Code.TOO_LONG, e.getCode());
+      assertEquals(ToxSetInfoException.Code.TOO_LONG, e.code());
     }
   }
 
@@ -38,7 +38,7 @@ public class ToxSetInfoExceptionTest extends ToxCoreImplTestBase {
       tox.setStatusMessage(null);
       fail();
     } catch (ToxSetInfoException e) {
-      assertEquals(ToxSetInfoException.Code.NULL, e.getCode());
+      assertEquals(ToxSetInfoException.Code.NULL, e.code());
     }
   }
 
@@ -48,7 +48,7 @@ public class ToxSetInfoExceptionTest extends ToxCoreImplTestBase {
       tox.setName(null);
       fail();
     } catch (ToxSetInfoException e) {
-      assertEquals(ToxSetInfoException.Code.NULL, e.getCode());
+      assertEquals(ToxSetInfoException.Code.NULL, e.code());
     }
   }
 

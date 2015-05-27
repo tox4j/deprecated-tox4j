@@ -11,7 +11,8 @@ abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
 
   protected def node = dhtNode
 
-  @After def tearDown() {
+  @After
+  def tearDown(): Unit = {
     ToxCoreFactory.destroyAll()
   }
 

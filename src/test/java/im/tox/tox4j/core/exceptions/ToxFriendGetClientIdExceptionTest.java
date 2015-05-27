@@ -13,7 +13,7 @@ public class ToxFriendGetClientIdExceptionTest extends ToxCoreImplTestBase {
     try (ToxCore tox = newTox()) {
       tox.getFriendPublicKey(0);
     } catch (ToxFriendGetPublicKeyException e) {
-      assertEquals(ToxFriendGetPublicKeyException.Code.FRIEND_NOT_FOUND, e.getCode());
+      assertEquals(ToxFriendGetPublicKeyException.Code.FRIEND_NOT_FOUND, e.code());
     }
   }
 
