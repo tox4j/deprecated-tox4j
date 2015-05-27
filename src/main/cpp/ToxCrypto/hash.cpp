@@ -4,11 +4,11 @@
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    hash
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_hash
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_hash
   (JNIEnv *env, jobject, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);

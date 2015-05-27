@@ -163,21 +163,30 @@ trait ToxAv extends Closeable {
    * @param a A (Alpha) plane data.
    */
   @throws[ToxSendFrameException]
-  def videoSendFrame(friendNumber: Int,
+  def videoSendFrame(
+    friendNumber: Int,
     width: Int, height: Int,
-    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]): Unit
+    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]
+  ): Unit
 
   def callbackCall(@NotNull callback: CallCallback): Unit
   def callbackCallControl(@NotNull callback: CallStateCallback): Unit
   def callbackAudioBitRateStatus(@NotNull callback: AudioBitRateStatusCallback): Unit
   def callbackVideoBitRateStatus(@NotNull callback: VideoBitRateStatusCallback): Unit
-  def callbackReceiveAudioFrame(@NotNull callback: AudioReceiveFrameCallback): Unit
-  def callbackReceiveVideoFrame(@NotNull callback: VideoReceiveFrameCallback): Unit
+  def callbackAudioReceiveFrame(@NotNull callback: AudioReceiveFrameCallback): Unit
+  def callbackVideoReceiveFrame(@NotNull callback: VideoReceiveFrameCallback): Unit
 
   /**
    * Convenience method to set all event handlers at once.
    *
    * @param handler An event handler capable of handling all Tox AV events.
    */
-  def callback(@NotNull handler: ToxAvEventListener): Unit
+  def callback(@NotNull handler: ToxAvEventListener): Unit = {
+    callbackCall(handler)
+    callbackCallControl(handler)
+    callbackAudioBitRateStatus(handler)
+    callbackVideoBitRateStatus(handler)
+    callbackAudioReceiveFrame(handler)
+    callbackVideoReceiveFrame(handler)
+  }
 }

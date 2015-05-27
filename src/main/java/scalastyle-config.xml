@@ -189,7 +189,7 @@
    Check that package object names match a regular expression
    <check level="error" class="org.scalastyle.scalariform.PackageObjectNamesChecker" enabled="true">
       <parameters>
-         <parameter name="regex"><![CDATA[^[a-z][A-Za-z]*$]]></parameter>
+         <parameter name="regex"><![CDATA[^[a-z][A-Za-z0-9]*$]]></parameter>
       </parameters>
    </check>
 

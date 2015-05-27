@@ -524,6 +524,22 @@ trait ToxCore extends Closeable {
    *
    * @param handler An event handler capable of handling all Tox events.
    */
-  def callback(@NotNull handler: ToxEventListener): Unit
+  def callback(@NotNull handler: ToxEventListener): Unit = {
+    callbackConnectionStatus(handler)
+    callbackFileControl(handler)
+    callbackFileReceive(handler)
+    callbackFileReceiveChunk(handler)
+    callbackFileRequestChunk(handler)
+    callbackFriendConnected(handler)
+    callbackFriendMessage(handler)
+    callbackFriendName(handler)
+    callbackFriendRequest(handler)
+    callbackFriendStatus(handler)
+    callbackFriendStatusMessage(handler)
+    callbackFriendTyping(handler)
+    callbackFriendLosslessPacket(handler)
+    callbackFriendLossyPacket(handler)
+    callbackReadReceipt(handler)
+  }
 
 }
