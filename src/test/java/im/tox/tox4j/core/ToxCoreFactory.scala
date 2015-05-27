@@ -1,7 +1,7 @@
 package im.tox.tox4j.core
 
 import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
-import im.tox.tox4j.impl.ToxCoreImpl
+import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 import scala.collection.mutable.ArrayBuffer
 

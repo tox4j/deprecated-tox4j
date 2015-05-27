@@ -6,7 +6,7 @@ import im.tox.tox4j.av.{ ToxAv, ToxAvTestBase }
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.impl.{ ToxAvImpl, ToxCoreImpl }
+import im.tox.tox4j.impl.jni.{ ToxCoreImpl, ToxAvImpl }
 import org.junit.After
 
 import scala.collection.mutable.ArrayBuffer

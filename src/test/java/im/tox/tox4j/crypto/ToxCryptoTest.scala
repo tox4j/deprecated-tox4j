@@ -1,7 +1,7 @@
 package im.tox.tox4j.crypto
 
 import im.tox.tox4j.ToxCoreTestBase
-import im.tox.tox4j.impl.ToxCryptoImpl
+import im.tox.tox4j.impl.jni.ToxCryptoImpl
 import org.scalatest.FunSuite
 import org.scalatest.prop.PropertyChecks
 

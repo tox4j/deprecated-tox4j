@@ -32,7 +32,7 @@ object CodeStyle extends Plugin {
         // we would like to make all of them final. WartRemover checks this.
         "RedundantFinalModifierOnCaseClass"
       ),
-      scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/.*Impl\\.scala"),
+      scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/jni/.*Impl\\.scala"),
 
       wartremoverErrors in (Compile, compile) := Warts.allBut(
         Wart.DefaultArguments,
@@ -48,12 +48,16 @@ object CodeStyle extends Plugin {
         Wart.Throw,
         Wart.Var
       ),
-      wartremoverExcluded := Seq(
-        baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "ToxAvImpl.scala",
-        baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "ToxCoreImpl.scala",
-        baseDirectory.value / "target/scala-2.11/src_managed/main/compiled_protobuf/im/tox/tox4j/av/proto/Av.scala",
-        baseDirectory.value / "target/scala-2.11/src_managed/main/compiled_protobuf/im/tox/tox4j/core/proto/Core.scala"
-      ),
+      wartremoverExcluded := {
+        val jni = baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "jni"
+        val proto = baseDirectory.value / "target" / "scala-2.11" / "src_managed" / "main" / "compiled_protobuf" / "im" / "tox" / "tox4j"
+        Seq(
+          jni / "ToxAvImpl.scala",
+          jni / "ToxCoreImpl.scala",
+          proto / "av" / "proto" / "Av.scala",
+          proto / "core" / "proto" / "Core.scala"
+        )
+      },
 
       scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation"),
 

@@ -1,4 +1,4 @@
-package im.tox.tox4j.impl
+package im.tox.tox4j.impl.jni
 
 import com.google.protobuf.ByteString
 import im.tox.tox4j.annotations.{ NotNull, Nullable }
@@ -8,7 +8,7 @@ import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.proto._
 import im.tox.tox4j.core.{ AbstractToxCore, ToxCoreConstants }
-import im.tox.tox4j.impl.internal.Event
+import im.tox.tox4j.impl.jni.internal.Event
 
 // scalastyle:off
 private object ToxCoreImpl {

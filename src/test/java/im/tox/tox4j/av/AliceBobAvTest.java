@@ -7,8 +7,8 @@ import im.tox.tox4j.av.callbacks.ToxAvEventListener;
 import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.impl.ToxAvImpl;
-import im.tox.tox4j.impl.ToxCoreImpl;
+import im.tox.tox4j.impl.jni.ToxAvImpl;
+import im.tox.tox4j.impl.jni.ToxCoreImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;

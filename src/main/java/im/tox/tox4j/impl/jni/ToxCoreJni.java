@@ -1,4 +1,4 @@
-package im.tox.tox4j.impl;
+package im.tox.tox4j.impl.jni;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;

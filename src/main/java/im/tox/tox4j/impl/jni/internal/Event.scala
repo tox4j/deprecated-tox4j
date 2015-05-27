@@ -1,19 +1,16 @@
-package im.tox.tox4j.impl.internal
-
-import im.tox.tox4j.impl.internal.Event.EmptyCallback
+package im.tox.tox4j.impl.jni.internal
 
 import scala.collection.mutable.ArrayBuffer
 
-object Event {
+private[jni] object Event {
   private val INVALID_INDEX = -1
-
-  private val EmptyCallback = () => ()
+  private val EMPTY_CALLBACK = () => ()
 
   trait Id {
     /**
      * @return The index in the callbacks list.
      */
-    def value: Int
+    private[internal] def value: Int
 
     /**
      * Reset the index to an invalid value.
@@ -37,7 +34,7 @@ object Event {
  * returning unit. It can be used to implement events where one can register multiple handlers and selectively
  * unregister them.
  */
-final class Event extends (() => Unit) {
+private[jni] final class Event extends (() => Unit) {
   private val callbacks = new ArrayBuffer[() => Unit]
 
   /**
@@ -67,8 +64,8 @@ final class Event extends (() => Unit) {
     val index = id.value
     if (index != Event.INVALID_INDEX) {
       id.reset()
-      callbacks(index) = EmptyCallback
-      while (callbacks.nonEmpty && callbacks.last == EmptyCallback) {
+      callbacks(index) = Event.EMPTY_CALLBACK
+      while (callbacks.nonEmpty && callbacks.last == Event.EMPTY_CALLBACK) {
         callbacks.remove(callbacks.size - 1)
       }
     }

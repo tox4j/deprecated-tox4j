@@ -1,4 +1,4 @@
-package im.tox.tox4j.impl
+package im.tox.tox4j.impl.jni
 
 import java.util
 
@@ -21,7 +21,7 @@ private object ToxAvImpl {
       case CallState.Kind.SENDING_V   => ToxCallState.SENDING_V
       case CallState.Kind.RECEIVING_A => ToxCallState.RECEIVING_A
       case CallState.Kind.RECEIVING_V => ToxCallState.RECEIVING_V
-      case _                          => ToxAvJni.conversionError(kind.getClass.getName, kind.name)
+      case _                          => ToxAvJni.conversionError[ToxCallState](kind.getClass.getName, kind.name)
     }
   }
 }
@@ -165,8 +165,8 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
 
   override def callbackCall(callback: CallCallback): Unit = this.callCallback = callback
   override def callbackCallControl(callback: CallStateCallback): Unit = this.callStateCallback = callback
-  override def callbackReceiveVideoFrame(callback: VideoReceiveFrameCallback): Unit = this.videoReceiveFrameCallback = callback
-  override def callbackReceiveAudioFrame(callback: AudioReceiveFrameCallback): Unit = this.audioReceiveFrameCallback = callback
+  override def callbackVideoReceiveFrame(callback: VideoReceiveFrameCallback): Unit = this.videoReceiveFrameCallback = callback
+  override def callbackAudioReceiveFrame(callback: AudioReceiveFrameCallback): Unit = this.audioReceiveFrameCallback = callback
   override def callbackAudioBitRateStatus(callback: AudioBitRateStatusCallback): Unit = this.audioBitRateStatusCallback = callback
   override def callbackVideoBitRateStatus(callback: VideoBitRateStatusCallback): Unit = this.videoBitRateStatusCallback = callback
 }

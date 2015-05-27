@@ -11,7 +11,7 @@ import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.core.options.SaveDataOptions;
 import im.tox.tox4j.core.options.ToxOptions;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.impl.ToxCoreImpl;
+import im.tox.tox4j.impl.jni.ToxCoreImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,7 +3,7 @@ package im.tox.client
 import im.tox.tox4j.core.enums.ToxUserStatus
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.impl.ToxCoreImpl
+import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 class ToxClient {
 

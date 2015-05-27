@@ -47,11 +47,11 @@ pass_key_from_java (JNIEnv *env, jbyteArray passKeyArray)
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    passEncrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passEncrypt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passEncrypt
   (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passphraseArray)
 {
   ByteArray data (env, dataArray);
@@ -72,11 +72,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passEncr
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    getSalt
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_getSalt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_getSalt
   (JNIEnv *env, jobject, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);
@@ -90,11 +90,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_getSalt
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    passDecrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passDecrypt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passDecrypt
   (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passphraseArray)
 {
   ByteArray data (env, dataArray);
@@ -122,11 +122,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passDecr
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    isDataEncrypted
  * Signature: ([B)Z
  */
-JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_isDataEncrypted
+JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_isDataEncrypted
   (JNIEnv *env, jobject, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);
@@ -137,11 +137,11 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_isDataEncr
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    deriveKeyWithSalt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_deriveKeyWithSalt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deriveKeyWithSalt
   (JNIEnv *env, jobject, jbyteArray passphraseArray, jbyteArray saltArray)
 {
   ByteArray passphrase (env, passphraseArray);
@@ -162,11 +162,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_deriveKe
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    deriveKeyFromPass
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_deriveKeyFromPass
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deriveKeyFromPass
   (JNIEnv *env, jobject, jbyteArray passphraseArray)
 {
   ByteArray passphrase (env, passphraseArray);
@@ -185,11 +185,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_deriveKe
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    passKeyDecrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passKeyDecrypt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passKeyDecrypt
   (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passKeyArray)
 {
   ByteArray data (env, dataArray);
@@ -218,11 +218,11 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passKeyD
 
 
 /*
- * Class:     im_tox_tox4j_impl_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
  * Method:    passKeyEncrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_ToxCryptoImpl_00024_passKeyEncrypt
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_passKeyEncrypt
   (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passKeyArray)
 {
   ByteArray data (env, dataArray);
