@@ -5,7 +5,8 @@
       "Memory allocation failure while trying to allocate structures required for",
       "the A/V session."
     ],
-    "MULTIPLE": ["Attempted to create a second session for the same Tox instance."]
+    "MULTIPLE": ["Attempted to create a second session for the same Tox instance."],
+    "INCOMPATIBLE": ["The ToxCore implementation passed was not compatible with this ToxAv implementation."]
   },
   "Call": {
     "MALLOC": ["A memory allocation error occurred."],

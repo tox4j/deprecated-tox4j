@@ -34,7 +34,8 @@ trait ToxCore extends Closeable {
 
   /**
    * Create a new [[ToxCore]] instance with different options. The implementation may choose to create an object of
-   * its own class or a different class.
+   * its own class or a different class. If the implementation was compatible with another subsystem implementation (e.g.
+   * [[im.tox.tox4j.av.ToxAv]]), then the new object must be compatible with the same implementation.
    *
    * This function will bring the instance into a valid state. Running the event
    * loop with a new instance will operate correctly.

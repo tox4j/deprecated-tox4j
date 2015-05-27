@@ -35,6 +35,7 @@ trait ToxAv extends Closeable {
    * @param tox A compatible ToxCore implementation.
    * @return the new A/V session.
    */
+  @throws[ToxAvNewException]
   def create(tox: ToxCore): ToxAv
 
   /**
