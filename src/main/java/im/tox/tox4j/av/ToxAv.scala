@@ -163,7 +163,9 @@ trait ToxAv extends Closeable {
    * @param a A (Alpha) plane data.
    */
   @throws[ToxSendFrameException]
-  def videoSendFrame(friendNumber: Int, width: Int, height: Int, @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]): Unit
+  def videoSendFrame(friendNumber: Int,
+    width: Int, height: Int,
+    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]): Unit
 
   def callbackCall(@NotNull callback: CallCallback): Unit
   def callbackCallControl(@NotNull callback: CallStateCallback): Unit

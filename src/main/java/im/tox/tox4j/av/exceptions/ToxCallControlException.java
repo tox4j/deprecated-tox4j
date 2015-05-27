@@ -17,7 +17,7 @@ public final class ToxCallControlException extends ToxException<ToxCallControlEx
     FRIEND_NOT_IN_CALL,
     /**
      * Happens if user tried to pause an already paused call or if trying to
-     * resume a call that is not paused
+     * resume a call that is not paused.
      */
     INVALID_TRANSITION,
   }

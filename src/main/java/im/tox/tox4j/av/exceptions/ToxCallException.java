@@ -23,7 +23,7 @@ public final class ToxCallException extends ToxException<ToxCallException.Code> 
      */
     INVALID_BIT_RATE,
     /**
-     * 
+     * A memory allocation error occurred.
      */
     MALLOC,
   }
