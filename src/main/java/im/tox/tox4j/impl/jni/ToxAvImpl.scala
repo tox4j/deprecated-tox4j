@@ -141,31 +141,31 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
   override def iterationInterval: Int =
     ToxAvJni.toxavIterationInterval(instanceNumber)
 
-  @throws[ToxCallException]
+  @throws[ToxAvCallException]
   override def call(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
     ToxAvJni.toxavCall(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
-  @throws[ToxAnswerException]
+  @throws[ToxAvAnswerException]
   override def answer(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
     ToxAvJni.toxavAnswer(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
-  @throws[ToxCallControlException]
+  @throws[ToxAvCallControlException]
   override def callControl(friendNumber: Int, control: ToxCallControl): Unit =
     ToxAvJni.toxavCallControl(instanceNumber, friendNumber, control.ordinal)
 
-  @throws[ToxBitRateException]
+  @throws[ToxAvBitRateException]
   override def audioBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit =
     ToxAvJni.toxavAudioBitRateSet(instanceNumber, friendNumber, bitRate, force)
 
-  @throws[ToxBitRateException]
+  @throws[ToxAvBitRateException]
   override def videoBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit =
     ToxAvJni.toxavVideoBitRateSet(instanceNumber, friendNumber, bitRate, force)
 
-  @throws[ToxSendFrameException]
+  @throws[ToxAvSendFrameException]
   override def audioSendFrame(friendNumber: Int, pcm: Array[Short], sampleCount: Int, channels: Int, samplingRate: Int): Unit =
     ToxAvJni.toxavAudioSendFrame(instanceNumber, friendNumber, pcm, sampleCount, channels, samplingRate)
 
-  @throws[ToxSendFrameException]
+  @throws[ToxAvSendFrameException]
   override def videoSendFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], @Nullable a: Array[Byte]): Unit =
     ToxAvJni.toxavVideoSendFrame(instanceNumber, friendNumber, width, height, y, u, v, a)
 

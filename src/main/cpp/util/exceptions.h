@@ -8,7 +8,7 @@
 void throw_tox_killed_exception (JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception (JNIEnv *env, jint instance_number, char const *message);
 void throw_illegal_state_exception (JNIEnv *env, jint instance_number, std::string const &message);
-void throw_tox_exception (JNIEnv *env, char const *module, char const *method, char const *code);
+void throw_tox_exception (JNIEnv *env, char const *module, char const *prefix, char const *method, char const *code);
 
 
 #if defined(__GNUC__)

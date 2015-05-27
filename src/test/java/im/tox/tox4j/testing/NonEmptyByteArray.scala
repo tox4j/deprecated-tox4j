@@ -10,7 +10,7 @@ import scala.language.implicitConversions
 final case class NonEmptyByteArray(array: Array[Byte]) extends mutable.WrappedArray[Byte] {
   require(array.nonEmpty)
 
-  override def elemTag: ClassManifest[Byte] = ClassTag.Byte
+  override def elemTag: ClassTag[Byte] = ClassTag.Byte
   override def length: Int = array.length
   override def apply(index: Int): Byte = array(index)
   override def update(index: Int, elem: Byte): Unit = { array(index) = elem }

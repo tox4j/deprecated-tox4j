@@ -133,10 +133,7 @@ TOX_METHOD (void, AudioSendFrame,
 
   ShortArray pcmData (env, pcm);
   if (pcmData.size () != size_t (sampleCount * channels))
-    {
-      throw_tox_exception (env, module_name<ToxAV>, method_name<TOXAV_ERR_SEND_FRAME>, "BAD_LENGTH");
-      return;
-    }
+    return throw_tox_exception<ToxAV> (env, TOXAV_ERR_SEND_FRAME_INVALID);
 
   return instances.with_instance_ign (env, instanceNumber,
     toxav_audio_send_frame, friendNumber, pcmData.data (), sampleCount, channels, samplingRate
@@ -161,10 +158,7 @@ TOX_METHOD (void, VideoSendFrame,
       uData.size () != pixel_count ||
       vData.size () != pixel_count ||
       (!aData.empty () && aData.size () != pixel_count))
-    {
-      throw_tox_exception (env, module_name<ToxAV>, method_name<TOXAV_ERR_SEND_FRAME>, "BAD_LENGTH");
-      return;
-    }
+    return throw_tox_exception<ToxAV> (env, TOXAV_ERR_SEND_FRAME_INVALID);
 
   return instances.with_instance_ign (env, instanceNumber,
     toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data (), aData.data ()

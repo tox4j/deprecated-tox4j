@@ -1,4 +1,4 @@
-["crypto", {
+["crypto", "", {
   "KeyDerivation": {
     "NULL": ["The passphrase was null or empty."],
     "FAILED": [
