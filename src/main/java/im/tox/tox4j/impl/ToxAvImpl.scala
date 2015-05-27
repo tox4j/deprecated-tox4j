@@ -38,12 +38,12 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
 
   private val onClose = this.tox.addOnCloseCallback(close)
 
-  private var callCallback = CallCallback.EMPTY
-  private var callStateCallback = CallStateCallback.EMPTY
-  private var audioBitRateStatusCallback = AudioBitRateStatusCallback.EMPTY
-  private var videoBitRateStatusCallback = VideoBitRateStatusCallback.EMPTY
-  private var audioReceiveFrameCallback = AudioReceiveFrameCallback.EMPTY
-  private var videoReceiveFrameCallback = VideoReceiveFrameCallback.EMPTY
+  private var callCallback = CallCallback.IGNORE
+  private var callStateCallback = CallStateCallback.IGNORE
+  private var audioBitRateStatusCallback = AudioBitRateStatusCallback.IGNORE
+  private var videoBitRateStatusCallback = VideoBitRateStatusCallback.IGNORE
+  private var audioReceiveFrameCallback = AudioReceiveFrameCallback.IGNORE
+  private var videoReceiveFrameCallback = VideoReceiveFrameCallback.IGNORE
 
   override def create(tox: ToxCore): ToxAv =
     new ToxAvImpl(tox.asInstanceOf[ToxCoreImpl])

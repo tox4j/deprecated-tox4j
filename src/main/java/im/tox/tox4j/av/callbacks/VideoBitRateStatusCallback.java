@@ -4,7 +4,7 @@ package im.tox.tox4j.av.callbacks;
  * Called after setting the video bit rate to report on success or failure.
  */
 public interface VideoBitRateStatusCallback {
-  VideoBitRateStatusCallback EMPTY = new VideoBitRateStatusCallback() {
+  VideoBitRateStatusCallback IGNORE = new VideoBitRateStatusCallback() {
     @Override
     public void videoBitRateStatus(int friendNumber, boolean stable, int bitRate) {
     }

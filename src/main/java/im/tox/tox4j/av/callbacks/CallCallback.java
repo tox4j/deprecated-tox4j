@@ -4,7 +4,7 @@ package im.tox.tox4j.av.callbacks;
  * Triggered when a friend calls us.
  */
 public interface CallCallback {
-  CallCallback EMPTY = new CallCallback() {
+  CallCallback IGNORE = new CallCallback() {
     @Override
     public void call(int friendNumber, boolean audioEnabled, boolean videoEnabled) {
     }

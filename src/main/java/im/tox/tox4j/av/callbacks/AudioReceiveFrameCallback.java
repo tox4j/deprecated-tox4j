@@ -6,7 +6,7 @@ import im.tox.tox4j.annotations.NotNull;
  * Called when an audio frame is received.
  */
 public interface AudioReceiveFrameCallback {
-  AudioReceiveFrameCallback EMPTY = new AudioReceiveFrameCallback() {
+  AudioReceiveFrameCallback IGNORE = new AudioReceiveFrameCallback() {
     @Override
     public void receiveAudioFrame(int friendNumber, @NotNull short[] pcm, int channels, int samplingRate) {
     }
