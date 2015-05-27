@@ -1,5 +1,5 @@
-["av", {
-  "AvNew": {
+["av", "Av", {
+  "New": {
     "NULL": ["One of the arguments to the function was NULL when it was not expected."],
     "MALLOC": [
       "Memory allocation failure while trying to allocate structures required for",

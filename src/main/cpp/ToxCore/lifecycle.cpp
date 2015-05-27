@@ -248,7 +248,7 @@ TOX_METHOD (jint, New,
   auto opts = tox_options_new_unique ();
   if (!opts)
     {
-      throw_tox_exception (env, module_name<Tox>, method_name<TOX_ERR_NEW>, "MALLOC");
+      throw_tox_exception<Tox> (env, TOX_ERR_NEW_MALLOC);
       return 0;
     }
 

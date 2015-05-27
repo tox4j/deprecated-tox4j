@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxBitRateException extends ToxException<ToxBitRateException.Code> {
+public final class ToxAvBitRateException extends ToxException<ToxAvBitRateException.Code> {
 
   public enum Code {
     /**
@@ -20,11 +20,11 @@ public final class ToxBitRateException extends ToxException<ToxBitRateException.
     INVALID,
   }
 
-  public ToxBitRateException(@NotNull Code code) {
+  public ToxAvBitRateException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxBitRateException(@NotNull Code code, String message) {
+  public ToxAvBitRateException(@NotNull Code code, String message) {
     super(code, message);
   }
 

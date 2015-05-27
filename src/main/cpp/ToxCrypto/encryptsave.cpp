@@ -93,7 +93,7 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deri
 
   if (salt.size () != TOX_PASS_SALT_LENGTH)
     {
-      throw_tox_exception (env, module_name<ToxCrypto>, method_name<TOX_ERR_KEY_DERIVATION>, "INVALID_LENGTH");
+      throw_tox_exception<ToxCrypto, TOX_ERR_KEY_DERIVATION> (env, "INVALID_LENGTH");
       return nullptr;
     }
 

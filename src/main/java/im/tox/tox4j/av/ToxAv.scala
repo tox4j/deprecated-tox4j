@@ -70,7 +70,7 @@ trait ToxAv extends Closeable {
    * @param audioBitRate Audio bit rate in Kb/sec. Set this to 0 to disable audio sending.
    * @param videoBitRate Video bit rate in Kb/sec. Set this to 0 to disable video sending.
    */
-  @throws[ToxCallException]
+  @throws[ToxAvCallException]
   def call(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit
 
   /**
@@ -83,7 +83,7 @@ trait ToxAv extends Closeable {
    * @param audioBitRate Audio bit rate in Kb/sec. Set this to 0 to disable audio sending.
    * @param videoBitRate Video bit rate in Kb/sec. Set this to 0 to disable video sending.
    */
-  @throws[ToxAnswerException]
+  @throws[ToxAvAnswerException]
   def answer(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit
 
   /**
@@ -92,7 +92,7 @@ trait ToxAv extends Closeable {
    * @param friendNumber The friend number of the friend to send the call control to.
    * @param control The control command to send.
    */
-  @throws[ToxCallControlException]
+  @throws[ToxAvCallControlException]
   def callControl(friendNumber: Int, @NotNull control: ToxCallControl): Unit
 
   /**
@@ -108,7 +108,7 @@ trait ToxAv extends Closeable {
    * @param bitRate The new audio bit rate in Kb/sec. Set to 0 to disable audio sending.
    * @param force True if the bit rate change is forceful.
    */
-  @throws[ToxBitRateException]
+  @throws[ToxAvBitRateException]
   def audioBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit
 
   /**
@@ -124,7 +124,7 @@ trait ToxAv extends Closeable {
    * @param bitRate The new video bit rate in Kb/sec. Set to 0 to disable video sending.
    * @param force True if the bit rate change is forceful.
    */
-  @throws[ToxBitRateException]
+  @throws[ToxAvBitRateException]
   def videoBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit
 
   /**
@@ -145,7 +145,7 @@ trait ToxAv extends Closeable {
    * @param samplingRate Audio sampling rate used in this frame. Valid sampling
    * rates are 8000, 12000, 16000, 24000, or 48000.
    */
-  @throws[ToxSendFrameException]
+  @throws[ToxAvSendFrameException]
   def audioSendFrame(friendNumber: Int, @NotNull pcm: Array[Short], sampleCount: Int, channels: Int, samplingRate: Int): Unit
 
   /**
@@ -163,7 +163,7 @@ trait ToxAv extends Closeable {
    * @param v V (Chroma) plane data.
    * @param a A (Alpha) plane data.
    */
-  @throws[ToxSendFrameException]
+  @throws[ToxAvSendFrameException]
   def videoSendFrame(
     friendNumber: Int,
     width: Int, height: Int,

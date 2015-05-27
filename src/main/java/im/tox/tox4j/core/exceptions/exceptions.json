@@ -1,4 +1,4 @@
-["core", {
+["core", "", {
   "Bootstrap": {
     "NULL": ["An argument was null."],
     "BAD_HOST": [

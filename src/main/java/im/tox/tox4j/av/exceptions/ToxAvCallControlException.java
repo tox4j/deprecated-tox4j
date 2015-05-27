@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxCallControlException extends ToxException<ToxCallControlException.Code> {
+public final class ToxAvCallControlException extends ToxException<ToxAvCallControlException.Code> {
 
   public enum Code {
     /**
@@ -22,11 +22,11 @@ public final class ToxCallControlException extends ToxException<ToxCallControlEx
     INVALID_TRANSITION,
   }
 
-  public ToxCallControlException(@NotNull Code code) {
+  public ToxAvCallControlException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxCallControlException(@NotNull Code code, String message) {
+  public ToxAvCallControlException(@NotNull Code code, String message) {
     super(code, message);
   }
 

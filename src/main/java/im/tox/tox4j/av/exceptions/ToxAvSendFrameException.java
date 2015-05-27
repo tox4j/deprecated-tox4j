@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxSendFrameException extends ToxException<ToxSendFrameException.Code> {
+public final class ToxAvSendFrameException extends ToxException<ToxAvSendFrameException.Code> {
 
   public enum Code {
     /**
@@ -30,11 +30,11 @@ public final class ToxSendFrameException extends ToxException<ToxSendFrameExcept
     RTP_FAILED,
   }
 
-  public ToxSendFrameException(@NotNull Code code) {
+  public ToxAvSendFrameException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxSendFrameException(@NotNull Code code, String message) {
+  public ToxAvSendFrameException(@NotNull Code code, String message) {
     super(code, message);
   }
 

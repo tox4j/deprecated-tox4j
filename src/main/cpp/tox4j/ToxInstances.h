@@ -106,8 +106,34 @@ handle_error_enum<ERROR_CODE (METHOD)> (ERROR_CODE (METHOD) error)
 template<typename Subsystem>
 extern char const *const module_name;
 
+template<typename Subsystem>
+extern char const *const exn_prefix;
+
 template<typename ErrorCode>
 extern char const *const method_name;
+
+template<typename Object, typename ErrorType>
+void
+throw_tox_exception (JNIEnv *env, char const *error)
+{
+  return throw_tox_exception (env, module_name<Object>, exn_prefix<Object>, method_name<ErrorType>, error);
+}
+
+template<typename Object, typename ErrorType>
+void
+throw_tox_exception (JNIEnv *env, ErrorType error)
+{
+  ErrorHandling result = handle_error_enum<ErrorType> (error);
+  switch (result.result)
+    {
+    case ErrorHandling::FAILURE:
+      return throw_tox_exception<Object, ErrorType> (env, result.error);
+    case ErrorHandling::SUCCESS:
+      return throw_illegal_state_exception (env, error, "Throwing OK code");
+    case ErrorHandling::UNHANDLED:
+      return throw_illegal_state_exception (env, error, "Unknown error code");
+    }
+}
 
 
 template<typename Object, typename SuccessFunc, typename ToxFunc, typename ...Args>
@@ -135,7 +161,7 @@ with_error_handling (JNIEnv *env,
     case ErrorHandling::SUCCESS:
       return success_func (std::move (value));
     case ErrorHandling::FAILURE:
-      throw_tox_exception (env, module_name<Object>, method_name<error_type>, result.error);
+      throw_tox_exception<Object, error_type> (env, result.error);
       break;
     case ErrorHandling::UNHANDLED:
       throw_illegal_state_exception (env, error, "Unknown error code");
