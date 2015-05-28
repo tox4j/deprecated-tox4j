@@ -18,4 +18,7 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.0.0.BETA1")
 scalacOptions ++= Seq("-feature", "-deprecation")
 
 // Dependencies for SBT code.
-libraryDependencies += "commons-io" % "commons-io" % "2.4"
+libraryDependencies ++= Seq(
+  "commons-io" % "commons-io" % "2.4",
+  "com.google.protobuf" % "protobuf-java" % "2.6.1"
+)

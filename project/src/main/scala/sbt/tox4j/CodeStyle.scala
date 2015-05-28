@@ -1,4 +1,4 @@
-package src.main.scala
+package sbt.tox4j
 
 import com.etsy.sbt.Checkstyle.CheckstyleTasks
 import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._

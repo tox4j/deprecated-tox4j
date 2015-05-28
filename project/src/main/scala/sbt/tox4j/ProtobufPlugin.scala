@@ -1,10 +1,11 @@
-package src.main.scala
+package sbt.tox4j
 
 import java.io.File
 
+import net.sandrogrzicic.scalabuff.compiler.ScalaBuff
 import sbt.Keys._
 import sbt._
-import src.main.scala.Jni.Keys._
+import sbt.tox4j.Jni.Keys._
 
 import scala.language.postfixOps
 
@@ -19,7 +20,6 @@ object ProtobufPlugin extends Plugin {
     val generatedTargets = settingKey[Seq[(File, String)]]("Targets for protoc: target directory and glob for generated source files")
 
     val scalabuffVersion = SettingKey[String]("ScalaBuff version.")
-    val scalabuffEnabled = true
   }
 
   import Keys._
@@ -65,11 +65,7 @@ object ProtobufPlugin extends Plugin {
     ) map sourceGeneratorTask
 
   )) ++ Seq[Setting[_]](
-    libraryDependencies <++= (scalabuffVersion in Protobuf)(version =>
-      Seq(
-        "net.sandrogrzicic" %% "scalabuff-compiler" % version % Protobuf.name,
-        "net.sandrogrzicic" %% "scalabuff-runtime" % version
-      )),
+    libraryDependencies <+= (scalabuffVersion in Protobuf)(version => "net.sandrogrzicic" %% "scalabuff-runtime" % version),
     libraryDependencies <+= (version in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
 
     sourceGenerators in Compile <+= generate in Protobuf,
@@ -86,24 +82,23 @@ object ProtobufPlugin extends Plugin {
     sourceDirectory: File,
     protoc: File
   ) = {
-    val schemas = (sourceDirectory ** "*.proto").get.map(_.getAbsoluteFile).toSet
-    val cachedCompile =
+    val cached =
       FileFunction.cached(
         streams.cacheDirectory / "protobuf",
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { (in: Set[File]) =>
-          schemas.foreach(schema => streams.log.info(s"Compiling schema $schema"))
+        // Compile to C++ sources.
+        compileProtoc(protoc, in, javaSource, managedNativeSource, sourceDirectory, streams.log)
 
-          // Compile to Scala sources.
-          val scalaBuffOutputs = compileScalaBuff(in, managedClasspath, javaHome, javaSource, sourceDirectory, streams.log)
+        // Compile to Scala sources.
+        compileScalaBuff(in, managedClasspath, javaHome, javaSource, sourceDirectory, streams.log).toSet
+      }
 
-          // Compile to C++ and Java sources.
-          val protocOutputs = compileProtoc(protoc, in, javaSource, managedNativeSource, sourceDirectory, streams.log)
+    val schemas = (sourceDirectory ** "*.proto").get.map(_.getAbsoluteFile)
+    schemas.foreach(schema => streams.log.info(s"Compiling schema $schema"))
 
-          (scalaBuffOutputs ++ protocOutputs).toSet
-        }
-    cachedCompile(schemas).toSeq
+    cached(schemas.toSet).toSeq
   }
 
   private def compileScalaBuff(
@@ -115,23 +110,14 @@ object ProtobufPlugin extends Plugin {
     log: Logger
   ) = {
     val scalaOut = javaSource
-
     scalaOut.mkdirs()
 
-    val arguments = Seq(
-      "-cp", managedClasspath.map(_.data).mkString(File.pathSeparator),
-      "net.sandrogrzicic.scalabuff.compiler.ScalaBuff",
-      "--scala_out=" + scalaOut.getAbsolutePath
-    ) ++ schemas.toSeq.map(_.toString)
-
-    log.debug("scalabuff options:")
-    arguments.map("\t" + _).foreach(log.debug(_))
-
-    if (scalabuffEnabled) {
-      val exitCode = Fork.java(ForkOptions(javaHome), arguments)
-      if (exitCode != 0) {
-        sys.error(s"scalabuff-compiler returned exit code: $exitCode")
-      }
+    val settings = ScalaBuff.Settings(
+      outputDirectory = scalaOut,
+      generateJsonMethod = true
+    )
+    if (!ScalaBuff.run(settings, schemas)) {
+      sys.error(s"scalabuff-compiler failed")
     }
 
     (scalaOut ** "*.scala").get
@@ -144,17 +130,11 @@ object ProtobufPlugin extends Plugin {
     managedNativeSource: File,
     sourceDirectory: File,
     log: Logger
-  ) = {
-    val javaOut = javaSource
+  ): Unit = {
     val cppOut = managedNativeSource
-
-    javaOut.mkdirs()
     cppOut.mkdirs()
 
-    val protocOptions = (
-      (if (scalabuffEnabled) Seq () else Seq(s"--java_out=${javaOut.absolutePath}")) ++
-      Seq(s"--cpp_out=${cppOut.absolutePath}")
-    )
+    val protocOptions = Seq(s"--cpp_out=${cppOut.absolutePath}")
 
     log.debug("protoc options:")
     protocOptions.map("\t" + _).foreach(log.debug(_))
@@ -170,8 +150,6 @@ object ProtobufPlugin extends Plugin {
     if (exitCode != 0) {
       sys.error(s"protoc returned exit code: $exitCode")
     }
-
-    (javaOut ** "*.java").get
   }
 
 }

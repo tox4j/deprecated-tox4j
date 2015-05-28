@@ -1,4 +1,4 @@
-package src.main.scala
+package sbt.tox4j
 
 import java.io.{ File, PrintWriter }
 

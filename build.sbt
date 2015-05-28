@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 
 
 // JNI
-import src.main.scala.Jni.Keys._
+import sbt.tox4j.Jni.Keys._
 
 packageDependencies ++= Seq(
   "protobuf-lite",
