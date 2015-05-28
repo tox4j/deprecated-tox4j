@@ -1,13 +1,12 @@
 package im.tox.tox4j.impl.jni
 
-import com.google.protobuf.ByteString
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.core.proto._
+import im.tox.tox4j.core.proto.Core._
 import im.tox.tox4j.core.{ AbstractToxCore, ToxCoreConstants }
 import im.tox.tox4j.impl.jni.ToxCoreImpl.convert
 import im.tox.tox4j.impl.jni.internal.Event
@@ -32,38 +31,34 @@ private object ToxCoreImpl {
     }
   }
 
-  private def convert(status: Socket.EnumVal): ToxConnection = {
+  private def convert(status: Socket): ToxConnection = {
     status match {
       case Socket.NONE => ToxConnection.NONE
       case Socket.TCP  => ToxConnection.TCP
       case Socket.UDP  => ToxConnection.UDP
-      case invalid     => ToxCoreJni.conversionError(invalid.getClass.getName, invalid.name)
     }
   }
 
-  private def convert(status: FriendStatus.Kind.EnumVal): ToxUserStatus = {
+  private def convert(status: FriendStatus.Kind): ToxUserStatus = {
     status match {
       case FriendStatus.Kind.NONE => ToxUserStatus.NONE
       case FriendStatus.Kind.AWAY => ToxUserStatus.AWAY
       case FriendStatus.Kind.BUSY => ToxUserStatus.BUSY
-      case invalid                => ToxCoreJni.conversionError(invalid.getClass.getName, invalid.name)
     }
   }
 
-  private def convert(control: FileControl.Kind.EnumVal): ToxFileControl = {
+  private def convert(control: FileControl.Kind): ToxFileControl = {
     control match {
       case FileControl.Kind.RESUME => ToxFileControl.RESUME
       case FileControl.Kind.PAUSE  => ToxFileControl.PAUSE
       case FileControl.Kind.CANCEL => ToxFileControl.CANCEL
-      case invalid                 => ToxCoreJni.conversionError(invalid.getClass.getName, invalid.name)
     }
   }
 
-  private def convert(messageType: FriendMessage.Type.EnumVal): ToxMessageType = {
+  private def convert(messageType: FriendMessage.Type): ToxMessageType = {
     messageType match {
       case FriendMessage.Type.NORMAL => ToxMessageType.NORMAL
       case FriendMessage.Type.ACTION => ToxMessageType.ACTION
-      case invalid                   => ToxCoreJni.conversionError(invalid.getClass.getName, invalid.name)
     }
   }
 
@@ -187,7 +182,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxIterationInterval(instanceNumber)
 
   override def iteration(): Unit = {
-    Option(ToxCoreJni.toxIterate(instanceNumber)).map(ByteString.copyFrom).map(CoreEvents.parseFrom) match {
+    Option(ToxCoreJni.toxIterate(instanceNumber)).map(CoreEvents.parseFrom) match {
       case None =>
       case Some(CoreEvents(
         connectionStatus,

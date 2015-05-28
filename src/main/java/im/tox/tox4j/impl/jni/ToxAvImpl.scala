@@ -2,20 +2,19 @@ package im.tox.tox4j.impl.jni
 
 import java.util
 
-import com.google.protobuf.ByteString
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.annotations.Nullable
 import im.tox.tox4j.av.callbacks._
 import im.tox.tox4j.av.enums.{ ToxCallControl, ToxCallState }
 import im.tox.tox4j.av.exceptions._
-import im.tox.tox4j.av.proto._
+import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.av.{ AbstractToxAv, ToxAv }
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.impl.jni.ToxAvImpl.convert
 
 // scalastyle:off
 private object ToxAvImpl {
-  private def convert(kind: CallState.Kind.EnumVal): ToxCallState = {
+  private def convert(kind: CallState.Kind): ToxCallState = {
     kind match {
       case CallState.Kind.ERROR       => ToxCallState.ERROR
       case CallState.Kind.FINISHED    => ToxCallState.FINISHED
@@ -23,7 +22,6 @@ private object ToxAvImpl {
       case CallState.Kind.SENDING_V   => ToxCallState.SENDING_V
       case CallState.Kind.RECEIVING_A => ToxCallState.RECEIVING_A
       case CallState.Kind.RECEIVING_V => ToxCallState.RECEIVING_V
-      case _                          => ToxAvJni.conversionError[ToxCallState](kind.getClass.getName, kind.name)
     }
   }
 }
@@ -72,7 +70,7 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
   }
 
   override def iterate(): Unit = {
-    Option(ToxAvJni.toxavIterate(instanceNumber)).map(ByteString.copyFrom).map(AvEvents.parseFrom) match {
+    Option(ToxAvJni.toxavIterate(instanceNumber)).map(AvEvents.parseFrom) match {
       case None =>
       case Some(AvEvents(
         call,

@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 
 
 // JNI
-import src.main.scala.Jni.Keys._
+import sbt.tox4j.Jni.Keys._
 
 packageDependencies ++= Seq(
   "protobuf-lite",
@@ -64,7 +64,7 @@ scalacOptions in Test += "-target:jvm-" + javaVersion
 // Require 100% test coverage.
 ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
-ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := ".*\\.proto"
+ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := ".*\\.proto\\..*"
 
 // Add Scala linter.
 resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"

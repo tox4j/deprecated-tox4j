@@ -1,4 +1,4 @@
-package src.main.scala
+package sbt.tox4j
 
 import com.etsy.sbt.Checkstyle.CheckstyleTasks
 import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._
@@ -49,14 +49,42 @@ object CodeStyle extends Plugin {
         Wart.Var
       ),
       wartremoverExcluded := {
-        val jni = baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "jni"
-        val proto = baseDirectory.value / "target" / "scala-2.11" / "src_managed" / "main" / "compiled_protobuf" / "im" / "tox" / "tox4j"
+        val jni = (scalaSource in Compile).value / "im" / "tox" / "tox4j" / "impl" / "jni"
+        val proto = (sourceManaged in Compile).value / "compiled_protobuf" / "im" / "tox" / "tox4j"
+        val av_proto = proto / "av" / "proto" / "Av"
+        val core_proto = proto / "core" / "proto" / "Core"
         Seq(
           jni / "ToxAvImpl.scala",
-          jni / "ToxCoreImpl.scala",
-          proto / "av" / "proto" / "Av.scala",
-          proto / "core" / "proto" / "Core.scala"
-        )
+          jni / "ToxCoreImpl.scala"
+        ) ++ Seq(
+          "AudioBitRateStatus",
+          "AudioReceiveFrame",
+          "AvEvents",
+          "Call",
+          "CallState",
+          "InternalFields_avProto",
+          "VideoBitRateStatus",
+          "VideoReceiveFrame"
+        ).map(_ + ".scala").map(av_proto / _) ++ Seq(
+          "ConnectionStatus",
+          "CoreEvents",
+          "FileControl",
+          "FileReceive",
+          "FileReceiveChunk",
+          "FileRequestChunk",
+          "FriendConnectionStatus",
+          "FriendLosslessPacket",
+          "FriendLossyPacket",
+          "FriendMessage",
+          "FriendName",
+          "FriendRequest",
+          "FriendStatus",
+          "FriendStatusMessage",
+          "FriendTyping",
+          "InternalFields_coreProto",
+          "ReadReceipt",
+          "Socket"
+        ).map(_ + ".scala").map(core_proto / _)
       },
 
       scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation"),
