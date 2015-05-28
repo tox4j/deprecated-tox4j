@@ -1,0 +1,11 @@
+#!/bin/sh
+
+while true; do
+  clear
+  printf "Compiling..."
+  java -cp project/target/scala-2.10/sbt-0.13/classes:$HOME/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.5.jar:$HOME/.ivy2/cache/org.scalariform/scalariform_2.10/jars/scalariform_2.10-0.1.4.jar:$HOME/.ivy2/cache/com.eed3si9n/treehugger_2.10/jars/treehugger_2.10-0.4.1.jar:$HOME/.ivy2/cache/com.google.protobuf/protobuf-java/jars/protobuf-java-2.6.1.jar sbt.scalabuff.ScalaBuff && echo " [done]"
+  for i in `seq 30 0`; do
+    printf "\rWaiting: %2d" $i
+    sleep 1
+  done
+done

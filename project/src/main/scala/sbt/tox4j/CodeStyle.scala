@@ -1,4 +1,4 @@
-package src.main.scala
+package sbt.tox4j
 
 import com.etsy.sbt.Checkstyle.CheckstyleTasks
 import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._
@@ -49,14 +49,11 @@ object CodeStyle extends Plugin {
         Wart.Var
       ),
       wartremoverExcluded := {
-        val jni = baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "jni"
-        val proto = baseDirectory.value / "target" / "scala-2.11" / "src_managed" / "main" / "compiled_protobuf" / "im" / "tox" / "tox4j"
+        val jni = (scalaSource in Compile).value / "im" / "tox" / "tox4j" / "impl" / "jni"
         Seq(
           jni / "ToxAvImpl.scala",
-          jni / "ToxCoreImpl.scala",
-          proto / "av" / "proto" / "Av.scala",
-          proto / "core" / "proto" / "Core.scala"
-        )
+          jni / "ToxCoreImpl.scala"
+        ) ++ ((sourceManaged in Compile).value ** "**.scala").get
       },
 
       scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation"),
