@@ -56,8 +56,6 @@ object ProtobufPlugin extends Plugin {
 
     generate <<= (
       streams,
-      managedClasspath,
-      javaHome,
       javaSource,
       managedNativeSource in Compile,
       sourceDirectory,
@@ -75,8 +73,6 @@ object ProtobufPlugin extends Plugin {
 
   private def sourceGeneratorTask(
     streams: TaskStreams,
-    managedClasspath: Classpath,
-    javaHome: Option[File],
     javaSource: File,
     managedNativeSource: File,
     sourceDirectory: File,
@@ -89,10 +85,10 @@ object ProtobufPlugin extends Plugin {
         outStyle = FilesInfo.exists
       ) { (in: Set[File]) =>
         // Compile to C++ sources.
-        compileProtoc(protoc, in, javaSource, managedNativeSource, sourceDirectory, streams.log)
+        compileProtoc(protoc, in, managedNativeSource, sourceDirectory, streams.log)
 
         // Compile to Scala sources.
-        compileScalaBuff(in, managedClasspath, javaHome, javaSource, sourceDirectory, streams.log).toSet
+        compileScalaBuff(in, javaSource, streams.log).toSet
       }
 
     val schemas = (sourceDirectory ** "*.proto").get.map(_.getAbsoluteFile)
@@ -103,10 +99,7 @@ object ProtobufPlugin extends Plugin {
 
   private def compileScalaBuff(
     schemas: Set[File],
-    managedClasspath: Classpath,
-    javaHome: Option[File],
     javaSource: File,
-    sourceDirectory: File,
     log: Logger
   ) = {
     val scalaOut = javaSource
@@ -126,7 +119,6 @@ object ProtobufPlugin extends Plugin {
   private def compileProtoc(
     protoc: File,
     schemas: Set[File],
-    javaSource: File,
     managedNativeSource: File,
     sourceDirectory: File,
     log: Logger

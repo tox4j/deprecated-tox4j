@@ -4,9 +4,9 @@ option optimize_for = LITE_RUNTIME;
 
 
 enum Socket {
-  NONE    = 1;
-  TCP     = 2;
-  UDP     = 3;
+  NONE    = 0;
+  TCP     = 1;
+  UDP     = 2;
 }
 
 message ConnectionStatus {
@@ -15,9 +15,9 @@ message ConnectionStatus {
 
 message FileControl {
   enum Kind {
-    RESUME  = 1;
-    PAUSE   = 2;
-    CANCEL  = 3;
+    RESUME  = 0;
+    PAUSE   = 1;
+    CANCEL  = 2;
   }
 
   required uint32 friendNumber    = 1;
@@ -54,8 +54,8 @@ message FriendConnectionStatus {
 
 message FriendMessage {
   enum Type {
-    NORMAL  = 1;
-    ACTION  = 2;
+    NORMAL  = 0;
+    ACTION  = 1;
   }
 
   required uint32 friendNumber    = 1;
@@ -77,9 +77,9 @@ message FriendRequest {
 
 message FriendStatus {
   enum Kind {
-    NONE    = 1;
-    AWAY    = 2;
-    BUSY    = 3;
+    NONE    = 0;
+    AWAY    = 1;
+    BUSY    = 2;
   }
 
   required uint32 friendNumber    = 1;
