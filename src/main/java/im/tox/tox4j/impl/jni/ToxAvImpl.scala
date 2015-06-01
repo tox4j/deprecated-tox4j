@@ -3,13 +3,15 @@ package im.tox.tox4j.impl.jni
 import java.util
 
 import com.google.protobuf.ByteString
+import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.annotations.Nullable
-import im.tox.tox4j.av.{ ToxAv, AbstractToxAv }
 import im.tox.tox4j.av.callbacks._
 import im.tox.tox4j.av.enums.{ ToxCallControl, ToxCallState }
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto._
+import im.tox.tox4j.av.{ AbstractToxAv, ToxAv }
 import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.impl.jni.ToxAvImpl.convert
 
 // scalastyle:off
 private object ToxAvImpl {
@@ -81,47 +83,47 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
         videoReceiveFrame)) =>
         call.foreach {
           case Call(friendNumber, audioEnabled, videoEnabled) =>
-            callCallback.call(
+            tryAndLog(callCallback)(_.call(
               friendNumber,
               audioEnabled,
               videoEnabled
-            )
+            ))
         }
         callState.foreach {
           case CallState(friendNumber, state) =>
-            callStateCallback.callState(
+            tryAndLog(callStateCallback)(_.callState(
               friendNumber,
-              util.Arrays.asList(state.map(ToxAvImpl.convert): _*)
-            )
+              util.Arrays.asList(state.map(convert): _*)
+            ))
         }
         audioBitRateStatus.foreach {
           case AudioBitRateStatus(friendNumber, stable, bitRate) =>
-            audioBitRateStatusCallback.audioBitRateStatus(
+            tryAndLog(audioBitRateStatusCallback)(_.audioBitRateStatus(
               friendNumber,
               stable,
               bitRate
-            )
+            ))
         }
         videoBitRateStatus.foreach {
           case VideoBitRateStatus(friendNumber, stable, bitRate) =>
-            videoBitRateStatusCallback.videoBitRateStatus(
+            tryAndLog(videoBitRateStatusCallback)(_.videoBitRateStatus(
               friendNumber,
               stable,
               bitRate
-            )
+            ))
         }
         audioReceiveFrame.foreach {
           case AudioReceiveFrame(friendNumber, pcm, channels, samplingRate) =>
-            audioReceiveFrameCallback.receiveAudioFrame(
+            tryAndLog(audioReceiveFrameCallback)(_.receiveAudioFrame(
               friendNumber,
               pcm.map(_.toShort).toArray,
               channels,
               samplingRate
-            )
+            ))
         }
         videoReceiveFrame.foreach {
           case VideoReceiveFrame(friendNumber, width, height, y, u, v, a, yStride, uStride, vStride, aStride) =>
-            videoReceiveFrameCallback.receiveVideoFrame(
+            tryAndLog(videoReceiveFrameCallback)(_.receiveVideoFrame(
               friendNumber,
               width,
               height,
@@ -133,7 +135,7 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
               uStride,
               vStride,
               aStride
-            )
+            ))
         }
     }
   }

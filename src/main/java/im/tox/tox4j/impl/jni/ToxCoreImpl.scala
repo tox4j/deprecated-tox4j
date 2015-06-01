@@ -1,6 +1,7 @@
 package im.tox.tox4j.impl.jni
 
 import com.google.protobuf.ByteString
+import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
@@ -8,6 +9,7 @@ import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.proto._
 import im.tox.tox4j.core.{ AbstractToxCore, ToxCoreConstants }
+import im.tox.tox4j.impl.jni.ToxCoreImpl.convert
 import im.tox.tox4j.impl.jni.internal.Event
 
 // scalastyle:off
@@ -205,63 +207,118 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
         readReceipt)) =>
         connectionStatus.foreach {
           case ConnectionStatus(status) =>
-            connectionStatusCallback.connectionStatus(ToxCoreImpl.convert(status))
+            tryAndLog(connectionStatusCallback)(_.connectionStatus(
+              convert(status)
+            ))
         }
         friendName.foreach {
           case FriendName(friendNumber, name) =>
-            friendNameCallback.friendName(friendNumber, name.toByteArray)
+            tryAndLog(friendNameCallback)(_.friendName(
+              friendNumber,
+              name.toByteArray
+            ))
         }
         friendStatusMessage.foreach {
           case FriendStatusMessage(friendNumber, message) =>
-            friendStatusMessageCallback.friendStatusMessage(friendNumber, message.toByteArray)
+            tryAndLog(friendStatusMessageCallback)(_.friendStatusMessage(
+              friendNumber,
+              message.toByteArray
+            ))
         }
         friendStatus.foreach {
           case FriendStatus(friendNumber, status) =>
-            friendStatusCallback.friendStatus(friendNumber, ToxCoreImpl.convert(status))
+            tryAndLog(friendStatusCallback)(_.friendStatus(
+              friendNumber,
+              convert(status)
+            ))
         }
         friendConnectionStatus.foreach {
           case FriendConnectionStatus(friendNumber, status) =>
-            friendConnectionStatusCallback.friendConnectionStatus(friendNumber, ToxCoreImpl.convert(status))
+            tryAndLog(friendConnectionStatusCallback)(_.friendConnectionStatus(
+              friendNumber,
+              convert(status)
+            ))
         }
         friendTyping.foreach {
           case FriendTyping(friendNumber, isTyping) =>
-            friendTypingCallback.friendTyping(friendNumber, isTyping)
+            tryAndLog(friendTypingCallback)(_.friendTyping(
+              friendNumber,
+              isTyping
+            ))
         }
         readReceipt.foreach {
           case ReadReceipt(friendNumber, messageId) =>
-            readReceiptCallback.readReceipt(friendNumber, messageId)
+            tryAndLog(readReceiptCallback)(_.readReceipt(
+              friendNumber,
+              messageId
+            ))
         }
         friendRequest.foreach {
           case FriendRequest(publicKey, timeDelta, message) =>
-            friendRequestCallback.friendRequest(publicKey.toByteArray, timeDelta, message.toByteArray)
+            tryAndLog(friendRequestCallback)(_.friendRequest(
+              publicKey.toByteArray,
+              timeDelta,
+              message.toByteArray
+            ))
         }
         friendMessage.foreach {
           case FriendMessage(friendNumber, messageType, timeDelta, message) =>
-            friendMessageCallback.friendMessage(friendNumber, ToxCoreImpl.convert(messageType), timeDelta, message.toByteArray)
+            tryAndLog(friendMessageCallback)(_.friendMessage(
+              friendNumber,
+              convert(messageType),
+              timeDelta,
+              message.toByteArray
+            ))
         }
         fileControl.foreach {
           case FileControl(friendNumber, fileNumber, control) =>
-            fileControlCallback.fileControl(friendNumber, fileNumber, ToxCoreImpl.convert(control))
+            tryAndLog(fileControlCallback)(_.fileControl(
+              friendNumber,
+              fileNumber,
+              convert(control)
+            ))
         }
         fileRequestChunk.foreach {
           case FileRequestChunk(friendNumber, fileNumber, position, length) =>
-            fileRequestChunkCallback.fileRequestChunk(friendNumber, fileNumber, position, length)
+            tryAndLog(fileRequestChunkCallback)(_.fileRequestChunk(
+              friendNumber,
+              fileNumber,
+              position,
+              length
+            ))
         }
         fileReceive.foreach {
           case FileReceive(friendNumber, fileNumber, kind, fileSize, filename) =>
-            fileReceiveCallback.fileReceive(friendNumber, fileNumber, kind, fileSize, filename.toByteArray)
+            tryAndLog(fileReceiveCallback)(_.fileReceive(
+              friendNumber,
+              fileNumber,
+              kind,
+              fileSize,
+              filename.toByteArray
+            ))
         }
         fileReceiveChunk.foreach {
           case FileReceiveChunk(friendNumber, fileNumber, position, data) =>
-            fileReceiveChunkCallback.fileReceiveChunk(friendNumber, fileNumber, position, data.toByteArray)
+            tryAndLog(fileReceiveChunkCallback)(_.fileReceiveChunk(
+              friendNumber,
+              fileNumber,
+              position,
+              data.toByteArray
+            ))
         }
         friendLossyPacket.foreach {
           case FriendLossyPacket(friendNumber, data) =>
-            friendLossyPacketCallback.friendLossyPacket(friendNumber, data.toByteArray)
+            tryAndLog(friendLossyPacketCallback)(_.friendLossyPacket(
+              friendNumber,
+              data.toByteArray
+            ))
         }
         friendLosslessPacket.foreach {
           case FriendLosslessPacket(friendNumber, data) =>
-            friendLosslessPacketCallback.friendLosslessPacket(friendNumber, data.toByteArray)
+            tryAndLog(friendLosslessPacketCallback)(_.friendLosslessPacket(
+              friendNumber,
+              data.toByteArray
+            ))
         }
     }
   }
