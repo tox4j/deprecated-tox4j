@@ -8,6 +8,7 @@ import im.tox.tox4j.core.enums.ToxFileKind;
 import im.tox.tox4j.exceptions.ToxException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class FileReceiveCallbackTest extends AliceBobTestBase {
 
@@ -46,7 +47,13 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
     }
 
     @Override
-    public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
+    public void fileReceive(
+        final int friendNumber,
+        final int fileNumber,
+        int kind,
+        long fileSize,
+        @NotNull byte[] filename
+    ) {
       debug("received file send request " + fileNumber + " from friend number " + friendNumber);
       assertEquals(FRIEND_NUMBER, friendNumber);
       assertEquals(0 | 0x10000, fileNumber);
@@ -57,7 +64,13 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
         assertEquals("This is a file for Bob".length(), fileSize);
       }
       assertEquals("file for " + getName() + ".png", new String(filename));
-      finish();
+      addTask(new Task() {
+        @Override
+        public void perform(@NotNull ToxCore tox) throws ToxException {
+          assertNotNull(tox.fileGetFileId(friendNumber, fileNumber));
+          finish();
+        }
+      });
     }
   }
 
