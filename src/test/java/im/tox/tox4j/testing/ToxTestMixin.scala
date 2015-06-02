@@ -16,7 +16,7 @@ trait ToxTestMixin {
     }
   }
 
-  protected def toxIntercept(code: Enum[_])(f: ToxCore => Unit) = {
+  protected def interceptWithTox(code: Enum[_])(f: ToxCore => Unit) = {
     intercept(code) {
       ToxCoreFactory.withTox(f)
     }

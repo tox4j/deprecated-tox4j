@@ -7,20 +7,22 @@ import scala.reflect.ClassTag
 
 import scala.language.implicitConversions
 
-final case class NonEmptyByteArray(array: Array[Byte]) extends mutable.WrappedArray[Byte] {
-  require(array.nonEmpty)
-
+class WrappedArray(val array: Array[Byte]) extends mutable.WrappedArray[Byte] with Serializable {
   override def elemTag: ClassTag[Byte] = ClassTag.Byte
   override def length: Int = array.length
   override def apply(index: Int): Byte = array(index)
   override def update(index: Int, elem: Byte): Unit = { array(index) = elem }
 }
 
-object NonEmptyByteArray {
+final class NonEmptyByteArray(array: Array[Byte]) extends WrappedArray(array) {
+  require(array.nonEmpty)
+}
+
+object WrappedArray {
   object Conversions {
-    implicit def nonEmptyArrayToArray(nonEmptyByteArray: NonEmptyByteArray): Array[Byte] = nonEmptyByteArray.array
+    implicit def unwrapArray(wrappedArray: WrappedArray): Array[Byte] = wrappedArray.array
 
     implicit val arbNonEmptyByteArray: Arbitrary[NonEmptyByteArray] =
-      Arbitrary(Arbitrary.arbitrary[Array[Byte]].filter(_.nonEmpty).map(NonEmptyByteArray(_)))
+      Arbitrary(Arbitrary.arbitrary[Array[Byte]].filter(_.nonEmpty).map(new NonEmptyByteArray(_)))
   }
 }
