@@ -37,9 +37,6 @@ packageDependencies ++= Seq(
   "vpx"
 )
 
-// Keep version in sync with libtoxcore.
-versionSync := "libtoxcore"
-
 // TODO: infer this (harder).
 jniClasses := Seq(
   "im.tox.tox4j.impl.jni.ToxCryptoImpl$",

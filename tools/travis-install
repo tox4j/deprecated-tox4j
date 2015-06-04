@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -ex
 
@@ -6,73 +6,110 @@ set -ex
 unset CC
 unset CXX
 
-CACHEDIR=$1
-mkdir -p "$CACHEDIR"
+GLOBAL_CACHE="ivy2 sbt usr"
+LOCAL_CACHE="project/project project/target"
 
-pwd > $HOME/.pushd
+BASEDIR=$1
+SOURCEDIR=$2
 
-# Package dependencies.
-sudo apt-get install protobuf-compiler
-wget https://dl.bintray.com/sbt/debian/sbt-0.13.8.deb
-sudo dpkg -i sbt-0.13.8.deb
-protoc --version || true
+mkdir -p "$BASEDIR/cache/global"
+mkdir -p "$BASEDIR/cache/local"
+mkdir -p "$BASEDIR/git"
+
+for dir in $GLOBAL_CACHE; do
+  cache_dir="$BASEDIR/cache/global/$dir"
+  if [ -d "$cache_dir" ]; then
+    ln -s "$cache_dir" "$BASEDIR/.$dir"
+  fi
+done
+
+for dir in $LOCAL_CACHE; do
+  cache_dir="$BASEDIR/cache/local/`basename $dir`"
+  if [ -d "$cache_dir" ]; then
+    ln -s "$cache_dir" "$dir"
+  fi
+done
 
 # Then for the local platform.
 INSTALL() {
-  cd "$CACHEDIR"
-  if [ -d $2 ]; then
-    cd $2
-    git fetch
-    git clean -fdx
-    git reset --hard
-    git checkout master
-    git reset --hard origin/master
-  else
-    git clone $1/$2.git
-    cd $2
+  BRANCH=${3:-master}
+
+  cd "$BASEDIR/git"
+  git clone --depth=1 --branch="$BRANCH" $1/$2.git \
+    || git clone $1/$2.git
+  cd $2
+
+  git checkout $BRANCH
+  git rev-parse HEAD > $2.HEAD
+  if diff "$BASEDIR/cache/$2.HEAD" $2.HEAD; then
+    return
   fi
 
-  ./autogen.sh
-  mkdir _build
-  cd _build
-  ../configure --prefix=/usr
-  make -j4
+  mv $2.HEAD "$BASEDIR/cache"
 
-  sudo make install
+  # Generate autotools stuff.
+  if [ ! -f configure ]; then
+    ./autogen.sh --prefix="$BASEDIR/.usr" $4
+  fi
+
+  # If autogen.sh didn't also run configure,
+  if [ ! -f config.log ]; then
+    # we have a vpath build.
+    mkdir -p _build
+    cd _build
+    # Run configure once.
+    if [ ! -f config.log ]; then
+      ../configure --prefix="$BASEDIR/.usr" $4
+    fi
+  fi
+
+  # Then build and install.
+  make -j4
+  make install
+
   git clean -fdx
 }
 
-# Do the whole thing for Android.
+# We need the protoc binary for the host platform.
+INSTALL https://github.com/google protobuf tags/v2.6.1
+
 case "$TOX4J_TARGET" in
   *android*)
-    sudo apt-get install p7zip swig maven2
-    cd $HOME
-    wget http://dl.google.com/android/ndk/android-ndk-r10e-linux-x86_64.bin
-    NDK_EXCLUDES=`cat $HOME/.pushd`/tools/ndk-excludes.txt
-    7zr x android-ndk-r10e-linux-x86_64.bin `sed 's/^/ -xr!/g' $NDK_EXCLUDES` | awk '/^Extracting/ { i++; if (i > 50) {print; i = 0}}'
-    rm android-ndk-r10e-linux-x86_64.bin
-    mv android-ndk-r10e android-ndk
+    cd $BASEDIR
+    wget http://dl.google.com/android/ndk/android-ndk-$ANDROID_NDK_VERSION-linux-x86_64.bin
+    NDK_EXCLUDES=$SOURCEDIR/tools/ndk-excludes.txt
+    7z x android-ndk-$ANDROID_NDK_VERSION-linux-x86_64.bin `sed 's/^/ -xr!/g' $NDK_EXCLUDES` | awk '/^Extracting/ { i++; if (i > 50) {print; i = 0}}'
+    rm android-ndk-$ANDROID_NDK_VERSION-linux-x86_64.bin
 
-    export ANDROID_NDK_HOME=$HOME/android-ndk
-    cd `cat $HOME/.pushd`/android
+    cd "$SOURCEDIR/android"
     ./build-deps.sh
     ;;
 
   *)
-    # Package dependencies.
-    sudo apt-get install libstdc++-4.8-dev libvpx-dev libprotobuf-dev
-
-    # opus
-    INSTALL git://git.opus-codec.org opus
-
-    # libsodium
-    INSTALL https://github.com/jedisct1 libsodium
-
-    # toxcore
+    INSTALL https://github.com/yasm       yasm
+    INSTALL http://git.chromium.org/webm  libvpx        master          "--enable-pic --enable-shared"
+    INSTALL https://github.com/jedisct1   libsodium
+    INSTALL git://git.opus-codec.org      opus
     INSTALL https://github.com/irungentoo toxcore
     ;;
 esac
 
-# Install the required java/scala packages.
-cd `cat $HOME/.pushd`
-sbt update
+# Install the required Java/Scala packages.
+cd $SOURCEDIR
+tools/sbt update
+
+for dir in $GLOBAL_CACHE; do
+  cache_dir="$BASEDIR/cache/global/$dir"
+  if [ ! -d "$cache_dir" ]; then
+    mv "$BASEDIR/.$dir" "$cache_dir"
+    ln -s "$cache_dir" "$BASEDIR/.$dir"
+  fi
+done
+
+for dir in $LOCAL_CACHE; do
+  cache_dir="$BASEDIR/cache/local/`basename $dir`"
+  if [ ! -d "$cache_dir" ]; then
+    mv "$dir" "$cache_dir"
+    ln -s "$cache_dir" "$dir"
+  fi
+done

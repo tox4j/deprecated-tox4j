@@ -1,35 +1,42 @@
 language: cpp
 compiler: clang
+sudo: false
+
+addons:
+  apt:
+    sources: ['ubuntu-toolchain-r-test','llvm-toolchain-precise-3.5']
+    packages: ['clang-3.5', 'p7zip-full']
 
 cache:
   directories:
-    - $HOME/.ivy2
-    - $HOME/.m2
-    - $HOME/travis-cache
+    - $HOME/cache
 
 env:
   - TOX4J_TARGET=arm-linux-androideabi
   #- TOX4J_TARGET=i686-linux-android
   - TOX4J_TARGET=host
 
-before_install:
-  - java -version
-  - javac -version
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update -qq
-
 install:
-  - ls -a $HOME
-  - tools/travis-install "$HOME/travis-cache"
+  - export ANDROID_NDK_VERSION="r10e"
+  - export ANDROID_NDK_HOME="$HOME/android-ndk-$ANDROID_NDK_VERSION"
+  - export PATH="$HOME/.usr/bin:$PATH"
+  - export PKG_CONFIG_PATH="$HOME/.usr/lib/pkgconfig"
+  - export CFLAGS="-O3 -isystem $HOME/.usr/include"
+  - export CXXFLAGS="-O3 -isystem $HOME/.usr/include"
+  - if [ "$TOX4J_TARGET" = "host" ]; then export CPPFLAGS="-I$HOME/.usr/include"; fi
+  - if [ "$TOX4J_TARGET" = "host" ]; then export LDFLAGS="-L$HOME/.usr/lib"; fi
+  - tools/travis-install "$HOME" "$PWD"
 
 script:
   # Compile first, so a compile error fails the build.
-  - yes q | sbt scalastyle test:scalastyle checkstyle test:checkstyle compile test:compile
-  # Only test if we're not cross-compiling.
-  - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coverage test || true; fi
+  - tools/sbt scalastyle test:scalastyle checkstyle test:checkstyle test:compile
+  # Don't run tests if we are cross-compiling.
+  - if [ "$TOX4J_TARGET" = "host" ]; then tools/sbt coverage test || true; fi
+  # Check whether the code was formatted correctly on push.
+  - git diff --exit-code
 
 after_success:
-  - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coveralls; fi
+  - if [ "$TOX4J_TARGET" = "host" ]; then tools/sbt coveralls; fi
 
 # whitelist
 branches:

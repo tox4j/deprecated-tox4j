@@ -9,6 +9,8 @@ import scala.language.postfixOps
 
 object Jni extends Plugin {
 
+  private val DEBUG = false
+
   object BuildTool {
     sealed trait T { def name: String; def command: String }
     case object Ninja extends T { def name = "Ninja"; def command = "ninja" }
@@ -22,7 +24,6 @@ object Jni extends Plugin {
     val libraryName = settingKey[String]("Shared library produced by JNI")
 
     val packageDependencies = settingKey[Seq[String]]("Dependencies from pkg-config")
-    val versionSync = settingKey[String]("Package from pkg-config we want to sync our version number with")
 
     val nativeSource = settingKey[File]("JNI native sources")
     val nativeTarget = settingKey[File]("JNI native target directory")
@@ -54,7 +55,6 @@ object Jni extends Plugin {
 
     // tasks
 
-    val checkVersion = taskKey[Unit]("Check the versionSync variable")
     val javah = taskKey[Unit]("Generates JNI header files")
     val gtestPath = taskKey[Option[File]]("Finds the Google Test source path or downloads gtest from the internet")
     val cmakeDependenciesFile = taskKey[File]("Generates Dependencies.cmake containing C++ dependency information")
@@ -84,6 +84,13 @@ object Jni extends Plugin {
     def error(s: => String) = { println(s) }
     def info(s: => String) = { println(s) }
   }
+
+  val debugLog =
+    if (DEBUG) {
+      stdoutLog
+    } else {
+      nullLog
+    }
 
   /**
    * Extensions of source files.
@@ -117,41 +124,6 @@ object Jni extends Plugin {
     }
   }
 
-  private def pkgConfig(query: String, pkgs: Seq[String], paths: Seq[File]) = {
-    def pkg_config(args: Seq[String]) = {
-      val origPath =
-        Option(System.getenv("PKG_CONFIG_PATH"))
-          .map(_.split(File.pathSeparator).toSeq)
-          .getOrElse(Nil)
-
-      Process(
-        Seq("pkg-config") ++ args,
-        None,
-        ("PKG_CONFIG_PATH", (paths ++ origPath).mkString(File.pathSeparator))
-      )
-    }
-
-    pkgs map { pkg =>
-      (pkg, pkg_config(Seq(pkg)) !< nullLog != 0)
-    } filter (_._2) map (_._1) match {
-      case Nil =>
-      case missing =>
-        sys.error(s"missing ${missing.size} packages: ${missing.mkString(", ")}")
-    }
-
-    pkgs match {
-      case Nil =>
-        Nil
-      case _ =>
-        val command = pkg_config(Seq("--" + query) ++ pkgs)
-        (command !!).split(" ").map(_.trim).filter(!_.isEmpty).toSeq
-    }
-  }
-
-  private def pkgConfig(pkg: String, paths: Seq[File]): String = {
-    pkgConfig("modversion", Seq(pkg), paths).head
-  }
-
   private def findCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
     val sourceFile = File.createTempFile("configtest", cppExtensions(0))
     val targetFile = File.createTempFile("configtest", ".out")
@@ -167,7 +139,7 @@ object Jni extends Plugin {
 
       val found =
         flags find { flags =>
-          Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< nullLog match {
+          Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< debugLog match {
             case 0 => true
             case _ => false
           }
@@ -204,8 +176,8 @@ object Jni extends Plugin {
     mkToolchain(toolchainPath, candidates) find { cc =>
       try {
         val flagsOpt = Seq[String]() +: flags
-        //println(s"Trying $cc")
-        Seq(cc, "--version") !< nullLog == 0 && findCcOptions(cc, false, code)(flagsOpt: _*) != None
+        debugLog.info(s"Trying $cc")
+        Seq(cc, "--version") !< debugLog == 0 && findCcOptions(cc, false, code)(flagsOpt: _*) != None
       } catch {
         case _: java.io.IOException => false
       }
@@ -250,7 +222,7 @@ object Jni extends Plugin {
   }
 
   private def mkPkgConfigPath(pkgConfigPath: Seq[File], toolchainPath: Option[File]) = {
-    pkgConfigPath ++ {
+    {
       toolchainPath map (_ / "sysroot" / "usr" / "lib" / "pkgconfig") match {
         case Some(toolchainPath) =>
           if (toolchainPath.exists) {
@@ -261,18 +233,13 @@ object Jni extends Plugin {
         case None =>
           Nil
       }
-    }
+    } ++ pkgConfigPath
   }
 
   object Platform {
     sealed trait T
     case class Android(platform: String) extends T
-    case class Host(dependencyPrefix: File) extends T
-
-    // Host build:
-    private def hostSettings(dependencyPrefix: File) = Seq(
-      pkgConfigPath += dependencyPrefix / "lib/pkgconfig"
-    )
+    case object Host extends T
 
     // Android build:
     private def androidSettings(platform: String) = Seq(
@@ -284,7 +251,9 @@ object Jni extends Plugin {
         // Try $TOOLCHAIN first, then try some other possible candidate paths.
         Option(System.getenv("TOOLCHAIN")).map(file).orElse(candidates.find(_.exists))
       },
-      pkgConfigPath += toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").get,
+      pkgConfigPath := toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").toSeq,
+      ldOptions := Nil,
+
       jniSourceFiles in Compile += {
         def ifExists(file: File): Option[File] = {
           if (file.exists) {
@@ -313,16 +282,15 @@ object Jni extends Plugin {
       }
     )
 
-    def jniSettings(target: T) =
+    private def jniSettings(target: T) =
       target match {
-        case Android(platform)      => androidSettings(platform)
-        case Host(dependencyPrefix) => hostSettings(dependencyPrefix)
+        case Android(platform) => androidSettings(platform)
+        case Host              => Nil
       }
 
     private val platform =
       Option(System.getenv("TOX4J_TARGET")) match {
-        case Some("host") | None =>
-          Host(file(System.getenv("HOME")) / "code/git/_install")
+        case Some("host") | None => Host
         case Some(target) =>
           if (target.contains("android"))
             Android(target)
@@ -347,21 +315,7 @@ object Jni extends Plugin {
       (managedNativeSource in Compile).value
     ),
 
-    includes ++= jreInclude(toolchainPath.value).getOrElse(Nil),
-
-    // Check modversion
-    checkVersion := Def.task {
-      val log = streams.value.log
-
-      versionSync.value match {
-        case "" =>
-        case pkg =>
-          val pkgVersion = pkgConfig(pkg, mkPkgConfigPath(pkgConfigPath.value, toolchainPath.value))
-          if (version.value != pkgVersion && version.value != pkgVersion + "-SNAPSHOT") {
-            log.warn(s"${name.value} version ${version.value} does not match $pkg version $pkgVersion")
-          }
-      }
-    }.value
+    includes ++= jreInclude(toolchainPath.value).getOrElse(Nil)
 
   )) ++ Seq(
 
@@ -370,8 +324,7 @@ object Jni extends Plugin {
 
     // Initialise pkg-config dependencies to the empty sequence.
     packageDependencies := Nil,
-    pkgConfigPath := Nil,
-    versionSync := "",
+    pkgConfigPath := Option(System.getenv("PKG_CONFIG_PATH")).map(_.split(File.pathSeparator).toSeq.map(file)).getOrElse(Nil),
 
     // Native source directory defaults to "src/main/cpp".
     nativeSource in Compile := (sourceDirectory in Compile).value / "cpp",
@@ -390,8 +343,8 @@ object Jni extends Plugin {
     nativeCXX := findCxx(toolchainPath.value),
 
     // Empty sequences by default.
-    ccOptions := Nil,
-    ldOptions := Nil,
+    ccOptions := Option(System.getenv("CXXFLAGS")).toSeq,
+    ldOptions := Option(System.getenv("LDFLAGS")).toSeq,
 
     // Build with parallel tasks by default.
     buildTool := {
@@ -478,7 +431,7 @@ object Jni extends Plugin {
 
         log.info(s"Running javah to generate ${jniClasses.value.size} JNI headers")
         checkExitCode(command, log)
-      }.dependsOn(compileIncremental in Compile, checkVersion)
+      }.dependsOn(compileIncremental in Compile)
         .tag(Tags.Compile, Tags.CPU)
         .value,
 
@@ -646,27 +599,25 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
         val buildPath = nativeTarget.value / "_build"
         buildPath.mkdirs()
 
-        val env = toolchainPath.value match {
+        val env = (toolchainPath.value match {
           case None =>
             Seq(
               ("CC", nativeCC.value),
-              ("CXX", nativeCXX.value),
-              ("CXXFLAGS", cxxflags.mkString(" ")),
-              ("LDFLAGS", ldflags.mkString(" ")),
-              ("PKG_CONFIG_PATH", pkgConfigDirs)
+              ("CXX", nativeCXX.value)
             )
 
           case Some(toolchainPath) =>
             Seq(
-              ("CXXFLAGS", cxxflags.mkString(" ")),
-              ("LDFLAGS", ldflags.mkString(" ")),
               ("PATH",
                 System.getenv("PATH") +
                 File.pathSeparator +
-                (toolchainPath / "bin")),
-              ("PKG_CONFIG_PATH", pkgConfigDirs)
+                (toolchainPath / "bin"))
             )
-        }
+        }) ++ Seq(
+          ("CXXFLAGS", cxxflags.mkString(" ")),
+          ("LDFLAGS", ldflags.mkString(" ")),
+          ("PKG_CONFIG_PATH", pkgConfigDirs)
+        )
 
         val flags = cmakeToolchainFlags.value
 
