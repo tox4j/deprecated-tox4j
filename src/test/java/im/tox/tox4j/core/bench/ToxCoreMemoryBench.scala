@@ -8,8 +8,6 @@ class ToxCoreMemoryBench extends Tox4jPerformanceReport {
 
   override val measurer = new Executor.Measurer.MemoryFootprint
 
-  private val iterations = Gen.range("iterations")(50000, 150000, 10000)
-
   memory of "ToxCore" in {
 
     measure method "iterate" in {

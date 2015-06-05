@@ -6,22 +6,6 @@ import org.scalameter.api._
 
 class ToxCoreTimingBench extends Tox4jPerformanceReport {
 
-  private val friendAddresses = Gen.range("friends")(100, 1000, 20).map { sz =>
-    (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
-  }
-
-  private val friendKeys = Gen.range("friends")(100, 1000, 20).map { sz =>
-    (0 until sz) map { i =>
-      val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
-      // noinspection SideEffectsInMonadicTransformation
-      random.nextBytes(key)
-      key(key.length - 1) = 0
-      key
-    }
-  }
-
-  private val iterations = Gen.range("iterations")(50000, 150000, 10000)
-
   timing of "ToxCore" in {
 
     measure method "addFriend" in {
