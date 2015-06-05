@@ -13,7 +13,7 @@ if [ "$TOX4J_TARGET" = "host" ]; then
       ;;
 
     performance)
-      tools/sbt benchmark
+      tools/sbt benchmark:benchmark
       ;;
   esac
 fi

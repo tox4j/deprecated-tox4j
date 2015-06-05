@@ -8,29 +8,35 @@ import sbt._
 
 object Benchmarking extends Plugin {
 
-  object Keys {
-    val benchmarkMachine = settingKey[String]("Name of the machine running the benchmark.")
+  val Benchmark = config("benchmark")
 
+  object Keys {
+    val machine = settingKey[String]("Name of the machine running the benchmark.")
+
+    val upload = taskKey[Unit]("Upload bench mark results.")
     val benchmark = taskKey[Unit]("Run all benchmarks and upload the results.")
-    val uploadBenchmarkResults = taskKey[Unit]("Upload bench mark results.")
   }
 
   import Keys._
 
-  override val settings = Seq[Setting[_]](
-    benchmarkMachine := "travis",
+  override val settings = inConfig(Benchmark)(Seq(
+    machine := "travis",
 
-    uploadBenchmarkResults := {
-      upload(streams.value.log, baseDirectory.value, benchmarkMachine.value, target.value)
+    run := {
+      (testOnly in Test).toTask(" *Bench").value
+    },
+
+    upload := {
+      uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     },
 
     benchmark := {
       (testOnly in Test).toTask(" *Bench").value
-      upload(streams.value.log, baseDirectory.value, benchmarkMachine.value, target.value)
+      uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     }
-  )
+  ))
 
-  private def upload(log: Logger, baseDirectory: File, benchmarkMachine: String, target: File) = {
+  private def uploadResults(log: Logger, baseDirectory: File, benchmarkMachine: String, target: File) = {
     val webDir = baseDirectory / ".web" / "report" / benchmarkMachine
 
     def dataJs(dir: File) = {
