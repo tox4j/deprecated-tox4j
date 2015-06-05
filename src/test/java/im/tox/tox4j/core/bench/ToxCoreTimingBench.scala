@@ -1,10 +1,9 @@
 package im.tox.tox4j.core.bench
 
-import im.tox.tox4j.Tox4jPerformanceReport
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCoreFactory }
-import org.scalameter.api._
+import im.tox.tox4j.bench.TimingReport
+import im.tox.tox4j.core.ToxCoreFactory
 
-class ToxCoreTimingBench extends Tox4jPerformanceReport {
+class ToxCoreTimingBench extends TimingReport {
 
   timing of "ToxCore" in {
 

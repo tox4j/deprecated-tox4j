@@ -1,4 +1,4 @@
-package im.tox.tox4j
+package im.tox.tox4j.bench
 
 import im.tox.tox4j.core.{ ToxCoreConstants, ToxCoreFactory }
 import org.scalameter.KeyValue
@@ -6,24 +6,13 @@ import org.scalameter.api._
 
 import scala.util.Random
 
-abstract class Tox4jPerformanceReport extends PerformanceTest.OfflineRegressionReport {
+abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionReport {
 
   override val defaultConfig = Context.empty ++ Seq[KeyValue](
-    verbose -> false,
     exec.benchRuns -> 10,
     exec.independentSamples -> 1,
     exec.jvmflags -> "-Djava.library.path=target/cpp/bin"
   )
-
-  // scalastyle:ignore
-  object memory extends Serializable {
-    def of(modulename: String): Scope = performance of (modulename + " (memory)") config defaultConfig
-  }
-
-  // scalastyle:ignore
-  object timing extends Serializable {
-    def of(modulename: String): Scope = performance of modulename config defaultConfig
-  }
 
   private val random = new Random
 
