@@ -11,10 +11,17 @@ cache:
   directories:
     - $HOME/cache
 
+matrix:
+  fast_finish: true
+
 env:
-  - TOX4J_TARGET=arm-linux-androideabi
-  #- TOX4J_TARGET=i686-linux-android
-  - TOX4J_TARGET=host
+  global:
+    - secure: "MNKhzopLkSf1oqxNyBgNi9oA2tuwrggwxY8nsYEj4CPBuGQPF02e+amjMQRHm9PymAL1ITG6/C758hCJe+ZyEYWvRQbRI8e6kNwlno4dY4Z2AGsRniTNqkIbQMK7b4yDKlUVvvK68Kb8JIRaKOJybds/vpBDm76SWYNgCDDpOkU="
+  matrix:
+    #- TOX4J_TARGET=arm-linux-androideabi
+    #- TOX4J_TARGET=i686-linux-android
+    #- TOX4J_TARGET=host TEST_GOAL=correctness
+    - TOX4J_TARGET=host TEST_GOAL=performance
 
 install:
   - export ANDROID_NDK_VERSION="r10e"
@@ -25,18 +32,13 @@ install:
   - export CXXFLAGS="-O3 -isystem $HOME/.usr/include"
   - if [ "$TOX4J_TARGET" = "host" ]; then export CPPFLAGS="-I$HOME/.usr/include"; fi
   - if [ "$TOX4J_TARGET" = "host" ]; then export LDFLAGS="-L$HOME/.usr/lib"; fi
-  - tools/travis-install "$HOME" "$PWD"
+  - tools/travis/install "$HOME" "$PWD"
 
 script:
-  # Compile first, so a compile error fails the build.
-  - tools/sbt scalastyle test:scalastyle checkstyle test:checkstyle test:compile
-  # Don't run tests if we are cross-compiling.
-  - if [ "$TOX4J_TARGET" = "host" ]; then tools/sbt coverage "testOnly *Test" || true; fi
-  # Check whether the code was formatted correctly on push.
-  - git diff --exit-code
+  - tools/travis/script
 
 after_success:
-  - if [ "$TOX4J_TARGET" = "host" ]; then tools/sbt coveralls; fi
+  - tools/travis/after_success
 
 # whitelist
 branches:
