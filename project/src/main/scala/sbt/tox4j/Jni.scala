@@ -172,7 +172,7 @@ object Jni extends Plugin {
     }
   }
 
-  private def findTool(toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: String*) = {
+  private def findTool(toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: Seq[String]) = {
     mkToolchain(toolchainPath, candidates) find { cc =>
       try {
         val flagsOpt = Seq[String]() +: flags
@@ -192,7 +192,7 @@ object Jni extends Plugin {
     """
   )(
       Seq("-std=c89")
-    )("clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc")
+    )(Option(System.getenv("CC")).toSeq ++ Seq("clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc"))
 
   private def findCxx(toolchainPath: Option[File]) = findTool(
     toolchainPath,
@@ -211,7 +211,7 @@ object Jni extends Plugin {
   )(
       Seq("-std=c++14"),
       Seq("-std=c++1y")
-    )("clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++")
+    )(Option(System.getenv("CXX")).toSeq ++ Seq("clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++"))
 
   private def checkExitCode(command: ProcessBuilder, log: Logger) = {
     command ! log match {
