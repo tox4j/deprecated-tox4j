@@ -1,4 +1,4 @@
-// General settings
+// General settings.
 organization  := "im.tox"
 name          := "tox4j"
 version       := "0.0.0-SNAPSHOT"
@@ -10,22 +10,26 @@ compileOrder := CompileOrder.Mixed
 scalaSource in Compile := (javaSource in Compile).value
 scalaSource in Test    := (javaSource in Test   ).value
 
-// Build dependencies
+// Build dependencies.
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "org.json" % "json" % "20131018"
 )
 
-// Test dependencies
+// Test dependencies.
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
   "org.slf4j" % "slf4j-log4j12" % "1.7.12",
+  "com.storm-enroute" %% "scalameter" % "0.6",
   "junit" % "junit" % "4.12"
 ) map (_ % Test)
 
+// Add ScalaMeter as test framework.
+testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 
-// JNI
+
+// JNI.
 import sbt.tox4j.Jni.Keys._
 
 packageDependencies ++= Seq(

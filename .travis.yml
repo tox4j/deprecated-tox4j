@@ -31,7 +31,7 @@ script:
   # Compile first, so a compile error fails the build.
   - tools/sbt scalastyle test:scalastyle checkstyle test:checkstyle test:compile
   # Don't run tests if we are cross-compiling.
-  - if [ "$TOX4J_TARGET" = "host" ]; then tools/sbt coverage test || true; fi
+  - if [ "$TOX4J_TARGET" = "host" ]; then tools/sbt coverage "testOnly *Test" || true; fi
   # Check whether the code was formatted correctly on push.
   - git diff --exit-code
 
