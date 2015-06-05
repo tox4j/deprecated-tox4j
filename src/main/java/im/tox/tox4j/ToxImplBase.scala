@@ -9,6 +9,13 @@ object ToxImplBase {
 
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))
 
+  /**
+   * Calls a callback and catches any [[NonFatal]] exceptions it throws and logs them.
+   *
+   * @param callback The callback object.
+   * @param method The method to call on the callback object.
+   * @tparam T The type of the callback object.
+   */
   def tryAndLog[T](callback: T)(method: T => Unit): Unit = {
     try {
       method(callback)
