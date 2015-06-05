@@ -17,5 +17,6 @@
     <orderEntry type="library" name="junit:junit:4.12" level="application" />
     <orderEntry type="module" module-name="main" />
     <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
+    <orderEntry type="library" name="com.storm-enroute:scalameter_2.11:0.61" level="application" />
   </component>
 </module>
