@@ -39,6 +39,9 @@ install:
 script:
   - tools/travis/script
 
+before_cache:
+  - rm $HOME/cache/global/sbt/boot/sbt.boot.lock
+
 after_success:
   - tools/travis/after_success
 
