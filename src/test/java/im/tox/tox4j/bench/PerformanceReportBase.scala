@@ -19,7 +19,7 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
 
   // Base generators.
 
-  protected val friends = Gen.range("friends")(100, 1000, 20)
+  protected val friends = Gen.range("friends")(100, 1000, 100)
   protected val iterations = Gen.range("iterations")(50000, 150000, 10000)
 
   // Derived generators: friends.
