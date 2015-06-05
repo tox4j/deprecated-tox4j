@@ -9,6 +9,7 @@ import scala.util.Random
 abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionReport {
 
   override val defaultConfig = Context.empty ++ Seq[KeyValue](
+    reports.resultDir -> "target/benchmarks",
     exec.benchRuns -> 10,
     exec.independentSamples -> 1,
     exec.jvmflags -> "-Djava.library.path=target/cpp/bin"
@@ -16,11 +17,18 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
 
   private val random = new Random
 
-  protected val friendAddresses = Gen.range("friends")(100, 1000, 20).map { sz =>
+  // Base generators.
+
+  protected val friends = Gen.range("friends")(100, 1000, 20)
+  protected val iterations = Gen.range("iterations")(50000, 150000, 10000)
+
+  // Derived generators: friends.
+
+  protected val friendAddresses = friends.map { sz =>
     (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
   }
 
-  protected val friendKeys = Gen.range("friends")(100, 1000, 20).map { sz =>
+  protected val friendKeys = friends.map { sz =>
     (0 until sz) map { i =>
       val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
       // noinspection SideEffectsInMonadicTransformation
@@ -29,7 +37,5 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
       key
     }
   }
-
-  protected val iterations = Gen.range("iterations")(50000, 150000, 10000)
 
 }

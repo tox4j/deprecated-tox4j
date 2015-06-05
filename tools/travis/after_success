@@ -8,13 +8,7 @@ if [ "$TOX4J_TARGET" = "host" ]; then
       ;;
 
     performance)
-      echo "Uploading performance data..."
-      git clone "https://$GH_TOKEN@github.com/tox4j/tox4j.github.io" .web
-      cd .web
-      git config user.name "$GIT_NAME"
-      git config user.email "$GIT_EMAIL"
-      mv ../tmp/report/js/ScalaMeter/data.js report/js/ScalaMeter/data.js
-      git commit report/js/ScalaMeter/data.js -m "Added performance data for `date -u`."
+      # Nothing to do here.
       ;;
   esac
 fi

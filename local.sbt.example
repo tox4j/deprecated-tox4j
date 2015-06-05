@@ -1,0 +1,3 @@
+import sbt.tox4j.Benchmarking.Keys._
+
+benchmarkMachine := "iphydf"

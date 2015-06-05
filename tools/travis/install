@@ -7,7 +7,7 @@ unset CC
 unset CXX
 
 GLOBAL_CACHE="ivy2 sbt usr"
-LOCAL_CACHE="project/project project/target"
+LOCAL_CACHE="project/project project/target target/scalameter-reports"
 
 BASEDIR=$1
 SOURCEDIR=$2
@@ -94,6 +94,20 @@ case "$TOX4J_TARGET" in
     ;;
 esac
 
+# Prepare for tests or benchmarks.
+case "$TEST_GOAL" in
+  correctness)
+    # Nothing to do here.
+    ;;
+
+  performance)
+    git clone "https://$GH_TOKEN@github.com/tox4j/tox4j.github.io" $SOURCEDIR/.web
+    cd $SOURCEDIR/.web
+    git config user.name "$GIT_NAME"
+    git config user.email "$GIT_EMAIL"
+    ;;
+esac
+
 # Install the required Java/Scala packages.
 cd $SOURCEDIR
 tools/sbt update
@@ -108,7 +122,7 @@ done
 
 for dir in $LOCAL_CACHE; do
   cache_dir="$BASEDIR/cache/local/`basename $dir`"
-  if [ ! -d "$cache_dir" ]; then
+  if [ ! -d "$cache_dir" && -d "$dir" ]; then
     mv "$dir" "$cache_dir"
     ln -s "$cache_dir" "$dir"
   fi

@@ -3,7 +3,7 @@ package im.tox.client
 import im.tox.tox4j.core.enums.ToxUserStatus
 import org.scalatest.FlatSpec
 
-class ToxClientSpec extends FlatSpec {
+final class ToxClientTest extends FlatSpec {
 
   private def withTox(code: ToxClient => Unit) = {
     val tox = new ToxClient

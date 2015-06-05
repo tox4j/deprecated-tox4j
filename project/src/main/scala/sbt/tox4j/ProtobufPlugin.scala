@@ -7,8 +7,6 @@ import sbt.Keys._
 import sbt._
 import sbt.tox4j.Jni.Keys._
 
-import scala.language.postfixOps
-
 object ProtobufPlugin extends Plugin {
 
   val Protobuf = config("protoc")
