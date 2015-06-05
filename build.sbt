@@ -21,9 +21,12 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
   "org.slf4j" % "slf4j-log4j12" % "1.7.12",
-  "com.storm-enroute" %% "scalameter" % "0.6",
+  "com.storm-enroute" %% "scalameter" % "0.7-SNAPSHOT",
   "junit" % "junit" % "4.12"
 ) map (_ % Test)
+
+// Snapshot repository.
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 // Add ScalaMeter as test framework.
 testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
