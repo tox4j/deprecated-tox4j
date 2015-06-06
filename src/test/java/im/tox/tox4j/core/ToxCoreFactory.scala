@@ -1,5 +1,6 @@
 package im.tox.tox4j.core
 
+import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 
@@ -9,8 +10,18 @@ object ToxCoreFactory {
 
   private final val toxes = new ArrayBuffer[ToxCore]
 
-  private def make(options: ToxOptions): ToxCore = {
-    new ToxCoreImpl(options)
+  def make(options: ToxOptions = ToxOptions()): ToxCore = {
+    try {
+      new ToxCoreImpl(options)
+    } catch {
+      case _: ToxNewException =>
+        System.gc()
+        new ToxCoreImpl(options)
+    }
+  }
+
+  def makeList(count: Int, options: ToxOptions = ToxOptions()): ToxList = {
+    new ToxList(() => { this(options) }, count)
   }
 
   def destroyAll(): Unit = {
@@ -35,24 +46,28 @@ object ToxCoreFactory {
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type)(f: ToxCore => R): R = {
-    withTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))(f)
+    withTox(ToxOptions(ipv6Enabled, udpEnabled, proxy))(f)
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => R): R = {
-    withTox(new ToxOptions(ipv6Enabled, udpEnabled))(f)
+    withTox(ToxOptions(ipv6Enabled, udpEnabled))(f)
   }
 
   def withTox[R](f: ToxCore => R): R = {
     withTox(ipv6Enabled = true, udpEnabled = true)(f)
   }
 
-  def withToxes[R](count: Int)(f: ToxList => R): R = {
-    val toxes = new ToxList(() => { this(new ToxOptions) }, count)
+  def withToxes[R](count: Int, options: ToxOptions)(f: ToxList => R): R = {
+    val toxes = makeList(count, options)
     try {
       f(toxes)
     } finally {
       toxes.close()
     }
+  }
+
+  def withToxes[R](count: Int)(f: ToxList => R): R = {
+    withToxes(count, ToxOptions())(f)
   }
 
 }

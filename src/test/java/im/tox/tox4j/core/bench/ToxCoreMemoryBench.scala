@@ -8,7 +8,7 @@ class ToxCoreMemoryBench extends MemoryReport {
   memory of "ToxCore" in {
 
     measure method "iterate" in {
-      using(iterations) in { sz =>
+      using(toxIterations) in { sz =>
         ToxCoreFactory.withTox { tox =>
           (0 until sz) foreach (_ => tox.iteration())
         }
