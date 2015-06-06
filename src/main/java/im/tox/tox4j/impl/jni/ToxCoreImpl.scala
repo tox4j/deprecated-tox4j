@@ -425,7 +425,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def callbackFriendName(callback: FriendNameCallback): Unit = this.friendNameCallback = callback
   override def callbackFriendStatusMessage(callback: FriendStatusMessageCallback): Unit = this.friendStatusMessageCallback = callback
   override def callbackFriendStatus(callback: FriendStatusCallback): Unit = this.friendStatusCallback = callback
-  override def callbackFriendConnected(callback: FriendConnectionStatusCallback): Unit = this.friendConnectionStatusCallback = callback
+  override def callbackFriendConnectionStatus(callback: FriendConnectionStatusCallback): Unit = this.friendConnectionStatusCallback = callback
   override def callbackFriendTyping(callback: FriendTypingCallback): Unit = this.friendTypingCallback = callback
   override def callbackReadReceipt(callback: ReadReceiptCallback): Unit = this.readReceiptCallback = callback
   override def callbackFriendRequest(callback: FriendRequestCallback): Unit = this.friendRequestCallback = callback
@@ -437,5 +437,36 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def callbackFriendLossyPacket(callback: FriendLossyPacketCallback): Unit = this.friendLossyPacketCallback = callback
   override def callbackFriendLosslessPacket(callback: FriendLosslessPacketCallback): Unit = this.friendLosslessPacketCallback = callback
   override def callbackConnectionStatus(callback: ConnectionStatusCallback): Unit = this.connectionStatusCallback = callback
+
+  def invokeFriendName(friendNumber: Int, @NotNull name: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendName(instanceNumber, friendNumber, name)
+  def invokeFriendStatusMessage(friendNumber: Int, @NotNull message: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendStatusMessage(instanceNumber, friendNumber, message)
+  def invokeFriendStatus(friendNumber: Int, @NotNull status: ToxUserStatus): Unit =
+    ToxCoreJni.invokeFriendStatus(instanceNumber, friendNumber, status.ordinal())
+  def invokeFriendConnectionStatus(friendNumber: Int, @NotNull connectionStatus: ToxConnection): Unit =
+    ToxCoreJni.invokeFriendConnectionStatus(instanceNumber, friendNumber, connectionStatus.ordinal())
+  def invokeFriendTyping(friendNumber: Int, isTyping: Boolean): Unit =
+    ToxCoreJni.invokeFriendTyping(instanceNumber, friendNumber, isTyping)
+  def invokeReadReceipt(friendNumber: Int, messageId: Int): Unit =
+    ToxCoreJni.invokeReadReceipt(instanceNumber, friendNumber, messageId)
+  def invokeFriendRequest(@NotNull publicKey: Array[Byte], timeDelta: Int, @NotNull message: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendRequest(instanceNumber, publicKey, timeDelta, message)
+  def invokeFriendMessage(friendNumber: Int, @NotNull `type`: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendMessage(instanceNumber, friendNumber, `type`.ordinal(), timeDelta, message)
+  def invokeFileRequestChunk(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit =
+    ToxCoreJni.invokeFileRequestChunk(instanceNumber, friendNumber, fileNumber, position, length)
+  def invokeFileReceive(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, @NotNull filename: Array[Byte]): Unit =
+    ToxCoreJni.invokeFileReceive(instanceNumber, friendNumber, fileNumber, kind, fileSize, filename)
+  def invokeFileReceiveChunk(friendNumber: Int, fileNumber: Int, position: Long, @NotNull data: Array[Byte]): Unit =
+    ToxCoreJni.invokeFileReceiveChunk(instanceNumber, friendNumber, fileNumber, position, data)
+  def invokeFileControl(friendNumber: Int, fileNumber: Int, @NotNull control: ToxFileControl): Unit =
+    ToxCoreJni.invokeFileControl(instanceNumber, friendNumber, fileNumber, control.ordinal())
+  def invokeFriendLossyPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendLossyPacket(instanceNumber, friendNumber, data)
+  def invokeFriendLosslessPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendLosslessPacket(instanceNumber, friendNumber, data)
+  def invokeConnectionStatus(@NotNull connectionStatus: ToxConnection): Unit =
+    ToxCoreJni.invokeConnectionStatus(instanceNumber, connectionStatus.ordinal())
 
 }

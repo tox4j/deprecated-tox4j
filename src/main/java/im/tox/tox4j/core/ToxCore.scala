@@ -507,7 +507,7 @@ trait ToxCore extends Closeable {
   def callbackFriendName(@NotNull callback: FriendNameCallback): Unit
   def callbackFriendStatusMessage(@NotNull callback: FriendStatusMessageCallback): Unit
   def callbackFriendStatus(@NotNull callback: FriendStatusCallback): Unit
-  def callbackFriendConnected(@NotNull callback: FriendConnectionStatusCallback): Unit
+  def callbackFriendConnectionStatus(@NotNull callback: FriendConnectionStatusCallback): Unit
   def callbackFriendTyping(@NotNull callback: FriendTypingCallback): Unit
   def callbackReadReceipt(@NotNull callback: ReadReceiptCallback): Unit
   def callbackFriendRequest(@NotNull callback: FriendRequestCallback): Unit
@@ -531,7 +531,7 @@ trait ToxCore extends Closeable {
     callbackFileReceive(handler)
     callbackFileReceiveChunk(handler)
     callbackFileRequestChunk(handler)
-    callbackFriendConnected(handler)
+    callbackFriendConnectionStatus(handler)
     callbackFriendMessage(handler)
     callbackFriendName(handler)
     callbackFriendRequest(handler)

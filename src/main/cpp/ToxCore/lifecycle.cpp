@@ -371,3 +371,253 @@ TOX_METHOD (jbyteArray, GetSavedata,
       }
   );
 }
+
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeConnectionStatus
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeConnectionStatus
+  (JNIEnv *env, jclass, jint instanceNumber, jint connection_status)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_self_connection_status_cb (tox, (TOX_CONNECTION) connection_status, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFileControl
+ * Signature: (IIII)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileControl
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint file_number, jint control)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_file_recv_control_cb (tox, friend_number, file_number, (TOX_FILE_CONTROL) control, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFileReceive
+ * Signature: (IIIIJ[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileReceive
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint file_number, jint kind, jlong file_size, jbyteArray filename)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray filenameArray (env, filename);
+        tox4j_file_recv_cb (tox, friend_number, file_number, kind, file_size, filenameArray.data (), filenameArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFileReceiveChunk
+ * Signature: (IIIJ[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileReceiveChunk
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint file_number, jlong position, jbyteArray data)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray dataArray (env, data);
+        tox4j_file_recv_chunk_cb (tox, friend_number, file_number, position, dataArray.data (), dataArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFileRequestChunk
+ * Signature: (IIIJI)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileRequestChunk
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint file_number, jlong position, jint length)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_file_chunk_request_cb (tox, friend_number, file_number, position, length, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendConnectionStatus
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendConnectionStatus
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint connection_status)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_friend_connection_status_cb (tox, friend_number, (TOX_CONNECTION) connection_status, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendLosslessPacket
+ * Signature: (II[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendLosslessPacket
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jbyteArray data)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray dataArray (env, data);
+        tox4j_friend_lossless_packet_cb (tox, friend_number, dataArray.data (), dataArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendLossyPacket
+ * Signature: (II[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendLossyPacket
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jbyteArray data)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray dataArray (env, data);
+        tox4j_friend_lossy_packet_cb (tox, friend_number, dataArray.data (), dataArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendMessage
+ * Signature: (IIII[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendMessage
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint type, jint time_delta, jbyteArray message)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray messageArray (env, message);
+        tox4j_friend_message_cb (tox, friend_number, (TOX_MESSAGE_TYPE) type, /*time_delta, */ messageArray.data (), messageArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendName
+ * Signature: (II[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendName
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jbyteArray name)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray nameArray (env, name);
+        tox4j_friend_name_cb (tox, friend_number, nameArray.data (), nameArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendRequest
+ * Signature: (I[BI[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendRequest
+  (JNIEnv *env, jclass, jint instanceNumber, jbyteArray public_key, jint time_delta, jbyteArray message)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray public_keyArray (env, public_key);
+        ByteArray messageArray (env, message);
+        tox4j_friend_request_cb (tox, public_keyArray.data (), /*time_delta, */ messageArray.data (), messageArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendStatus
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendStatus
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint status)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_friend_status_cb (tox, friend_number, (TOX_USER_STATUS) status, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendStatusMessage
+ * Signature: (II[B)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendStatusMessage
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jbyteArray message)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        ByteArray messageArray (env, message);
+        tox4j_friend_status_message_cb (tox, friend_number, messageArray.data (), messageArray.size (), events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeFriendTyping
+ * Signature: (IIZ)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendTyping
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jboolean is_typing)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_friend_typing_cb (tox, friend_number, is_typing, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxCoreJni
+ * Method:    invokeReadReceipt
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeReadReceipt
+  (JNIEnv *env, jclass, jint instanceNumber, jint friend_number, jint message_id)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (Tox *tox, Events &events)
+      {
+        tox4j_friend_read_receipt_cb (tox, friend_number, message_id, events);
+      }
+  );
+}

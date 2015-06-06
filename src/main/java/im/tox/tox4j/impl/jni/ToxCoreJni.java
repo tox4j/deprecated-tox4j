@@ -2,6 +2,10 @@ package im.tox.tox4j.impl.jni;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
+import im.tox.tox4j.core.enums.ToxConnection;
+import im.tox.tox4j.core.enums.ToxFileControl;
+import im.tox.tox4j.core.enums.ToxMessageType;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 import im.tox.tox4j.core.exceptions.*;
 import scala.MatchError;
 
@@ -73,6 +77,22 @@ final class ToxCoreJni {
   static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber) throws ToxFileGetInfoException;
   static native void toxSendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
   static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
+
+  static native void invokeConnectionStatus(int instanceNumber, int connectionStatus);
+  static native void invokeFileControl(int instanceNumber, int friendNumber, int fileNumber, int control);
+  static native void invokeFileReceive(int instanceNumber, int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename);
+  static native void invokeFileReceiveChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data);
+  static native void invokeFileRequestChunk(int instanceNumber, int friendNumber, int fileNumber, long position, int length);
+  static native void invokeFriendConnectionStatus(int instanceNumber, int friendNumber, int connectionStatus);
+  static native void invokeFriendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data);
+  static native void invokeFriendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data);
+  static native void invokeFriendMessage(int instanceNumber, int friendNumber, int type, int timeDelta, @NotNull byte[] message);
+  static native void invokeFriendName(int instanceNumber, int friendNumber, @NotNull byte[] name);
+  static native void invokeFriendRequest(int instanceNumber, @NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message);
+  static native void invokeFriendStatus(int instanceNumber, int friendNumber, int status);
+  static native void invokeFriendStatusMessage(int instanceNumber, int friendNumber, @NotNull byte[] message);
+  static native void invokeFriendTyping(int instanceNumber, int friendNumber, boolean isTyping);
+  static native void invokeReadReceipt(int instanceNumber, int friendNumber, int messageId);
 
   static <T> T conversionError(@NotNull String className, @NotNull String name) {
     throw new MatchError("ToxCore: Could not convert " + className + '.' + name);
