@@ -1,11 +1,11 @@
 package im.tox.tox4j.bench
 
 import im.tox.tox4j.bench.PerformanceReportBase.toxInstance
-import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 import org.scalameter.api._
-import org.scalameter.{ Gen, KeyValue }
+import org.scalameter.{ api, Gen, KeyValue }
 
 import scala.util.Random
 
@@ -51,23 +51,23 @@ object PerformanceReportBase {
   }
 
   val nodes = range("nodes")(100)
-  val instances = range("instances")(500)
+  val instances = range("instances")(100)
   val toxIterations = range("tox_iterates")(5000)
 
   val nameLengths = Gen.range("name length")(0, ToxCoreConstants.MAX_NAME_LENGTH, 8)
   val statusMessageLengths = Gen.range("status message length")(0, ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH, 100)
 
-  private def friends = range("friends")_
+  def friends: (Int) => api.Gen[Int] = range("friends")
   val friends1k = friends(1000)
   val friends10k = friends(10000)
 
-  private def iterations = range("iterations")_
+  def iterations: (Int) => api.Gen[Int] = range("iterations")
   val iterations1k = iterations(1000)
   val iterations10k = iterations(10000)
   val iterations100k = iterations(100000)
   val iterations1000k = iterations(1000000)
 
-  // Derived generators: friends.
+  // Derived generators
 
   def friendAddresses(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = gen.map { sz =>
     (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
@@ -88,6 +88,10 @@ object PerformanceReportBase {
     val tox = makeTox()
     keys.foreach(tox.addFriendNoRequest)
     tox
+  }
+
+  val toxSaves = instances.map { sz =>
+    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().save)))
   }
 
   val names = nameLengths.map(Array.ofDim[Byte])

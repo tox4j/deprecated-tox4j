@@ -69,9 +69,23 @@ class ToxCoreTimingBench extends TimingReport {
       }
     }
 
-    performance of "create + close a tox" in {
+    performance of "creating and closing a tox" in {
       using(instances) in { sz =>
         (0 until sz) foreach (_ => ToxCoreFactory.withTox { _ => })
+      }
+    }
+
+    performance of "loading and closing a tox" in {
+      usingTox(toxSaves) in {
+        case (saves, tox) =>
+          saves foreach (options => tox.load(options).close())
+      }
+    }
+
+    measure method "getSaveData" in {
+      usingTox(iterations(5000)) in {
+        case (sz, tox) =>
+          (0 until sz) foreach (_ => tox.save)
       }
     }
 
