@@ -14,6 +14,7 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
   protected def confidence = Confidence.normal
 
   final override def defaultConfig: Context = Context.empty ++ confidence ++ Seq[KeyValue](
+    verbose -> false,
     reports.resultDir -> "target/benchmarks",
     exec.jvmflags -> "-Djava.library.path=target/cpp/bin"
   )

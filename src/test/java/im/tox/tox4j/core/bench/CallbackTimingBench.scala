@@ -1,17 +1,12 @@
 package im.tox.tox4j.core.bench
 
 import im.tox.tox4j.bench.PerformanceReportBase._
-import im.tox.tox4j.bench.{ Confidence, TimingReport }
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
-import im.tox.tox4j.core.enums.{ ToxMessageType, ToxUserStatus, ToxConnection, ToxFileControl }
+import im.tox.tox4j.bench.TimingReport
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 
-/**
- * Work in progress benchmarks.
- */
-final class BenchWip extends TimingReport {
-
-  protected override def confidence = Confidence.high
+final class CallbackTimingBench extends TimingReport {
 
   val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
   val data = Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
@@ -100,31 +95,6 @@ final class BenchWip extends TimingReport {
     invokePerformance("invokeFriendStatusMessage", _.invokeFriendStatusMessage(1, data))
     invokePerformance("invokeFriendTyping", _.invokeFriendTyping(1, isTyping = true))
     invokePerformance("invokeSelfConnectionStatus", _.invokeSelfConnectionStatus(ToxConnection.TCP))
-
-  }
-
-  /**
-   * Benchmarks we're not currently working on.
-   */
-  object HoldingPen {
-
-    measure method "iterate" in {
-      usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
-          (0 until sz) foreach { _ =>
-            tox.iterate()
-          }
-      }
-    }
-
-    performance of "enqueuing a callback" in {
-      usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
-          (0 until sz) foreach { _ =>
-            tox.invokeFileChunkRequest(1, 2, 3, 4)
-          }
-      }
-    }
 
   }
 

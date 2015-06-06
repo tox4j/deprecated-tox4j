@@ -4,7 +4,7 @@ import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.MemoryReport
 import im.tox.tox4j.core.ToxCore
 
-class ToxCoreMemoryBench extends MemoryReport {
+final class ToxCoreMemoryBench extends MemoryReport {
 
   memory of classOf[ToxCore] in {
 

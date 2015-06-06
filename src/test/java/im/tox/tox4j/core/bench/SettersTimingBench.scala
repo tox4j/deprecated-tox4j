@@ -5,7 +5,7 @@ import im.tox.tox4j.bench.TimingReport
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxUserStatus
 
-class SettersTimingBench extends TimingReport {
+final class SettersTimingBench extends TimingReport {
 
   timing of classOf[ToxCore] in {
 

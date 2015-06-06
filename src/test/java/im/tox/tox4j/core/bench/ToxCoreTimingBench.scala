@@ -6,7 +6,7 @@ import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxCoreConstants }
 import im.tox.tox4j.core.callbacks.ToxEventListener
 import org.scalameter.api._
 
-class ToxCoreTimingBench extends TimingReport {
+final class ToxCoreTimingBench extends TimingReport {
 
   timing of classOf[ToxCore] in {
 

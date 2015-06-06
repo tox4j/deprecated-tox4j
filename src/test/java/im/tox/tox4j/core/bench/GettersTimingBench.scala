@@ -5,7 +5,7 @@ import im.tox.tox4j.bench.TimingReport
 import im.tox.tox4j.core.ToxCore
 import org.scalameter.Gen
 
-class GettersTimingBench extends TimingReport {
+final class GettersTimingBench extends TimingReport {
 
   timing of classOf[ToxCore] in {
 
