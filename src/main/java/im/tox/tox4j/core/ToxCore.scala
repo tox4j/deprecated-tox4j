@@ -30,7 +30,7 @@ trait ToxCore extends Closeable {
    * @return a byte array containing the serialised tox instance.
    */
   @NotNull
-  def save: Array[Byte]
+  def getSaveData: Array[Byte]
 
   /**
    * Create a new [[ToxCore]] instance with different options. The implementation may choose to create an object of
@@ -41,7 +41,7 @@ trait ToxCore extends Closeable {
    * loop with a new instance will operate correctly.
    *
    * If the [[ToxOptions.saveData]] field is not empty, this function will load the Tox instance
-   * from a byte array previously filled by [[save]].
+   * from a byte array previously filled by [[getSaveData]].
    *
    * If loading failed or succeeded only partially, an exception will be thrown.
    *
@@ -126,9 +126,9 @@ trait ToxCore extends Closeable {
   def getDhtId: Array[Byte]
 
   /**
-   * Get the time in milliseconds until [[iteration]] should be called again for optimal performance.
+   * Get the time in milliseconds until [[iterate]] should be called again for optimal performance.
    *
-   * @return the time in milliseconds until [[iteration]] should be called again.
+   * @return the time in milliseconds until [[iterate]] should be called again.
    */
   def iterationInterval: Int
 
@@ -137,7 +137,7 @@ trait ToxCore extends Closeable {
    *
    * This should be invoked every [[iterationInterval]] milliseconds.
    */
-  def iteration(): Unit
+  def iterate(): Unit
 
   /**
    * Copy the Tox Public Key (long term) from the Tox object.
@@ -156,7 +156,7 @@ trait ToxCore extends Closeable {
   /**
    * Set the 4-byte noSpam part of the address.
    *
-   * Setting the noSpam makes it impossible for others to send us friend requests that contained the old nospam number.
+   * Setting the noSpam makes it impossible for others to send us friend requests that contained the old noSpam number.
    *
    * @param noSpam the new noSpam number.
    */
@@ -175,7 +175,7 @@ trait ToxCore extends Closeable {
    *
    * Note that it is not in a human-readable format. To display it to users, it needs to be formatted.
    *
-   * @return a byte array of size [[ToxCoreConstants.ADDRESS_SIZE]]
+   * @return a byte array of size [[ToxCoreConstants.TOX_ADDRESS_SIZE]]
    */
   @NotNull
   def getAddress: Array[Byte]
@@ -241,7 +241,7 @@ trait ToxCore extends Closeable {
    * If more than [[Integer.MAX_VALUE]] friends are added, this function throws
    * an exception.
    *
-   * @param address the address to add as a friend ([[ToxCoreConstants.ADDRESS_SIZE]] bytes).
+   * @param address the address to add as a friend ([[ToxCoreConstants.TOX_ADDRESS_SIZE]] bytes).
    *                This is the byte array the friend got from their own [[getAddress]].
    * @param message the message to send with the friend request (must not be empty).
    * @return the new friend's friend number.
@@ -345,13 +345,13 @@ trait ToxCore extends Closeable {
    * then reassemble the fragments. Messages may not be empty.
    *
    * The return value of this function is the message ID. If a read receipt is
-   * received, the triggered [[ReadReceiptCallback]] event will be passed this message ID.
+   * received, the triggered [[FriendReadReceiptCallback]] event will be passed this message ID.
    *
    * Message IDs are unique per friend per instance. The first message ID is 0. Message IDs
    * are incremented by 1 each time a message is sent. If [[Integer.MAX_VALUE]] messages were
    * sent, the next message ID is [[Integer.MIN_VALUE]].
    *
-   * Message IDs are not stored in the [[save]] data.
+   * Message IDs are not stored in the array returned by [[getSaveData]].
    *
    * @param friendNumber The friend number of the friend to send the message to.
    * @param messageType Message type (normal, action, ...).
@@ -391,7 +391,7 @@ trait ToxCore extends Closeable {
    * @param friendNumber The friend number of the friend the file is being transferred to or received from.
    * @param fileNumber The friend-specific identifier for the file transfer.
    */
-  @throws[ToxFileGetInfoException]
+  @throws[ToxFileGetException]
   def fileGetFileId(friendNumber: Int, fileNumber: Int): Array[Byte]
 
   /**
@@ -405,7 +405,7 @@ trait ToxCore extends Closeable {
    * data of unknown size.
    *
    * File transmission occurs in chunks, which are requested through the
-   * [[FileRequestChunkCallback]] event.
+   * [[FileChunkRequestCallback]] event.
    *
    * When a friend goes offline, all file transfers associated with the friend are
    * purged from core.
@@ -418,7 +418,7 @@ trait ToxCore extends Closeable {
    *   - and sending mode was streaming (fileSize = -1), the behaviour
    *     will be as expected.
    *   - and sending mode was file (fileSize != -1), the
-   *     [[FileRequestChunkCallback]] callback will receive length = 0 when Core thinks
+   *     [[FileChunkRequestCallback]] callback will receive length = 0 when Core thinks
    *     the file transfer has finished. If the client remembers the file size as
    *     it was when sending the request, it will terminate the transfer normally.
    *     If the client re-reads the size, it will think the friend cancelled the
@@ -454,7 +454,7 @@ trait ToxCore extends Closeable {
   /**
    * Send a chunk of file data to a friend.
    *
-   * This function is called in response to the [[FileRequestChunkCallback]] callback. The
+   * This function is called in response to the [[FileChunkRequestCallback]] callback. The
    * length parameter should be equal to the one received though the callback.
    * If it is zero, the transfer is assumed complete. For files with known size,
    * Core will know that the transfer is complete after the last byte has been
@@ -509,16 +509,16 @@ trait ToxCore extends Closeable {
   def callbackFriendStatus(@NotNull callback: FriendStatusCallback): Unit
   def callbackFriendConnectionStatus(@NotNull callback: FriendConnectionStatusCallback): Unit
   def callbackFriendTyping(@NotNull callback: FriendTypingCallback): Unit
-  def callbackReadReceipt(@NotNull callback: ReadReceiptCallback): Unit
+  def callbackFriendReadReceipt(@NotNull callback: FriendReadReceiptCallback): Unit
   def callbackFriendRequest(@NotNull callback: FriendRequestCallback): Unit
   def callbackFriendMessage(@NotNull callback: FriendMessageCallback): Unit
-  def callbackFileControl(@NotNull callback: FileControlCallback): Unit
-  def callbackFileRequestChunk(@NotNull callback: FileRequestChunkCallback): Unit
-  def callbackFileReceive(@NotNull callback: FileReceiveCallback): Unit
-  def callbackFileReceiveChunk(@NotNull callback: FileReceiveChunkCallback): Unit
+  def callbackFileRecvControl(@NotNull callback: FileRecvControlCallback): Unit
+  def callbackFileChunkRequest(@NotNull callback: FileChunkRequestCallback): Unit
+  def callbackFileRecv(@NotNull callback: FileRecvCallback): Unit
+  def callbackFileRecvChunk(@NotNull callback: FileRecvChunkCallback): Unit
   def callbackFriendLossyPacket(@NotNull callback: FriendLossyPacketCallback): Unit
   def callbackFriendLosslessPacket(@NotNull callback: FriendLosslessPacketCallback): Unit
-  def callbackConnectionStatus(@NotNull callback: ConnectionStatusCallback): Unit
+  def callbackSelfConnectionStatus(@NotNull callback: SelfConnectionStatusCallback): Unit
 
   /**
    * Convenience method to set all event handlers at once.
@@ -526,11 +526,11 @@ trait ToxCore extends Closeable {
    * @param handler An event handler capable of handling all Tox events.
    */
   def callback(@NotNull handler: ToxEventListener): Unit = {
-    callbackConnectionStatus(handler)
-    callbackFileControl(handler)
-    callbackFileReceive(handler)
-    callbackFileReceiveChunk(handler)
-    callbackFileRequestChunk(handler)
+    callbackSelfConnectionStatus(handler)
+    callbackFileRecvControl(handler)
+    callbackFileRecv(handler)
+    callbackFileRecvChunk(handler)
+    callbackFileChunkRequest(handler)
     callbackFriendConnectionStatus(handler)
     callbackFriendMessage(handler)
     callbackFriendName(handler)
@@ -540,7 +540,7 @@ trait ToxCore extends Closeable {
     callbackFriendTyping(handler)
     callbackFriendLosslessPacket(handler)
     callbackFriendLossyPacket(handler)
-    callbackReadReceipt(handler)
+    callbackFriendReadReceipt(handler)
   }
 
 }

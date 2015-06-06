@@ -13,7 +13,7 @@ import java.util.Map;
 import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
 
-public class ReadReceiptCallbackTest extends AliceBobTestBase {
+public class FriendReadReceiptCallbackTest extends AliceBobTestBase {
 
   @NotNull
   @Override
@@ -49,7 +49,7 @@ public class ReadReceiptCallbackTest extends AliceBobTestBase {
     }
 
     @Override
-    public void readReceipt(int friendNumber, int messageId) {
+    public void friendReadReceipt(int friendNumber, int messageId) {
       assertEquals(FRIEND_NUMBER, friendNumber);
       Integer messageIndex = receipts.get(messageId);
       //debug("got receipt for " + messageId);

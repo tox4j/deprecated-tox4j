@@ -233,6 +233,7 @@ HANDLE ("FileGet", FILE_GET)
   switch (error)
     {
     success_case (FILE_GET);
+    failure_case (FILE_GET, NULL);
     failure_case (FILE_GET, FRIEND_NOT_FOUND);
     failure_case (FILE_GET, NOT_FOUND);
     }

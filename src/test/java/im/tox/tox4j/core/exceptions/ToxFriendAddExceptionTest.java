@@ -27,14 +27,14 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidAddress2() throws Exception {
     try (ToxCore tox = newTox()) {
-      tox.addFriend(new byte[ToxCoreConstants.ADDRESS_SIZE - 1], new byte[1]);
+      tox.addFriend(new byte[ToxCoreConstants.TOX_ADDRESS_SIZE - 1], new byte[1]);
     }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidAddress3() throws Exception {
     try (ToxCore tox = newTox()) {
-      tox.addFriend(new byte[ToxCoreConstants.ADDRESS_SIZE + 1], new byte[1]);
+      tox.addFriend(new byte[ToxCoreConstants.TOX_ADDRESS_SIZE + 1], new byte[1]);
     }
   }
 

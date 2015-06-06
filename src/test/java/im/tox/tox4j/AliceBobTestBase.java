@@ -109,7 +109,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     }
 
     @Override
-    public void connectionStatus(@NotNull ToxConnection connectionStatus) {
+    public void selfConnectionStatus(@NotNull ToxConnection connectionStatus) {
       connected = connectionStatus != ToxConnection.NONE;
       if (connected) {
         debug("is now connected to the network");
@@ -206,8 +206,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
 
         // Wait for both clients to say they are done, or we're out of time (leaving some grace time for cleanup).
         while (aliceChat.isChatting() || bobChat.isChatting()) {
-          alice.iteration();
-          bob.iteration();
+          alice.iterate();
+          bob.iterate();
 
           aliceChat.performTasks(alice);
           bobChat.performTasks(bob);

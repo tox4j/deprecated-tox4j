@@ -2,10 +2,6 @@ package im.tox.tox4j.impl.jni;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
-import im.tox.tox4j.core.enums.ToxConnection;
-import im.tox.tox4j.core.enums.ToxFileControl;
-import im.tox.tox4j.core.enums.ToxMessageType;
-import im.tox.tox4j.core.enums.ToxUserStatus;
 import im.tox.tox4j.core.exceptions.*;
 import scala.MatchError;
 
@@ -74,15 +70,15 @@ final class ToxCoreJni {
   static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @NotNull byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException;
   static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
   @NotNull
-  static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber) throws ToxFileGetInfoException;
+  static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber) throws ToxFileGetException;
   static native void toxSendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
   static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
 
-  static native void invokeConnectionStatus(int instanceNumber, int connectionStatus);
-  static native void invokeFileControl(int instanceNumber, int friendNumber, int fileNumber, int control);
-  static native void invokeFileReceive(int instanceNumber, int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename);
-  static native void invokeFileReceiveChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data);
-  static native void invokeFileRequestChunk(int instanceNumber, int friendNumber, int fileNumber, long position, int length);
+  static native void invokeSelfConnectionStatus(int instanceNumber, int connectionStatus);
+  static native void invokeFileRecvControl(int instanceNumber, int friendNumber, int fileNumber, int control);
+  static native void invokeFileRecv(int instanceNumber, int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename);
+  static native void invokeFileRecvChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data);
+  static native void invokeFileChunkRequest(int instanceNumber, int friendNumber, int fileNumber, long position, int length);
   static native void invokeFriendConnectionStatus(int instanceNumber, int friendNumber, int connectionStatus);
   static native void invokeFriendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data);
   static native void invokeFriendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data);
@@ -92,7 +88,7 @@ final class ToxCoreJni {
   static native void invokeFriendStatus(int instanceNumber, int friendNumber, int status);
   static native void invokeFriendStatusMessage(int instanceNumber, int friendNumber, @NotNull byte[] message);
   static native void invokeFriendTyping(int instanceNumber, int friendNumber, boolean isTyping);
-  static native void invokeReadReceipt(int instanceNumber, int friendNumber, int messageId);
+  static native void invokeFriendReadReceipt(int instanceNumber, int friendNumber, int messageId);
 
   static <T> T conversionError(@NotNull String className, @NotNull String name) {
     throw new MatchError("ToxCore: Could not convert " + className + '.' + name);

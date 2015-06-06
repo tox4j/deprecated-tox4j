@@ -7,10 +7,10 @@ import im.tox.tox4j.core.enums.ToxFileControl;
  * This event is triggered when a file control command is received from a
  * friend.
  */
-public interface FileControlCallback {
-  FileControlCallback IGNORE = new FileControlCallback() {
+public interface FileRecvControlCallback {
+  FileRecvControlCallback IGNORE = new FileRecvControlCallback() {
     @Override
-    public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
+    public void fileRecvControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
     }
   };
 
@@ -22,5 +22,5 @@ public interface FileControlCallback {
    * @param fileNumber The friend-specific file number the data received is associated with.
    * @param control The file control command received.
    */
-  void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control);
+  void fileRecvControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control);
 }

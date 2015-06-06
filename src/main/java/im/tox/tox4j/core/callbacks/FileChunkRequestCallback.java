@@ -3,10 +3,10 @@ package im.tox.tox4j.core.callbacks;
 /**
  * This event is triggered when Core is ready to send more file data.
  */
-public interface FileRequestChunkCallback {
-  FileRequestChunkCallback IGNORE = new FileRequestChunkCallback() {
+public interface FileChunkRequestCallback {
+  FileChunkRequestCallback IGNORE = new FileChunkRequestCallback() {
     @Override
-    public void fileRequestChunk(int friendNumber, int fileNumber, long position, int length) {
+    public void fileChunkRequest(int friendNumber, int fileNumber, long position, int length) {
     }
   };
 
@@ -35,5 +35,5 @@ public interface FileRequestChunkCallback {
    * @param position The file or stream position from which to continue reading.
    * @param length The number of bytes requested for the current chunk.
    */
-  void fileRequestChunk(int friendNumber, int fileNumber, long position, int length);
+  void fileChunkRequest(int friendNumber, int fileNumber, long position, int length);
 }

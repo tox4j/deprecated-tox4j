@@ -31,13 +31,16 @@ object Benchmarking extends Plugin {
     },
 
     benchmark := {
-      (testOnly in Test).toTask(" *Bench").value
+      val () = (testOnly in Test).toTask(" *Bench").value
       uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     }
+
+  )) ++ inConfig(Test)(Seq(
+    test := (testOnly in Test).toTask(" *Test").value
   ))
 
-  private def uploadResults(log: Logger, baseDirectory: File, benchmarkMachine: String, target: File) = {
-    val webDir = baseDirectory / ".web" / "report" / benchmarkMachine
+  private def uploadResults(log: Logger, baseDirectory: File, machine: String, target: File) = {
+    val webDir = baseDirectory / ".web" / "report" / machine
 
     def dataJs(dir: File) = {
       dir / "js" / "ScalaMeter" / "data.js"
@@ -52,7 +55,7 @@ object Benchmarking extends Plugin {
 
       git("pull")
       IO.copyFile(dataJs(target / "benchmarks" / "report"), dataJs(webDir))
-      git("commit", "-a", "-m", s"Added benchmark results of $benchmarkMachine at $now")
+      git("commit", "-a", "-m", s"Added benchmark results of $machine at $now")
       git("push")
     }
   }

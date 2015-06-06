@@ -1,6 +1,6 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
+import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
 import im.tox.tox4j.core.enums.ToxConnection
 
 final class ToxList(newTox: () => ToxCore, count: Int) {
@@ -9,8 +9,8 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
 
   private val toxes = (0 until count) map { i =>
     val instance = Instance(newTox(), ToxConnection.NONE)
-    instance.tox.callbackConnectionStatus(new ConnectionStatusCallback {
-      override def connectionStatus(connectionStatus: ToxConnection): Unit = {
+    instance.tox.callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+      override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
         instance.connected = connectionStatus
       }
     })
@@ -22,7 +22,7 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
   def isAllConnected: Boolean = toxes.forall(_.connected != ToxConnection.NONE)
   def isAnyConnected: Boolean = toxes.exists(_.connected != ToxConnection.NONE)
 
-  def iteration(): Unit = toxes.foreach(_.tox.iteration())
+  def iteration(): Unit = toxes.foreach(_.tox.iterate())
 
   def iterationInterval: Int = toxes.map(_.tox.iterationInterval).max
 

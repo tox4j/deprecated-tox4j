@@ -11,7 +11,7 @@ public enum ToxSaveDataType {
    */
   NONE,
   /**
-   * Savedata is one that was obtained from {@link im.tox.tox4j.core.ToxCore#save}.
+   * Savedata is one that was obtained from {@link im.tox.tox4j.core.ToxCore#getSaveData}.
    */
   TOX_SAVE,
   /**

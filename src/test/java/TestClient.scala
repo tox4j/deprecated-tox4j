@@ -77,7 +77,7 @@ object TestClient extends App {
       if (count > 0) {
         logger.info("Starting event loop")
         while (true) {
-          toxes.foreach(_.iteration())
+          toxes.foreach(_.iterate())
           Thread.sleep(toxes.map(_.iterationInterval).max)
         }
       }
@@ -93,8 +93,8 @@ object TestClient extends App {
       logger.info(s"[$id] friendTyping($friendNumber, $isTyping)")
     }
 
-    override def connectionStatus(connectionStatus: ToxConnection): Unit = {
-      logger.info(s"[$id] connectionStatus($connectionStatus)")
+    override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
+      logger.info(s"[$id] selfConnectionStatus($connectionStatus)")
     }
 
     override def friendName(friendNumber: Int, name: Array[Byte]): Unit = {
@@ -109,20 +109,20 @@ object TestClient extends App {
       logger.info(s"[$id] friendLossyPacket($friendNumber, ${new String(data)})")
     }
 
-    override def fileReceive(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte]): Unit = {
-      logger.info(s"[$id] fileReceive($friendNumber, $fileNumber, $kind, $fileSize, ${new String(filename)}})")
+    override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte]): Unit = {
+      logger.info(s"[$id] fileRecv($friendNumber, $fileNumber, $kind, $fileSize, ${new String(filename)}})")
     }
 
     override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte]): Unit = {
       logger.info(s"[$id] friendRequest($publicKey, $timeDelta, ${new String(message)})")
     }
 
-    override def fileRequestChunk(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit = {
-      logger.info(s"[$id] fileRequestChunk($friendNumber, $fileNumber, $position, $length)")
+    override def fileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit = {
+      logger.info(s"[$id] fileChunkRequest($friendNumber, $fileNumber, $position, $length)")
     }
 
-    override def fileReceiveChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte]): Unit = {
-      logger.info(s"[$id] fileReceiveChunk($friendNumber, $fileNumber, $position, ${new String(data)})")
+    override def fileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte]): Unit = {
+      logger.info(s"[$id] fileRecvChunk($friendNumber, $fileNumber, $position, ${new String(data)})")
     }
 
     override def friendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit = {
@@ -133,16 +133,16 @@ object TestClient extends App {
       logger.info(s"[$id] friendConnectionStatus($friendNumber, $connectionStatus)")
     }
 
-    override def fileControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl): Unit = {
-      logger.info(s"[$id] fileControl($friendNumber, $fileNumber, $control)")
+    override def fileRecvControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl): Unit = {
+      logger.info(s"[$id] fileRecvControl($friendNumber, $fileNumber, $control)")
     }
 
     override def friendStatusMessage(friendNumber: Int, message: Array[Byte]): Unit = {
       logger.info(s"[$id] friendStatusMessage($friendNumber, ${new String(message)})")
     }
 
-    override def readReceipt(friendNumber: Int, messageId: Int): Unit = {
-      logger.info(s"[$id] readReceipt($friendNumber, $messageId)")
+    override def friendReadReceipt(friendNumber: Int, messageId: Int): Unit = {
+      logger.info(s"[$id] friendReadReceipt($friendNumber, $messageId)")
     }
 
   }

@@ -9,7 +9,7 @@ tools/sbt scalastyle test:scalastyle checkstyle test:checkstyle test:compile
 if [ "$TOX4J_TARGET" = "host" ]; then
   case "$TEST_GOAL" in
     correctness)
-      tools/sbt coverage "testOnly *Test" || true
+      tools/sbt coverage test || true
       ;;
 
     performance)

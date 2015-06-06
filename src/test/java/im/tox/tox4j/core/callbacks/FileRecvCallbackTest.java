@@ -10,7 +10,7 @@ import im.tox.tox4j.exceptions.ToxException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class FileReceiveCallbackTest extends AliceBobTestBase {
+public class FileRecvCallbackTest extends AliceBobTestBase {
 
   @NotNull
   @Override
@@ -47,7 +47,7 @@ public class FileReceiveCallbackTest extends AliceBobTestBase {
     }
 
     @Override
-    public void fileReceive(
+    public void fileRecv(
         final int friendNumber,
         final int fileNumber,
         int kind,

@@ -91,7 +91,7 @@ object PerformanceReportBase {
   }
 
   val toxSaves = instances.map { sz =>
-    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().save)))
+    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSaveData)))
   }
 
   val names = nameLengths.map(Array.ofDim[Byte])

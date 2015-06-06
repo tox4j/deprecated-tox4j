@@ -52,7 +52,7 @@ public class FileTransferTest extends AliceBobTestBase {
     }
 
     @Override
-    public void fileReceive(
+    public void fileRecv(
         final int friendNumber, final int fileNumber, int kind, long fileSize, @NotNull byte[] filename
     ) {
       debug("received file send request " + fileNumber + " from friend number " + friendNumber);
@@ -72,13 +72,13 @@ public class FileTransferTest extends AliceBobTestBase {
     }
 
     @Override
-    public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
+    public void fileRecvControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
       debug("file control from " + friendNumber + " for file " + fileNumber + ": " + control);
       assertTrue(isAlice());
     }
 
     @Override
-    public void fileRequestChunk(final int friendNumber, final int fileNumber, final long position, final int length) {
+    public void fileChunkRequest(final int friendNumber, final int fileNumber, final long position, final int length) {
       debug("got request for " + length + "B from " + friendNumber + " for file " + fileNumber + " at " + position);
       assertEquals(FRIEND_NUMBER, friendNumber);
       assertTrue(isAlice());
@@ -102,7 +102,7 @@ public class FileTransferTest extends AliceBobTestBase {
     }
 
     @Override
-    public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
+    public void fileRecvChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
       debug("got " + data.length + "B from " + friendNumber + " at " + position);
       assertTrue(isBob());
       assertEquals(FRIEND_NUMBER, friendNumber);

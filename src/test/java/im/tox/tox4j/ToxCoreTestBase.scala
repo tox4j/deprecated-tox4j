@@ -5,7 +5,7 @@ import java.net.{ InetAddress, Socket }
 import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
+import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
 import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
@@ -46,8 +46,8 @@ object ToxCoreTestBase {
       connected(i) = ToxConnection.NONE
 
       toxes(i) = factory.newTox()
-      toxes(i).callbackConnectionStatus(new ConnectionStatusCallback {
-        override def connectionStatus(connectionStatus: ToxConnection): Unit = {
+      toxes(i).callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+        override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
           connected(i) = connectionStatus
         }
       })
@@ -60,7 +60,7 @@ object ToxCoreTestBase {
     def isAllConnected: Boolean = !connected.contains(ToxConnection.NONE)
     def isAnyConnected: Boolean = connected.exists(_ != ToxConnection.NONE)
 
-    def iteration(): Unit = toxes.foreach(_.iteration())
+    def iteration(): Unit = toxes.foreach(_.iterate())
 
     def iterationInterval: Int = toxes.map(_.iterationInterval).max
 

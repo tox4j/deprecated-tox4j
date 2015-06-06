@@ -6,10 +6,10 @@ import im.tox.tox4j.annotations.NotNull;
  * This event is first triggered when a file transfer request is received, and
  * subsequently when a chunk of file data for an accepted request was received.
  */
-public interface FileReceiveChunkCallback {
-  FileReceiveChunkCallback IGNORE = new FileReceiveChunkCallback() {
+public interface FileRecvChunkCallback {
+  FileRecvChunkCallback IGNORE = new FileRecvChunkCallback() {
     @Override
-    public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
+    public void fileRecvChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
     }
   };
 
@@ -19,7 +19,7 @@ public interface FileReceiveChunkCallback {
    * file number can be reused for new file transfers.
    *
    * <p/>
-   * If position is equal to file_size (received in the {@link FileReceiveCallback} callback)
+   * If position is equal to file_size (received in the {@link FileRecvCallback} callback)
    * when the transfer finishes, the file was received completely. Otherwise, if
    * fileSize was negative, streaming ended successfully when length is 0.
    *
@@ -28,5 +28,5 @@ public interface FileReceiveChunkCallback {
    * @param position The file position of the first byte in data.
    * @param data A byte array containing the received chunk.
    */
-  void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data);
+  void fileRecvChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data);
 }

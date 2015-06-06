@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxFileGetInfoException extends ToxException<ToxFileGetInfoException.Code> {
+public final class ToxFileGetException extends ToxException<ToxFileGetException.Code> {
 
   public enum Code {
     /**
@@ -14,13 +14,17 @@ public final class ToxFileGetInfoException extends ToxException<ToxFileGetInfoEx
      * No file transfer with the given file number was found for the given friend.
      */
     NOT_FOUND,
+    /**
+     * An argument was null.
+     */
+    NULL,
   }
 
-  public ToxFileGetInfoException(@NotNull Code code) {
+  public ToxFileGetException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxFileGetInfoException(@NotNull Code code, String message) {
+  public ToxFileGetException(@NotNull Code code, String message) {
     super(code, message);
   }
 

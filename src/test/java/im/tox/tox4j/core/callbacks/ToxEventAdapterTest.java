@@ -10,27 +10,27 @@ public class ToxEventAdapterTest {
 
   @Test
   public void testConnectionStatus() throws Exception {
-    listener.connectionStatus(ToxConnection.NONE);
+    listener.selfConnectionStatus(ToxConnection.NONE);
   }
 
   @Test
   public void testFileControl() throws Exception {
-    listener.fileControl(0, 0, ToxFileControl.RESUME);
+    listener.fileRecvControl(0, 0, ToxFileControl.RESUME);
   }
 
   @Test
   public void testFileReceive() throws Exception {
-    listener.fileReceive(0, 0, ToxFileKind.DATA, 0, null);
+    listener.fileRecv(0, 0, ToxFileKind.DATA, 0, null);
   }
 
   @Test
   public void testFileReceiveChunk() throws Exception {
-    listener.fileReceiveChunk(0, 0, 0, null);
+    listener.fileRecvChunk(0, 0, 0, null);
   }
 
   @Test
   public void testFileRequestChunk() throws Exception {
-    listener.fileRequestChunk(0, 0, 0, 0);
+    listener.fileChunkRequest(0, 0, 0, 0);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class ToxEventAdapterTest {
 
   @Test
   public void testReadReceipt() throws Exception {
-    listener.readReceipt(0, 0);
+    listener.friendReadReceipt(0, 0);
   }
 
 }

@@ -11,7 +11,7 @@ class ToxCoreMemoryBench extends MemoryReport {
     measure method "iterate" in {
       usingTox(toxIterations) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.iteration())
+          (0 until sz) foreach (_ => tox.iterate())
       }
     }
 

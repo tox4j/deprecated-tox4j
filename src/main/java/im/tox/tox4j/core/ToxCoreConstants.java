@@ -21,7 +21,7 @@ public interface ToxCoreConstants {
    * byte is an XOR of all the odd bytes, the second byte is an XOR of all the
    * even bytes of the Public Key and nospam.
    */
-  int ADDRESS_SIZE                = PUBLIC_KEY_SIZE + 4 + 2;
+  int TOX_ADDRESS_SIZE = PUBLIC_KEY_SIZE + 4 + 2;
 
   /**
    * Maximum length of a nickname in bytes.

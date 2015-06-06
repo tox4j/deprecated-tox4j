@@ -55,7 +55,8 @@
       "is 256 per friend per direction (sending and receiving, so 512 total)."
     ]
   },
-  "FileGetInfo": {
+  "FileGet": {
+    "NULL": ["An argument was null."],
     "FRIEND_NOT_FOUND": ["The friendNumber passed did not designate a valid friend."],
     "NOT_FOUND": ["No file transfer with the given file number was found for the given friend."]
   },

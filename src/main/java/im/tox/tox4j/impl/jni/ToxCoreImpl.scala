@@ -31,34 +31,34 @@ private object ToxCoreImpl {
     }
   }
 
-  private def convert(status: Socket): ToxConnection = {
+  private def convert(status: Connection.Type): ToxConnection = {
     status match {
-      case Socket.NONE => ToxConnection.NONE
-      case Socket.TCP  => ToxConnection.TCP
-      case Socket.UDP  => ToxConnection.UDP
+      case Connection.Type.NONE => ToxConnection.NONE
+      case Connection.Type.TCP  => ToxConnection.TCP
+      case Connection.Type.UDP  => ToxConnection.UDP
     }
   }
 
-  private def convert(status: FriendStatus.Kind): ToxUserStatus = {
+  private def convert(status: UserStatus.Type): ToxUserStatus = {
     status match {
-      case FriendStatus.Kind.NONE => ToxUserStatus.NONE
-      case FriendStatus.Kind.AWAY => ToxUserStatus.AWAY
-      case FriendStatus.Kind.BUSY => ToxUserStatus.BUSY
+      case UserStatus.Type.NONE => ToxUserStatus.NONE
+      case UserStatus.Type.AWAY => ToxUserStatus.AWAY
+      case UserStatus.Type.BUSY => ToxUserStatus.BUSY
     }
   }
 
-  private def convert(control: FileControl.Kind): ToxFileControl = {
+  private def convert(control: FileControl.Type): ToxFileControl = {
     control match {
-      case FileControl.Kind.RESUME => ToxFileControl.RESUME
-      case FileControl.Kind.PAUSE  => ToxFileControl.PAUSE
-      case FileControl.Kind.CANCEL => ToxFileControl.CANCEL
+      case FileControl.Type.RESUME => ToxFileControl.RESUME
+      case FileControl.Type.PAUSE  => ToxFileControl.PAUSE
+      case FileControl.Type.CANCEL => ToxFileControl.CANCEL
     }
   }
 
-  private def convert(messageType: FriendMessage.Type): ToxMessageType = {
+  private def convert(messageType: MessageType.Type): ToxMessageType = {
     messageType match {
-      case FriendMessage.Type.NORMAL => ToxMessageType.NORMAL
-      case FriendMessage.Type.ACTION => ToxMessageType.ACTION
+      case MessageType.Type.NORMAL => ToxMessageType.NORMAL
+      case MessageType.Type.ACTION => ToxMessageType.ACTION
     }
   }
 
@@ -82,7 +82,7 @@ private object ToxCoreImpl {
 }
 
 /**
- * Initialises the new Tox instance with an optional save-data received from [[save]].
+ * Initialises the new Tox instance with an optional save-data received from [[getSaveData]].
  *
  * @param options Connection options object with optional save-data.
  */
@@ -91,19 +91,19 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
 
   private val onCloseCallbacks = new Event
 
-  private var connectionStatusCallback = ConnectionStatusCallback.IGNORE
+  private var selfConnectionStatusCallback = SelfConnectionStatusCallback.IGNORE
   private var friendNameCallback = FriendNameCallback.IGNORE
   private var friendStatusMessageCallback = FriendStatusMessageCallback.IGNORE
   private var friendStatusCallback = FriendStatusCallback.IGNORE
   private var friendConnectionStatusCallback = FriendConnectionStatusCallback.IGNORE
   private var friendTypingCallback = FriendTypingCallback.IGNORE
-  private var readReceiptCallback = ReadReceiptCallback.IGNORE
+  private var friendReadReceiptCallback = FriendReadReceiptCallback.IGNORE
   private var friendRequestCallback = FriendRequestCallback.IGNORE
   private var friendMessageCallback = FriendMessageCallback.IGNORE
-  private var fileControlCallback = FileControlCallback.IGNORE
-  private var fileRequestChunkCallback = FileRequestChunkCallback.IGNORE
-  private var fileReceiveCallback = FileReceiveCallback.IGNORE
-  private var fileReceiveChunkCallback = FileReceiveChunkCallback.IGNORE
+  private var fileRecvControlCallback = FileRecvControlCallback.IGNORE
+  private var fileChunkRequestCallback = FileChunkRequestCallback.IGNORE
+  private var fileRecvCallback = FileRecvCallback.IGNORE
+  private var fileRecvChunkCallback = FileRecvChunkCallback.IGNORE
   private var friendLossyPacketCallback = FriendLossyPacketCallback.IGNORE
   private var friendLosslessPacketCallback = FriendLosslessPacketCallback.IGNORE
 
@@ -164,7 +164,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxAddTcpRelay(instanceNumber, address, port, publicKey)
   }
 
-  override def save: Array[Byte] =
+  override def getSaveData: Array[Byte] =
     ToxCoreJni.toxGetSavedata(instanceNumber)
 
   @throws[ToxGetPortException]
@@ -181,28 +181,28 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def iterationInterval: Int =
     ToxCoreJni.toxIterationInterval(instanceNumber)
 
-  override def iteration(): Unit = {
+  override def iterate(): Unit = {
     Option(ToxCoreJni.toxIterate(instanceNumber)).map(CoreEvents.parseFrom) match {
       case None =>
       case Some(CoreEvents(
-        connectionStatus,
-        fileControl,
-        fileReceive,
-        fileReceiveChunk,
-        fileRequestChunk,
-        friendConnectionStatus,
-        friendMessage,
+        selfConnectionStatus,
         friendName,
-        friendRequest,
-        friendStatus,
         friendStatusMessage,
+        friendStatus,
+        friendConnectionStatus,
         friendTyping,
-        friendLosslessPacket,
+        friendReadReceipt,
+        friendRequest,
+        friendMessage,
+        fileRecvControl,
+        fileChunkRequest,
+        fileRecv,
+        fileRecvChunk,
         friendLossyPacket,
-        readReceipt)) =>
-        connectionStatus.foreach {
-          case ConnectionStatus(status) =>
-            tryAndLog(connectionStatusCallback)(_.connectionStatus(
+        friendLosslessPacket)) =>
+        selfConnectionStatus.foreach {
+          case SelfConnectionStatus(status) =>
+            tryAndLog(selfConnectionStatusCallback)(_.selfConnectionStatus(
               convert(status)
             ))
         }
@@ -241,9 +241,9 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
               isTyping
             ))
         }
-        readReceipt.foreach {
-          case ReadReceipt(friendNumber, messageId) =>
-            tryAndLog(readReceiptCallback)(_.readReceipt(
+        friendReadReceipt.foreach {
+          case FriendReadReceipt(friendNumber, messageId) =>
+            tryAndLog(friendReadReceiptCallback)(_.friendReadReceipt(
               friendNumber,
               messageId
             ))
@@ -265,26 +265,26 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
               message.toByteArray
             ))
         }
-        fileControl.foreach {
-          case FileControl(friendNumber, fileNumber, control) =>
-            tryAndLog(fileControlCallback)(_.fileControl(
+        fileRecvControl.foreach {
+          case FileRecvControl(friendNumber, fileNumber, control) =>
+            tryAndLog(fileRecvControlCallback)(_.fileRecvControl(
               friendNumber,
               fileNumber,
               convert(control)
             ))
         }
-        fileRequestChunk.foreach {
-          case FileRequestChunk(friendNumber, fileNumber, position, length) =>
-            tryAndLog(fileRequestChunkCallback)(_.fileRequestChunk(
+        fileChunkRequest.foreach {
+          case FileChunkRequest(friendNumber, fileNumber, position, length) =>
+            tryAndLog(fileChunkRequestCallback)(_.fileChunkRequest(
               friendNumber,
               fileNumber,
               position,
               length
             ))
         }
-        fileReceive.foreach {
-          case FileReceive(friendNumber, fileNumber, kind, fileSize, filename) =>
-            tryAndLog(fileReceiveCallback)(_.fileReceive(
+        fileRecv.foreach {
+          case FileRecv(friendNumber, fileNumber, kind, fileSize, filename) =>
+            tryAndLog(fileRecvCallback)(_.fileRecv(
               friendNumber,
               fileNumber,
               kind,
@@ -292,9 +292,9 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
               filename.toByteArray
             ))
         }
-        fileReceiveChunk.foreach {
-          case FileReceiveChunk(friendNumber, fileNumber, position, data) =>
-            tryAndLog(fileReceiveChunkCallback)(_.fileReceiveChunk(
+        fileRecvChunk.foreach {
+          case FileRecvChunk(friendNumber, fileNumber, position, data) =>
+            tryAndLog(fileRecvChunkCallback)(_.fileRecvChunk(
               friendNumber,
               fileNumber,
               position,
@@ -358,7 +358,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
 
   @throws[ToxFriendAddException]
   override def addFriend(address: Array[Byte], message: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.ADDRESS_SIZE)
+    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.TOX_ADDRESS_SIZE)
     ToxCoreJni.toxFriendAdd(instanceNumber, address, message)
   }
 
@@ -410,7 +410,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def fileSendChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte]): Unit =
     ToxCoreJni.toxFileSendChunk(instanceNumber, friendNumber, fileNumber, position, data)
 
-  @throws[ToxFileGetInfoException]
+  @throws[ToxFileGetException]
   override def fileGetFileId(friendNumber: Int, fileNumber: Int): Array[Byte] =
     ToxCoreJni.toxFileGetFileId(instanceNumber, friendNumber, fileNumber)
 
@@ -427,16 +427,16 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def callbackFriendStatus(callback: FriendStatusCallback): Unit = this.friendStatusCallback = callback
   override def callbackFriendConnectionStatus(callback: FriendConnectionStatusCallback): Unit = this.friendConnectionStatusCallback = callback
   override def callbackFriendTyping(callback: FriendTypingCallback): Unit = this.friendTypingCallback = callback
-  override def callbackReadReceipt(callback: ReadReceiptCallback): Unit = this.readReceiptCallback = callback
+  override def callbackFriendReadReceipt(callback: FriendReadReceiptCallback): Unit = this.friendReadReceiptCallback = callback
   override def callbackFriendRequest(callback: FriendRequestCallback): Unit = this.friendRequestCallback = callback
   override def callbackFriendMessage(callback: FriendMessageCallback): Unit = this.friendMessageCallback = callback
-  override def callbackFileRequestChunk(callback: FileRequestChunkCallback): Unit = this.fileRequestChunkCallback = callback
-  override def callbackFileReceive(callback: FileReceiveCallback): Unit = this.fileReceiveCallback = callback
-  override def callbackFileReceiveChunk(callback: FileReceiveChunkCallback): Unit = this.fileReceiveChunkCallback = callback
-  override def callbackFileControl(callback: FileControlCallback): Unit = this.fileControlCallback = callback
+  override def callbackFileChunkRequest(callback: FileChunkRequestCallback): Unit = this.fileChunkRequestCallback = callback
+  override def callbackFileRecv(callback: FileRecvCallback): Unit = this.fileRecvCallback = callback
+  override def callbackFileRecvChunk(callback: FileRecvChunkCallback): Unit = this.fileRecvChunkCallback = callback
+  override def callbackFileRecvControl(callback: FileRecvControlCallback): Unit = this.fileRecvControlCallback = callback
   override def callbackFriendLossyPacket(callback: FriendLossyPacketCallback): Unit = this.friendLossyPacketCallback = callback
   override def callbackFriendLosslessPacket(callback: FriendLosslessPacketCallback): Unit = this.friendLosslessPacketCallback = callback
-  override def callbackConnectionStatus(callback: ConnectionStatusCallback): Unit = this.connectionStatusCallback = callback
+  override def callbackSelfConnectionStatus(callback: SelfConnectionStatusCallback): Unit = this.selfConnectionStatusCallback = callback
 
   def invokeFriendName(friendNumber: Int, @NotNull name: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendName(instanceNumber, friendNumber, name)
@@ -448,25 +448,25 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.invokeFriendConnectionStatus(instanceNumber, friendNumber, connectionStatus.ordinal())
   def invokeFriendTyping(friendNumber: Int, isTyping: Boolean): Unit =
     ToxCoreJni.invokeFriendTyping(instanceNumber, friendNumber, isTyping)
-  def invokeReadReceipt(friendNumber: Int, messageId: Int): Unit =
-    ToxCoreJni.invokeReadReceipt(instanceNumber, friendNumber, messageId)
+  def invokeFriendReadReceipt(friendNumber: Int, messageId: Int): Unit =
+    ToxCoreJni.invokeFriendReadReceipt(instanceNumber, friendNumber, messageId)
   def invokeFriendRequest(@NotNull publicKey: Array[Byte], timeDelta: Int, @NotNull message: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendRequest(instanceNumber, publicKey, timeDelta, message)
   def invokeFriendMessage(friendNumber: Int, @NotNull `type`: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendMessage(instanceNumber, friendNumber, `type`.ordinal(), timeDelta, message)
-  def invokeFileRequestChunk(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit =
-    ToxCoreJni.invokeFileRequestChunk(instanceNumber, friendNumber, fileNumber, position, length)
-  def invokeFileReceive(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, @NotNull filename: Array[Byte]): Unit =
-    ToxCoreJni.invokeFileReceive(instanceNumber, friendNumber, fileNumber, kind, fileSize, filename)
-  def invokeFileReceiveChunk(friendNumber: Int, fileNumber: Int, position: Long, @NotNull data: Array[Byte]): Unit =
-    ToxCoreJni.invokeFileReceiveChunk(instanceNumber, friendNumber, fileNumber, position, data)
-  def invokeFileControl(friendNumber: Int, fileNumber: Int, @NotNull control: ToxFileControl): Unit =
-    ToxCoreJni.invokeFileControl(instanceNumber, friendNumber, fileNumber, control.ordinal())
+  def invokeFileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit =
+    ToxCoreJni.invokeFileChunkRequest(instanceNumber, friendNumber, fileNumber, position, length)
+  def invokeFileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, @NotNull filename: Array[Byte]): Unit =
+    ToxCoreJni.invokeFileRecv(instanceNumber, friendNumber, fileNumber, kind, fileSize, filename)
+  def invokeFileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, @NotNull data: Array[Byte]): Unit =
+    ToxCoreJni.invokeFileRecvChunk(instanceNumber, friendNumber, fileNumber, position, data)
+  def invokeFileRecvControl(friendNumber: Int, fileNumber: Int, @NotNull control: ToxFileControl): Unit =
+    ToxCoreJni.invokeFileRecvControl(instanceNumber, friendNumber, fileNumber, control.ordinal())
   def invokeFriendLossyPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendLossyPacket(instanceNumber, friendNumber, data)
   def invokeFriendLosslessPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendLosslessPacket(instanceNumber, friendNumber, data)
-  def invokeConnectionStatus(@NotNull connectionStatus: ToxConnection): Unit =
-    ToxCoreJni.invokeConnectionStatus(instanceNumber, connectionStatus.ordinal())
+  def invokeSelfConnectionStatus(@NotNull connectionStatus: ToxConnection): Unit =
+    ToxCoreJni.invokeSelfConnectionStatus(instanceNumber, connectionStatus.ordinal())
 
 }

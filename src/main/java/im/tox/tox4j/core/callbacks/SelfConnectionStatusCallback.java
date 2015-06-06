@@ -10,15 +10,15 @@ import im.tox.tox4j.core.enums.ToxConnection;
  * amounts of time. Clients should therefore not immediately bootstrap on
  * receiving a disconnect.
  */
-public interface ConnectionStatusCallback {
-  ConnectionStatusCallback IGNORE = new ConnectionStatusCallback() {
+public interface SelfConnectionStatusCallback {
+  SelfConnectionStatusCallback IGNORE = new SelfConnectionStatusCallback() {
     @Override
-    public void connectionStatus(@NotNull ToxConnection connectionStatus) {
+    public void selfConnectionStatus(@NotNull ToxConnection connectionStatus) {
     }
   };
 
   /**
    * @param connectionStatus The new connection status.
    */
-  void connectionStatus(@NotNull ToxConnection connectionStatus);
+  void selfConnectionStatus(@NotNull ToxConnection connectionStatus);
 }

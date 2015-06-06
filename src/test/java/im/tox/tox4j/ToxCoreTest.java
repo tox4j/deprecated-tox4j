@@ -127,7 +127,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testIteration() throws Exception {
     ToxCore tox = newTox();
-    tox.iteration();
+    tox.iterate();
   }
 
   @Test
@@ -172,7 +172,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetAddress() throws Exception {
     try (ToxCore tox = newTox()) {
       assertArrayEquals(tox.getAddress(), tox.getAddress());
-      assertEquals(ToxCoreConstants.ADDRESS_SIZE, tox.getAddress().length);
+      assertEquals(ToxCoreConstants.TOX_ADDRESS_SIZE, tox.getAddress().length);
     }
   }
 

@@ -55,7 +55,7 @@ trait ToxAv extends Closeable {
   /**
    * Main loop for the session. This function needs to be called in intervals of
    * [[iterationInterval]] milliseconds. It is best called in the separate
-   * thread from [[ToxCore.iteration]].
+   * thread from [[ToxCore.iterate]].
    */
   def iterate(): Unit
 

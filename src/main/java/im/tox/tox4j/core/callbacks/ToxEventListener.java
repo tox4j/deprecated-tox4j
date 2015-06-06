@@ -1,11 +1,11 @@
 package im.tox.tox4j.core.callbacks;
 
 public interface ToxEventListener extends
-    ConnectionStatusCallback,
-    FileControlCallback,
-    FileReceiveCallback,
-    FileReceiveChunkCallback,
-    FileRequestChunkCallback,
+    SelfConnectionStatusCallback,
+    FileRecvControlCallback,
+    FileRecvCallback,
+    FileRecvChunkCallback,
+    FileChunkRequestCallback,
     FriendConnectionStatusCallback,
     FriendMessageCallback,
     FriendNameCallback,
@@ -15,7 +15,7 @@ public interface ToxEventListener extends
     FriendTypingCallback,
     FriendLosslessPacketCallback,
     FriendLossyPacketCallback,
-    ReadReceiptCallback {
+    FriendReadReceiptCallback {
 
   ToxEventListener IGNORE = new ToxEventAdapter();
 }

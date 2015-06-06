@@ -33,9 +33,9 @@ final class NetworkTest extends FlatSpec with Timeouts {
       tox.bootstrap(ip, port, dhtId)
 
       val status = new ConnectedListener
-      tox.callbackConnectionStatus(status)
+      tox.callbackSelfConnectionStatus(status)
       while (!status.isConnected) {
-        tox.iteration()
+        tox.iterate()
         Thread.sleep(tox.iterationInterval)
       }
 

@@ -5,10 +5,10 @@ import im.tox.tox4j.annotations.NotNull;
 /**
  * This event is triggered when a file transfer request is received.
  */
-public interface FileReceiveCallback {
-  FileReceiveCallback IGNORE = new FileReceiveCallback() {
+public interface FileRecvCallback {
+  FileRecvCallback IGNORE = new FileRecvCallback() {
     @Override
-    public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
+    public void fileRecv(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
     }
   };
 
@@ -25,5 +25,5 @@ public interface FileReceiveCallback {
    * @param fileSize Size in bytes of the file the client wants to send, -1 if unknown or streaming.
    * @param filename Name of the file. May not be the actual name. This name was sent along with the file send request.
    */
-  void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename);
+  void fileRecv(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename);
 }

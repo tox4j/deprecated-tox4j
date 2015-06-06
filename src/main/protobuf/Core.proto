@@ -3,129 +3,138 @@ package im.tox.tox4j.core.proto;
 option optimize_for = LITE_RUNTIME;
 
 
-enum Socket {
-  NONE    = 0;
-  TCP     = 1;
-  UDP     = 2;
-}
-
-message ConnectionStatus {
-  required Socket connectionStatus = 1;
-}
-
-message FileControl {
-  enum Kind {
-    RESUME  = 0;
-    PAUSE   = 1;
-    CANCEL  = 2;
-  }
-
-  required uint32 friendNumber    = 1;
-  required uint32 fileNumber      = 2;
-  required Kind   control         = 3;
-}
-
-message FileReceive {
-  required uint32 friendNumber    = 1;
-  required uint32 fileNumber      = 2;
-  required uint32 kind            = 3;
-  required uint64 fileSize        = 4;
-  required bytes  filename        = 5;
-}
-
-message FileReceiveChunk {
-  required uint32 friendNumber    = 1;
-  required uint32 fileNumber      = 2;
-  required uint64 position        = 3;
-  required bytes  data            = 4;
-}
-
-message FileRequestChunk {
-  required uint32 friendNumber    = 1;
-  required uint32 fileNumber      = 2;
-  required uint64 position        = 3;
-  required uint32 length          = 4;
-}
-
-message FriendConnectionStatus {
-  required uint32 friendNumber    = 1;
-  required Socket connectionStatus = 2;
-}
-
-message FriendMessage {
+message Connection {
   enum Type {
-    NORMAL  = 0;
-    ACTION  = 1;
+    NONE    = 0;
+    TCP     = 1;
+    UDP     = 2;
   }
-
-  required uint32 friendNumber    = 1;
-  required Type   type            = 2;
-  required uint32 timeDelta       = 3;
-  required bytes  message         = 4;
 }
 
-message FriendName {
-  required uint32 friendNumber    = 1;
-  required bytes  name            = 2;
-}
-
-message FriendRequest {
-  required bytes  publicKey       = 1;
-  required uint32 timeDelta       = 2;
-  required bytes  message         = 3;
-}
-
-message FriendStatus {
-  enum Kind {
+message UserStatus {
+  enum Type {
     NONE    = 0;
     AWAY    = 1;
     BUSY    = 2;
   }
+}
 
-  required uint32 friendNumber    = 1;
-  required Kind   status          = 2;
+message MessageType {
+  enum Type {
+    NORMAL  = 0;
+    ACTION  = 1;
+  }
+}
+
+message FileControl {
+  enum Type {
+    RESUME  = 0;
+    PAUSE   = 1;
+    CANCEL  = 2;
+  }
+}
+
+
+
+message SelfConnectionStatus {
+  required Connection.Type connection_status = 1;
+}
+
+message FriendName {
+  required uint32 friend_number        = 1;
+  required bytes  name                 = 2;
 }
 
 message FriendStatusMessage {
-  required uint32 friendNumber    = 1;
-  required bytes  message         = 2;
+  required uint32 friend_number        = 1;
+  required bytes  message              = 2;
+}
+
+message FriendStatus {
+  required uint32 friend_number        = 1;
+  required UserStatus.Type status      = 2;
+}
+
+message FriendConnectionStatus {
+  required uint32 friend_number        = 1;
+  required Connection.Type connection_status = 2;
 }
 
 message FriendTyping {
-  required uint32 friendNumber    = 1;
-  required bool   isTyping        = 2;
+  required uint32 friend_number        = 1;
+  required bool   is_typing            = 2;
 }
 
-message FriendLosslessPacket {
-  required uint32 friendNumber    = 1;
-  required bytes  data            = 2;
+message FriendReadReceipt {
+  required uint32 friend_number        = 1;
+  required uint32 message_id           = 2;
+}
+
+message FriendRequest {
+  required bytes  public_key           = 1;
+  required uint32 time_delta           = 2;
+  required bytes  message              = 3;
+}
+
+message FriendMessage {
+  required uint32 friend_number        = 1;
+  required MessageType.Type type       = 2;
+  required uint32 time_delta           = 3;
+  required bytes message               = 4;
+}
+
+message FileRecvControl {
+  required uint32 friend_number        = 1;
+  required uint32 file_number          = 2;
+  required FileControl.Type control    = 3;
+}
+
+message FileChunkRequest {
+  required uint32 friend_number        = 1;
+  required uint32 file_number          = 2;
+  required uint64 position             = 3;
+  required uint32 length               = 4;
+}
+
+message FileRecv {
+  required uint32 friend_number        = 1;
+  required uint32 file_number          = 2;
+  required uint32 kind                 = 3;
+  required uint64 file_size            = 4;
+  required bytes  filename             = 5;
+}
+
+message FileRecvChunk {
+  required uint32 friend_number        = 1;
+  required uint32 file_number          = 2;
+  required uint64 position             = 3;
+  required bytes  data                 = 4;
 }
 
 message FriendLossyPacket {
-  required uint32 friendNumber    = 1;
-  required bytes  data            = 2;
+  required uint32 friend_number        = 1;
+  required bytes  data                 = 2;
 }
 
-message ReadReceipt {
-  required uint32 friendNumber    = 1;
-  required uint32 messageId       = 2;
+message FriendLosslessPacket {
+  required uint32 friend_number        = 1;
+  required bytes  data                 = 2;
 }
-
 
 message CoreEvents {
-  repeated ConnectionStatus       connectionStatus       =  1;
-  repeated FileControl            fileControl            =  2;
-  repeated FileReceive            fileReceive            =  3;
-  repeated FileReceiveChunk       fileReceiveChunk       =  4;
-  repeated FileRequestChunk       fileRequestChunk       =  5;
-  repeated FriendConnectionStatus friendConnectionStatus =  7;
-  repeated FriendMessage          friendMessage          =  8;
-  repeated FriendName             friendName             =  9;
-  repeated FriendRequest          friendRequest          = 10;
-  repeated FriendStatus           friendStatus           = 11;
-  repeated FriendStatusMessage    friendStatusMessage    = 12;
-  repeated FriendTyping           friendTyping           = 13;
-  repeated FriendLosslessPacket   friendLosslessPacket   = 14;
-  repeated FriendLossyPacket      friendLossyPacket      = 15;
-  repeated ReadReceipt            readReceipt            = 16;
+  repeated SelfConnectionStatus   self_connection_status   =  1;
+  repeated FriendName             friend_name              =  2;
+  repeated FriendStatusMessage    friend_status_message    =  3;
+  repeated FriendStatus           friend_status            =  4;
+  repeated FriendConnectionStatus friend_connection_status =  5;
+  repeated FriendTyping           friend_typing            =  6;
+  repeated FriendReadReceipt      friend_read_receipt      =  7;
+  repeated FriendRequest          friend_request           =  8;
+  repeated FriendMessage          friend_message           =  9;
+  repeated FileRecvControl        file_recv_control        = 10;
+  repeated FileChunkRequest       file_chunk_request       = 11;
+  repeated FileRecv               file_recv                = 12;
+  repeated FileRecvChunk          file_recv_chunk          = 13;
+  repeated FriendLossyPacket      friend_lossy_packet      = 14;
+  repeated FriendLosslessPacket   friend_lossless_packet   = 15;
 }

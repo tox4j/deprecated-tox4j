@@ -66,24 +66,27 @@ object CodeStyle extends Plugin {
           "VideoBitRateStatus",
           "VideoReceiveFrame"
         ).map(_ + ".scala").map(av_proto / _) ++ Seq(
-          "ConnectionStatus",
+          "Connection",
           "CoreEvents",
+          "FileChunkRequest",
           "FileControl",
-          "FileReceive",
-          "FileReceiveChunk",
-          "FileRequestChunk",
+          "FileRecv",
+          "FileRecvChunk",
+          "FileRecvControl",
           "FriendConnectionStatus",
           "FriendLosslessPacket",
           "FriendLossyPacket",
           "FriendMessage",
           "FriendName",
+          "FriendReadReceipt",
           "FriendRequest",
           "FriendStatus",
           "FriendStatusMessage",
           "FriendTyping",
           "InternalFields_coreProto",
-          "ReadReceipt",
-          "Socket"
+          "MessageType",
+          "SelfConnectionStatus",
+          "UserStatus"
         ).map(_ + ".scala").map(core_proto / _)
       },
 

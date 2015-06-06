@@ -18,7 +18,7 @@ package im.tox
  *     in the package. An Adapter class (e.g. [[tox4j.core.callbacks.ToxEventAdapter]]) provides empty default
  *     implementations for all callbacks.
  *     Each callback interface is named SomeThingCallback and contains a someThing method and an empty
- *     implementation of itself named IGNORE (e.g. [[tox4j.core.callbacks.ConnectionStatusCallback.IGNORE]].
+ *     implementation of itself named IGNORE (e.g. [[tox4j.core.callbacks.SelfConnectionStatusCallback.IGNORE]].
  * - enums: Java enums mirroring the C versions exactly. The enums' ordinal does not necessarily correspond to the C
  *     enum value, but the JNI bridge needs to know the ordinals, so if you reorder these, then you must update the
  *     bridge, as well.

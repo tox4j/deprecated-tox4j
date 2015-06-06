@@ -58,7 +58,7 @@ class ToxCoreTimingBench extends TimingReport {
     measure method "iterate" in {
       usingTox(toxIterations) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.iteration())
+          (0 until sz) foreach (_ => tox.iterate())
       }
     }
 
@@ -85,7 +85,7 @@ class ToxCoreTimingBench extends TimingReport {
     measure method "getSaveData" in {
       usingTox(iterations(5000)) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.save)
+          (0 until sz) foreach (_ => tox.getSaveData)
       }
     }
 

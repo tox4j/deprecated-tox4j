@@ -109,13 +109,13 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void connectionStatus(@NotNull ToxConnection connectionStatus) {
-      addMessage("connectionStatus", connectionStatus);
+    public void selfConnectionStatus(@NotNull ToxConnection connectionStatus) {
+      addMessage("selfConnectionStatus", connectionStatus);
     }
 
     @Override
-    public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
-      addMessage("fileControl", friendNumber, fileNumber, control);
+    public void fileRecvControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
+      addMessage("fileRecvControl", friendNumber, fileNumber, control);
       try {
         switch (control) {
           case RESUME:
@@ -132,8 +132,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
-      addMessage("fileReceive", friendNumber, fileNumber, kind, fileSize, new String(filename));
+    public void fileRecv(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
+      addMessage("fileRecv", friendNumber, fileNumber, kind, fileSize, new String(filename));
       try {
         int confirmation = JOptionPane.showConfirmDialog(
             ToxGui.this, "Incoming file transfer: " + new String(filename)
@@ -154,8 +154,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
-      addMessage("fileReceiveChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
+    public void fileRecvChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
+      addMessage("fileRecvChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
       try {
         fileModel.get(friendNumber, fileNumber).write(position, data);
       } catch (Throwable e) {
@@ -164,8 +164,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void fileRequestChunk(int friendNumber, int fileNumber, long position, int length) {
-      addMessage("fileRequestChunk", friendNumber, fileNumber, position, length);
+    public void fileChunkRequest(int friendNumber, int fileNumber, long position, int length) {
+      addMessage("fileChunkRequest", friendNumber, fileNumber, position, length);
       try {
         if (length == 0) {
           fileModel.remove(friendNumber, fileNumber);
@@ -229,8 +229,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void readReceipt(int friendNumber, int messageId) {
-      addMessage("readReceipt", friendNumber, messageId);
+    public void friendReadReceipt(int friendNumber, int messageId) {
+      addMessage("friendReadReceipt", friendNumber, messageId);
     }
 
   });
@@ -252,7 +252,7 @@ public class ToxGui extends JFrame {
       return;
     }
     try (ObjectOutput saveFile = new ObjectOutputStream(new FileOutputStream("/tmp/toxgui.tox"))) {
-      SaveData saveData = new SaveData(tox.save(), friendListModel, messageModel);
+      SaveData saveData = new SaveData(tox.getSaveData(), friendListModel, messageModel);
       saveFile.writeObject(saveData);
     } catch (IOException e) {
       e.printStackTrace();
@@ -353,7 +353,7 @@ public class ToxGui extends JFrame {
             @Override
             public void run() {
               while (true) {
-                tox.iteration();
+                tox.iterate();
                 try {
                   Thread.sleep(tox.iterationInterval());
                 } catch (InterruptedException e) {

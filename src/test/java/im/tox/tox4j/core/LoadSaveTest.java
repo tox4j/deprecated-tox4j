@@ -26,7 +26,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
       byte[] data;
       try (ToxCore tox = newTox()) {
         moreTests = check.change(tox);
-        data = tox.save();
+        data = tox.getSaveData();
       }
       try (ToxCore tox = newTox(data)) {
         check.check(tox);
@@ -140,7 +140,7 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
   @Test
   public void testSaveNotEmpty() throws Exception {
     try (ToxCore tox = newTox()) {
-      byte[] data = tox.save();
+      byte[] data = tox.getSaveData();
       assertNotNull(data);
       assertNotEquals(0, data.length);
     }
@@ -149,26 +149,26 @@ public final class LoadSaveTest extends ToxCoreImplTestBase {
   @Test
   public void testSaveRepeatable() throws Exception {
     try (ToxCore tox = newTox()) {
-      assertArrayEquals(tox.save(), tox.save());
+      assertArrayEquals(tox.getSaveData(), tox.getSaveData());
     }
   }
 
   @Test
   public void testLoadSave1() throws Exception {
-    byte[] data = newTox().save();
-    assertArrayEquals(newTox(data).save(), newTox(data).save());
+    byte[] data = newTox().getSaveData();
+    assertArrayEquals(newTox(data).getSaveData(), newTox(data).getSaveData());
   }
 
   @Test
   public void testLoadSave2() throws Exception {
-    byte[] data = newTox().save();
-    assertEquals(data.length, newTox(data).save().length);
+    byte[] data = newTox().getSaveData();
+    assertEquals(data.length, newTox(data).getSaveData().length);
   }
 
   @Test
   public void testLoadSave3() throws Exception {
-    byte[] data = newTox().save();
-    assertArrayEquals(data, newTox(data).save());
+    byte[] data = newTox().getSaveData();
+    assertArrayEquals(data, newTox(data).getSaveData());
   }
 
 }
