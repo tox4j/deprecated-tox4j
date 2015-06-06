@@ -1,13 +1,13 @@
 package im.tox.tox4j.core.bench
 
 import im.tox.tox4j.bench.TimingReport
-import im.tox.tox4j.core.{ ToxCoreFactory, ToxCoreConstants }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxCoreConstants }
 import im.tox.tox4j.core.callbacks.ToxEventListener
 import org.scalameter.api._
 
 class ToxCoreTimingBench extends TimingReport {
 
-  timing of "ToxCore" in {
+  timing of classOf[ToxCore] in {
 
     measure method "addFriend" in {
       using(friendAddresses(friends1k)) in { friendList =>
@@ -42,7 +42,7 @@ class ToxCoreTimingBench extends TimingReport {
     }
 
     measure method "callback" in {
-      usingTox(iterations) config (exec.benchRuns -> 100) in {
+      usingTox(iterations1500k) config (exec.benchRuns -> 100) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.callback(ToxEventListener.IGNORE))
       }
@@ -56,7 +56,7 @@ class ToxCoreTimingBench extends TimingReport {
     }
 
     performance of "closing an already closed tox" in {
-      usingTox(iterations) in {
+      usingTox(iterations1500k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.close())
       }

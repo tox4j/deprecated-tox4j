@@ -9,6 +9,7 @@ abstract class MemoryReport extends PerformanceReportBase {
   // scalastyle:ignore
   object memory extends Serializable {
     def of(modulename: String): Scope = performance of (modulename + " (memory)") config defaultConfig
+    def of[T](clazz: Class[T]): Scope = of(clazz.getSimpleName)
   }
 
 }

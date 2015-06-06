@@ -1,17 +1,16 @@
 package im.tox.tox4j.core.bench
 
 import im.tox.tox4j.bench.MemoryReport
-import im.tox.tox4j.core.ToxCoreFactory
+import im.tox.tox4j.core.ToxCore
 
 class ToxCoreMemoryBench extends MemoryReport {
 
-  memory of "ToxCore" in {
+  memory of classOf[ToxCore] in {
 
     measure method "iterate" in {
-      using(toxIterations) in { sz =>
-        ToxCoreFactory.withTox { tox =>
+      usingTox(toxIterations) in {
+        case (sz, tox) =>
           (0 until sz) foreach (_ => tox.iteration())
-        }
       }
     }
 
