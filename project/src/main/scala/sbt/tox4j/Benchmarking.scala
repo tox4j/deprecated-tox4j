@@ -1,7 +1,7 @@
 package sbt.tox4j
 
 import java.text.SimpleDateFormat
-import java.util.{Date, TimeZone}
+import java.util.{ Date, TimeZone }
 
 import sbt.Keys._
 import sbt._

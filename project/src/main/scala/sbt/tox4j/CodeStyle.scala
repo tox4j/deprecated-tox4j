@@ -1,10 +1,10 @@
 package sbt.tox4j
 
-import com.etsy.sbt.Checkstyle.CheckstyleTasks
+import com.etsy.sbt.Checkstyle.{ CheckstyleTasks, checkstyleSettings }
 import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._
 import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.findbugs4sbt._
-import org.scalastyle.sbt.ScalastylePlugin.scalastyleConfig
+import org.scalastyle.sbt.ScalastylePlugin._
 import sbt.Keys._
 import sbt._
 import wartremover.WartRemover.autoImport._
@@ -19,9 +19,12 @@ object CodeStyle extends Plugin {
 
   // Enable checkstyle.
   override val settings =
-    Seq(Compile, Test).map { config =>
-      // Scalastyle configuration.
-      scalastyleConfig in config := (scalaSource in config).value / "scalastyle-config.xml"
+    Seq(Compile, Test).flatMap { config =>
+      Seq(
+        // Scalastyle configuration.
+        scalastyleConfig in config := (scalaSource in config).value / "scalastyle-config.xml",
+        (compile in config) <<= (compile in config) dependsOn (scalastyle in config).toTask("")
+      )
 
     } ++ Seq(
 
@@ -52,12 +55,8 @@ object CodeStyle extends Plugin {
       wartremoverExcluded := {
         val jni = (scalaSource in Compile).value / "im" / "tox" / "tox4j" / "impl" / "jni"
         val proto = (sourceManaged in Compile).value / "compiled_protobuf" / "im" / "tox" / "tox4j"
-        val av_proto = proto / "av" / "proto" / "Av"
-        val core_proto = proto / "core" / "proto" / "Core"
-        Seq(
-          jni / "ToxAvImpl.scala",
-          jni / "ToxCoreImpl.scala"
-        ) ++ Seq(
+
+        val avProtos = Seq(
           "AudioBitRateStatus",
           "AudioReceiveFrame",
           "AvEvents",
@@ -66,7 +65,9 @@ object CodeStyle extends Plugin {
           "InternalFields_avProto",
           "VideoBitRateStatus",
           "VideoReceiveFrame"
-        ).map(_ + ".scala").map(av_proto / _) ++ Seq(
+        ).map(_ + ".scala").map(proto / "av" / "proto" / "Av" / _)
+
+        val coreProtos = Seq(
           "Connection",
           "CoreEvents",
           "FileChunkRequest",
@@ -88,7 +89,12 @@ object CodeStyle extends Plugin {
           "MessageType",
           "SelfConnectionStatus",
           "UserStatus"
-        ).map(_ + ".scala").map(core_proto / _)
+        ).map(_ + ".scala").map(proto / "core" / "proto" / "Core" / _)
+
+        Seq(
+          jni / "ToxAvImpl.scala",
+          jni / "ToxCoreImpl.scala"
+        ) ++ avProtos ++ coreProtos
       },
 
       scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation"),
@@ -110,7 +116,7 @@ object CodeStyle extends Plugin {
           </FindBugsFilter>
         )
 
-      ) ++ com.etsy.sbt.Checkstyle.checkstyleSettings ++ Seq((Compile, ""), (Test, "-test")).map {
+      ) ++ checkstyleSettings ++ Seq((Compile, ""), (Test, "-test")).map {
           case (config, suffix) =>
             // Checkstyle override to fail the build on errors.
             CheckstyleTasks.checkstyle in config := {
