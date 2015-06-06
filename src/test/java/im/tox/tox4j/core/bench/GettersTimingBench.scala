@@ -1,7 +1,9 @@
 package im.tox.tox4j.core.bench
 
+import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.TimingReport
 import im.tox.tox4j.core.ToxCore
+import org.scalameter.Gen
 
 class GettersTimingBench extends TimingReport {
 
@@ -88,6 +90,13 @@ class GettersTimingBench extends TimingReport {
       usingTox(iterations100k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.getUdpPort)
+      }
+    }
+
+    measure method "getFriendList" in {
+      using(toxWithFriends, Gen.single("iterations")(100)) in {
+        case (tox, sz) =>
+          (0 until sz) foreach (_ => tox.getFriendList)
       }
     }
 

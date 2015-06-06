@@ -1,6 +1,7 @@
 package im.tox.tox4j.core.bench
 
 import im.tox.tox4j.bench.TimingReport
+import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxCoreConstants }
 import im.tox.tox4j.core.callbacks.ToxEventListener
 import org.scalameter.api._
@@ -33,6 +34,12 @@ class ToxCoreTimingBench extends TimingReport {
       }
     }
 
+    performance of "deleting all friends" in {
+      using(toxWithFriends) in { tox =>
+        tox.getFriendList foreach tox.deleteFriend
+      }
+    }
+
     measure method "addTcpRelay" in {
       val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
       usingTox(nodes) in {
@@ -42,7 +49,7 @@ class ToxCoreTimingBench extends TimingReport {
     }
 
     measure method "callback" in {
-      usingTox(iterations1500k) config (exec.benchRuns -> 100) in {
+      usingTox(iterations1000k) config (exec.benchRuns -> 100) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.callback(ToxEventListener.IGNORE))
       }
@@ -56,7 +63,7 @@ class ToxCoreTimingBench extends TimingReport {
     }
 
     performance of "closing an already closed tox" in {
-      usingTox(iterations1500k) in {
+      usingTox(iterations1000k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.close())
       }
