@@ -3,22 +3,42 @@ package im.tox.tox4j.core.bench
 import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.{ Confidence, TimingReport }
 import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.core.callbacks.ToxEventListener
-import org.scalameter.api._
+import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 /**
  * Work in progress benchmarks.
  */
 class BenchWip extends TimingReport {
 
-  override protected def confidence = Confidence.normal
+  override protected def confidence = Confidence.extreme
 
   timing of classOf[ToxCore] in {
 
-    measure method "callback" in {
-      usingTox(iterations1000k) config (exec.benchRuns -> 100) in {
-        case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.callback(ToxEventListener.IGNORE))
+    measure method "iterate" in {
+      usingTox(iterations1k) in {
+        case (sz, tox: ToxCoreImpl) =>
+          (0 until sz) foreach { _ =>
+            tox.iterate()
+          }
+      }
+    }
+
+    measure method "invokeFileChunkRequest" in {
+      usingTox(iterations1k) in {
+        case (sz, tox: ToxCoreImpl) =>
+          (0 until sz) foreach { _ =>
+            tox.invokeFileChunkRequest(1, 2, 3, 4)
+          }
+      }
+    }
+
+    measure method "fileChunkRequestCallback" in {
+      usingTox(iterations1k) in {
+        case (sz, tox: ToxCoreImpl) =>
+          (0 until sz) foreach { _ =>
+            tox.invokeFileChunkRequest(1, 2, 3, 4)
+            tox.iterate()
+          }
       }
     }
 
@@ -29,7 +49,7 @@ class BenchWip extends TimingReport {
    */
   object HoldingPen {
 
-    measure method "iterate" in {
+    measure method "getSaveData" in {
       usingTox(iterations1k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.getSaveData)

@@ -43,6 +43,7 @@ object CodeStyle extends Plugin {
         Wart.Any,
         Wart.AsInstanceOf,
         Wart.DefaultArguments,
+        Wart.IsInstanceOf,
         Wart.NonUnitStatements,
         Wart.Null,
         Wart.Throw,

@@ -61,12 +61,9 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxCreationAndImmediateDestruction() throws Exception {
-    long start = System.currentTimeMillis();
     for (int i = 0; i < ITERATIONS; i++) {
       newTox().close();
     }
-    long end = System.currentTimeMillis();
-    logger.info("Creating and destroying {} toxes took {} ms", ITERATIONS, end - start);
   }
 
   @Test
@@ -74,20 +71,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     int iterations = 30;
     List<ToxCore> toxes = new ArrayList<>();
 
-    long start = System.currentTimeMillis();
     for (int i = 0; i < iterations; i++) {
       toxes.add(newTox());
     }
-    long end = System.currentTimeMillis();
-    logger.info("Creating {} toxes took {} ms", iterations, end - start);
 
-    start = System.currentTimeMillis();
     Collections.reverse(toxes);
     for (ToxCore tox : toxes) {
       tox.close();
     }
-    end = System.currentTimeMillis();
-    logger.info("Destroying {} toxes took {} ms", iterations, end - start);
   }
 
   @Test

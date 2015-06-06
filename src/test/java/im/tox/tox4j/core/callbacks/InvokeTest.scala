@@ -23,6 +23,7 @@ class InvokeTest extends FunSuite with PropertyChecks {
       this.event = event
     }
 
+    // scalastyle:off line.size.limit
     override def friendTyping(friendNumber: Int, isTyping: Boolean): Unit = setEvent(FriendTyping(friendNumber, isTyping))
     override def friendStatusMessage(friendNumber: Int, message: Array[Byte]): Unit = setEvent(FriendStatusMessage(friendNumber, message))
     override def fileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit = setEvent(FileChunkRequest(friendNumber, fileNumber, position, length))
@@ -38,6 +39,7 @@ class InvokeTest extends FunSuite with PropertyChecks {
     override def friendMessage(friendNumber: Int, `type`: ToxMessageType, timeDelta: Int, message: Array[Byte]): Unit = setEvent(FriendMessage(friendNumber, `type`, timeDelta, message))
     override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte]): Unit = setEvent(FileRecv(friendNumber, fileNumber, kind, fileSize, filename))
     override def fileRecvControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl): Unit = setEvent(FileRecvControl(friendNumber, fileNumber, control))
+    // scalastyle:on line.size.limit
   }
 
   def callbackTest(invoke: ToxCoreImpl => Unit, expected: Event): Unit = {
@@ -116,7 +118,7 @@ class InvokeTest extends FunSuite with PropertyChecks {
 
   test("FriendRequest") {
     forAll { (publicKey: PublicKey, timeDelta: Int, message: Array[Byte]) =>
-      callbackTest(_.invokeFriendRequest(publicKey, timeDelta, message), FriendRequest(publicKey, /*timeDelta*/ 0, message))
+      callbackTest(_.invokeFriendRequest(publicKey, timeDelta, message), FriendRequest(publicKey, /* timeDelta */ 0, message))
     }
   }
 
@@ -158,7 +160,7 @@ class InvokeTest extends FunSuite with PropertyChecks {
 
   test("FriendMessage") {
     forAll { (friendNumber: Int, `type`: ToxMessageType, timeDelta: Int, message: Array[Byte]) =>
-      callbackTest(_.invokeFriendMessage(friendNumber, `type`, timeDelta, message), FriendMessage(friendNumber, `type`, /*timeDelta*/ 0, message))
+      callbackTest(_.invokeFriendMessage(friendNumber, `type`, timeDelta, message), FriendMessage(friendNumber, `type`, /* timeDelta */ 0, message))
     }
   }
 
@@ -187,6 +189,10 @@ object InvokeTest {
 
     override def toString: String = {
       this.array.deep.toString()
+    }
+
+    override def hashCode: Int = {
+      this.array.deep.hashCode
     }
   }
 
