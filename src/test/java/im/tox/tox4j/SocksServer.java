@@ -25,26 +25,25 @@ public final class SocksServer implements Closeable, Runnable {
   private boolean running = true;
   private int accepted = 0;
 
+  private static ServerSocket connectAvailablePort() throws IOException {
+    IOException lastException = null;
+    for (int port = FIRST_PORT; port <= LAST_PORT; port++) {
+      try {
+        return new ServerSocket(port);
+      } catch (IOException e) {
+        lastException = e;
+      }
+    }
+    throw lastException;
+  }
+
   /**
    * Create a simple SOCKS5 server on a port between {@link SocksServer#FIRST_PORT} and {@link SocksServer#LAST_PORT}.
    *
    * @throws IOException if no port could be bound.
    */
   public SocksServer() throws IOException {
-    ServerSocket server = null;
-    IOException lastException = null;
-    for (int port = FIRST_PORT; port <= LAST_PORT; port++) {
-      try {
-        server = new ServerSocket(port);
-        break;
-      } catch (IOException e) {
-        lastException = e;
-      }
-    }
-    if (server == null) {
-      throw lastException;
-    }
-    this.server = server;
+    this.server = connectAvailablePort();
   }
 
   @Override
