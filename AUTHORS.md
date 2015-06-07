@@ -18,3 +18,5 @@ tox4j-team by contributors are owned by this group.
 These people have contributed code to the repository and have signed the
 Contributor License Agreement. If you are a future contributor, please add
 your name and email address here.
+
+- Sebastian "Flakebi" Neubauer <flakebi@t-online.de>
