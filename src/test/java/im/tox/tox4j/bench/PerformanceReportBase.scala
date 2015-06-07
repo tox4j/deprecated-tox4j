@@ -53,7 +53,6 @@ object PerformanceReportBase {
 
   val nodes = range("nodes")(100)
   val instances = range("instances")(100)
-  val toxIterations = range("tox_iterates")(5000)
 
   val nameLengths = Gen.range("name length")(0, ToxCoreConstants.MAX_NAME_LENGTH, 8)
   val statusMessageLengths = Gen.range("status message length")(0, ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH, 100)
