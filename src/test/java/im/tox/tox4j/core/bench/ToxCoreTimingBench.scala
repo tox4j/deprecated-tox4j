@@ -11,7 +11,7 @@ final class ToxCoreTimingBench extends TimingReport {
   timing of classOf[ToxCore] in {
 
     measure method "addFriend" in {
-      using(friendAddresses(friends1k)) in { friendList =>
+      using(friends1k map friendAddresses) in { friendList =>
         ToxCoreFactory.withTox { tox =>
           friendList foreach (tox.addFriend(_, Array.ofDim(1)))
         }
@@ -19,7 +19,7 @@ final class ToxCoreTimingBench extends TimingReport {
     }
 
     measure method "addFriendNoRequest" in {
-      using(friendKeys(friends1k)) in { friendList =>
+      using(friends1k map friendKeys) in { friendList =>
         ToxCoreFactory.withTox { tox =>
           friendList foreach tox.addFriendNoRequest
         }

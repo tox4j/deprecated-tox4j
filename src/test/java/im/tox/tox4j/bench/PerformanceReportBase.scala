@@ -35,7 +35,20 @@ object PerformanceReportBase {
   private val random = new Random
   private val toxOptions = ToxOptions(startPort = 30000)
 
-  // Base generators.
+  def friendAddresses(sz: Int): Seq[Array[Byte]] = {
+    (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
+  }
+
+  def friendKeys(sz: Int): Seq[Array[Byte]] = {
+    (0 until sz) map { i =>
+      val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
+      // noinspection SideEffectsInMonadicTransformation
+      random.nextBytes(key)
+      // Key needs the last byte to be 0 or toxcore will complain about checksums.
+      key(key.length - 1) = 0
+      key
+    }
+  }
 
   private def makeTox() = {
     val tox = ToxCoreFactory.make(toxOptions)
@@ -44,6 +57,14 @@ object PerformanceReportBase {
     tox.addFriendNoRequest(Array.ofDim(ToxCoreConstants.PUBLIC_KEY_SIZE))
     tox
   }
+
+  private def makeToxWithFriends(friendCount: Int) = {
+    val tox = makeTox()
+    friendKeys(friendCount) foreach tox.addFriendNoRequest
+    tox
+  }
+
+  // Base generators.
 
   val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl]).map(_ => makeTox())
 
@@ -58,36 +79,17 @@ object PerformanceReportBase {
   val nameLengths = Gen.range("name length")(0, ToxCoreConstants.MAX_NAME_LENGTH, 8)
   val statusMessageLengths = Gen.range("status message length")(0, ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH, 100)
 
-  def friends: (Int) => api.Gen[Int] = range("friends")
+  def friends: Int => api.Gen[Int] = range("friends")
   val friends1k = friends(1000)
   val friends10k = friends(10000)
 
-  def iterations: (Int) => api.Gen[Int] = range("iterations")
+  def iterations: Int => api.Gen[Int] = range("iterations")
   val iterations1k = iterations(1000)
   val iterations10k = iterations(10000)
   val iterations100k = iterations(100000)
   val iterations1000k = iterations(1000000)
 
   // Derived generators
-
-  def friendAddresses(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = {
-    gen.map { sz =>
-      (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
-    }
-  }
-
-  def friendKeys(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = {
-    gen.map { sz =>
-      (0 until sz) map { i =>
-        val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
-        // noinspection SideEffectsInMonadicTransformation
-        random.nextBytes(key)
-        // Key needs the last byte to be 0 or toxcore will complain about checksums.
-        key(key.length - 1) = 0
-        key
-      }
-    }
-  }
 
   object toxWithFriends {
     /**
@@ -96,23 +98,21 @@ object PerformanceReportBase {
      */
     private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore]
 
-    def apply(gen: Gen[Int]): api.Gen[ToxCore] = {
-      friendKeys(gen).map { keys =>
-        toxesWithFriends.get(keys.length) match {
-          case Some(tox) =>
-            tox
-          case None =>
-            val tox = makeTox()
-            keys foreach tox.addFriendNoRequest
-            toxesWithFriends = toxesWithFriends.updated(keys.length, tox)
-            tox
-        }
+    def apply(sz: Int): ToxCore = {
+      toxesWithFriends.get(sz) match {
+        case Some(tox) =>
+          tox
+        case None =>
+          val tox = makeToxWithFriends(sz)
+          toxesWithFriends = toxesWithFriends.updated(sz, tox)
+          tox
       }
     }
   }
 
-  val toxWithFriends1k = toxWithFriends(friends1k)
-  val toxWithFriends10k = toxWithFriends(friends10k)
+  val toxWithFriends1k = friends1k map toxWithFriends.apply
+  val toxWithFriends10k = friends10k map toxWithFriends.apply
+  //  val toxWithFriends10k = (friends10k map makeToxWithFriends).cached
 
   def toxAndFriendNumbers(limit: Int)(tox: ToxCore): (ToxCore, Seq[Int]) = {
     val friendList = random.shuffle(tox.getFriendList.toSeq).slice(0, limit)
