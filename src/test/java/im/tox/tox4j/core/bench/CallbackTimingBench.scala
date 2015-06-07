@@ -45,7 +45,7 @@ final class CallbackTimingBench extends TimingReport {
 
     measure method "iterate" in {
       usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
+        case (sz, tox) =>
           (0 until sz) foreach { _ =>
             tox.iterate()
           }

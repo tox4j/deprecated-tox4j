@@ -55,13 +55,6 @@ final class ToxCoreTimingBench extends TimingReport {
       }
     }
 
-    measure method "iterate" in {
-      usingTox(iterations1k) in {
-        case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.iterate())
-      }
-    }
-
   }
 
 }
