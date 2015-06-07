@@ -94,20 +94,6 @@ case "$TOX4J_TARGET" in
     ;;
 esac
 
-# Prepare for tests or benchmarks.
-case "$TEST_GOAL" in
-  correctness)
-    # Nothing to do here.
-    ;;
-
-  performance)
-    git clone "https://$GH_TOKEN@github.com/tox4j/tox4j.github.io" $SOURCEDIR/.web
-    cd $SOURCEDIR/.web
-    git config user.name "$GIT_NAME"
-    git config user.email "$GIT_EMAIL"
-    ;;
-esac
-
 # Install the required Java/Scala packages.
 cd $SOURCEDIR
 tools/sbt update
@@ -127,3 +113,20 @@ for dir in $LOCAL_CACHE; do
     ln -s "$cache_dir" "$dir"
   fi
 done
+
+# Don't log the rest of the commands.
+set +x
+
+# Prepare for tests or benchmarks.
+case "$TEST_GOAL" in
+  correctness)
+    # Nothing to do here.
+    ;;
+
+  performance)
+    git clone "https://$GH_TOKEN@github.com/tox4j/tox4j.github.io" $SOURCEDIR/.web
+    cd $SOURCEDIR/.web
+    git config user.name "$GIT_NAME"
+    git config user.email "$GIT_EMAIL"
+    ;;
+esac

@@ -13,7 +13,7 @@ cache:
 
 env:
   global:
-    - secure: "MNKhzopLkSf1oqxNyBgNi9oA2tuwrggwxY8nsYEj4CPBuGQPF02e+amjMQRHm9PymAL1ITG6/C758hCJe+ZyEYWvRQbRI8e6kNwlno4dY4Z2AGsRniTNqkIbQMK7b4yDKlUVvvK68Kb8JIRaKOJybds/vpBDm76SWYNgCDDpOkU="
+    - secure: "jp3Uh0gV0qJoRpWweh26NsYFPimi6AAVsCeDwrT+ZijcluxWuiKV/67wcTXlqRzsCcOJpyIAF9ZP981Djw0ji9ecBGPj3I8pXwVwBQRHs6P60DBntclZjAqWEU9WJCFKNpf8NrEVLoLCN9dGJfZ9SYCK5DGABJhsb4hCp84gpGc="
   matrix:
     - TOX4J_TARGET=arm-linux-androideabi
     #- TOX4J_TARGET=i686-linux-android

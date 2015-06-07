@@ -100,6 +100,39 @@ final class GettersTimingBench extends TimingReport {
       }
     }
 
+    measure method "friendExists" in {
+      using(toxWithFriends1k map toxAndFriendNumbers(100), Gen.single("iterations")(100000)) in {
+        case ((tox, friendNumbers), iterations) =>
+          (0 until iterations / friendNumbers.length) foreach { _ =>
+            friendNumbers foreach { i =>
+              tox.friendExists(i)
+            }
+          }
+      }
+    }
+
+    measure method "getFriendPublicKey" in {
+      using(toxWithFriends1k map toxAndFriendNumbers(100), Gen.single("iterations")(100000)) in {
+        case ((tox, friendNumbers), iterations) =>
+          // Divide iterations by the number of friends we look up, so we do $iterations calls to getFriendPublicKey.
+          (0 until iterations / friendNumbers.length) foreach { _ =>
+            // Look up a random 100 friends. The toxWithFriends1k generator produces at least 100 friends.
+            friendNumbers foreach { i =>
+              tox.getFriendPublicKey(i)
+            }
+          }
+      }
+    }
+
+    measure method "getFriendByPublicKey" in {
+      using(toxWithFriends1k map toxAndFriendKeys(limit = 100), Gen.single("iterations")(100)) in {
+        case ((tox, friendList), iterations) =>
+          (0 until iterations) foreach { _ =>
+            friendList foreach (key => tox.getFriendByPublicKey(key))
+          }
+      }
+    }
+
   }
 
 }

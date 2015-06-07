@@ -7,6 +7,7 @@ import im.tox.tox4j.impl.jni.ToxCoreImpl
 import org.scalameter.api._
 import org.scalameter.{ api, Gen, KeyValue }
 
+import scala.collection.immutable
 import scala.util.Random
 
 abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionReport {
@@ -69,29 +70,60 @@ object PerformanceReportBase {
 
   // Derived generators
 
-  def friendAddresses(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = gen.map { sz =>
-    (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
-  }
-
-  def friendKeys(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = gen.map { sz =>
-    (0 until sz) map { i =>
-      val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
-      // noinspection SideEffectsInMonadicTransformation
-      random.nextBytes(key)
-      // Key needs the last byte to be 0 or toxcore will complain about checksums.
-      key(key.length - 1) = 0
-      key
+  def friendAddresses(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = {
+    gen.map { sz =>
+      (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
     }
   }
 
-  def toxWithFriends(gen: Gen[Int]): api.Gen[ToxCore] = friendKeys(gen).map { keys =>
-    val tox = makeTox()
-    keys.foreach(tox.addFriendNoRequest)
-    tox
+  def friendKeys(gen: Gen[Int]): Gen[Seq[Array[Byte]]] = {
+    gen.map { sz =>
+      (0 until sz) map { i =>
+        val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
+        // noinspection SideEffectsInMonadicTransformation
+        random.nextBytes(key)
+        // Key needs the last byte to be 0 or toxcore will complain about checksums.
+        key(key.length - 1) = 0
+        key
+      }
+    }
+  }
+
+  object toxWithFriends {
+    /**
+     * [[immutable.HashMap]] was chosen here for its semantics, not efficiency. A [[Vector]][([[Int]], [[ToxCore]])] or
+     * an [[Array]] would possibly be faster, but the map is easier to use.
+     */
+    private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore]
+
+    def apply(gen: Gen[Int]): api.Gen[ToxCore] = {
+      friendKeys(gen).map { keys =>
+        toxesWithFriends.get(keys.length) match {
+          case Some(tox) =>
+            tox
+          case None =>
+            val tox = makeTox()
+            keys foreach tox.addFriendNoRequest
+            toxesWithFriends = toxesWithFriends.updated(keys.length, tox)
+            tox
+        }
+      }
+    }
   }
 
   val toxWithFriends1k = toxWithFriends(friends1k)
   val toxWithFriends10k = toxWithFriends(friends10k)
+
+  def toxAndFriendNumbers(limit: Int)(tox: ToxCore): (ToxCore, Seq[Int]) = {
+    val friendList = random.shuffle(tox.getFriendList.toSeq).slice(0, limit)
+    (tox, friendList)
+  }
+
+  def toxAndFriendKeys(limit: Int)(tox: ToxCore): (ToxCore, Seq[Array[Byte]]) = {
+    toxAndFriendNumbers(limit)(tox) match {
+      case (`tox`, friendList) => (tox, friendList map tox.getFriendPublicKey)
+    }
+  }
 
   val toxSaves = instances.map { sz =>
     (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSaveData)))
