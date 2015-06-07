@@ -94,7 +94,7 @@ final class GettersTimingBench extends TimingReport {
     }
 
     measure method "getFriendList" in {
-      using(toxWithFriends, Gen.single("iterations")(100)) in {
+      using(toxWithFriends1k, Gen.single("iterations")(100)) in {
         case (tox, sz) =>
           (0 until sz) foreach (_ => tox.getFriendList)
       }

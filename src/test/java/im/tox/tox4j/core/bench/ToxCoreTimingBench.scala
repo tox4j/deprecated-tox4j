@@ -27,7 +27,7 @@ final class ToxCoreTimingBench extends TimingReport {
     }
 
     performance of "deleting all friends" in {
-      using(toxWithFriends) in { tox =>
+      using(toxWithFriends1k) in { tox =>
         tox.getFriendList foreach tox.deleteFriend
       }
     }

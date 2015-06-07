@@ -4,6 +4,7 @@ import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.{ Confidence, TimingReport }
 import im.tox.tox4j.core.{ ToxCoreFactory, ToxCore }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
+import org.scalameter.Gen
 
 /**
  * Work in progress benchmarks.
@@ -14,30 +15,13 @@ final class BenchWip extends TimingReport {
 
   timing of classOf[ToxCore] in {
 
-    performance of "closing an already closed tox" in {
-      usingTox(iterations100k) in {
-        case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.close())
-      }
-    }
-
-    performance of "creating and closing a tox" in {
-      using(instances) in { sz =>
-        (0 until sz) foreach (_ => ToxCoreFactory.withTox { _ => })
-      }
-    }
-
-    performance of "loading and closing a tox" in {
-      usingTox(toxSaves) in {
-        case (saves, tox) =>
-          saves foreach (options => tox.load(options).close())
-      }
-    }
-
-    measure method "getSaveData" in {
-      usingTox(iterations(5000)) in {
-        case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.getSaveData)
+    measure method "getFriendPublicKey" in {
+      using(friendKeys(friends(1000)), Gen.single("iterations")(100)) in {
+        case (friends, iterations) =>
+          ToxCoreFactory.withTox { tox =>
+            friends foreach tox.addFriendNoRequest
+            (0 until iterations) foreach (i => tox.getFriendPublicKey(i))
+          }
       }
     }
 

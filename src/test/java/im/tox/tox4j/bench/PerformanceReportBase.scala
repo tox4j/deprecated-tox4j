@@ -84,11 +84,14 @@ object PerformanceReportBase {
     }
   }
 
-  val toxWithFriends = friendKeys(friends1k).map { keys =>
+  def toxWithFriends(gen: Gen[Int]): api.Gen[ToxCore] = friendKeys(gen).map { keys =>
     val tox = makeTox()
     keys.foreach(tox.addFriendNoRequest)
     tox
   }
+
+  val toxWithFriends1k = toxWithFriends(friends1k)
+  val toxWithFriends10k = toxWithFriends(friends10k)
 
   val toxSaves = instances.map { sz =>
     (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSaveData)))
