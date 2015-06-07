@@ -27,6 +27,8 @@ for dir in $LOCAL_CACHE; do
   cache_dir="$BASEDIR/cache/local/`basename $dir`"
   if [ -d "$cache_dir" ]; then
     ln -s "$cache_dir" "$dir"
+  else
+    mkdir -p "$dir"
   fi
 done
 
