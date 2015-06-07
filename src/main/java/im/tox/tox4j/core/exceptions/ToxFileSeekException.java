@@ -3,7 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class ToxFileSendSeekException extends ToxException<ToxFileSendSeekException.Code> {
+public final class ToxFileSeekException extends ToxException<ToxFileSeekException.Code> {
 
   public enum Code {
     /**
@@ -32,11 +32,11 @@ public final class ToxFileSendSeekException extends ToxException<ToxFileSendSeek
     SENDQ,
   }
 
-  public ToxFileSendSeekException(@NotNull Code code) {
+  public ToxFileSeekException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxFileSendSeekException(@NotNull Code code, String message) {
+  public ToxFileSeekException(@NotNull Code code, String message) {
     super(code, message);
   }
 

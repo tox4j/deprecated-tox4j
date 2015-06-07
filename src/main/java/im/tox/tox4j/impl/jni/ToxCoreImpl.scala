@@ -398,8 +398,8 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
   override def fileControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl): Unit =
     ToxCoreJni.toxFileControl(instanceNumber, friendNumber, fileNumber, control.ordinal)
 
-  @throws[ToxFileSendSeekException]
-  override def fileSendSeek(friendNumber: Int, fileNumber: Int, position: Long): Unit =
+  @throws[ToxFileSeekException]
+  override def fileSeek(friendNumber: Int, fileNumber: Int, position: Long): Unit =
     ToxCoreJni.toxFileSeek(instanceNumber, friendNumber, fileNumber, position)
 
   @throws[ToxFileSendException]

@@ -20,7 +20,7 @@
     "ALREADY_PAUSED": ["A {@link ToxFileControl#PAUSE} control was sent, but the file transfer was already paused."],
     "SENDQ": ["An allocation error occurred while increasing the send queue size."]
   },
-  "FileSendSeek": {
+  "FileSeek": {
     "FRIEND_NOT_FOUND": ["The friendNumber passed did not designate a valid friend."],
     "FRIEND_NOT_CONNECTED": ["This client is currently not connected to the friend."],
     "NOT_FOUND": ["No file transfer with the given file number was found for the given friend."],

@@ -382,8 +382,8 @@ trait ToxCore extends Closeable {
    * @param fileNumber The friend-specific identifier for the file transfer.
    * @param position The position that the file should be seeked to.
    */
-  @throws[ToxFileSendSeekException]
-  def fileSendSeek(friendNumber: Int, fileNumber: Int, position: Long): Unit
+  @throws[ToxFileSeekException]
+  def fileSeek(friendNumber: Int, fileNumber: Int, position: Long): Unit
 
   /**
    * Return the file id associated to the file transfer as a byte array.

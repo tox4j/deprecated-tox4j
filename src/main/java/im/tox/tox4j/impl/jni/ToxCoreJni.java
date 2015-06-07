@@ -66,7 +66,7 @@ final class ToxCoreJni {
   static native void toxSelfSetTyping(int instanceNumber, int friendNumber, boolean typing) throws ToxSetTypingException;
   static native int toxFriendSendMessage(int instanceNumber, int friendNumber, int type, int timeDelta, @NotNull byte[] message) throws ToxFriendSendMessageException;
   static native void toxFileControl(int instanceNumber, int friendNumber, int fileNumber, int control) throws ToxFileControlException;
-  static native void toxFileSeek(int instanceNumber, int friendNumber, int fileNumber, long position) throws ToxFileSendSeekException;
+  static native void toxFileSeek(int instanceNumber, int friendNumber, int fileNumber, long position) throws ToxFileSeekException;
   static native int toxFileSend(int instanceNumber, int friendNumber, int kind, long fileSize, @NotNull byte[] fileId, @NotNull byte[] filename) throws ToxFileSendException;
   static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
   @NotNull
