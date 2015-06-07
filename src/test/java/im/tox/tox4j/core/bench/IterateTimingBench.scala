@@ -15,6 +15,13 @@ final class IterateTimingBench extends TimingReport {
       }
     }
 
+    measure method "iterationInterval" in {
+      usingTox(iterations1k) in {
+        case (sz, tox) =>
+          (0 until sz) foreach (_ => tox.iterationInterval)
+      }
+    }
+
   }
 
 }
