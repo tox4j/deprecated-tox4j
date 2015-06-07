@@ -17,7 +17,9 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
   final override def defaultConfig: Context = Context.empty ++ confidence ++ Seq[KeyValue](
     verbose -> false,
     reports.resultDir -> "target/benchmarks",
-    exec.jvmflags -> "-Djava.library.path=target/cpp/bin"
+    exec.jvmflags -> "-Djava.library.path=target/cpp/bin",
+    exec.reinstantiation.frequency -> 1000,
+    exec.reinstantiation.fullGC -> true
   )
 
   def using[A, B](a: Gen[A], b: Gen[B]): Using[(A, B)] = using(Gen.tupled(a, b))
