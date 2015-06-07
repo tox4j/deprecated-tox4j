@@ -20,3 +20,4 @@ Contributor License Agreement. If you are a future contributor, please add
 your name and email address here.
 
 - Sebastian "Flakebi" Neubauer <flakebi@t-online.de>
+- Xinyue "SilviaBear" Xu <silviaxxy@gmail.com>
