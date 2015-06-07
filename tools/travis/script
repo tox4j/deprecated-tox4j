@@ -14,7 +14,7 @@ if [ "$TOX4J_TARGET" = "host" ]; then
 
     performance)
       #tools/sbt benchmark:benchmark
-      tools/sbt "testOnly *TravisBench" benchmark:upload
+      tools/sbt "testOnly *TravisBenchSuite" benchmark:upload
       ;;
   esac
 fi

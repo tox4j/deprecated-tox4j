@@ -23,7 +23,7 @@ object Benchmarking extends Plugin {
     machine := "travis",
 
     run := {
-      (testOnly in Test).toTask(" *TimingBench *MemoryBench").value
+      (testOnly in Test).toTask(" *Bench").value
     },
 
     upload := {
@@ -31,7 +31,7 @@ object Benchmarking extends Plugin {
     },
 
     benchmark := {
-      val () = (testOnly in Test).toTask(" *TimingBench *MemoryBench").value
+      val () = (testOnly in Test).toTask(" *Bench").value
       uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     }
 
