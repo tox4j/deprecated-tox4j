@@ -10,28 +10,6 @@ final class ToxCoreTimingBench extends TimingReport {
 
   timing of classOf[ToxCore] in {
 
-    measure method "addFriend" in {
-      using(friends1k map friendAddresses) in { friendList =>
-        ToxCoreFactory.withTox { tox =>
-          friendList foreach (tox.addFriend(_, Array.ofDim(1)))
-        }
-      }
-    }
-
-    measure method "addFriendNoRequest" in {
-      using(friends1k map friendKeys) in { friendList =>
-        ToxCoreFactory.withTox { tox =>
-          friendList foreach tox.addFriendNoRequest
-        }
-      }
-    }
-
-    performance of "deleting all friends" in {
-      using(toxWithFriends1k) in { tox =>
-        tox.getFriendList foreach tox.deleteFriend
-      }
-    }
-
     measure method "bootstrap" in {
       val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
       usingTox(nodes) in {

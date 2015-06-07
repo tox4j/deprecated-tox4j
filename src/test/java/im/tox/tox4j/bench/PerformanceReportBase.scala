@@ -117,8 +117,12 @@ object PerformanceReportBase {
   //  val toxWithFriends10k = (friends10k map makeToxWithFriends).cached
 
   def toxAndFriendNumbers(limit: Int)(tox: ToxCore): (ToxCore, Seq[Int]) = {
-    val friendList = random.shuffle(tox.getFriendList.toSeq).slice(0, limit)
-    (tox, friendList)
+    val friendList = random.shuffle(tox.getFriendList.toSeq)
+    if (limit != 0) {
+      (tox, friendList.slice(0, limit))
+    } else {
+      (tox, friendList)
+    }
   }
 
   def toxAndFriendKeys(limit: Int)(tox: ToxCore): (ToxCore, Seq[Array[Byte]]) = {
