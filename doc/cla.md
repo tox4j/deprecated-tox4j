@@ -4,9 +4,10 @@ Thank you for your interest in contributing to Tox4j ("We" or "Us").
 
 This contributor agreement ("Agreement") documents the rights granted by
 contributors to Us. To make this document effective, please sign it
-electronically by adding your name and email address to the project's
-AUTHORS.md and submitting it via GitHub. This is a legally binding document,
-so please read it carefully before agreeing to it.
+electronically by following the instructions at the top of
+[CONTRIBUTING.md](../CONTRIBUTING.md). This is a legally binding document, so
+please read it carefully before agreeing to it. The Agreement provides for
+submission of Contributions to all software projects managed by Us.
 
 ## 1. Definitions
 
