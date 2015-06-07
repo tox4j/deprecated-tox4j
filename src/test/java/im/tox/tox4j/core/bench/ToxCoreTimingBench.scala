@@ -26,17 +26,17 @@ final class ToxCoreTimingBench extends TimingReport {
       }
     }
 
+    performance of "deleting all friends" in {
+      using(toxWithFriends) in { tox =>
+        tox.getFriendList foreach tox.deleteFriend
+      }
+    }
+
     measure method "bootstrap" in {
       val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
       usingTox(nodes) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.bootstrap("localhost", 8080, publicKey))
-      }
-    }
-
-    performance of "deleting all friends" in {
-      using(toxWithFriends) in { tox =>
-        tox.getFriendList foreach tox.deleteFriend
       }
     }
 
@@ -59,33 +59,6 @@ final class ToxCoreTimingBench extends TimingReport {
       usingTox(iterations1k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.iterate())
-      }
-    }
-
-    performance of "closing an already closed tox" in {
-      usingTox(iterations1000k) in {
-        case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.close())
-      }
-    }
-
-    performance of "creating and closing a tox" in {
-      using(instances) in { sz =>
-        (0 until sz) foreach (_ => ToxCoreFactory.withTox { _ => })
-      }
-    }
-
-    performance of "loading and closing a tox" in {
-      usingTox(toxSaves) in {
-        case (saves, tox) =>
-          saves foreach (options => tox.load(options).close())
-      }
-    }
-
-    measure method "getSaveData" in {
-      usingTox(iterations(5000)) in {
-        case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.getSaveData)
       }
     }
 
