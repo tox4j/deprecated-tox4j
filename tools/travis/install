@@ -7,7 +7,7 @@ unset CC
 unset CXX
 
 GLOBAL_CACHE="ivy2 sbt usr"
-LOCAL_CACHE="project/project project/target target/benchmarks"
+LOCAL_CACHE="target/benchmarks"
 
 BASEDIR=$1
 SOURCEDIR=$2
@@ -127,6 +127,7 @@ case "$TEST_GOAL" in
     ;;
 
   performance)
+    echo "Fetching tox4j website sources for benchmark uploads"
     git clone "https://$GH_TOKEN@github.com/tox4j/tox4j.github.io" $SOURCEDIR/.web
     cd $SOURCEDIR/.web
     git config user.name "$GIT_NAME"

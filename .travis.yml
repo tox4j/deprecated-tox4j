@@ -42,8 +42,6 @@ script:
 before_cache:
   - rm $HOME/cache/global/sbt/boot/sbt.boot.lock
   - find $HOME/cache/global/sbt/boot -name "sbt.components.lock" -delete
-  - rm -r project/target/resolution-cache
-  - rm -r project/target/streams
 
 after_success:
   - tools/travis/after_success
