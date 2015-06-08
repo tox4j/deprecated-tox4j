@@ -52,7 +52,7 @@ object PerformanceReportBase {
     }
   }
 
-  private def makeTox() = {
+  def makeTox(): ToxCore = {
     val tox = ToxCoreFactory.make(toxOptions)
     tox.setName(Array.ofDim(ToxCoreConstants.MAX_NAME_LENGTH))
     tox.setStatusMessage(Array.ofDim(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH))
@@ -60,7 +60,7 @@ object PerformanceReportBase {
     tox
   }
 
-  private def makeToxWithFriends(friendCount: Int) = {
+  def makeToxWithFriends(friendCount: Int): ToxCore = {
     val tox = makeTox()
     friendKeys(friendCount) foreach tox.addFriendNoRequest
     tox
