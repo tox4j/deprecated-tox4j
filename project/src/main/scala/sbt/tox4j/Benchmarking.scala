@@ -13,6 +13,7 @@ object Benchmarking extends Plugin {
   object Keys {
     val machine = settingKey[String]("Name of the machine running the benchmark.")
 
+    val execute = taskKey[Unit]("Run all benchmarks.")
     val upload = taskKey[Unit]("Upload bench mark results.")
     val benchmark = taskKey[Unit]("Run all benchmarks and upload the results.")
   }
@@ -22,16 +23,14 @@ object Benchmarking extends Plugin {
   override val settings = inConfig(Benchmark)(Seq(
     machine := "travis",
 
-    run := {
-      (testOnly in Test).toTask(" *Bench").value
-    },
+    execute := (testOnly in Test).toTask(" *Bench").value,
 
     upload := {
       uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     },
 
     benchmark := {
-      val () = (testOnly in Test).toTask(" *Bench").value
+      val () = execute.value
       uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     }
 
