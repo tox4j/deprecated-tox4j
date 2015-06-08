@@ -5,8 +5,8 @@ License Agreement](doc/cla.md). Any errors in or misinterpretations of the
 following text have no legal effect. See doc/cla.md for the real thing
 that you can feed to [lawyer cats](http://www.legalcheek.com/wp-content/uploads/2012/04/lawyer-cat1.jpg).
 
-You sign the CLA by sending an email to tox4j@googlegroups.com with a copy of
-the agreement (markdown source, text output or html output, doesn't matter)
+You sign the CLA by sending an email to tox4j-cla@googlegroups.com with a copy
+of the agreement (markdown source, text output or html output, doesn't matter)
 and putting your name under it. This email is preferably signed with a
 certificate or PGP key. In addition, please put your name in the Contributors
 section of [AUTHORS.md](AUTHORS.md) and submit it in a signed git commit along
