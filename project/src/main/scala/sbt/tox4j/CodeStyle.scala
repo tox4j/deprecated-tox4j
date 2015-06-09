@@ -28,6 +28,7 @@ object CodeStyle extends Plugin {
 
     } ++ Seq(
 
+      scapegoatVerbose := false,
       scapegoatDisabledInspections := Seq(
         // Disable method name inspection, since we use things like name_=.
         "MethodNames",
@@ -56,6 +57,7 @@ object CodeStyle extends Plugin {
         val jni = (scalaSource in Compile).value / "im" / "tox" / "tox4j" / "impl" / "jni"
         val proto = (sourceManaged in Compile).value / "compiled_protobuf" / "im" / "tox" / "tox4j"
 
+        // TODO: infer these
         val avProtos = Seq(
           "AudioBitRateStatus",
           "AudioReceiveFrame",
@@ -91,6 +93,7 @@ object CodeStyle extends Plugin {
           "UserStatus"
         ).map(_ + ".scala").map(proto / "core" / "proto" / "Core" / _)
 
+        // TODO: also infer these
         Seq(
           jni / "ToxAvImpl.scala",
           jni / "ToxCoreImpl.scala"
