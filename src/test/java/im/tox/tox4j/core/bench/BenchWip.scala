@@ -23,12 +23,12 @@ final class BenchWip extends TimingReport {
   timing of classOf[ToxCore] in {
 
     performance of "deleting all friends" in {
-      using(friends1k.map(makeToxWithFriends).map(toxAndFriendNumbers(0))) config (exec.reinstantiation.frequency -> 1) in {
+      using(friends1k.map(makeToxWithFriends).map(toxAndFriendNumbers())) config (exec.reinstantiation.frequency -> 1) in {
         case (tox, friendList) =>
           val assertionsHelper = BenchWip.assertionsHelper
-          BenchWip.assert(friendList.length >= 101)
-          BenchWip.assert(friendList.length <= 1001)
-          BenchWip.assert(friendList.length % 100 == 1)
+          BenchWip.assert(friendList.length >= 100)
+          BenchWip.assert(friendList.length <= 1000)
+          BenchWip.assert(friendList.length % 100 == 0)
           friendList foreach tox.deleteFriend
       }
     }

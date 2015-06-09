@@ -37,7 +37,7 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
   final override def defaultConfig: Context = Context.empty ++ Seq[KeyValue](
     verbose -> false,
     reports.resultDir -> "target/benchmarks",
-    exec.jvmflags -> "-Djava.library.path=target/cpp/bin",
+    exec.jvmflags -> ("-Djava.library.path=" + sys.props("java.library.path")),
     exec.reinstantiation.frequency -> 1000,
     exec.reinstantiation.fullGC -> true
   ) ++ confidence
@@ -204,8 +204,8 @@ object PerformanceReportBase {
   //  val toxWithFriends10k = (friends10k map makeToxWithFriends).cached
 
   /**
-   * Extract a random friend list from a Tox instance. If limit is 0, extract the entire friend list. If limit is
-   * non-zero, a slice of the friend list is taken with at most that size.
+   * Extract a random friend list from a Tox instance. If limit is 0 or omitted, extract the entire friend list. If
+   * limit is non-zero, a slice of the friend list is taken with at most that size.
    *
    * The friend list is randomly shuffled before it is returned, so each time this function is called, you will get a
    * different list.
@@ -215,7 +215,7 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendNumbers(limit: Int)(tox: ToxCore): (ToxCore, Seq[Int]) = {
+  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore): (ToxCore, Seq[Int]) = {
     val friendList = random.shuffle(tox.getFriendList.toSeq)
     if (limit != 0) {
       (tox, friendList.slice(0, limit))

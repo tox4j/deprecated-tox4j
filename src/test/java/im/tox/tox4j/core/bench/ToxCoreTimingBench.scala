@@ -3,7 +3,7 @@ package im.tox.tox4j.core.bench
 import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.TimingReport
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.{ToxCore, ToxCoreConstants}
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 import org.scalameter.api._
 
 final class ToxCoreTimingBench extends TimingReport {
