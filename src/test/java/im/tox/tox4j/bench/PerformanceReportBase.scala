@@ -5,7 +5,7 @@ import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 import org.scalameter.api._
-import org.scalameter.{ api, Gen, KeyValue }
+import org.scalameter.{ Gen, KeyValue, api }
 
 import scala.collection.immutable
 import scala.util.Random
@@ -215,12 +215,12 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore): (ToxCore, Seq[Int]) = {
+  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore): (Seq[Int], ToxCore) = {
     val friendList = random.shuffle(tox.getFriendList.toSeq)
     if (limit != 0) {
-      (tox, friendList.slice(0, limit))
+      (friendList.slice(0, limit), tox)
     } else {
-      (tox, friendList)
+      (friendList, tox)
     }
   }
 
@@ -232,9 +232,9 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendKeys(limit: Int)(tox: ToxCore): (ToxCore, Seq[Array[Byte]]) = {
+  def toxAndFriendKeys(limit: Int)(tox: ToxCore): (Seq[Array[Byte]], ToxCore) = {
     toxAndFriendNumbers(limit)(tox) match {
-      case (`tox`, friendList) => (tox, friendList map tox.getFriendPublicKey)
+      case (friendList, `tox`) => (friendList map tox.getFriendPublicKey, tox)
     }
   }
 
