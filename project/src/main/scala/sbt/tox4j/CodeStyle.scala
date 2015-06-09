@@ -23,7 +23,7 @@ object CodeStyle extends Plugin {
       Seq(
         // Scalastyle configuration.
         scalastyleConfig in config := (scalaSource in config).value / "scalastyle-config.xml",
-        (compile in config) <<= (compile in config) dependsOn (scalastyle in config).toTask("")
+        (compile in config) <<= (compile in config) dependsOn (scalastyle in config).toTask(" q")
       )
 
     } ++ Seq(
