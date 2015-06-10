@@ -180,11 +180,12 @@ object PerformanceReportBase {
    *
    * Do not mutate objects returned by this function.
    */
-  object toxWithFriends extends (Int => ToxCore) {
+  object toxWithFriends extends (Int => ToxCore) with Serializable {
     /**
      * [[immutable.HashMap]] was chosen here for its semantics, not efficiency. A [[Vector]][([[Int]], [[ToxCore]])] or
      * an [[Array]] would possibly be faster, but the map is easier to use.
      */
+    @transient
     private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore]
 
     override def apply(sz: Int): ToxCore = {
