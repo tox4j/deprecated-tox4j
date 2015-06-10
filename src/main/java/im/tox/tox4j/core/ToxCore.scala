@@ -115,7 +115,7 @@ trait ToxCore extends Closeable {
    * Writes the temporary DHT public key of this instance to a byte array.
    *
    * This can be used in combination with an externally accessible IP address and
-   * the bound port (from ${udp_port.get}) to run a temporary bootstrap node.
+   * the bound port (from [[getUdpPort]]}) to run a temporary bootstrap node.
    *
    * Be aware that every time a new instance is created, the DHT public key
    * changes, meaning this cannot be used to run a permanent bootstrap node.
@@ -156,7 +156,8 @@ trait ToxCore extends Closeable {
   /**
    * Set the 4-byte noSpam part of the address.
    *
-   * Setting the noSpam makes it impossible for others to send us friend requests that contained the old noSpam number.
+   * Setting the noSpam makes it impossible for others to send us friend requests that contained the
+   * old noSpam number.
    *
    * @param noSpam the new noSpam number.
    */
@@ -170,8 +171,9 @@ trait ToxCore extends Closeable {
   /**
    * Get our current tox address to give to friends.
    *
-   * The format is the following: [Public Key (32 bytes)][noSpam number (4 bytes)][checksum (2 bytes)]. After a call to
-   * [[setNoSpam]], the old address can no longer be used to send friend requests to this instance.
+   * The format is the following: [Public Key (32 bytes)][noSpam number (4 bytes)][checksum (2 bytes)].
+   * After a call to [[setNoSpam]], the old address can no longer be used to send friend requests to
+   * this instance.
    *
    * Note that it is not in a human-readable format. To display it to users, it needs to be formatted.
    *
@@ -340,9 +342,9 @@ trait ToxCore extends Closeable {
    * This function creates a chat message packet and pushes it into the send
    * queue.
    *
-   * The message length may not exceed $MAX_MESSAGE_LENGTH. Larger messages
-   * must be split by the client and sent as separate messages. Other clients can
-   * then reassemble the fragments. Messages may not be empty.
+   * The message length may not exceed [[ToxCoreConstants.MAX_MESSAGE_LENGTH]].
+   * Larger messages must be split by the client and sent as separate messages.
+   * Other clients can then reassemble the fragments. Messages may not be empty.
    *
    * The return value of this function is the message ID. If a read receipt is
    * received, the triggered [[FriendReadReceiptCallback]] event will be passed this message ID.

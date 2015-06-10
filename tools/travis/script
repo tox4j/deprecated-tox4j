@@ -3,7 +3,7 @@
 set -ex
 
 # Compile first, so a compile error fails the build.
-tools/sbt scalastyle test:scalastyle checkstyle test:checkstyle test:compile
+tools/sbt scalastyle test:scalastyle checkstyle test:checkstyle test:compile publishLocal
 
 # Don't run tests if we are cross-compiling.
 if [ "$TOX4J_TARGET" = "host" ]; then
