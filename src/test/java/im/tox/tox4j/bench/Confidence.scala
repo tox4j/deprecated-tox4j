@@ -61,10 +61,38 @@ object Confidence {
    * likely take a long time, regardless of how fast the actual test is, simply because it needs to spawn 50 JVM
    * instances. Don't use this for production benchmarks, only for local experiments.
    *
-   * VM invocation overhead: 1 minute, 20 seconds.
+   * VM invocation overhead: 55 seconds.
    */
   val extreme = Seq[KeyValue](
     exec.benchRuns -> 1000,
     exec.independentSamples -> 50
+  )
+
+  /**
+   * This level runs the benchmarks 2000 times more often than [[low]] and 200 times more often than [[high]]. If you
+   * run a benchmark with this confidence level and it takes less than 5 minutes to complete, you're likely to get very
+   * poor results, but you'll be able to convince the benchmarking framework that they are very accurate.
+   *
+   * If you find yourself using this mode, your test is most likely very poorly parametrised and you would benefit more
+   * from making the snippet itself take more time by increasing the iteration count inside the snippet.
+   *
+   * For comparison, the iterationInterval test with [[PerformanceReportBase.iterations10k]] takes 2 seconds on [[low]]
+   * and 7 minutes and 15 seconds on [[insane]]. That is 216 times slower. On [[normal]], it takes 4 seconds (108 times
+   * faster than [[insane]]). On [[high]], it takes 9 seconds (48 times faster), and on [[extreme]], it takes 57 seconds
+   * (7 times faster). Only on [[insane]], this test actually has accurate results.
+   *
+   * This shows that [[PerformanceReportBase.iterations10k]] is the wrong parameter set for the iterationInterval test.
+   * Running with [[PerformanceReportBase.iterations100k]] on [[normal]] takes 9 seconds and gives a linear graph with
+   * reasonable confidence. Increasing the number of [[exec.benchRuns]] to 100 produces a completely accurate linear
+   * graph with high confidence in 18 seconds.
+   *
+   * To summarise, this mode rarely adds value over [[high]] or [[extreme]]. Don't use this mode unless you want to
+   * stress-test your CPU (and for that there are better tools). If you use this mode, you're insane.
+   *
+   * VM invocation overhead: 2 minutes, 11 seconds.
+   */
+  val insane = Seq[KeyValue](
+    exec.benchRuns -> 20000,
+    exec.independentSamples -> 100
   )
 }

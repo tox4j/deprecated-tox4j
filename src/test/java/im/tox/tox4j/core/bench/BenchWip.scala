@@ -2,46 +2,22 @@ package im.tox.tox4j.core.bench
 
 import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.{ Confidence, TimingReport }
-import im.tox.tox4j.core.{ ToxCoreFactory, ToxCore }
+import im.tox.tox4j.core.ToxCore
+import org.scalameter.api._
 
 /**
  * Work in progress benchmarks.
  */
 final class BenchWip extends TimingReport {
 
-  protected override def confidence = Confidence.extreme
-
-  /**
-   * Deletes all but 1 friends.
-   */
-  private def clearFriendList(pair: (Seq[Array[Byte]], ToxCore)): Unit = {
-    val tox = pair._2
-    tox.getFriendList.tail foreach tox.deleteFriend
-  }
+  protected override def confidence = Confidence.normal
 
   timing of classOf[ToxCore] in {
 
-    measure method "addFriendNoRequest" in {
-      using(friends(100) map friendKeys, toxInstance.cached) tearDown clearFriendList in {
-        case (friendList, tox) =>
-          friendList foreach tox.addFriendNoRequest
-      }
-      using(friends(100) map friendKeys, toxInstance.cached) setUp clearFriendList in {
-        case (friendList, tox) =>
-          friendList foreach tox.addFriendNoRequest
-      }
-      using(friends(100) map friendKeys, toxInstance) tearDown clearFriendList in {
-        case (friendList, tox) =>
-          friendList foreach tox.addFriendNoRequest
-      }
-      using(friends(100) map friendKeys, toxInstance) setUp clearFriendList in {
-        case (friendList, tox) =>
-          friendList foreach tox.addFriendNoRequest
-      }
-      using(friends(100) map friendKeys) in { friendList =>
-        ToxCoreFactory.withTox { tox =>
-          friendList foreach tox.addFriendNoRequest
-        }
+    measure method "iterationInterval" config (exec.benchRuns -> 100) in {
+      usingTox(iterations100k) in {
+        case (sz, tox) =>
+          (0 until sz) foreach (_ => tox.iterationInterval)
       }
     }
 
@@ -52,11 +28,10 @@ final class BenchWip extends TimingReport {
    */
   object HoldingPen {
 
-    measure method "addFriend" in {
-      val message = Array.ofDim[Byte](1)
-      usingTox(friends1k map friendAddresses) setUp clearFriendList in {
-        case (friendList, tox) =>
-          friendList foreach (tox.addFriend(_, message))
+    measure method "iterationInterval" in {
+      usingTox(iterations1k) in {
+        case (sz, tox) =>
+          (0 until sz) foreach (_ => tox.iterationInterval)
       }
     }
 

@@ -3,6 +3,7 @@ package im.tox.tox4j.core.bench
 import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.TimingReport
 import im.tox.tox4j.core.ToxCore
+import org.scalameter.api._
 
 final class IterateTimingBench extends TimingReport {
 
@@ -15,8 +16,8 @@ final class IterateTimingBench extends TimingReport {
       }
     }
 
-    measure method "iterationInterval" in {
-      usingTox(iterations1k) in {
+    measure method "iterationInterval" config (exec.benchRuns -> 100) in {
+      usingTox(iterations100k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.iterationInterval)
       }
