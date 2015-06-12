@@ -5,7 +5,11 @@ import sbt._
 
 object MakeScripts extends Tox4jBuildPlugin {
 
-  private val makeScripts = TaskKey[Unit]("makeScripts")
+  object Keys {
+    val makeScripts = TaskKey[Unit]("makeScripts")
+  }
+
+  import Keys._
 
   private def classBaseName(s: String): String = {
     val lastDot = s.lastIndexOf('.')

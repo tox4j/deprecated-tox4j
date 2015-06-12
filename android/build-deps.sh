@@ -74,7 +74,7 @@ INSTALL() {
 }
 # libvpx
 (
-  CLONE http://git.chromium.org/webm libvpx
+  CLONE https://git.chromium.org/webm libvpx
   patch -p1 < ../libvpx.patch
 
   mkdir build-android && cd build-android

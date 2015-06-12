@@ -7,6 +7,8 @@ import scalariform.formatter.preferences._
 
 object CodeFormat extends Tox4jBuildPlugin {
 
+  object Keys
+
   override val moduleSettings = scalariformSettings ++ Seq(
     ScalariformKeys.preferences := ScalariformKeys.preferences.value
       .setPreference(AlignSingleLineCaseStatements, true)
