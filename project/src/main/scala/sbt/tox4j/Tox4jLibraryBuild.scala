@@ -6,14 +6,16 @@ object Tox4jLibraryBuild extends Build {
 
   lazy val lint: Project = Project("lint", file("lint"))
 
-  lazy val root: Project = Project("root", file("."), settings =
-    Assembly.moduleSettings ++
-    Benchmarking.moduleSettings ++
-    CodeFormat.moduleSettings ++
-    CodeStyle.moduleSettings ++
-    Jni.moduleSettings ++
-    MakeScripts.moduleSettings ++
-    ProtobufPlugin.moduleSettings
+  lazy val root: Project = Project("root", file("."),
+    settings = Seq(
+      Assembly,
+      Benchmarking,
+      CodeFormat,
+      CodeStyle,
+      Jni,
+      MakeScripts,
+      ProtobufPlugin
+    ).flatMap(_.moduleSettings)
   ).configs(ProtobufPlugin.Protobuf).dependsOn(lint)
 
 }
