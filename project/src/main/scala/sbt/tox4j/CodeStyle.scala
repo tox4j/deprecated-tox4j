@@ -7,9 +7,10 @@ import de.johoop.findbugs4sbt._
 import org.scalastyle.sbt.ScalastylePlugin._
 import sbt.Keys._
 import sbt._
+import wartremover.Wart
 import wartremover.WartRemover.autoImport._
 
-object CodeStyle extends Plugin {
+object CodeStyle extends Tox4jBuildPlugin {
 
   object Keys {
     val checkstyleFatal = settingKey[Boolean]("Whether to fail the checkstyle task on Java code style violations.")
@@ -17,8 +18,16 @@ object CodeStyle extends Plugin {
 
   import Keys._
 
+  private def custom(classpath: File): Seq[Wart] = {
+    val pathFinder = ((classpath / "im" / "tox" / "tox4j" / "staticanalysis") ** "*.class") filter (!_.getName.contains('$'))
+    pathFinder.get map { file =>
+      val checker = file.getName.replace(".class", "")
+      Wart.custom(s"im.tox.tox4j.staticanalysis.$checker")
+    }
+  }
+
   // Enable checkstyle.
-  override val settings =
+  override val moduleSettings =
     Seq(Compile, Test).flatMap { config =>
       Seq(
         // Scalastyle configuration.
@@ -38,11 +47,12 @@ object CodeStyle extends Plugin {
       ),
       scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/jni/.*Impl\\.scala"),
 
+      wartremoverClasspaths += (classDirectory in (Tox4jLibraryBuild.checkers, Compile)).value.toURI.toString,
       wartremoverErrors in (Compile, compile) := Warts.allBut(
         Wart.DefaultArguments,
         Wart.NonUnitStatements,
         Wart.Var
-      ),
+      ) ++ custom((classDirectory in (Tox4jLibraryBuild.checkers, Compile)).value),
       wartremoverErrors in (Test, compile) := Warts.allBut(
         Wart.Any,
         Wart.AsInstanceOf,

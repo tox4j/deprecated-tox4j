@@ -7,7 +7,7 @@ import sbt.Keys._
 import sbt._
 import sbt.tox4j.Jni.Keys._
 
-object ProtobufPlugin extends Plugin {
+object ProtobufPlugin extends Tox4jBuildPlugin {
 
   val Protobuf = config("protoc")
 
@@ -18,7 +18,7 @@ object ProtobufPlugin extends Plugin {
 
   import Keys._
 
-  override val settings = inConfig(Protobuf)(Seq[Setting[_]](
+  override val moduleSettings = inConfig(Protobuf)(Seq[Setting[_]](
     sourceDirectory := (sourceDirectory in Compile).value / "protobuf",
 
     protoc := file("protoc"),

@@ -7,7 +7,7 @@ import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 class ToxClient {
 
-  private val tox: ToxCore = new ToxCoreImpl(new ToxOptions)
+  private val tox: ToxCore = new ToxCoreImpl(ToxOptions())
 
   def name: String = new String(tox.getName)
   def name_=(name: String): Unit = tox.setName(name.getBytes)

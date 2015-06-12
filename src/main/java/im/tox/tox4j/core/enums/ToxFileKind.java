@@ -1,6 +1,7 @@
 package im.tox.tox4j.core.enums;
 
 import im.tox.tox4j.core.ToxCoreConstants;
+import im.tox.tox4j.crypto.ToxCryptoConstants;
 
 public class ToxFileKind {
   /**
@@ -22,7 +23,7 @@ public class ToxFileKind {
    * Clients who receive avatar send requests can reject it (by sending
    * {@link im.tox.tox4j.core.enums.ToxFileControl#CANCEL} before any other controls),
    * or accept it (by sending {@link im.tox.tox4j.core.enums.ToxFileControl#RESUME}).
-   * The file_id of length {@link ToxCoreConstants#HASH_LENGTH} bytes
+   * The file_id of length {@link ToxCryptoConstants#HASH_LENGTH} bytes
    * (same length as {@link ToxCoreConstants#FILE_ID_LENGTH}) will
    * contain the hash. A client can compare this hash with a saved hash and send
    * {@link im.tox.tox4j.core.enums.ToxFileControl#CANCEL} to terminate the avatar

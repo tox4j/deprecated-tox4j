@@ -5,7 +5,7 @@ import java.io.File
 import sbt.Keys._
 import sbt._
 
-object Assembly extends Plugin {
+object Assembly extends Tox4jBuildPlugin {
 
   object Keys {
 
@@ -22,7 +22,7 @@ object Assembly extends Plugin {
 
   import Keys._
 
-  override val settings = inConfig(Test)(Seq(
+  override val moduleSettings = inConfig(Test)(Seq(
 
     // Put the linked library in here.
     assemblyPath := baseDirectory.value / "bin",

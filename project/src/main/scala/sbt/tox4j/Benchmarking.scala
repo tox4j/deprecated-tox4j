@@ -6,7 +6,7 @@ import java.util.{ Date, TimeZone }
 import sbt.Keys._
 import sbt._
 
-object Benchmarking extends Plugin {
+object Benchmarking extends Tox4jBuildPlugin {
 
   val Benchmark = config("benchmark")
 
@@ -20,7 +20,7 @@ object Benchmarking extends Plugin {
 
   import Keys._
 
-  override val settings = inConfig(Benchmark)(Seq(
+  override val moduleSettings = inConfig(Benchmark)(Seq(
     machine := "travis",
 
     execute := (testOnly in Test).toTask(" *Bench").value,

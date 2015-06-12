@@ -7,7 +7,7 @@ import sbt._
 
 import scala.language.postfixOps
 
-object Jni extends Plugin {
+object Jni extends Tox4jBuildPlugin {
 
   private val DEBUG = false
 
@@ -301,7 +301,7 @@ object Jni extends Plugin {
     val settings = jniSettings(platform)
   }
 
-  override val settings = inConfig(Native)(Seq(
+  override val moduleSettings = inConfig(Native)(Seq(
 
     // Target for javah-generated headers.
     headersPath := nativeTarget.value / "include",
