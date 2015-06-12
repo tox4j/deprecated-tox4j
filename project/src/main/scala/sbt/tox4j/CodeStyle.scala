@@ -114,10 +114,10 @@ object CodeStyle extends Tox4jBuildPlugin {
         findbugsExcludeFilters := Some(
           <FindBugsFilter>
             <Match>
-              <Package name="im.tox.tox4j.av.proto"/>
+              <Package name="im.tox.tox4j.av.proto.Av"/>
             </Match>
             <Match>
-              <Package name="im.tox.tox4j.core.proto"/>
+              <Package name="im.tox.tox4j.core.proto.Core"/>
             </Match>
           </FindBugsFilter>
         )

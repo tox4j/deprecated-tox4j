@@ -90,7 +90,7 @@ case "$TOX4J_TARGET" in
 
   *)
     INSTALL https://github.com/yasm       yasm
-    INSTALL https://git.chromium.org/webm  libvpx        master          "--enable-pic --enable-shared"
+    INSTALL https://git.chromium.org/webm libvpx        master          "--enable-pic --enable-shared"
     INSTALL https://github.com/jedisct1   libsodium
     INSTALL git://git.opus-codec.org      opus
     INSTALL https://github.com/irungentoo toxcore
