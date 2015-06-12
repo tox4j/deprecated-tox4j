@@ -4,9 +4,9 @@ import sbt._
 
 object Tox4jLibraryBuild extends Build {
 
-  lazy val lint = Project("lint", file("lint"))
+  lazy val lint: Project = Project("lint", file("lint"))
 
-  lazy val root = Project("root", file("."), settings =
+  lazy val root: Project = Project("root", file("."), settings =
     Assembly.moduleSettings ++
     Benchmarking.moduleSettings ++
     CodeFormat.moduleSettings ++

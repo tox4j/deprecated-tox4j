@@ -56,3 +56,7 @@ scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssigned
 
 // Add Java lint flags.
 javacOptions ++= Seq("-Xlint:unchecked")
+
+// Scalastyle configuration.
+scalastyleConfig in Compile := (scalaSource in Compile).value / "scalastyle-config.xml"
+scalastyleConfig in Test    := (scalaSource in Test   ).value / "scalastyle-config.xml"

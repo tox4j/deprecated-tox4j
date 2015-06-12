@@ -1,10 +1,10 @@
 package sbt.tox4j
 
-import com.etsy.sbt.Checkstyle.{ CheckstyleTasks, checkstyleSettings }
+import com.etsy.sbt.Checkstyle.CheckstyleTasks.checkstyle
+import com.etsy.sbt.Checkstyle.checkstyleSettings
 import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._
 import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.findbugs4sbt._
-import org.scalastyle.sbt.ScalastylePlugin._
 import sbt.Keys._
 import sbt._
 import wartremover.Wart
@@ -28,15 +28,7 @@ object CodeStyle extends Tox4jBuildPlugin {
 
   // Enable checkstyle.
   override val moduleSettings =
-    Seq(Compile, Test).flatMap { config =>
-      Seq(
-        // Scalastyle configuration.
-        scalastyleConfig in config := (scalaSource in config).value / "scalastyle-config.xml",
-        (compile in config) <<= (compile in config) dependsOn (scalastyle in config).toTask(" q")
-      )
-
-    } ++ Seq(
-
+    Seq(
       scapegoatVerbose := false,
       scapegoatDisabledInspections := Seq(
         // Disable method name inspection, since we use things like name_=.
@@ -111,6 +103,7 @@ object CodeStyle extends Tox4jBuildPlugin {
       },
 
       scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation"),
+      javacOptions ++= Seq("-Xlint:deprecation"),
 
       // Fail if production code violates the coding style.
       checkstyleFatal in Compile := true,
@@ -132,8 +125,8 @@ object CodeStyle extends Tox4jBuildPlugin {
       ) ++ checkstyleSettings ++ Seq((Compile, ""), (Test, "-test")).map {
           case (config, suffix) =>
             // Checkstyle override to fail the build on errors.
-            CheckstyleTasks.checkstyle in config := {
-              (CheckstyleTasks.checkstyle in config).value
+            checkstyle in config := {
+              (checkstyle in config).value
 
               val log = streams.value.log
 
