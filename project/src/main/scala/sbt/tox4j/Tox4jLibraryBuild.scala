@@ -4,7 +4,7 @@ import sbt._
 
 object Tox4jLibraryBuild extends Build {
 
-  lazy val checkers = Project("checkers", file("checkers"))
+  lazy val lint = Project("lint", file("lint"))
 
   lazy val root = Project("root", file("."), settings =
     Assembly.moduleSettings ++
@@ -14,6 +14,6 @@ object Tox4jLibraryBuild extends Build {
     Jni.moduleSettings ++
     MakeScripts.moduleSettings ++
     ProtobufPlugin.moduleSettings
-  ).configs(ProtobufPlugin.Protobuf).dependsOn(checkers)
+  ).configs(ProtobufPlugin.Protobuf).dependsOn(lint)
 
 }

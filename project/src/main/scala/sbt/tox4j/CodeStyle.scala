@@ -19,10 +19,10 @@ object CodeStyle extends Tox4jBuildPlugin {
   import Keys._
 
   private def custom(classpath: File): Seq[Wart] = {
-    val pathFinder = ((classpath / "im" / "tox" / "tox4j" / "staticanalysis") ** "*.class") filter (!_.getName.contains('$'))
+    val pathFinder = ((classpath / "im" / "tox" / "tox4j" / "lint") ** "*.class") filter (!_.getName.contains('$'))
     pathFinder.get map { file =>
       val checker = file.getName.replace(".class", "")
-      Wart.custom(s"im.tox.tox4j.staticanalysis.$checker")
+      Wart.custom(s"im.tox.tox4j.lint.$checker")
     }
   }
 
@@ -47,12 +47,12 @@ object CodeStyle extends Tox4jBuildPlugin {
       ),
       scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/jni/.*Impl\\.scala"),
 
-      wartremoverClasspaths += (classDirectory in (Tox4jLibraryBuild.checkers, Compile)).value.toURI.toString,
+      wartremoverClasspaths += (classDirectory in (Tox4jLibraryBuild.lint, Compile)).value.toURI.toString,
       wartremoverErrors in (Compile, compile) := Warts.allBut(
         Wart.DefaultArguments,
         Wart.NonUnitStatements,
         Wart.Var
-      ) ++ custom((classDirectory in (Tox4jLibraryBuild.checkers, Compile)).value),
+      ) ++ custom((classDirectory in (Tox4jLibraryBuild.lint, Compile)).value),
       wartremoverErrors in (Test, compile) := Warts.allBut(
         Wart.Any,
         Wart.AsInstanceOf,

@@ -1,4 +1,4 @@
-package im.tox.tox4j.staticanalysis
+package im.tox.tox4j.lint
 
 import org.brianmckenna.wartremover.{WartTraverser, WartUniverse}
 
