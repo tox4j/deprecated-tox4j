@@ -34,9 +34,9 @@ object Benchmarking extends Tox4jBuildPlugin {
       uploadResults(streams.value.log, baseDirectory.value, machine.value, target.value)
     }
 
-  )) ++ inConfig(Test)(Seq(
-    test := (testOnly in Test).toTask(" *Test").value
-  ))
+  )) ++ Seq(
+    test in Test := (testOnly in Test).toTask(" *Test").value
+  )
 
   private def uploadResults(log: Logger, baseDirectory: File, machine: String, target: File) = {
     val webDir = baseDirectory / ".web" / "report" / machine
