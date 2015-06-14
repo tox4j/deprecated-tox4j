@@ -1,5 +1,6 @@
 package im.tox.tox4j.impl.jni
 
+import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.core.callbacks._
@@ -8,11 +9,15 @@ import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.proto.Core._
 import im.tox.tox4j.core.{ AbstractToxCore, ToxCoreConstants }
-import im.tox.tox4j.impl.jni.ToxCoreImpl.convert
+import im.tox.tox4j.impl.jni.ToxCoreImpl.{ convert, logger }
 import im.tox.tox4j.impl.jni.internal.Event
+import org.slf4j.LoggerFactory
 
 // scalastyle:off
 private object ToxCoreImpl {
+
+  private val logger = Logger(LoggerFactory.getLogger(getClass))
+
   @throws[ToxBootstrapException]
   private def checkBootstrapArguments(port: Int, @Nullable publicKey: Array[Byte]): Unit = {
     if (port < 0) {
@@ -79,6 +84,7 @@ private object ToxCoreImpl {
       throw new ToxSetInfoException(ToxSetInfoException.Code.NULL)
     }
   }
+
 }
 
 /**
@@ -147,7 +153,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
       ToxCoreJni.toxFinalize(instanceNumber)
     } catch {
       case e: Throwable =>
-        e.printStackTrace()
+        logger.error("Exception caught in finalizer; this indicates a serious problem in native code", e)
     }
     super.finalize()
   }

@@ -2,6 +2,7 @@ package im.tox.tox4j.impl.jni
 
 import java.util
 
+import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.annotations.Nullable
 import im.tox.tox4j.av.callbacks._
@@ -10,10 +11,14 @@ import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.av.{ AbstractToxAv, ToxAv }
 import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.impl.jni.ToxAvImpl.convert
+import im.tox.tox4j.impl.jni.ToxAvImpl.{ convert, logger }
+import org.slf4j.LoggerFactory
 
 // scalastyle:off
 private object ToxAvImpl {
+
+  private val logger = Logger(LoggerFactory.getLogger(getClass))
+
   private def convert(kind: CallState.Kind): ToxCallState = {
     kind match {
       case CallState.Kind.ERROR       => ToxCallState.ERROR
@@ -24,6 +29,7 @@ private object ToxAvImpl {
       case CallState.Kind.RECEIVING_V => ToxCallState.RECEIVING_V
     }
   }
+
 }
 
 /**
@@ -64,7 +70,7 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
       ToxAvJni.toxavFinalize(instanceNumber)
     } catch {
       case e: Throwable =>
-        e.printStackTrace()
+        logger.error("Exception caught in finalizer; this indicates a serious problem in native code", e)
     }
     super.finalize()
   }
