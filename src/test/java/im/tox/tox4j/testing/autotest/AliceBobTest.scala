@@ -17,7 +17,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
   protected def enableUdp = true
   protected def enableTcp = false
-  protected def enableIpv4 = false
+  protected def enableIpv4 = true
   protected def enableIpv6 = false
   protected def enableHttp = false
   protected def enableSocks = false
