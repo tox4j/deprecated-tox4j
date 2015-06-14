@@ -9,7 +9,7 @@ import scala.collection.mutable
 
 final class FriendReadReceiptCallbackTest extends AliceBobTest {
 
-  protected override def allowTimeout = true
+  protected override def ignoreTimeout = true
 
   protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 

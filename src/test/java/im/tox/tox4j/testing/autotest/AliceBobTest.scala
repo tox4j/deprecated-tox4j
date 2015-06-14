@@ -13,7 +13,7 @@ import scala.language.postfixOps
 
 abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
-  protected def allowTimeout = false
+  protected def ignoreTimeout = false
 
   protected def enableUdp = true
   protected def enableTcp = false
@@ -53,7 +53,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     try {
       runAliceBobTest_Direct(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
     } catch {
-      case e: TestFailedDueToTimeoutException if allowTimeout =>
+      case e: TestFailedDueToTimeoutException if ignoreTimeout =>
         cancel(s"Test timed out after $TIMEOUT millis", e)
     }
   }
