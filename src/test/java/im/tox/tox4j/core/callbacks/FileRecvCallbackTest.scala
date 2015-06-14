@@ -1,9 +1,9 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileKind }
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{ assertEquals, assertNotNull }
 
 final class FileRecvCallbackTest extends AliceBobTest {
 
@@ -40,7 +40,12 @@ final class FileRecvCallbackTest extends AliceBobTest {
         assertEquals("This is a file for Bob".length, fileSize)
       }
       assertEquals("file for " + selfName + ".png", new String(filename))
-      finish()
+      addTask { tox =>
+        val fileId = tox.fileGetFileId(friendNumber, fileNumber)
+        assertNotNull(fileId)
+        assertEquals(ToxCoreConstants.FILE_ID_LENGTH, fileId.length)
+        finish()
+      }
     }
   }
 }

@@ -5,7 +5,7 @@ import java.util.{ ArrayList, Arrays }
 import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
-import im.tox.tox4j.core.options.SaveDataOptions
+import im.tox.tox4j.core.options.{ ToxOptions, SaveDataOptions }
 import im.tox.tox4j.exceptions.ToxException
 import org.junit.Assert._
 import org.junit.Test
@@ -179,6 +179,16 @@ final class LoadSaveTest extends ToxCoreTestBase {
     withTox { tox1 =>
       var data = tox1.getSecretKey
       withTox(SaveDataOptions.SecretKey(data)) { tox2 =>
+        assertArrayEquals(tox1.getSecretKey, tox2.getSecretKey)
+        assertArrayEquals(tox1.getPublicKey, tox2.getPublicKey)
+      }
+    }
+  }
+
+  @Test def testLoadSave5(): Unit = {
+    withTox { tox1 =>
+      var data = tox1.getSecretKey
+      withTox(tox1.load(ToxOptions(saveData = SaveDataOptions.SecretKey(data)))) { tox2 =>
         assertArrayEquals(tox1.getSecretKey, tox2.getSecretKey)
         assertArrayEquals(tox1.getPublicKey, tox2.getPublicKey)
       }
