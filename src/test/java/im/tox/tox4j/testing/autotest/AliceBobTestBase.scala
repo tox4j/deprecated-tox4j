@@ -17,7 +17,7 @@ abstract class AliceBobTestBase extends FlatSpec with ToxTestMixin {
   protected def newAlice(name: String, expectedFriendName: String): ChatClient
   protected def newBob(name: String, expectedFriendName: String): ChatClient = newAlice(name, expectedFriendName)
 
-  def getTopLevelMethod(stackTrace: Array[StackTraceElement]): String = {
+  private def getTopLevelMethod(stackTrace: Array[StackTraceElement]): String = {
     stackTrace
       .filter(_.getClassName == classOf[AliceBobTest].getName)
       .lastOption

@@ -14,12 +14,18 @@ import scala.language.postfixOps
 abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
   protected def allowTimeout = false
-  private val exhaustiveNetworkTests = false
+  protected def exhaustiveNetworkTests = false
 
   private def withBootstrappedTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyOptions: ProxyOptions.Type = ProxyOptions.None)(f: ToxCore => Unit): Unit = {
     ToxCoreFactory.withTox(ipv6Enabled, udpEnabled, proxyOptions) { tox =>
       bootstrap(ipv6Enabled, udpEnabled, tox)
       f(tox)
+    }
+  }
+
+  private def runAliceBobTest_Direct(withTox: => (ToxCore => Unit) => Unit): Unit = {
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest(withTox)
     }
   }
 
@@ -31,7 +37,9 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     }
 
     val proxy = SocksServer.withServer { proxy =>
-      runAliceBobTest(withBootstrappedTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)))
+      failAfter(TIMEOUT millis) {
+        runAliceBobTest(withBootstrappedTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)))
+      }
       proxy
     }
     assertEquals(2, proxy.getAccepted)
@@ -39,9 +47,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
   getClass.getSimpleName should "run with UDP4" in {
     try {
-      failAfter(TIMEOUT millis) {
-        runAliceBobTest(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
-      }
+      runAliceBobTest_Direct(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
     } catch {
       case e: TestFailedDueToTimeoutException if allowTimeout =>
         cancel(s"Test timed out after $TIMEOUT millis", e)
@@ -51,7 +57,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   it should "run with UDP6" in {
     assume(exhaustiveNetworkTests)
     failAfter(TIMEOUT millis) {
-      runAliceBobTest(ToxCoreFactory.withTox(ipv6Enabled = true, udpEnabled = true))
+      runAliceBobTest_Direct(ToxCoreFactory.withTox(ipv6Enabled = true, udpEnabled = true))
     }
   }
 
@@ -59,7 +65,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(exhaustiveNetworkTests)
     assume(ToxCoreTestBase.hasIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
-      runAliceBobTest(withBootstrappedTox(ipv6Enabled = false, udpEnabled = false))
+      runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = false, udpEnabled = false))
     }
   }
 
@@ -67,40 +73,32 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(exhaustiveNetworkTests)
     assume(ToxCoreTestBase.hasIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
-      runAliceBobTest(withBootstrappedTox(ipv6Enabled = true, udpEnabled = false))
+      runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = true, udpEnabled = false))
     }
   }
 
   it should "run with UDP4+SOCKS5" in {
     assume(exhaustiveNetworkTests)
     assume(ToxCoreTestBase.hasIPv4.isEmpty)
-    failAfter(TIMEOUT millis) {
-      runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = true)
-    }
+    runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = true)
   }
 
   it should "run with UDP6+SOCKS5" in {
     assume(exhaustiveNetworkTests)
     assume(ToxCoreTestBase.hasIPv6.isEmpty)
-    failAfter(TIMEOUT millis) {
-      runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = true)
-    }
+    runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = true)
   }
 
   it should "run with TCP4+SOCKS5" in {
     assume(exhaustiveNetworkTests)
     assume(ToxCoreTestBase.hasIPv4.isEmpty)
-    failAfter(TIMEOUT millis) {
-      runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = false)
-    }
+    runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = false)
   }
 
   it should "run with TCP6+SOCKS5" in {
     assume(exhaustiveNetworkTests)
     assume(ToxCoreTestBase.hasIPv6.isEmpty)
-    failAfter(TIMEOUT millis) {
-      runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = false)
-    }
+    runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = false)
   }
 
 }
