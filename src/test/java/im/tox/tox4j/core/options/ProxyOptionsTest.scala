@@ -1,5 +1,6 @@
 package im.tox.tox4j.core.options
 
+import im.tox.tox4j.core.enums.ToxProxyType
 import org.scalatest.FlatSpec
 
 final class ProxyOptionsTest extends FlatSpec {
@@ -19,6 +20,12 @@ final class ProxyOptionsTest extends FlatSpec {
     intercept[IllegalArgumentException] {
       ProxyOptions.Socks5("localhost", 65536)
     }
+  }
+
+  it should "produce the right low level enum values" in {
+    assert(ProxyOptions.None.proxyType == ToxProxyType.NONE)
+    assert(ProxyOptions.Http("localhost", 1).proxyType == ToxProxyType.HTTP)
+    assert(ProxyOptions.Socks5("localhost", 1).proxyType == ToxProxyType.SOCKS5)
   }
 
 }

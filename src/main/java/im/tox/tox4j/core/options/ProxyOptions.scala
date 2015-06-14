@@ -41,7 +41,7 @@ object ProxyOptions {
 
   final case class Socks5(proxyAddress: String, proxyPort: Int) extends Type {
     requireValidUInt16(proxyPort)
-    override def proxyType: ToxProxyType = ToxProxyType.HTTP
+    override def proxyType: ToxProxyType = ToxProxyType.SOCKS5
   }
 
 }
