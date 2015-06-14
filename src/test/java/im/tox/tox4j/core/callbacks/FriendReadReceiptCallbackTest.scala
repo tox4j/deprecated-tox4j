@@ -9,6 +9,8 @@ import scala.collection.mutable
 
 final class FriendReadReceiptCallbackTest extends AliceBobTest {
 
+  protected override def allowTimeout = true
+
   protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
     private val pendingIds = Array.ofDim[Int](ITERATIONS)
@@ -17,9 +19,9 @@ final class FriendReadReceiptCallbackTest extends AliceBobTest {
 
     override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
       if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
+        debug(s"is now connected to friend $friendNumber")
         addTask { tox =>
-          debug("Sending " + ITERATIONS + " messages")
+          debug(s"Sending $ITERATIONS messages")
           for (i <- 0 until ITERATIONS) {
             pendingIds(i) = -1
             val receipt = tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes)

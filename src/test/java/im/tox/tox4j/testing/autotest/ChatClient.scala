@@ -88,4 +88,5 @@ class ChatClient(val selfName: String, val expectedFriendName: String) extends T
       }
     }
   }
+
 }

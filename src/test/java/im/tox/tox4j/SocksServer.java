@@ -53,13 +53,22 @@ public final class SocksServer implements Closeable, Runnable {
     server.close();
   }
 
-  public static <R> R run(Function1<SocksServer, R> f) throws IOException, InterruptedException {
+  /**
+   * Spawn a proxy server in a thread and pass it to the function.
+   *
+   * @param function  The function to call ot the {@link SocksServer} object.
+   * @param <R>       The return type of the function.
+   * @return The result of calling the function on the server object.
+   * @throws IOException on network errors.
+   * @throws InterruptedException on unexpected thread interrupts.
+   */
+  public static <R> R withServer(Function1<SocksServer, R> function) throws IOException, InterruptedException {
     SocksServer server = new SocksServer();
     Thread thread = new Thread(server);
     thread.start();
 
     try {
-      return f.apply(server);
+      return function.apply(server);
     } finally {
       server.close();
       thread.join();

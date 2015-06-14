@@ -12,7 +12,7 @@ final class FriendNameCallbackTest extends AliceBobTest {
 
     override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
       if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
+        debug(s"is now connected to friend $friendNumber")
         addTask { tox =>
           tox.setName(selfName.getBytes)
         }
@@ -20,7 +20,7 @@ final class FriendNameCallbackTest extends AliceBobTest {
     }
 
     override def friendName(friendNumber: Int, name: Array[Byte]): Unit = {
-      debug("friend changed name to: " + new String(name))
+      debug(s"friend changed name to: ${new String(name)}")
       assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
       if (state == 0) {
         state = 1

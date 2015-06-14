@@ -6,12 +6,14 @@ import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.{ SocksServer, ToxCoreTestBase }
 import org.junit.Assert._
 import org.scalatest.concurrent.Timeouts
+import org.scalatest.exceptions.TestFailedDueToTimeoutException
 import org.scalatest.time.SpanSugar._
 
 import scala.language.postfixOps
 
 abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
+  protected def allowTimeout = false
   private val exhaustiveNetworkTests = false
 
   private def withBootstrappedTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyOptions: ProxyOptions.Type = ProxyOptions.None)(f: ToxCore => Unit): Unit = {
@@ -28,7 +30,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
       ToxCoreTestBase.assumeIPv4()
     }
 
-    val proxy = SocksServer.run { proxy =>
+    val proxy = SocksServer.withServer { proxy =>
       runAliceBobTest(withBootstrappedTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)))
       proxy
     }
@@ -36,8 +38,13 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   getClass.getSimpleName should "run with UDP4" in {
-    failAfter(TIMEOUT millis) {
-      runAliceBobTest(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
+    try {
+      failAfter(TIMEOUT millis) {
+        runAliceBobTest(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
+      }
+    } catch {
+      case e: TestFailedDueToTimeoutException if allowTimeout =>
+        cancel(s"Test timed out after $TIMEOUT millis", e)
     }
   }
 
