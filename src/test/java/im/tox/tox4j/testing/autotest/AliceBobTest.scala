@@ -36,19 +36,15 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   private def runAliceBobTest_Socks(ipv6Enabled: Boolean, udpEnabled: Boolean): Unit = {
-    if (ipv6Enabled) {
-      ToxCoreTestBase.assumeIPv6()
-    } else {
-      ToxCoreTestBase.assumeIPv4()
-    }
-
     val proxy = SocksServer.withServer { proxy =>
       failAfter(TIMEOUT millis) {
         runAliceBobTest(withBootstrappedTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)))
       }
       proxy
     }
-    assertEquals(2, proxy.getAccepted)
+    if (!udpEnabled) {
+      assertEquals(2, proxy.getAccepted)
+    }
   }
 
   getClass.getSimpleName should "run with UDP4" in {
