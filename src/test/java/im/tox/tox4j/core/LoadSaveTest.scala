@@ -175,4 +175,14 @@ final class LoadSaveTest extends ToxCoreTestBase {
     }
   }
 
+  @Test def testLoadSave4(): Unit = {
+    withTox { tox1 =>
+      var data = tox1.getSecretKey
+      withTox(SaveDataOptions.SecretKey(data)) { tox2 =>
+        assertArrayEquals(tox1.getSecretKey, tox2.getSecretKey)
+        assertArrayEquals(tox1.getPublicKey, tox2.getPublicKey)
+      }
+    }
+  }
+
 }
