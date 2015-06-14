@@ -4,7 +4,7 @@ import java.io.{ Closeable, IOException, InputStream, OutputStream }
 import java.net.{ InetAddress, ServerSocket, Socket }
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.SocksServer.logger
+import im.tox.tox4j.SocksServer.{ FIRST_PORT, LAST_PORT, logger }
 import im.tox.tox4j.annotations.NotNull
 import org.junit.Assert.assertEquals
 import org.slf4j.LoggerFactory
@@ -13,6 +13,9 @@ import scala.collection.mutable.ArrayBuffer
 
 object SocksServer {
   private val logger = Logger(LoggerFactory.getLogger(getClass))
+
+  private val FIRST_PORT = 8000
+  private val LAST_PORT = 8999
 
   /**
    * Spawn a proxy server in a thread and pass it to the function.
@@ -37,13 +40,10 @@ object SocksServer {
 }
 
 /**
- * Create a simple SOCKS5 server on a port between [[SocksServer().FIRST_PORT]] and [[SocksServer().LAST_PORT]].
+ * Create a simple SOCKS5 server on a port between [[FIRST_PORT]] and [[LAST_PORT]].
  */
 @throws[IOException]("If no port could be bound")
 final class SocksServer extends Closeable with Runnable {
-  private val FIRST_PORT = 8000
-  private val LAST_PORT = 8999
-
   private val server = connectAvailablePort()
   private val threads = new ArrayBuffer[Thread]
   private val sockets = new ArrayBuffer[Socket]
