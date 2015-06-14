@@ -45,28 +45,28 @@ final class NetworkTest extends FlatSpec with Timeouts {
   }
 
   "bootstrap" should "connect with UDP4" in {
-    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
       testBootstrap(ipv6Enabled = false, udpEnabled = true, node.ipv4, node.udpPort, node.dhtId)
     }
   }
 
   it should "connect with UDP6" in {
-    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
       testBootstrap(ipv6Enabled = true, udpEnabled = true, node.ipv6, node.udpPort, node.dhtId)
     }
   }
 
   it should "connect with TCP4" in {
-    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
       testBootstrap(ipv6Enabled = false, udpEnabled = false, node.ipv4, node.tcpPort, node.dhtId)
     }
   }
 
   it should "connect with TCP6" in {
-    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
       testBootstrap(ipv6Enabled = true, udpEnabled = false, node.ipv6, node.tcpPort, node.dhtId)
     }

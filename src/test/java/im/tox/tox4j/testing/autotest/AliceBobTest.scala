@@ -69,7 +69,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   it should "run with TCP4" in {
     assume(enableTcp)
     assume(enableIpv4)
-    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
       runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = false, udpEnabled = false))
     }
@@ -78,7 +78,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   it should "run with TCP6" in {
     assume(enableTcp)
     assume(enableIpv6)
-    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
       runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = true, udpEnabled = false))
     }
@@ -88,7 +88,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(enableUdp)
     assume(enableIpv4)
     assume(enableSocks)
-    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = true)
   }
 
@@ -96,7 +96,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(enableUdp)
     assume(enableIpv6)
     assume(enableSocks)
-    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = true)
   }
 
@@ -104,7 +104,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(enableTcp)
     assume(enableIpv4)
     assume(enableSocks)
-    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = false)
   }
 
@@ -112,7 +112,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(enableTcp)
     assume(enableIpv6)
     assume(enableSocks)
-    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = false)
   }
 

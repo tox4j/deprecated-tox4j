@@ -138,20 +138,20 @@ object ToxCoreTestBase {
     }
   }
 
-  def hasIPv4: Option[String] = {
+  def checkIPv4: Option[String] = {
     hasConnection("8.8.8.8", 53)
   }
 
-  def hasIPv6: Option[String] = {
+  def checkIPv6: Option[String] = {
     hasConnection("2001:4860:4860::8888", 53)
   }
 
   protected[tox4j] def assumeIPv4(): Unit = {
-    Assume.assumeTrue(hasIPv4.isEmpty)
+    Assume.assumeTrue(checkIPv4.isEmpty)
   }
 
   protected[tox4j] def assumeIPv6(): Unit = {
-    Assume.assumeTrue(hasIPv6.isEmpty)
+    Assume.assumeTrue(checkIPv6.isEmpty)
   }
 
 }
