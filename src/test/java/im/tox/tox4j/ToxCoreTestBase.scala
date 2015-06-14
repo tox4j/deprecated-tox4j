@@ -8,11 +8,11 @@ import java.util.Random
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
+import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.testing.ToxTestMixin
-import org.junit.Assume.{ assumeNotNull, assumeTrue }
+import org.junit.{ Assume, After }
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
@@ -119,14 +119,18 @@ object ToxCoreTestBase {
     digit.toByte
   }
 
-  protected def assumeConnection(ip: String, port: Int): Unit = {
+  private def hasConnection(ip: String, port: Int): Option[String] = {
     var socket: Socket = null
     try {
       socket = new Socket(InetAddress.getByName(ip), port)
-      assumeNotNull(socket.getInputStream)
+      if (socket.getInputStream == null) {
+        Some("Socket input stream is null")
+      } else {
+        None
+      }
     } catch {
       case e: IOException =>
-        assumeTrue("A network connection can't be established to " + ip + ':' + port + ": " + e.getMessage, false)
+        Some(s"A network connection can't be established to $ip:$port: ${e.getMessage}")
     } finally {
       if (socket != null) {
         socket.close()
@@ -134,23 +138,37 @@ object ToxCoreTestBase {
     }
   }
 
-  protected[tox4j] def assumeIPv4(): Unit =
-    assumeConnection("8.8.8.8", 53)
+  def hasIPv4: Option[String] = {
+    hasConnection("8.8.8.8", 53)
+  }
 
-  protected[tox4j] def assumeIPv6(): Unit =
-    assumeConnection("2001:4860:4860::8888", 53)
+  def hasIPv6: Option[String] = {
+    hasConnection("2001:4860:4860::8888", 53)
+  }
+
+  protected[tox4j] def assumeIPv4(): Unit = {
+    Assume.assumeTrue(hasIPv4.isEmpty)
+  }
+
+  protected[tox4j] def assumeIPv6(): Unit = {
+    Assume.assumeTrue(hasIPv6.isEmpty)
+  }
 
 }
 
 abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
 
-  @NotNull
-  protected def node: DhtNode
+  @After
+  final def tearDown(): Unit = {
+    ToxCoreFactory.destroyAll()
+  }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected def newTox(options: ToxOptions): ToxCore
+  protected final def newTox(options: ToxOptions): ToxCore = {
+    ToxCoreFactory(options)
+  }
 
   @NotNull
   @throws[ToxNewException]
@@ -178,34 +196,6 @@ abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
-  }
-
-  @throws[ToxNewException]
-  @throws[ToxFriendAddException]
-  protected def addFriends(@NotNull tox: ToxCore, count: Int): Int = {
-    if (count < 1) {
-      throw new IllegalArgumentException("Cannot add less than 1 friend: " + count)
-    }
-    val message = "heyo".getBytes
-    (0 until count).map { (i: Int) =>
-      ToxCoreFactory.withTox { friend =>
-        tox.addFriendNoRequest(friend.getPublicKey)
-      }
-    }.last
-  }
-
-  @NotNull
-  @throws[ToxBootstrapException]
-  private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
-    if (!udpEnabled) {
-      tox.addTcpRelay(node.ipv4, node.tcpPort, node.dhtId)
-    }
-    tox.bootstrap(
-      if (useIPv6) node.ipv6 else node.ipv4,
-      if (udpEnabled) node.udpPort else node.tcpPort,
-      node.dhtId
-    )
-    tox
   }
 
 }

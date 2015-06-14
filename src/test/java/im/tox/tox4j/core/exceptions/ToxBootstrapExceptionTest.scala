@@ -1,12 +1,12 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.ToxCoreImplTestBase
+import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.{ ToxCoreFactory, ToxCoreConstants, ToxCore }
 import im.tox.tox4j.exceptions.ToxException
 import org.junit.Test
 import org.junit.Assert.assertEquals
 
-class ToxBootstrapExceptionTest extends ToxCoreImplTestBase {
+class ToxBootstrapExceptionTest extends ToxCoreTestBase {
 
   @Test
   def testBootstrapBadPort1(): Unit = {

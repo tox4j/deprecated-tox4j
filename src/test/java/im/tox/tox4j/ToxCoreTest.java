@@ -18,7 +18,7 @@ import java.util.List;
 import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
 
-public class ToxCoreTest extends ToxCoreImplTestBase {
+public class ToxCoreTest extends ToxCoreTestBase {
 
   private static final Logger logger = LoggerFactory.getLogger(ToxCoreTest.class);
 
@@ -91,14 +91,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testBootstrapBorderlinePort1() throws Exception {
     try (ToxCore tox = newTox()) {
-      tox.bootstrap(node().ipv4(), 1, new byte[ToxCoreConstants.PUBLIC_KEY_SIZE]);
+      tox.bootstrap(DhtNodeSelector.node().ipv4(), 1, new byte[ToxCoreConstants.PUBLIC_KEY_SIZE]);
     }
   }
 
   @Test
   public void testBootstrapBorderlinePort2() throws Exception {
     try (ToxCore tox = newTox()) {
-      tox.bootstrap(node().ipv4(), 65535, new byte[ToxCoreConstants.PUBLIC_KEY_SIZE]);
+      tox.bootstrap(DhtNodeSelector.node().ipv4(), 65535, new byte[ToxCoreConstants.PUBLIC_KEY_SIZE]);
     }
   }
 

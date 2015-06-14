@@ -1,20 +1,21 @@
 package im.tox.tox4j.testing.autotest
 
 import im.tox.tox4j.TestConstants._
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.core.options.ProxyOptions
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.{ SocksServer, ToxCoreTestBase }
 import org.junit.Assert._
-import org.junit.{ AssumptionViolatedException, Test }
+import org.scalatest.concurrent.Timeouts
+import org.scalatest.time.SpanSugar._
 
-abstract class AliceBobTest extends AliceBobTestBase {
+import scala.language.postfixOps
 
-  private def exhaustiveNetworkTests(): Unit = {
-    throw new AssumptionViolatedException("not running")
-  }
+abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
-  private def withBootstrappedTox(ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => Unit): Unit = {
-    ToxCoreFactory.withTox(ipv6Enabled, udpEnabled) { tox =>
+  private val exhaustiveNetworkTests = false
+
+  private def withBootstrappedTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyOptions: ProxyOptions.Type = ProxyOptions.None)(f: ToxCore => Unit): Unit = {
+    ToxCoreFactory.withTox(ipv6Enabled, udpEnabled, proxyOptions) { tox =>
       bootstrap(ipv6Enabled, udpEnabled, tox)
       f(tox)
     }
@@ -28,64 +29,71 @@ abstract class AliceBobTest extends AliceBobTestBase {
     }
 
     val proxy = SocksServer.run { proxy =>
-      runAliceBobTest { f =>
-        ToxCoreFactory.withTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)) { tox =>
-          bootstrap(ipv6Enabled, udpEnabled, tox)
-          f(tox)
-        }
-      }
+      runAliceBobTest(withBootstrappedTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)))
       proxy
     }
     assertEquals(2, proxy.getAccepted)
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Udp4(): Unit = {
-    runAliceBobTest(ToxCoreFactory.withTox(false, true))
+  getClass.getSimpleName should "run with UDP4" in {
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Udp6(): Unit = {
-    exhaustiveNetworkTests()
-    runAliceBobTest(ToxCoreFactory.withTox(true, true))
+  it should "run with UDP6" in {
+    assume(exhaustiveNetworkTests)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest(ToxCoreFactory.withTox(ipv6Enabled = true, udpEnabled = true))
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Tcp4(): Unit = {
-    exhaustiveNetworkTests()
-    ToxCoreTestBase.assumeIPv4()
-    runAliceBobTest(withBootstrappedTox(false, false))
+  it should "run with TCP4" in {
+    assume(exhaustiveNetworkTests)
+    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest(withBootstrappedTox(ipv6Enabled = false, udpEnabled = false))
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Tcp6(): Unit = {
-    exhaustiveNetworkTests()
-    ToxCoreTestBase.assumeIPv6()
-    runAliceBobTest(withBootstrappedTox(true, false))
+  it should "run with TCP6" in {
+    assume(exhaustiveNetworkTests)
+    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest(withBootstrappedTox(ipv6Enabled = true, udpEnabled = false))
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Socks_Udp4(): Unit = {
-    exhaustiveNetworkTests()
-    runAliceBobTest_Socks(false, true)
+  it should "run with UDP4+SOCKS5" in {
+    assume(exhaustiveNetworkTests)
+    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = true)
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Socks_Udp6(): Unit = {
-    exhaustiveNetworkTests()
-    runAliceBobTest_Socks(true, true)
+  it should "run with UDP6+SOCKS5" in {
+    assume(exhaustiveNetworkTests)
+    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = true)
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Socks_Tcp4(): Unit = {
-    exhaustiveNetworkTests()
-    runAliceBobTest_Socks(false, false)
+  it should "run with TCP4+SOCKS5" in {
+    assume(exhaustiveNetworkTests)
+    assume(ToxCoreTestBase.hasIPv4.isEmpty)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = false)
+    }
   }
 
-  @Test(timeout = TIMEOUT)
-  final def runAliceBobTest_Socks_Tcp6(): Unit = {
-    exhaustiveNetworkTests()
-    runAliceBobTest_Socks(true, false)
+  it should "run with TCP6+SOCKS5" in {
+    assume(exhaustiveNetworkTests)
+    assume(ToxCoreTestBase.hasIPv6.isEmpty)
+    failAfter(TIMEOUT millis) {
+      runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = false)
+    }
   }
 
 }

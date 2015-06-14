@@ -1,15 +1,16 @@
 package im.tox.tox4j.testing.autotest
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.ToxCoreImplTestBase
 import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FlatSpec
 import org.slf4j.LoggerFactory
 
 object AliceBobTestBase {
   val FRIEND_NUMBER = 10
 }
 
-abstract class AliceBobTestBase extends ToxCoreImplTestBase {
+abstract class AliceBobTestBase extends FlatSpec with ToxTestMixin {
 
   protected val logger = Logger(LoggerFactory.getLogger(classOf[AliceBobTestBase]))
 
@@ -19,8 +20,8 @@ abstract class AliceBobTestBase extends ToxCoreImplTestBase {
   def getTopLevelMethod(stackTrace: Array[StackTraceElement]): String = {
     stackTrace
       .filter(_.getClassName == classOf[AliceBobTest].getName)
-      .last
-      .getMethodName
+      .lastOption
+      .fold("<unknown>")(_.getMethodName)
   }
 
   protected def runAliceBobTest(withTox: => (ToxCore => Unit) => Unit): Unit = {

@@ -2,15 +2,15 @@ package im.tox.tox4j.core
 
 import java.util.{ ArrayList, Arrays }
 
+import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
 import im.tox.tox4j.core.options.SaveDataOptions
 import im.tox.tox4j.exceptions.ToxException
-import im.tox.tox4j.{ ToxCoreImplTestBase, ToxCoreTestBase }
 import org.junit.Assert._
 import org.junit.Test
 
-final class LoadSaveTest extends ToxCoreImplTestBase {
+final class LoadSaveTest extends ToxCoreTestBase {
 
   private trait Check {
     @throws(classOf[ToxException[_]])

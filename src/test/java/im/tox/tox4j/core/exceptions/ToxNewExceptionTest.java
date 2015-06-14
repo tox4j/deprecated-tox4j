@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.exceptions;
 
-import im.tox.tox4j.ToxCoreImplTestBase;
+import im.tox.tox4j.ToxCoreTestBase;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.options.ProxyOptions;
@@ -11,7 +11,7 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-public class ToxNewExceptionTest extends ToxCoreImplTestBase {
+public class ToxNewExceptionTest extends ToxCoreTestBase {
 
   @Test
   public void testToxNewProxyNull() throws Exception {
