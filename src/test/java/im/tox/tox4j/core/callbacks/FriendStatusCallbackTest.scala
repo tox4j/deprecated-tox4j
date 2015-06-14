@@ -1,17 +1,12 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.AliceBobTestBase
-import im.tox.tox4j.AliceBobTestBase.ChatClient
-import im.tox.tox4j.AliceBobTestBase.ChatClient.Task
-import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.core.enums.ToxUserStatus
-
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxUserStatus }
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
 import org.junit.Assert.assertEquals
 
-final class FriendStatusCallbackTest extends AliceBobTestBase {
+final class FriendStatusCallbackTest extends AliceBobTest {
 
-  override def newAlice(): ChatClient = new ChatClient {
+  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
     private var selfStatus = ToxUserStatus.NONE
     //    private var isInitialized = false
@@ -23,17 +18,15 @@ final class FriendStatusCallbackTest extends AliceBobTestBase {
     }
 
     private def go(status: ToxUserStatus): Unit = {
-      addTask(new Task {
-        override def perform(tox: ToxCore): Unit = {
-          selfStatus = status
-          tox.setStatus(selfStatus)
-        }
-      })
+      addTask { tox =>
+        selfStatus = status
+        tox.setStatus(selfStatus)
+      }
     }
 
     override def friendStatus(friendNumber: Int, status: ToxUserStatus): Unit = {
       debug("friend changed status to: " + status)
-      assertEquals(ChatClient.FRIEND_NUMBER, friendNumber)
+      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
       if (selfStatus == ToxUserStatus.NONE) {
         if (isAlice) {
           assertEquals(ToxUserStatus.NONE, status)

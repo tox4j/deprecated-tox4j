@@ -1,26 +1,19 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.AliceBobTestBase
-import im.tox.tox4j.AliceBobTestBase.ChatClient
-import im.tox.tox4j.AliceBobTestBase.ChatClient.Task
-import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
+import org.junit.Assert.{ assertEquals, assertFalse }
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+class FriendTypingCallbackTest extends AliceBobTest {
 
-class FriendTypingCallbackTest extends AliceBobTestBase {
-
-  override def newAlice(): ChatClient = new ChatClient {
+  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
     private var initial = true
 
     private def setTyping(friendNumber: Int, isTyping: Boolean): Unit = {
-      addTask(new Task {
-        override def perform(tox: ToxCore): Unit = {
-          tox.setTyping(friendNumber, isTyping)
-        }
-      })
+      addTask { tox =>
+        tox.setTyping(friendNumber, isTyping)
+      }
     }
 
     override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
@@ -42,7 +35,7 @@ class FriendTypingCallbackTest extends AliceBobTestBase {
         } else {
           debug("friend stopped typing")
         }
-        assertEquals(ChatClient.FRIEND_NUMBER, friendNumber)
+        assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
         if (isBob) {
           if (isTyping) {
             setTyping(friendNumber, isTyping = true)

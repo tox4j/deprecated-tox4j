@@ -1,7 +1,6 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums._
-
 import org.junit.Test
 import org.scalatest.junit.JUnitSuite
 

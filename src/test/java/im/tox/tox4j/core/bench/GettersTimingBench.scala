@@ -29,7 +29,7 @@ final class GettersTimingBench extends TimingReport {
       }
     }
 
-    measure method "getName" in {
+    measure method "name" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.getName)

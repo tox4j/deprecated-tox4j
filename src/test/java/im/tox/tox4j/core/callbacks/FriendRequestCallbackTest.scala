@@ -1,21 +1,18 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.AliceBobTestBase
-import im.tox.tox4j.AliceBobTestBase.ChatClient
-import im.tox.tox4j.AliceBobTestBase.ChatClient.Task
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
-
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
 import org.junit.Assert._
 
-final class FriendRequestCallbackTest extends AliceBobTestBase {
+final class FriendRequestCallbackTest extends AliceBobTest {
 
-  override def newAlice(): ChatClient = new ChatClient {
+  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
     override def setup(tox: ToxCore): Unit = {
-      tox.deleteFriend(ChatClient.FRIEND_NUMBER)
+      tox.deleteFriend(AliceBobTestBase.FRIEND_NUMBER)
       if (isAlice) {
-        tox.addFriend(getFriendAddress, ("Hey this is " + getName).getBytes)
+        tox.addFriend(expectedFriendAddress, ("Hey this is " + selfName).getBytes)
       }
     }
 
@@ -29,14 +26,12 @@ final class FriendRequestCallbackTest extends AliceBobTestBase {
     override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte]): Unit = {
       debug("got friend request: " + new String(message))
       assertTrue("Alice shouldn't get a friend request", isBob)
-      assertArrayEquals(getFriendPublicKey, publicKey)
+      assertArrayEquals(expectedFriendPublicKey, publicKey)
       assertTrue(timeDelta >= 0)
-      assertEquals("Hey this is " + getFriendName, new String(message))
-      addTask(new Task {
-        override def perform(tox: ToxCore): Unit = {
-          tox.addFriendNoRequest(publicKey)
-        }
-      })
+      assertEquals("Hey this is " + expectedFriendName, new String(message))
+      addTask { tox =>
+        tox.addFriendNoRequest(publicKey)
+      }
     }
 
   }

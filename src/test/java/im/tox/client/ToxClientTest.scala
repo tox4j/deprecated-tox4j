@@ -14,7 +14,7 @@ final class ToxClientTest extends FlatSpec {
     }
   }
 
-  "getName" should "return the name set by setName" in {
+  "name" should "return the name set by setName" in {
     withTox { tox =>
       tox.name = "Alice"
       assert(tox.name == "Alice")

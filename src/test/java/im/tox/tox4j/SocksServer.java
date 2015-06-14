@@ -1,6 +1,7 @@
 package im.tox.tox4j;
 
 import im.tox.tox4j.annotations.NotNull;
+import scala.Function1;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -50,6 +51,19 @@ public final class SocksServer implements Closeable, Runnable {
   public void close() throws IOException {
     running = false;
     server.close();
+  }
+
+  public static <R> R run(Function1<SocksServer, R> f) throws IOException, InterruptedException {
+    SocksServer server = new SocksServer();
+    Thread thread = new Thread(server);
+    thread.start();
+
+    try {
+      return f.apply(server);
+    } finally {
+      server.close();
+      thread.join();
+    }
   }
 
   public int getPort() {

@@ -36,13 +36,16 @@ object ToxCoreFactory {
     tox
   }
 
-  def withTox[R](options: ToxOptions)(f: ToxCore => R): R = {
-    val tox = make(options)
+  def withTox[R](tox: ToxCore)(f: ToxCore => R): R = {
     try {
       f(tox)
     } finally {
       tox.close()
     }
+  }
+
+  def withTox[R](options: ToxOptions)(f: ToxCore => R): R = {
+    withTox(make(options))(f)
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type)(f: ToxCore => R): R = {
@@ -54,7 +57,7 @@ object ToxCoreFactory {
   }
 
   def withTox[R](saveData: SaveDataOptions.Type)(f: ToxCore => R): R = {
-    withTox(new ToxOptions(saveData = saveData))(f);
+    withTox(new ToxOptions(saveData = saveData))(f)
   }
 
   def withTox[R](f: ToxCore => R): R = {
