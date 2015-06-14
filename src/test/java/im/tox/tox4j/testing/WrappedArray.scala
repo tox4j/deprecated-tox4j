@@ -3,9 +3,8 @@ package im.tox.tox4j.testing
 import org.scalacheck.Arbitrary
 
 import scala.collection.mutable
-import scala.reflect.ClassTag
-
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 class WrappedArray(val array: Array[Byte]) extends mutable.WrappedArray[Byte] with Serializable {
   override def elemTag: ClassTag[Byte] = ClassTag.Byte

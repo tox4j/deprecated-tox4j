@@ -2,7 +2,6 @@ package im.tox.tox4j.core.exceptions;
 
 import im.tox.tox4j.ToxCoreTestBase;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.options.ProxyOptions;
 import org.junit.Test;
 

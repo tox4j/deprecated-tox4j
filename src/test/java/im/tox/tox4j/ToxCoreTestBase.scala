@@ -12,7 +12,7 @@ import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.testing.ToxTestMixin
-import org.junit.{ Assume, After }
+import org.junit.{ After, Assume }
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {

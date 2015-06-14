@@ -1,10 +1,8 @@
 package im.tox.tox4j.core.exceptions
 
 import im.tox.tox4j.ToxCoreTestBase
-import im.tox.tox4j.core.{ ToxCoreFactory, ToxCoreConstants, ToxCore }
-import im.tox.tox4j.exceptions.ToxException
+import im.tox.tox4j.core.ToxCoreConstants
 import org.junit.Test
-import org.junit.Assert.assertEquals
 
 class ToxBootstrapExceptionTest extends ToxCoreTestBase {
 

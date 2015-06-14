@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 
 /**
  * This class contains all the startup options for Tox.

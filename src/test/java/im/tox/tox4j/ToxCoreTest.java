@@ -1,7 +1,7 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.enums.ToxUserStatus;
 import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.core.options.SaveDataOptions;
