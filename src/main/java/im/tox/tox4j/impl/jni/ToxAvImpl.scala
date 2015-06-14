@@ -40,9 +40,9 @@ private object ToxAvImpl {
 @throws[ToxAvNewException]("If there was already an A/V session.")
 final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
 
-  private val instanceNumber = ToxAvJni.toxavNew(this.tox.instanceNumber)
+  private val instanceNumber = ToxAvJni.toxavNew(tox.instanceNumber)
 
-  private val onClose = this.tox.addOnCloseCallback(close)
+  private val onClose = tox.addOnCloseCallback(close)
 
   private var callCallback = CallCallback.IGNORE
   private var callStateCallback = CallStateCallback.IGNORE
