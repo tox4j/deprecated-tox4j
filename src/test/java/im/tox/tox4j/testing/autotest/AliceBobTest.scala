@@ -14,7 +14,13 @@ import scala.language.postfixOps
 abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
 
   protected def allowTimeout = false
-  protected def exhaustiveNetworkTests = false
+
+  protected def enableUdp = true
+  protected def enableTcp = false
+  protected def enableIpv4 = false
+  protected def enableIpv6 = false
+  protected def enableHttp = false
+  protected def enableSocks = false
 
   private def withBootstrappedTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyOptions: ProxyOptions.Type = ProxyOptions.None)(f: ToxCore => Unit): Unit = {
     ToxCoreFactory.withTox(ipv6Enabled, udpEnabled, proxyOptions) { tox =>
@@ -46,6 +52,8 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   getClass.getSimpleName should "run with UDP4" in {
+    assume(enableUdp)
+    assume(enableIpv4)
     try {
       runAliceBobTest_Direct(ToxCoreFactory.withTox(ipv6Enabled = false, udpEnabled = true))
     } catch {
@@ -55,14 +63,16 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   it should "run with UDP6" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableUdp)
+    assume(enableIpv6)
     failAfter(TIMEOUT millis) {
       runAliceBobTest_Direct(ToxCoreFactory.withTox(ipv6Enabled = true, udpEnabled = true))
     }
   }
 
   it should "run with TCP4" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableTcp)
+    assume(enableIpv4)
     assume(ToxCoreTestBase.hasIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
       runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = false, udpEnabled = false))
@@ -70,7 +80,8 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   it should "run with TCP6" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableTcp)
+    assume(enableIpv6)
     assume(ToxCoreTestBase.hasIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
       runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = true, udpEnabled = false))
@@ -78,25 +89,33 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   it should "run with UDP4+SOCKS5" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableUdp)
+    assume(enableIpv4)
+    assume(enableSocks)
     assume(ToxCoreTestBase.hasIPv4.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = true)
   }
 
   it should "run with UDP6+SOCKS5" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableUdp)
+    assume(enableIpv6)
+    assume(enableSocks)
     assume(ToxCoreTestBase.hasIPv6.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = true)
   }
 
   it should "run with TCP4+SOCKS5" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableTcp)
+    assume(enableIpv4)
+    assume(enableSocks)
     assume(ToxCoreTestBase.hasIPv4.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = false)
   }
 
   it should "run with TCP6+SOCKS5" in {
-    assume(exhaustiveNetworkTests)
+    assume(enableTcp)
+    assume(enableIpv6)
+    assume(enableSocks)
     assume(ToxCoreTestBase.hasIPv6.isEmpty)
     runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = false)
   }
