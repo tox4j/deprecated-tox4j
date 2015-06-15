@@ -29,7 +29,7 @@ object Tox4jBuildSettings extends Plugin {
     scalacOptions in Test += "-target:jvm-" + javaVersion,
 
     // Require 100% test coverage.
-    ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 76,
+    ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 78,
     ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true,
 
     // Snapshot repository.
