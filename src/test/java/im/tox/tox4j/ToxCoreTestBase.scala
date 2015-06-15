@@ -1,3 +1,4 @@
+
 package im.tox.tox4j
 
 import java.io.{ Closeable, IOException }
@@ -5,13 +6,13 @@ import java.net.{ InetAddress, Socket }
 import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxProxyType }
-import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
-import im.tox.tox4j.exceptions.ToxException
-import org.junit.Assert._
-import org.junit.Assume.{ assumeNotNull, assumeTrue }
+import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
+import im.tox.tox4j.core.enums.ToxConnection
+import im.tox.tox4j.core.exceptions.ToxNewException
+import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
+import im.tox.tox4j.testing.ToxTestMixin
+import org.junit.{ After, Assume }
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
@@ -46,23 +47,23 @@ object ToxCoreTestBase {
       connected(i) = ToxConnection.NONE
 
       toxes(i) = factory.newTox()
-      toxes(i).callbackConnectionStatus(new ConnectionStatusCallback {
-        override def connectionStatus(connectionStatus: ToxConnection) {
+      toxes(i).callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+        override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
           connected(i) = connectionStatus
         }
       })
     }
 
-    def close() {
+    def close(): Unit = {
       toxes.foreach(_.close())
     }
 
-    def isAllConnected: Boolean = connected.forall(_ != ToxConnection.NONE)
+    def isAllConnected: Boolean = !connected.contains(ToxConnection.NONE)
     def isAnyConnected: Boolean = connected.exists(_ != ToxConnection.NONE)
 
-    def iteration(): Unit = toxes.foreach(_.iteration())
+    def iteration(): Unit = toxes.foreach(_.iterate())
 
-    def iterationInterval: Int = toxes.map(_.iterationInterval()).max
+    def iterationInterval: Int = toxes.map(_.iterationInterval).max
 
     def get(index: Int): ToxCore = toxes(index)
     def size: Int = toxes.length
@@ -84,44 +85,52 @@ object ToxCoreTestBase {
     entropy
   }
 
-  @NotNull protected def randomBytes(length: Int): Array[Byte] = {
+  @NotNull def randomBytes(length: Int): Array[Byte] = {
     val array = new Array[Byte](length)
     new Random().nextBytes(array)
     array
   }
 
-  @NotNull def readablePublicKey(@NotNull id: Array[Byte]): String = {
+  @NotNull
+  def readablePublicKey(@NotNull id: Array[Byte]): String = {
     val str = new StringBuilder
     id foreach { c => str.append(f"$c%02X") }
     str.toString()
   }
 
-  @NotNull def parsePublicKey(@NotNull id: String): Array[Byte] = {
+  @NotNull
+  def parsePublicKey(@NotNull id: String): Array[Byte] = {
     val publicKey = new Array[Byte](id.length / 2)
-    (0 until publicKey.length) foreach { i =>
-      publicKey(i) = ((fromHexDigit(id.charAt(i * 2)) << 4) + fromHexDigit(id.charAt(i * 2 + 1))).toByte
+    publicKey.indices foreach { i =>
+      publicKey(i) =
+        ((fromHexDigit(id.charAt(i * 2)) << 4) +
+          fromHexDigit(id.charAt(i * 2 + 1))).toByte
     }
     publicKey
   }
 
   private def fromHexDigit(c: Char): Byte = {
-    (c match {
-      case _ if c >= '0' && c <= '9' => c - '0'
-      case _ if c >= 'A' && c <= 'F' => c - 'A' + 10
-      case _ if c >= 'a' && c <= 'f' => c - 'a' + 10
-      case _ =>
-        throw new IllegalArgumentException("Non-hex digit character: " + c)
-    }).toByte
+    val digit =
+      if (false) { 0 }
+      else if ('0' to '9' contains c) { c - '0' }
+      else if ('A' to 'F' contains c) { c - 'A' + 10 }
+      else if ('a' to 'f' contains c) { c - 'a' + 10 }
+      else { throw new IllegalArgumentException("Non-hex digit character: " + c) }
+    digit.toByte
   }
 
-  protected def assumeConnection(ip: String, port: Int) {
+  private def hasConnection(ip: String, port: Int): Option[String] = {
     var socket: Socket = null
     try {
       socket = new Socket(InetAddress.getByName(ip), port)
-      assumeNotNull(socket.getInputStream)
+      if (socket.getInputStream == null) {
+        Some("Socket input stream is null")
+      } else {
+        None
+      }
     } catch {
       case e: IOException =>
-        assumeTrue("A network connection can't be established to " + ip + ':' + port + ": " + e.getMessage, false)
+        Some(s"A network connection can't be established to $ip:$port: ${e.getMessage}")
     } finally {
       if (socket != null) {
         socket.close()
@@ -129,92 +138,64 @@ object ToxCoreTestBase {
     }
   }
 
-  protected[tox4j] def assumeIPv4() {
-    assumeConnection("8.8.8.8", 53)
+  def checkIPv4: Option[String] = {
+    hasConnection("8.8.8.8", 53)
   }
 
-  protected[tox4j] def assumeIPv6() {
-    assumeConnection("2001:4860:4860::8888", 53)
+  def checkIPv6: Option[String] = {
+    hasConnection("2001:4860:4860::8888", 53)
   }
+
+  protected[tox4j] def assumeIPv4(): Unit = {
+    Assume.assumeTrue(checkIPv4.isEmpty)
+  }
+
+  protected[tox4j] def assumeIPv6(): Unit = {
+    Assume.assumeTrue(checkIPv6.isEmpty)
+  }
+
 }
 
-abstract class ToxCoreTestBase extends JUnitSuite {
+abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
 
-  @NotNull protected def node: DhtNode
-
-  @NotNull
-  @throws(classOf[ToxNewException])
-  @Deprecated
-  protected def newTox(options: ToxOptions, data: Array[Byte]): ToxCore
-
-  @NotNull
-  @throws(classOf[ToxNewException])
-  @Deprecated
-  protected final def newTox(): ToxCore = {
-    newTox(new ToxOptions, null)
+  @After
+  final def tearDown(): Unit = {
+    ToxCoreFactory.destroyAll()
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
-  @Deprecated
-  protected final def newTox(data: Array[Byte]): ToxCore = {
-    newTox(new ToxOptions, data)
-  }
-
-  @NotNull
-  @throws(classOf[ToxNewException])
-  @Deprecated
+  @throws[ToxNewException]
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(options: ToxOptions): ToxCore = {
-    newTox(options, null)
+    ToxCoreFactory(options)
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
-  @Deprecated
+  @throws[ToxNewException]
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
+  protected final def newTox(): ToxCore = {
+    newTox(new ToxOptions)
+  }
+
+  @NotNull
+  @throws[ToxNewException]
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
+  protected final def newTox(data: Array[Byte]): ToxCore = {
+    newTox(new ToxOptions(saveData = SaveDataOptions.ToxSave(data)))
+  }
+
+  @NotNull
+  @throws[ToxNewException]
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled), null)
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled))
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
-  @Deprecated
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)
-  }
-
-  @throws(classOf[ToxNewException])
-  @throws(classOf[ToxFriendAddException])
-  protected def addFriends(@NotNull tox: ToxCore, count: Int): Int = {
-    if (count < 1) {
-      throw new IllegalArgumentException("Cannot add less than 1 friend: " + count)
-    }
-    val message = "heyo".getBytes
-    (0 until count).map { (i: Int) =>
-      ToxCoreFactory.withTox { friend =>
-        tox.addFriendNoRequest(friend.getPublicKey)
-      }
-    }.last
-  }
-
-  @NotNull
-  @throws(classOf[ToxBootstrapException])
-  private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
-    tox.bootstrap(
-      if (useIPv6) node.ipv6 else node.ipv4,
-      if (udpEnabled) node.udpPort else node.tcpPort,
-      node.dhtId
-    )
-    tox
-  }
-
-  protected def expectException(code: Enum[_])(f: ToxCore => Unit) = {
-    try {
-      ToxCoreFactory.withTox(f)
-      fail("Expected exception with code " + code.name())
-    } catch {
-      case e: ToxException[_] =>
-        assertEquals(code, e.code)
-    }
+  @throws[ToxNewException]
+  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
+  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore = {
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
   }
 
 }

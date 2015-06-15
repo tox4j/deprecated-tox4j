@@ -90,7 +90,10 @@ using tox_error_t = typename error_type_of<FuncT>::type;
     return failure (#ERROR)
 
 
-#define HANDLE(METHOD)                                            \
+#define HANDLE(NAME, METHOD)                                      \
+template<>                                                        \
+extern char const *const method_name<ERROR_CODE (METHOD)> = NAME; \
+                                                                  \
 template<>                                                        \
 ErrorHandling                                                     \
 handle_error_enum<ERROR_CODE (METHOD)> (ERROR_CODE (METHOD) error)
@@ -103,6 +106,71 @@ handle_error_enum<ERROR_CODE (METHOD)> (ERROR_CODE (METHOD) error)
 template<typename Subsystem>
 extern char const *const module_name;
 
+template<typename Subsystem>
+extern char const *const exn_prefix;
+
+template<typename ErrorCode>
+extern char const *const method_name;
+
+template<typename Object, typename ErrorType>
+void
+throw_tox_exception (JNIEnv *env, char const *error)
+{
+  return throw_tox_exception (env, module_name<Object>, exn_prefix<Object>, method_name<ErrorType>, error);
+}
+
+template<typename Object, typename ErrorType>
+void
+throw_tox_exception (JNIEnv *env, ErrorType error)
+{
+  ErrorHandling result = handle_error_enum<ErrorType> (error);
+  switch (result.result)
+    {
+    case ErrorHandling::FAILURE:
+      return throw_tox_exception<Object, ErrorType> (env, result.error);
+    case ErrorHandling::SUCCESS:
+      return throw_illegal_state_exception (env, error, "Throwing OK code");
+    case ErrorHandling::UNHANDLED:
+      return throw_illegal_state_exception (env, error, "Unknown error code");
+    }
+}
+
+
+template<typename Object, typename SuccessFunc, typename ToxFunc, typename ...Args>
+auto
+with_error_handling (JNIEnv *env,
+                     SuccessFunc success_func,
+                     ToxFunc tox_func,
+                     Args ...args)
+{
+  using error_type = tox_error_t<ToxFunc>;
+
+  using result_type =
+    typename std::result_of<
+      SuccessFunc (
+        typename std::result_of<
+          ToxFunc (Args..., error_type *)
+        >::type
+      )>::type;
+
+  error_type error;
+  auto value = tox_func (args..., &error);
+  ErrorHandling result = handle_error_enum<error_type> (error);
+  switch (result.result)
+    {
+    case ErrorHandling::SUCCESS:
+      return success_func (std::move (value));
+    case ErrorHandling::FAILURE:
+      throw_tox_exception<Object, error_type> (env, result.error);
+      break;
+    case ErrorHandling::UNHANDLED:
+      throw_illegal_state_exception (env, error, "Unknown error code");
+      break;
+    }
+
+  return result_type ();
+}
+
 
 template<typename ObjectP, typename EventsP>
 struct ToxInstances
@@ -114,35 +182,11 @@ struct ToxInstances
   template<typename SuccessFunc, typename ToxFunc, typename ...Args>
   auto
   with_error_handling (JNIEnv *env,
-                       char const *method,
                        SuccessFunc success_func,
                        ToxFunc tox_func,
                        Args ...args)
   {
-    using result_type =
-      typename std::result_of<
-        SuccessFunc (
-          typename std::result_of<
-            ToxFunc (Args..., tox_error_t<ToxFunc> *)
-          >::type
-        )>::type;
-
-    tox_error_t<ToxFunc> error;
-    auto value = tox_func (args..., &error);
-    ErrorHandling result = handle_error_enum<tox_error_t<ToxFunc>> (error);
-    switch (result.result)
-      {
-      case ErrorHandling::SUCCESS:
-        return success_func (std::move (value));
-      case ErrorHandling::FAILURE:
-        throw_tox_exception (env, module_name<Object>, method, result.error);
-        break;
-      case ErrorHandling::UNHANDLED:
-        throw_illegal_state_exception (env, error, "Unknown error code");
-        break;
-      }
-
-    return result_type ();
+    return ::with_error_handling<Object> (env, success_func, tox_func, args...);
   }
 
 
@@ -150,7 +194,6 @@ struct ToxInstances
   auto
   with_instance_err (JNIEnv *env,
                      jint instanceNumber,
-                     char const *method,
                      SuccessFunc success_func,
                      ToxFunc tox_func,
                      Args ...args)
@@ -159,7 +202,7 @@ struct ToxInstances
       [=] (Object *tox, Events &events)
         {
           unused (events);
-          return with_error_handling (env, method, success_func, tox_func, tox, args...);
+          return with_error_handling (env, success_func, tox_func, tox, args...);
         }
     );
   }
@@ -169,7 +212,6 @@ struct ToxInstances
   auto
   with_instance_ign (JNIEnv *env,
                      jint instanceNumber,
-                     char const *method,
                      ToxFunc tox_func,
                      Args ...args)
   {
@@ -177,7 +219,7 @@ struct ToxInstances
     {
       void operator () (bool) { }
     };
-    return with_instance_err (env, instanceNumber, method, ignore (), tox_func, args...);
+    return with_instance_err (env, instanceNumber, ignore (), tox_func, args...);
   }
 
 

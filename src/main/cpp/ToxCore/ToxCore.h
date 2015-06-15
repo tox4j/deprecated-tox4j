@@ -5,14 +5,16 @@
 #include "Core.pb.h"
 
 // JNI declarations from javah.
-#include "im_tox_tox4j_impl_ToxCoreJni.h"
+#include "im_tox_tox4j_impl_jni_ToxCoreJni.h"
 
 // Header from toxcore.
 #include <tox/core.h>
 
+#ifndef SUBSYSTEM
 #define SUBSYSTEM TOX
 #define CLASS     ToxCore
 #define PREFIX    tox
+#endif
 
 namespace core
 {
@@ -30,10 +32,7 @@ template<typename T, size_t get_size (Tox const *), void get_data (Tox const *, 
 typename java_array_t<T>::array_type
 get_vector (JNIEnv *env, Tox const *tox)
 {
-  size_t size = get_size (tox);
-  if (size == 0)
-    return nullptr;
-  std::vector<T> name (size);
+  std::vector<T> name (get_size (tox));
   get_data (tox, name.data ());
 
   return toJavaArray (env, name);

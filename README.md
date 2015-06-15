@@ -15,11 +15,15 @@ New and improved java wrapper for Tox.
 
 ### Native code
 
-* CMake (>= 2.8.7)
 * Toxcore
 * Toxav
+  * We require the latest git version of these libraries, so you will need to build them yourself.
+* CMake (>= 2.8.7)
+  * Debian/Ubuntu: cmake
 * protobuf (The version used in development is currently 2.6.1, other versions might work as well)
-* clang-3.5 (older versions of clang segfault. G++ support is untested, the build script enforces clang-3.5 for now. If you do not have clang 3.5 installed, your build may fail.)
+  * Debian/Ubuntu: protobuf-compiler, libprotobuf-dev
+* Clang 3.5 (older versions of clang segfault. G++ support is untested, the build script enforces clang-3.5 for now. If you do not have clang 3.5 installed, your build may fail.)
+  * Debian/Ubuntu: clang-3.5
 
 ## Building
 
@@ -44,17 +48,8 @@ Restart your terminal or `exec $SHELL`.
 
 Install required packages:
 ```
-$ brew install automake libtool libsodium libvpx opus pkg-config protobuf sbt 
-$ mkdir -p ~/code/git
-$ cd ~/code/git
-$ git clone https://github.com/irungentoo/toxcore
-$ cd toxcore && ./autogen.sh
-$ mkdir _build && cd _build
-$ ../configure --prefix=$HOME/homebrew/Cellar/toxcore/0.0.1 --with-libsodium-headers=$HOME/homebrew/include --with-libsodium-libs=$HOME/homebrew/lib
-$ make && make install
-$ cd ~/homebrew/include && ln -s ../../Cellar/toxcore/0.0.1/include/* .
-$ cd ~/homebrew/lib && ln -s ../../Cellar/toxcore/0.0.1/lib/* .
-$ cd ~/homebrew/lib/pkgconfig && ln -s ../../Cellar/toxcore/0.0.1/lib/pkgconfig/* .
+$ brew tap Tox/tox
+$ brew install libtoxcore pkg-config protobuf sbt 
 ```
 
 Now, toxcore should be installed in your `$HOME`. Finally, clone and build tox4j:

@@ -1,18 +1,28 @@
 #!/usr/bin/env perl
 
-use common::sense;
-use JSON::XS;
+use strict;
+use warnings FATAL => 'all';
+use utf8;
+
+use JSON::PP;
 
 my $data = do { local $/; open my $fh, '<', 'exceptions.json' or die $!; decode_json <$fh> };
 
 my $package = $data->[0];
-my $exns = $data->[1];
+my $prefix = $data->[1];
+my $exns = $data->[2];
 
 for my $type (keys %$exns) {
-   open my $fh, '>', "Tox${type}Exception.java"
+   open my $fh, '>', "Tox${prefix}${type}Exception.java"
       or die $!;
 
-   my $codes = join ",\n", map { "    $_" } @{ $exns->{$type} };
+   for (keys $exns->{$type}) {
+      my @lines = @{ $exns->{$type}{$_} };
+      s/^/     * / for @lines;
+      $exns->{$type}{$_} = join "\n", @lines;
+   }
+
+   my $codes = join ",\n", map { "    /**\n$exns->{$type}{$_}\n     */\n    $_" } (sort keys $exns->{$type});
 
    print $fh <<JAVA;
 package im.tox.tox4j.$package.exceptions;
@@ -20,17 +30,17 @@ package im.tox.tox4j.$package.exceptions;
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
 
-public final class Tox${type}Exception extends ToxException<Tox${type}Exception.Code> {
+public final class Tox${prefix}${type}Exception extends ToxException<Tox${prefix}${type}Exception.Code> {
 
   public enum Code {
 $codes,
   }
 
-  public Tox${type}Exception(\@NotNull Code code) {
+  public Tox${prefix}${type}Exception(\@NotNull Code code) {
     this(code, "");
   }
 
-  public Tox${type}Exception(\@NotNull Code code, String message) {
+  public Tox${prefix}${type}Exception(\@NotNull Code code, String message) {
     super(code, message);
   }
 

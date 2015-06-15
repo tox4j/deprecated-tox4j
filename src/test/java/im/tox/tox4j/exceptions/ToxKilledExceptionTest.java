@@ -1,10 +1,10 @@
 package im.tox.tox4j.exceptions;
 
-import im.tox.tox4j.ToxCoreImplTestBase;
+import im.tox.tox4j.ToxCoreTestBase;
 import im.tox.tox4j.core.ToxCore;
 import org.junit.Test;
 
-public class ToxKilledExceptionTest extends ToxCoreImplTestBase {
+public class ToxKilledExceptionTest extends ToxCoreTestBase {
 
   @Test(expected = ToxKilledException.class)
   public void testUseAfterCloseInOrder() throws Exception {

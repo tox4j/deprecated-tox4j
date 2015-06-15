@@ -1,10 +1,11 @@
 package im.tox.tox4j;
 
-import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.ToxOptions;
-import im.tox.tox4j.core.enums.ToxProxyType;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.ToxCoreConstants;
+import im.tox.tox4j.core.enums.ToxUserStatus;
+import im.tox.tox4j.core.options.ProxyOptions;
+import im.tox.tox4j.core.options.SaveDataOptions;
+import im.tox.tox4j.core.options.ToxOptions;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,19 @@ import java.util.List;
 import static im.tox.tox4j.TestConstants.ITERATIONS;
 import static org.junit.Assert.*;
 
-public class ToxCoreTest extends ToxCoreImplTestBase {
+public class ToxCoreTest extends ToxCoreTestBase {
 
   private static final Logger logger = LoggerFactory.getLogger(ToxCoreTest.class);
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions()).close();
+    newTox(new ToxOptions(
+        true, true,
+        ProxyOptions.None$.MODULE$,
+        33445, 33545,
+        0,
+        SaveDataOptions.None$.MODULE$
+    )).close();
   }
 
   @Test
@@ -48,25 +55,15 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNewProxyGood() throws Exception {
-    newTox(true, true, ToxProxyType.SOCKS5, "localhost", 1).close();
-    newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0xffff).close();
-  }
-
-  @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
-  @Test
-  public void testToxNewNoProxyBadAddress() throws Exception {
-    // Should ignore the bad address.
-    newTox(true, true, ToxProxyType.NONE, "\u2639", 1).close();
+    newTox(true, true, new ProxyOptions.Socks5("localhost", 1)).close();
+    newTox(true, true, new ProxyOptions.Socks5("localhost", 0xffff)).close();
   }
 
   @Test
   public void testToxCreationAndImmediateDestruction() throws Exception {
-    long start = System.currentTimeMillis();
     for (int i = 0; i < ITERATIONS; i++) {
       newTox().close();
     }
-    long end = System.currentTimeMillis();
-    logger.info("Creating and destroying {} toxes took {} ms", ITERATIONS, end - start);
   }
 
   @Test
@@ -74,20 +71,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
     int iterations = 30;
     List<ToxCore> toxes = new ArrayList<>();
 
-    long start = System.currentTimeMillis();
     for (int i = 0; i < iterations; i++) {
       toxes.add(newTox());
     }
-    long end = System.currentTimeMillis();
-    logger.info("Creating {} toxes took {} ms", iterations, end - start);
 
-    start = System.currentTimeMillis();
     Collections.reverse(toxes);
     for (ToxCore tox : toxes) {
       tox.close();
     }
-    end = System.currentTimeMillis();
-    logger.info("Destroying {} toxes took {} ms", iterations, end - start);
   }
 
   @Test
@@ -100,14 +91,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testBootstrapBorderlinePort1() throws Exception {
     try (ToxCore tox = newTox()) {
-      tox.bootstrap(node().ipv4(), 1, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
+      tox.bootstrap(DhtNodeSelector.node().ipv4(), 1, new byte[ToxCoreConstants.PUBLIC_KEY_SIZE]);
     }
   }
 
   @Test
   public void testBootstrapBorderlinePort2() throws Exception {
     try (ToxCore tox = newTox()) {
-      tox.bootstrap(node().ipv4(), 65535, new byte[ToxConstants.PUBLIC_KEY_SIZE]);
+      tox.bootstrap(DhtNodeSelector.node().ipv4(), 65535, new byte[ToxCoreConstants.PUBLIC_KEY_SIZE]);
     }
   }
 
@@ -127,14 +118,14 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testIteration() throws Exception {
     ToxCore tox = newTox();
-    tox.iteration();
+    tox.iterate();
   }
 
   @Test
   public void testGetPublicKey() throws Exception {
     try (ToxCore tox = newTox()) {
       byte[] id = tox.getPublicKey();
-      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, id.length);
+      assertEquals(ToxCoreConstants.PUBLIC_KEY_SIZE, id.length);
       assertArrayEquals(id, tox.getPublicKey());
     }
   }
@@ -143,7 +134,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetSecretKey() throws Exception {
     try (ToxCore tox = newTox()) {
       byte[] key = tox.getSecretKey();
-      assertEquals(ToxConstants.SECRET_KEY_SIZE, key.length);
+      assertEquals(ToxCoreConstants.SECRET_KEY_SIZE, key.length);
       assertArrayEquals(key, tox.getSecretKey());
     }
   }
@@ -172,7 +163,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetAddress() throws Exception {
     try (ToxCore tox = newTox()) {
       assertArrayEquals(tox.getAddress(), tox.getAddress());
-      assertEquals(ToxConstants.ADDRESS_SIZE, tox.getAddress().length);
+      assertEquals(ToxCoreConstants.TOX_ADDRESS_SIZE, tox.getAddress().length);
     }
   }
 
@@ -187,11 +178,11 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         0x7fffffff,
     };
     try (ToxCore tox = newTox()) {
-      assertEquals(tox.getNospam(), tox.getNospam());
+      assertEquals(tox.getNoSpam(), tox.getNoSpam());
       for (int test : tests) {
-        tox.setNospam(test);
-        assertEquals(test, tox.getNospam());
-        assertEquals(tox.getNospam(), tox.getNospam());
+        tox.setNoSpam(test);
+        assertEquals(test, tox.getNoSpam());
+        assertEquals(tox.getNoSpam(), tox.getNoSpam());
         byte[] check = {
             (byte)(test >> 8 * 0),
             (byte)(test >> 8 * 1),
@@ -200,8 +191,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         };
         byte[] nospam = Arrays.copyOfRange(
             tox.getAddress(),
-            ToxConstants.PUBLIC_KEY_SIZE,
-            ToxConstants.PUBLIC_KEY_SIZE + 4
+            ToxCoreConstants.PUBLIC_KEY_SIZE,
+            ToxCoreConstants.PUBLIC_KEY_SIZE + 4
         );
         assertArrayEquals(check, nospam);
       }
@@ -229,7 +220,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testSetNameMaxSize() throws Exception {
     try (ToxCore tox = newTox()) {
-      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxConstants.MAX_NAME_LENGTH);
+      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH);
       tox.setName(array);
       assertArrayEquals(array, tox.getName());
     }
@@ -238,7 +229,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testSetNameExhaustive() throws Exception {
     try (ToxCore tox = newTox()) {
-      for (int i = 1; i <= ToxConstants.MAX_NAME_LENGTH; i++) {
+      for (int i = 1; i <= ToxCoreConstants.MAX_NAME_LENGTH; i++) {
         byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(i);
         tox.setName(array);
         assertArrayEquals(array, tox.getName());
@@ -278,7 +269,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testSetStatusMessageMaxSize() throws Exception {
     try (ToxCore tox = newTox()) {
-      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxConstants.MAX_STATUS_MESSAGE_LENGTH);
+      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH);
       tox.setStatusMessage(array);
       assertArrayEquals(array, tox.getStatusMessage());
     }
@@ -287,7 +278,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testSetStatusMessageExhaustive() throws Exception {
     try (ToxCore tox = newTox()) {
-      for (int i = 1; i <= ToxConstants.MAX_STATUS_MESSAGE_LENGTH; i++) {
+      for (int i = 1; i <= ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH; i++) {
         byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(i);
         tox.setStatusMessage(array);
         assertArrayEquals(array, tox.getStatusMessage());
@@ -309,9 +300,9 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testGetAndSetStatus() throws Exception {
     try (ToxCore tox = newTox()) {
-      assertEquals(ToxStatus.NONE, tox.getStatus());
+      assertEquals(ToxUserStatus.NONE, tox.getStatus());
       for (int i = 0; i < 2; i++) {
-        for (ToxStatus status : ToxStatus.values()) {
+        for (ToxUserStatus status : ToxUserStatus.values()) {
           tox.setStatus(status);
           assertEquals(status, tox.getStatus());
         }
@@ -413,7 +404,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetFriendPublicKey() throws Exception {
     try (ToxCore tox = newTox()) {
       addFriends(tox, 1);
-      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, tox.getFriendPublicKey(0).length);
+      assertEquals(ToxCoreConstants.PUBLIC_KEY_SIZE, tox.getFriendPublicKey(0).length);
       assertArrayEquals(tox.getFriendPublicKey(0), tox.getFriendPublicKey(0));
       double entropy = ToxCoreTestBase$.MODULE$.entropy(tox.getFriendPublicKey(0));
       assertTrue("Entropy of friend's public key should be >= 0.5, but was " + entropy, entropy >= 0.5);
@@ -468,7 +459,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   public void testGetDhtId() throws Exception {
     try (ToxCore tox = newTox()) {
       byte[] key = tox.getDhtId();
-      assertEquals(ToxConstants.PUBLIC_KEY_SIZE, key.length);
+      assertEquals(ToxCoreConstants.PUBLIC_KEY_SIZE, key.length);
       assertArrayEquals(key, tox.getDhtId());
     }
   }

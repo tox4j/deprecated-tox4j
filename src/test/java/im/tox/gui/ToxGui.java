@@ -2,14 +2,16 @@ package im.tox.gui;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
-import im.tox.tox4j.core.ToxConstants;
+import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
 import im.tox.tox4j.core.exceptions.*;
+import im.tox.tox4j.core.options.ProxyOptions;
+import im.tox.tox4j.core.options.SaveDataOptions;
+import im.tox.tox4j.core.options.ToxOptions;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.impl.ToxCoreJni;
+import im.tox.tox4j.impl.jni.ToxCoreImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,13 +109,13 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void connectionStatus(@NotNull ToxConnection connectionStatus) {
-      addMessage("connectionStatus", connectionStatus);
+    public void selfConnectionStatus(@NotNull ToxConnection connectionStatus) {
+      addMessage("selfConnectionStatus", connectionStatus);
     }
 
     @Override
-    public void fileControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
-      addMessage("fileControl", friendNumber, fileNumber, control);
+    public void fileRecvControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
+      addMessage("fileRecvControl", friendNumber, fileNumber, control);
       try {
         switch (control) {
           case RESUME:
@@ -130,8 +132,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void fileReceive(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
-      addMessage("fileReceive", friendNumber, fileNumber, kind, fileSize, new String(filename));
+    public void fileRecv(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
+      addMessage("fileRecv", friendNumber, fileNumber, kind, fileSize, new String(filename));
       try {
         int confirmation = JOptionPane.showConfirmDialog(
             ToxGui.this, "Incoming file transfer: " + new String(filename)
@@ -152,8 +154,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void fileReceiveChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
-      addMessage("fileReceiveChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
+    public void fileRecvChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
+      addMessage("fileRecvChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
       try {
         fileModel.get(friendNumber, fileNumber).write(position, data);
       } catch (Throwable e) {
@@ -162,8 +164,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void fileRequestChunk(int friendNumber, int fileNumber, long position, int length) {
-      addMessage("fileRequestChunk", friendNumber, fileNumber, position, length);
+    public void fileChunkRequest(int friendNumber, int fileNumber, long position, int length) {
+      addMessage("fileChunkRequest", friendNumber, fileNumber, position, length);
       try {
         if (length == 0) {
           fileModel.remove(friendNumber, fileNumber);
@@ -209,7 +211,7 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void friendStatus(int friendNumber, @NotNull ToxStatus status) {
+    public void friendStatus(int friendNumber, @NotNull ToxUserStatus status) {
       addMessage("friendStatus", friendNumber, status);
       friendListModel.setStatus(friendNumber, status);
     }
@@ -227,8 +229,8 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void readReceipt(int friendNumber, int messageId) {
-      addMessage("readReceipt", friendNumber, messageId);
+    public void friendReadReceipt(int friendNumber, int messageId) {
+      addMessage("friendReadReceipt", friendNumber, messageId);
     }
 
   });
@@ -250,7 +252,7 @@ public class ToxGui extends JFrame {
       return;
     }
     try (ObjectOutput saveFile = new ObjectOutputStream(new FileOutputStream("/tmp/toxgui.tox"))) {
-      SaveData saveData = new SaveData(tox.save(), friendListModel, messageModel);
+      SaveData saveData = new SaveData(tox.getSaveData(), friendListModel, messageModel);
       saveFile.writeObject(saveData);
     } catch (IOException e) {
       e.printStackTrace();
@@ -279,13 +281,6 @@ public class ToxGui extends JFrame {
       e.printStackTrace();
       return null;
     }
-  }
-
-  @NotNull
-  private static ToxOptions enableProxy(
-      @NotNull ToxOptions options, @NotNull ToxProxyType proxyType, @NotNull String proxyAddress, int proxyPort
-  ) throws ToxNewException {
-    return new ToxOptions(options.ipv6Enabled, options.udpEnabled, proxyType, proxyAddress, proxyPort);
   }
 
   /**
@@ -325,33 +320,40 @@ public class ToxGui extends JFrame {
 
       private void connect() {
         try {
-          ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUdpCheckBox.isSelected());
+          byte[] toxSave = load();
+
+          ProxyOptions.Type proxy;
           if (httpRadioButton.isSelected()) {
-            options = enableProxy(options,
-                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
-            );
+            proxy = new ProxyOptions.Http(proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
           } else if (socksRadioButton.isSelected()) {
-            options = enableProxy(options,
-                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
-            );
+            proxy = new ProxyOptions.Socks5(proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
+          } else {
+            proxy = ProxyOptions.None$.MODULE$;
           }
 
-          byte[] toxSave = load();
-          if (toxSave != null) {
-            tox = new ToxCoreJni(options, toxSave);
-            for (int friendNumber : tox.getFriendList()) {
-              friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
-            }
-          } else {
-            tox = new ToxCoreJni(options, null);
+          ToxOptions options = new ToxOptions(
+              enableIPv6CheckBox.isSelected(),
+              enableUdpCheckBox.isSelected(),
+              proxy,
+              33445,
+              33545,
+              0,
+              toxSave != null ? new SaveDataOptions.ToxSave(toxSave) : SaveDataOptions.None$.MODULE$
+          );
+
+          tox = new ToxCoreImpl(options);
+
+          for (int friendNumber : tox.getFriendList()) {
+            friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
           }
+
           selfPublicKey.setText(readablePublicKey(tox.getAddress()));
           tox.callback(toxEvents);
           eventLoop = new Thread(new Runnable() {
             @Override
             public void run() {
               while (true) {
-                tox.iteration();
+                tox.iterate();
                 try {
                   Thread.sleep(tox.iterationInterval());
                 } catch (InterruptedException e) {
@@ -404,6 +406,8 @@ public class ToxGui extends JFrame {
       @Override
       public void actionPerformed(ActionEvent event) {
         try {
+          tox.addTcpRelay(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
+              parsePublicKey(bootstrapKey.getText().trim()));
           tox.bootstrap(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
               parsePublicKey(bootstrapKey.getText().trim()));
         } catch (ToxBootstrapException e) {
@@ -426,7 +430,7 @@ public class ToxGui extends JFrame {
           } else {
             friendNumber = tox.addFriend(publicKey, friendRequest.getText().getBytes());
           }
-          friendListModel.add(friendNumber, Arrays.copyOf(publicKey, ToxConstants.PUBLIC_KEY_SIZE));
+          friendListModel.add(friendNumber, Arrays.copyOf(publicKey, ToxCoreConstants.PUBLIC_KEY_SIZE));
           addMessage("Added friend number " + friendNumber);
           save();
         } catch (ToxFriendAddException e) {
@@ -454,7 +458,7 @@ public class ToxGui extends JFrame {
             addMessage("Sent action to ", friendNumber + ": " + messageText.getText());
           }
           messageText.setText("");
-        } catch (ToxSendMessageException e) {
+        } catch (ToxFriendSendMessageException e) {
           addMessage("Send message failed: ", e.code());
         } catch (Throwable e) {
           JOptionPane.showMessageDialog(ToxGui.this, printExn(e));

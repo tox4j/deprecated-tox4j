@@ -11,51 +11,57 @@ message Call {
 
 message CallState {
   enum Kind {
-    RINGING      = 1;
-    SENDING_NONE = 2;
-    SENDING_A    = 3;
-    SENDING_V    = 4;
-    SENDING_AV   = 5;
-    PAUSED       = 6;
-    END          = 7;
-    ERROR        = 8;
+    ERROR        = 0;
+    FINISHED     = 1;
+    SENDING_A    = 2;
+    SENDING_V    = 3;
+    RECEIVING_A  = 4;
+    RECEIVING_V  = 5;
   }
 
   required uint32  friendNumber     = 1;
-  required Kind    state            = 2;
+  repeated Kind    state            = 2;
 }
 
-message RequestAudioFrame {
+message AudioBitRateStatus {
   required uint32  friendNumber     = 1;
+  required bool    stable           = 2;
+  required uint32  bitRate          = 3;
 }
 
-message RequestVideoFrame {
+message VideoBitRateStatus {
   required uint32  friendNumber     = 1;
+  required bool    stable           = 2;
+  required uint32  bitRate          = 3;
 }
 
-message ReceiveAudioFrame {
+message AudioReceiveFrame {
   required uint32  friendNumber     = 1;
   repeated int32   pcm              = 2 [packed = true];
   required uint32  channels         = 3;
   required uint32  samplingRate     = 4;
 }
 
-message ReceiveVideoFrame {
-  required uint32  friendNumber     = 1;
-  required uint32  width            = 2;
-  required uint32  height           = 3;
-  required bytes   y                = 4;
-  required bytes   u                = 5;
-  required bytes   v                = 6;
-  optional bytes   a                = 7;
+message VideoReceiveFrame {
+  required uint32  friendNumber     =  1;
+  required uint32  width            =  2;
+  required uint32  height           =  3;
+  required bytes   y                =  4;
+  required bytes   u                =  5;
+  required bytes   v                =  6;
+  optional bytes   a                =  7;
+  required int32   yStride          =  8;
+  required int32   uStride          =  9;
+  required int32   vStride          = 10;
+  required int32   aStride          = 11;
 }
 
 
 message AvEvents {
   repeated Call                   call                = 1;
   repeated CallState              callState           = 2;
-  repeated RequestAudioFrame      requestAudioFrame   = 3;
-  repeated RequestVideoFrame      requestVideoFrame   = 4;
-  repeated ReceiveAudioFrame      receiveAudioFrame   = 5;
-  repeated ReceiveVideoFrame      receiveVideoFrame   = 6;
+  repeated AudioBitRateStatus     audioBitRateStatus  = 3;
+  repeated VideoBitRateStatus     videoBitRateStatus  = 4;
+  repeated AudioReceiveFrame      audioReceiveFrame   = 5;
+  repeated VideoReceiveFrame      videoReceiveFrame   = 6;
 }
