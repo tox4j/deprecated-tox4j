@@ -41,8 +41,11 @@ object CodeStyle extends Tox4jBuildPlugin {
 
       wartremoverClasspaths += (classDirectory in (Tox4jLibraryBuild.lint, Compile)).value.toURI.toString,
       wartremoverErrors in (Compile, compile) := Warts.allBut(
+        Wart.Any,
         Wart.DefaultArguments,
         Wart.NonUnitStatements,
+        Wart.Nothing,
+        Wart.Throw,
         Wart.Var
       ) ++ custom((classDirectory in (Tox4jLibraryBuild.lint, Compile)).value),
       wartremoverErrors in (Test, compile) := Warts.allBut(
