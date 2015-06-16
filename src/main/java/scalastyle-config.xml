@@ -90,14 +90,14 @@
    <check level="error" class="org.scalastyle.scalariform.EqualsHashCodeChecker" enabled="true"/>
 
    Check that field names match a regular expression
-   <check level="error" class="org.scalastyle.scalariform.FieldNamesChecker" enabled="true">
+   <check level="error" class="org.scalastyle.scalariform.FieldNamesChecker" enabled="false">
       <parameters>
          <parameter name="regex"><![CDATA[[a-z][A-Za-z]*]]></parameter>
       </parameters>
    </check>
 
    Checks that braces are used in for comprehensions
-   <check level="error" class="org.scalastyle.scalariform.ForBraceChecker" enabled="true"/>
+   <check level="error" class="org.scalastyle.scalariform.ForBraceChecker" enabled="false"/>
 
    Checks that if statements have braces
    <check level="error" class="org.scalastyle.scalariform.IfBraceChecker" enabled="true">
@@ -250,5 +250,8 @@
 
    Check that XML literals are not used
    <check level="error" class="org.scalastyle.scalariform.XmlLiteralChecker" enabled="true"/>
+
+   No-op checker
+   <check level="error" class="sbt.tox4j.lint.NopChecker" enabled="true"/>
 
 </scalastyle>

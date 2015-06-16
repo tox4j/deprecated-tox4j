@@ -1,6 +1,7 @@
 package sbt.tox4j
 
 import sbt._
+import sbt.tox4j.lint._
 
 object Tox4jLibraryBuild extends Build {
 
@@ -11,10 +12,15 @@ object Tox4jLibraryBuild extends Build {
       Assembly,
       Benchmarking,
       CodeFormat,
-      CodeStyle,
       Jni,
       MakeScripts,
-      ProtobufPlugin
+      ProtobufPlugin,
+      Checkstyle,
+      Findbugs,
+      Scalastyle,
+      Scapegoat,
+      WartRemover,
+      Xlint
     ).flatMap(_.moduleSettings)
   ).configs(ProtobufPlugin.Protobuf).dependsOn(lint)
 
