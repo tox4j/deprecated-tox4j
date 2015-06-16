@@ -12,6 +12,7 @@ import im.tox.tox4j.core.options.SaveDataOptions;
 import im.tox.tox4j.core.options.ToxOptions;
 import im.tox.tox4j.exceptions.ToxException;
 import im.tox.tox4j.impl.jni.ToxCoreImpl;
+import im.tox.tox4j.testing.WrappedArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,7 +339,7 @@ public class ToxGui extends JFrame {
               33445,
               33545,
               0,
-              toxSave != null ? new SaveDataOptions.ToxSave(toxSave) : SaveDataOptions.None$.MODULE$
+              toxSave != null ? new SaveDataOptions.ToxSave(new WrappedArray(toxSave)) : SaveDataOptions.None$.MODULE$
           );
 
           tox = new ToxCoreImpl(options);

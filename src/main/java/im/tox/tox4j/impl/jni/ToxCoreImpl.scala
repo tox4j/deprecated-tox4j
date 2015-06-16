@@ -127,7 +127,7 @@ final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
       options.endPort,
       options.tcpPort,
       options.saveData.kind.ordinal,
-      options.saveData.data
+      options.saveData.data.toArray
     )
 
   /**

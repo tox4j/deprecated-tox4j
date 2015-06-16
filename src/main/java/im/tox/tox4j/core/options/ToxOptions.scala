@@ -15,7 +15,9 @@ import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
  *
  * Setting this to false will force Tox to use TCP only. Communications will
  * need to be relayed through a TCP relay node, potentially slowing them down.
- * Disabling UDP support is necessary when using anonymous proxies or Tor.
+ * Disabling UDP support is necessary when using anonymous proxies or Tor. If
+ * UDP is enabled, it will be used, even if a proxy is configured. The proxy
+ * is only used for TCP connections.
  *
  * @param proxy Pass communications through a proxy.
  * @param startPort The start port of the inclusive port range to attempt to use.

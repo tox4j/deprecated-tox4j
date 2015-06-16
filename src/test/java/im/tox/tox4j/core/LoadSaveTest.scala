@@ -20,7 +20,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
 
   private def testLoadSave(check: Check): Unit = {
     var moreTests = true
-    var data: Array[Byte] = new Array[Byte](0)
+    var data: Seq[Byte] = Nil
     while (moreTests) {
       withTox { tox =>
         moreTests = check.change(tox)

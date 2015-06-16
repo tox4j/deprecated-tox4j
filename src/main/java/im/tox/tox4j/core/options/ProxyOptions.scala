@@ -2,14 +2,24 @@ package im.tox.tox4j.core.options
 
 import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.core.enums.ToxProxyType
+import im.tox.tox4j.core.ToxCore
 
+/**
+ * Proxy options for [[ToxCore.load]]
+ */
 object ProxyOptions {
 
   private def requireValidUInt16(port: Int) = {
     require(port >= 0 && port <= 0xffff, "Proxy port should be a valid 16 bit positive integer")
   }
 
+  /**
+   * Base type for all proxy kinds.
+   */
   sealed trait Type {
+    /**
+     * Low level enumeration value to pass to [[ToxCore.load]].
+     */
     def proxyType: ToxProxyType
 
     /**
@@ -28,17 +38,28 @@ object ProxyOptions {
     def proxyPort: Int
   }
 
+  /**
+   * Don't use a proxy. Attempt to directly connect to other nodes.
+   */
   case object None extends Type {
     override def proxyType: ToxProxyType = ToxProxyType.NONE
     override def proxyAddress: String = ""
     override def proxyPort: Int = 0
   }
 
+  /**
+   * Tunnel Tox TCP traffic over an HTTP proxy. The proxy must support CONNECT.
+   */
   final case class Http(proxyAddress: String, proxyPort: Int) extends Type {
     requireValidUInt16(proxyPort)
     override def proxyType: ToxProxyType = ToxProxyType.HTTP
   }
 
+  /**
+   * Use a SOCKS5 proxy to make TCP connections. Although some SOCKS5 servers
+   * support UDP sockets, the main use case (Tor) does not, and Tox will not
+   * use the proxy for UDP connections.
+   */
   final case class Socks5(proxyAddress: String, proxyPort: Int) extends Type {
     requireValidUInt16(proxyPort)
     override def proxyType: ToxProxyType = ToxProxyType.SOCKS5
