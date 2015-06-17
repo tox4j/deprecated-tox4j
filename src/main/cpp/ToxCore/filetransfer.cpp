@@ -86,7 +86,7 @@ TOX_METHOD (void, FileSendChunk,
 TOX_METHOD (jbyteArray, FileGetFileId,
   jint instanceNumber, jint friendNumber, jint fileNumber)
 {
-  std::vector<uint8_t> file_id;
+  std::vector<uint8_t> file_id (TOX_FILE_ID_LENGTH);
   return instances.with_instance_err (env, instanceNumber, "FileGetInfo",
     [env, &file_id] (bool)
       {
