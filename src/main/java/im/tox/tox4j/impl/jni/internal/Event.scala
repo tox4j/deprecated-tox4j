@@ -1,5 +1,6 @@
 package im.tox.tox4j.impl.jni.internal
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 private[jni] object Event {
@@ -65,9 +66,15 @@ private[jni] final class Event extends (() => Unit) {
     if (index != Event.INVALID_INDEX) {
       id.reset()
       callbacks(index) = Event.EMPTY_CALLBACK
-      while (callbacks.nonEmpty && callbacks.last == Event.EMPTY_CALLBACK) {
-        callbacks.remove(callbacks.size - 1)
-      }
+      pruneCallbacks()
+    }
+  }
+
+  @tailrec
+  private def pruneCallbacks(): Unit = {
+    if (callbacks.nonEmpty && callbacks.last == Event.EMPTY_CALLBACK) {
+      callbacks.remove(callbacks.size - 1)
+      pruneCallbacks()
     }
   }
 

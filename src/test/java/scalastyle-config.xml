@@ -20,15 +20,18 @@
    <check level="error" class="org.scalastyle.file.FileTabChecker" enabled="true"/>
 
    Check the first lines of each file matches the text
+   XXX: Disabled because we don't use file headers.
    <check level="error" class="org.scalastyle.file.HeaderMatchesChecker" enabled="false"/>
 
    Checks that lines are indented by a multiple of the tab size
+   XXX: Disabled because we use scalariform on compile.
    <check level="error" class="org.scalastyle.file.IndentationChecker" enabled="false"/>
 
    Checks that a file ends with a newline character
    <check level="error" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"/>
 
    Checks that a file does not end with a newline character
+   XXX: Disabled because it's the opposite of the one above.
    <check level="error" class="org.scalastyle.file.NoNewLineAtEofChecker" enabled="false"/>
 
    Checks that a regular expression cannot be matched, if found reports this
@@ -42,6 +45,7 @@
    <check level="error" class="org.scalastyle.file.WhitespaceEndOfLineChecker" enabled="true"/>
 
    Checks that block imports are not used.
+   XXX: Disabled because block imports decrease verbosity.
    <check level="error" class="org.scalastyle.scalariform.BlockImportChecker" enabled="false"/>
 
    Check that class names match a regular expression
@@ -90,13 +94,15 @@
    <check level="error" class="org.scalastyle.scalariform.EqualsHashCodeChecker" enabled="true"/>
 
    Check that field names match a regular expression
+   XXX: Disabled due to https://github.com/scalastyle/scalastyle/issues/149.
    <check level="error" class="org.scalastyle.scalariform.FieldNamesChecker" enabled="false">
       <parameters>
          <parameter name="regex"><![CDATA[[a-z][A-Za-z]*]]></parameter>
       </parameters>
    </check>
 
-   Checks that braces are used in for comprehensions
+   Checks that braces are used in for comprehensions.
+   XXX: Disabled due to https://github.com/scalastyle/scalastyle/issues/142.
    <check level="error" class="org.scalastyle.scalariform.ForBraceChecker" enabled="false"/>
 
    Checks that if statements have braces
@@ -189,7 +195,7 @@
    Check that package object names match a regular expression
    <check level="error" class="org.scalastyle.scalariform.PackageObjectNamesChecker" enabled="true">
       <parameters>
-         <parameter name="regex"><![CDATA[^[a-z][A-Za-z]*$]]></parameter>
+         <parameter name="regex"><![CDATA[^[a-z][A-Za-z0-9]*$]]></parameter>
       </parameters>
    </check>
 
@@ -201,6 +207,7 @@
    </check>
 
    Use a : Unit = for procedure declarations
+   XXX: Disabled due to https://github.com/scalastyle/scalastyle/issues/145.
    <check level="error" class="org.scalastyle.scalariform.ProcedureDeclarationChecker" enabled="false"/>
 
    Check that a method has an explicit return type, it is not inferred
@@ -234,6 +241,7 @@
    <check level="error" class="org.scalastyle.scalariform.TokenChecker" enabled="true"/>
 
    Avoid wildcard imports
+   XXX: Disabled because IDEA produces them.
    <check level="error" class="org.scalastyle.scalariform.UnderscoreImportChecker" enabled="false"/>
 
    Checks that if a long literal is used, then an uppercase L is used
@@ -250,5 +258,8 @@
 
    Check that XML literals are not used
    <check level="error" class="org.scalastyle.scalariform.XmlLiteralChecker" enabled="true"/>
+
+   No-op checker
+   <check level="error" class="sbt.tox4j.lint.NopChecker" enabled="true"/>
 
 </scalastyle>
