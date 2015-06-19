@@ -8,31 +8,28 @@ if [ -z "$ANDROID_NDK_HOME" ]; then
   export ANDROID_NDK_HOME=$HOME/usr/android-ndk
 fi
 
-if [ -z "$TARGET" ]; then
-   TARGET=arm
+if [ -z "$TOX4J_TARGET" ]; then
+   TOX4J_TARGET=arm-linux-androideabi
 fi
 
-case $TARGET in
-   arm)
-      PLATFORM=arm-linux-androideabi
+PLATFORM=$TOX4J_TARGET
+case $TOX4J_TARGET in
+   arm-linux-androideabi)
       PLATFORM_NDK=$PLATFORM
       PLATFORM_VPX=armv7-android-gcc
-      PLATFORM_KALIUM=armeabi
       ;;
-   x86)
-      PLATFORM=i686-linux-android
+   i686-linux-android)
       PLATFORM_NDK=x86
       PLATFORM_VPX=x86-android-gcc
-      PLATFORM_KALIUM=$PLATFORM_NDK
       ;;
 esac
 
-export TOOLCHAIN=$PWD/$PLATFORM
+export TOOLCHAIN=$PWD/$TOX4J_TARGET
 export PKG_CONFIG_PATH=$TOOLCHAIN/sysroot/usr/lib/pkgconfig
 if [ -d /usr/lib/jvm/default-java ]; then
   export JAVA_HOME=/usr/lib/jvm/default-java
 fi
-export PATH="$PATH:$TOOLCHAIN/bin"
+export PATH="$TOOLCHAIN/bin:$PATH"
 
 CLONE() {
   if [ -d $2 ]; then
@@ -54,10 +51,9 @@ INSTALL() {
 
   autoreconf -fi
 
-  export PKG_CONFIG_PATH=$TOOLCHAIN/sysroot/usr/lib/pkgconfig
   mkdir build-android && cd build-android
   ../configure                            \
-    --host=$PLATFORM                      \
+    --host=$TOX4J_TARGET                  \
     --prefix=$TOOLCHAIN/sysroot/usr       \
     --with-sysroot=$TOOLCHAIN/sysroot     \
     --disable-shared                      \
@@ -97,16 +93,6 @@ INSTALL() {
   CLONE https://github.com/jedisct1 libsodium --depth=1
   INSTALL sodium --disable-pie
 )
-# kalium-jni
-(
-  CLONE https://github.com/joshjdevl kalium-jni --depth=1
-  sed -e "s/@PLATFORM_KALIUM@/$PLATFORM_KALIUM/" ../kalium-jni.patch | patch -p1
-  swig -java -package org.abstractj.kalium -outdir src/main/java/org/abstractj/kalium jni/sodium.i
-
-  $ANDROID_NDK_HOME/ndk-build
-
-  mvn -Dmaven.test.skip=true clean install
-)
 # opus
 (
   CLONE git://git.opus-codec.org opus --depth=1
@@ -121,9 +107,9 @@ INSTALL() {
 # protobuf
 (
   CLONE https://github.com/google protobuf
-  #git checkout tags/v2.6.1
+  git checkout tags/v2.6.1
   #git checkout tags/v2.5.0
-  git checkout tags/v2.4.1
+  #git checkout tags/v2.4.1
   patch -p1 < ../protobuf.patch
   INSTALL protobuf --with-protoc=protoc
 )

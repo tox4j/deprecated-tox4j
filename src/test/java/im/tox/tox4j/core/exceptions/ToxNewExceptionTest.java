@@ -3,6 +3,7 @@ package im.tox.tox4j.core.exceptions;
 import im.tox.tox4j.ToxCoreImplTestBase;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.enums.ToxProxyType;
+import im.tox.tox4j.core.options.ProxyOptions;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   @Test
   public void testToxNewProxyNull() throws Exception {
     try {
-      newTox(true, true, ToxProxyType.SOCKS5, null, 1).close();
+      newTox(true, true, new ProxyOptions.Socks5(null, 1)).close();
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
@@ -25,7 +26,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   @Test
   public void testToxNewProxyEmpty() throws Exception {
     try {
-      newTox(true, true, ToxProxyType.SOCKS5, "", 1).close();
+      newTox(true, true, new ProxyOptions.Socks5("", 1)).close();
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
@@ -35,38 +36,28 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   @Test
   public void testToxNewProxyBadPort0() throws Exception {
     try {
-      newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0).close();
+      newTox(true, true, new ProxyOptions.Socks5("localhost", 0)).close();
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
     }
   }
 
-  @Test
-  public void testToxNewProxyBadPortNegative() {
-    try {
-      newTox(true, true, ToxProxyType.SOCKS5, "localhost", -10).close();
-      fail();
-    } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testToxNewProxyBadPortNegative() throws Exception {
+    newTox(true, true, new ProxyOptions.Socks5("localhost", -10)).close();
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testToxNewProxyBadPortTooLarge() throws Exception {
-    try {
-      newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0x10000).close();
-      fail();
-    } catch (ToxNewException e) {
-      assertEquals(ToxNewException.Code.PROXY_BAD_PORT, e.code());
-    }
+    newTox(true, true, new ProxyOptions.Socks5("localhost", 0x10000)).close();
   }
 
   @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
   @Test
   public void testToxNewProxyBadAddress1() throws Exception {
     try {
-      newTox(true, true, ToxProxyType.SOCKS5, "\u2639", 1).close();
+      newTox(true, true, new ProxyOptions.Socks5("\u2639", 1)).close();
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());
@@ -76,7 +67,7 @@ public class ToxNewExceptionTest extends ToxCoreImplTestBase {
   @Test
   public void testToxNewProxyBadAddress2() throws Exception {
     try {
-      newTox(true, true, ToxProxyType.SOCKS5, ".", 1).close();
+      newTox(true, true, new ProxyOptions.Socks5(".", 1)).close();
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.PROXY_BAD_HOST, e.code());

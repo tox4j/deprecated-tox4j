@@ -3,9 +3,10 @@ package im.tox.tox4j
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.av.exceptions.ToxAvNewException
 import im.tox.tox4j.av.{ ToxAv, ToxAvTestBase }
+import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.{ ToxCore, ToxOptions }
-import im.tox.tox4j.impl.{ ToxAvImpl, ToxCoreImpl }
+import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.impl.jni.{ ToxCoreImpl, ToxAvImpl }
 import org.junit.After
 
 import scala.collection.mutable.ArrayBuffer
@@ -28,8 +29,8 @@ abstract class ToxAvImplTestBase extends ToxAvTestBase {
 
   @NotNull
   @throws[ToxNewException]
-  protected final def newTox(options: ToxOptions, data: Array[Byte]): ToxCore = {
-    val tox = new ToxCoreImpl(options, data)
+  protected final def newTox(options: ToxOptions): ToxCore = {
+    val tox = new ToxCoreImpl(options)
     toxes += tox
     tox
   }

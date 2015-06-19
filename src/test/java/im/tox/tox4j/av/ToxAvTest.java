@@ -25,7 +25,7 @@ public class ToxAvTest extends ToxAvImplTestBase {
   @Test
   public void testIteration() throws Exception {
     try (ToxAv av = newToxAv()) {
-      av.iteration();
+      av.iterate();
     }
   }
 

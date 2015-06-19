@@ -5,7 +5,7 @@ import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
 import im.tox.tox4j.core.enums.ToxMessageType;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 
 import javax.swing.*;
 
@@ -123,7 +123,7 @@ public final class InvokeLaterToxEventListener implements ToxEventListener {
   }
 
   @Override
-  public void friendStatus(final int friendNumber, @NotNull final ToxStatus status) {
+  public void friendStatus(final int friendNumber, @NotNull final ToxUserStatus status) {
     SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {

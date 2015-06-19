@@ -12,7 +12,7 @@ TOX_METHOD (void, SendLossyPacket,
   jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
   ByteArray packetData (env, packet);
-  return instances.with_instance_ign (env, instanceNumber, "SendCustomPacket",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_friend_send_lossy_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }
@@ -26,7 +26,7 @@ TOX_METHOD (void, SendLosslessPacket,
   jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
   ByteArray packetData (env, packet);
-  return instances.with_instance_ign (env, instanceNumber, "SendCustomPacket",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_friend_send_lossless_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }

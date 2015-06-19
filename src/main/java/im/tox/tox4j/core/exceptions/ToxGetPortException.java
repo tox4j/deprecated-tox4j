@@ -6,6 +6,9 @@ import im.tox.tox4j.exceptions.ToxException;
 public final class ToxGetPortException extends ToxException<ToxGetPortException.Code> {
 
   public enum Code {
+    /**
+     * The instance was not bound to any port.
+     */
     NOT_BOUND,
   }
 

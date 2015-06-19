@@ -4,7 +4,7 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
 import im.tox.tox4j.core.enums.ToxMessageType;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 
 @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
 public class ToxEventAdapter implements ToxEventListener {
@@ -18,7 +18,7 @@ public class ToxEventAdapter implements ToxEventListener {
   @Override public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) { }
   @Override public void friendName(int friendNumber, @NotNull byte[] name) { }
   @Override public void friendRequest(@NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message) { }
-  @Override public void friendStatus(int friendNumber, @NotNull ToxStatus status) { }
+  @Override public void friendStatus(int friendNumber, @NotNull ToxUserStatus status) { }
   @Override public void friendStatusMessage(int friendNumber, @NotNull byte[] message) { }
   @Override public void friendTyping(int friendNumber, boolean isTyping) { }
   @Override public void friendLosslessPacket(int friendNumber, @NotNull byte[] data) { }

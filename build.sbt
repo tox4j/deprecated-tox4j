@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 
 
 // JNI
-import src.main.scala.Jni.Keys._
+import sbt.tox4j.Jni.Keys._
 
 packageDependencies ++= Seq(
   "protobuf-lite",
@@ -37,13 +37,11 @@ packageDependencies ++= Seq(
   "vpx"
 )
 
-// Keep version in sync with libtoxcore.
-versionSync := "libtoxcore"
-
 // TODO: infer this (harder).
 jniClasses := Seq(
-  "im.tox.tox4j.impl.ToxAvJni",
-  "im.tox.tox4j.impl.ToxCoreJni"
+  "im.tox.tox4j.impl.jni.ToxCryptoImpl$",
+  "im.tox.tox4j.impl.jni.ToxAvJni",
+  "im.tox.tox4j.impl.jni.ToxCoreJni"
 )
 
 // TODO: infer this (easy).

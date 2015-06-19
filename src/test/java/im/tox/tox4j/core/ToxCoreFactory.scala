@@ -1,7 +1,7 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.impl.ToxCoreImpl
+import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
+import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -9,8 +9,8 @@ object ToxCoreFactory {
 
   private final val toxes = new ArrayBuffer[ToxCore]
 
-  private def make(options: ToxOptions, data: Array[Byte]): ToxCore = {
-    new ToxCoreImpl(options, data)
+  private def make(options: ToxOptions): ToxCore = {
+    new ToxCoreImpl(options)
   }
 
   def destroyAll(): Unit = {
@@ -19,14 +19,14 @@ object ToxCoreFactory {
     System.gc()
   }
 
-  def apply(options: ToxOptions, data: Array[Byte]): ToxCore = {
-    val tox = make(options, data)
+  def apply(options: ToxOptions): ToxCore = {
+    val tox = make(options)
     toxes += tox
     tox
   }
 
-  def withTox[R](options: ToxOptions, data: Array[Byte])(f: ToxCore => R): R = {
-    val tox = make(options, data)
+  def withTox[R](options: ToxOptions)(f: ToxCore => R): R = {
+    val tox = make(options)
     try {
       f(tox)
     } finally {
@@ -34,12 +34,12 @@ object ToxCoreFactory {
     }
   }
 
-  def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int)(f: ToxCore => R): R = {
-    withTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)(f)
+  def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type)(f: ToxCore => R): R = {
+    withTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))(f)
   }
 
   def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean)(f: ToxCore => R): R = {
-    withTox(new ToxOptions(ipv6Enabled, udpEnabled), null)(f)
+    withTox(new ToxOptions(ipv6Enabled, udpEnabled))(f)
   }
 
   def withTox[R](f: ToxCore => R): R = {
@@ -47,7 +47,7 @@ object ToxCoreFactory {
   }
 
   def withToxes[R](count: Int)(f: ToxList => R): R = {
-    val toxes = new ToxList(() => { this(new ToxOptions, null) }, count)
+    val toxes = new ToxList(() => { this(new ToxOptions) }, count)
     try {
       f(toxes)
     } finally {

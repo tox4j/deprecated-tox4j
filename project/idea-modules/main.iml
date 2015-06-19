@@ -20,6 +20,6 @@
     <orderEntry type="library" name="org.json:json:20131018" level="application" />
     <orderEntry type="module" module-name="generated" />
     <orderEntry type="library" name="scala-sdk-2.11.6" level="application" />
-    <orderEntry type="library" name="net.sandrogrzicic:scalabuff-runtime_2.11:1.4.0" level="application" />
+    <orderEntry type="library" name="com.trueaccord.scalapb:scalapb-runtime_2.11:0.4.12" level="application" />
   </component>
 </module>

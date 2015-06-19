@@ -1,8 +1,9 @@
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxStatus }
-import im.tox.tox4j.core.{ ToxConstants, ToxOptions }
-import im.tox.tox4j.impl.ToxCoreImpl
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
+import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.ToxCoreConstants
+import im.tox.tox4j.impl.jni.ToxCoreImpl
 import org.slf4j.LoggerFactory
 
 object TestClient extends App {
@@ -18,9 +19,9 @@ object TestClient extends App {
   }
 
   private def parsePublicKey(id: String): Array[Byte] = {
-    val publicKey = Array.ofDim[Byte](ToxConstants.PUBLIC_KEY_SIZE)
+    val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
 
-    for (i <- 0 until ToxConstants.PUBLIC_KEY_SIZE) {
+    for (i <- 0 until ToxCoreConstants.PUBLIC_KEY_SIZE) {
       publicKey(i) = (
         (fromHexDigit(id.charAt(i * 2)) << 4) +
         fromHexDigit(id.charAt(i * 2 + 1))
@@ -59,10 +60,7 @@ object TestClient extends App {
       logger.info(s"Creating $count toxes")
 
       val toxes = (1 to count) map { id =>
-        val tox = new ToxCoreImpl({
-          val options = new ToxOptions(true, bootstrap.isEmpty)
-          options
-        }, null)
+        val tox = new ToxCoreImpl(new ToxOptions(true, bootstrap.isEmpty))
 
         tox.callback(new TestEventListener(id))
         logger.info(s"[$id] Key: ${readablePublicKey(tox.getPublicKey)}")
@@ -87,7 +85,7 @@ object TestClient extends App {
 
   private sealed class TestEventListener(id: Int) extends ToxEventListener {
 
-    override def friendStatus(friendNumber: Int, status: ToxStatus): Unit = {
+    override def friendStatus(friendNumber: Int, status: ToxUserStatus): Unit = {
       logger.info(s"[$id] friendStatus($friendNumber, $status)")
     }
 

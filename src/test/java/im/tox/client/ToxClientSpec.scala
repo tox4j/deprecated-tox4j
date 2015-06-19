@@ -1,6 +1,6 @@
 package im.tox.client
 
-import im.tox.tox4j.core.enums.ToxStatus
+import im.tox.tox4j.core.enums.ToxUserStatus
 import org.scalatest.FlatSpec
 
 class ToxClientSpec extends FlatSpec {
@@ -29,15 +29,15 @@ class ToxClientSpec extends FlatSpec {
 
   "getStatus" should "return the status set by setStatus" in {
     withTox { tox =>
-      assert(tox.status == ToxStatus.NONE)
-      tox.status = ToxStatus.AWAY
-      assert(tox.status == ToxStatus.AWAY)
+      assert(tox.status == ToxUserStatus.NONE)
+      tox.status = ToxUserStatus.AWAY
+      assert(tox.status == ToxUserStatus.AWAY)
     }
   }
 
   it should "return NONE if no status was set" in {
     withTox { tox =>
-      assert(tox.status == ToxStatus.NONE)
+      assert(tox.status == ToxUserStatus.NONE)
     }
   }
 

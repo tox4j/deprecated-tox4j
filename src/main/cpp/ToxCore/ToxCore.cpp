@@ -5,11 +5,11 @@ using namespace core;
 
 ToxInstances<tox::core_ptr, std::unique_ptr<Events>> core::instances;
 
-template<>
-extern char const *const module_name<Tox> = "core";
+template<> extern char const *const module_name<Tox> = "core";
+template<> extern char const *const exn_prefix<Tox> = "";
 
 
-HANDLE (SET_INFO)
+HANDLE ("SetInfo", SET_INFO)
 {
   switch (error)
     {
@@ -21,7 +21,7 @@ HANDLE (SET_INFO)
 }
 
 
-HANDLE (BOOTSTRAP)
+HANDLE ("Bootstrap", BOOTSTRAP)
 {
   switch (error)
     {
@@ -34,7 +34,7 @@ HANDLE (BOOTSTRAP)
 }
 
 
-HANDLE (FILE_CONTROL)
+HANDLE ("FileControl", FILE_CONTROL)
 {
   switch (error)
     {
@@ -51,7 +51,7 @@ HANDLE (FILE_CONTROL)
 }
 
 
-HANDLE (FILE_SEEK)
+HANDLE ("FileSeek", FILE_SEEK)
 {
   switch (error)
     {
@@ -67,7 +67,7 @@ HANDLE (FILE_SEEK)
 }
 
 
-HANDLE (FILE_SEND)
+HANDLE ("FileSend", FILE_SEND)
 {
   switch (error)
     {
@@ -82,7 +82,7 @@ HANDLE (FILE_SEND)
 }
 
 
-HANDLE (FILE_SEND_CHUNK)
+HANDLE ("FileSendChunk", FILE_SEND_CHUNK)
 {
   switch (error)
     {
@@ -100,7 +100,7 @@ HANDLE (FILE_SEND_CHUNK)
 }
 
 
-HANDLE (GET_PORT)
+HANDLE ("GetPort", GET_PORT)
 {
   switch (error)
     {
@@ -111,7 +111,7 @@ HANDLE (GET_PORT)
 }
 
 
-HANDLE (FRIEND_CUSTOM_PACKET)
+HANDLE ("FriendCustomPacket", FRIEND_CUSTOM_PACKET)
 {
   switch (error)
     {
@@ -128,7 +128,7 @@ HANDLE (FRIEND_CUSTOM_PACKET)
 }
 
 
-HANDLE (FRIEND_ADD)
+HANDLE ("FriendAdd", FRIEND_ADD)
 {
   switch (error)
     {
@@ -147,7 +147,7 @@ HANDLE (FRIEND_ADD)
 }
 
 
-HANDLE (FRIEND_DELETE)
+HANDLE ("FriendDelete", FRIEND_DELETE)
 {
   switch (error)
     {
@@ -158,7 +158,7 @@ HANDLE (FRIEND_DELETE)
 }
 
 
-HANDLE (FRIEND_BY_PUBLIC_KEY)
+HANDLE ("FriendByPublicKey", FRIEND_BY_PUBLIC_KEY)
 {
   switch (error)
     {
@@ -170,7 +170,7 @@ HANDLE (FRIEND_BY_PUBLIC_KEY)
 }
 
 
-HANDLE (FRIEND_GET_PUBLIC_KEY)
+HANDLE ("FriendGetPublicKey", FRIEND_GET_PUBLIC_KEY)
 {
   switch (error)
     {
@@ -181,7 +181,7 @@ HANDLE (FRIEND_GET_PUBLIC_KEY)
 }
 
 
-HANDLE (SET_TYPING)
+HANDLE ("SetTyping", SET_TYPING)
 {
   switch (error)
     {
@@ -192,7 +192,7 @@ HANDLE (SET_TYPING)
 }
 
 
-HANDLE (FRIEND_SEND_MESSAGE)
+HANDLE ("FriendSendMessage", FRIEND_SEND_MESSAGE)
 {
   switch (error)
     {
@@ -209,7 +209,7 @@ HANDLE (FRIEND_SEND_MESSAGE)
 }
 
 
-HANDLE (NEW)
+HANDLE ("New", NEW)
 {
   switch (error)
     {
@@ -228,7 +228,7 @@ HANDLE (NEW)
 }
 
 
-HANDLE (FILE_GET)
+HANDLE ("FileGet", FILE_GET)
 {
   switch (error)
     {

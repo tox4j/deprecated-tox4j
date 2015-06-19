@@ -5,14 +5,16 @@
 #include "Core.pb.h"
 
 // JNI declarations from javah.
-#include "im_tox_tox4j_impl_ToxCoreJni.h"
+#include "im_tox_tox4j_impl_jni_ToxCoreJni.h"
 
 // Header from toxcore.
 #include <tox/core.h>
 
+#ifndef SUBSYSTEM
 #define SUBSYSTEM TOX
 #define CLASS     ToxCore
 #define PREFIX    tox
+#endif
 
 namespace core
 {

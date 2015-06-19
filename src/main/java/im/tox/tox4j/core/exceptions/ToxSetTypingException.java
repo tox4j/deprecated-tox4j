@@ -6,6 +6,9 @@ import im.tox.tox4j.exceptions.ToxException;
 public final class ToxSetTypingException extends ToxException<ToxSetTypingException.Code> {
 
   public enum Code {
+    /**
+     * The friendNumber passed did not designate a valid friend.
+     */
     FRIEND_NOT_FOUND,
   }
 

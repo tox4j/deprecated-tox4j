@@ -115,7 +115,7 @@
    </check>
 
    Checks that imports are grouped together, not throughout the file
-   <check level="error" class="org.scalastyle.scalariform.ImportGroupingChecker" enabled="true"/>
+   <check level="error" class="org.scalastyle.scalariform.ImportGroupingChecker" enabled="false"/>
 
    Checks that a case statement pattern match is not lower case, as this can cause confusion
    <check level="error" class="org.scalastyle.scalariform.LowercasePatternMatchChecker" enabled="true"/>

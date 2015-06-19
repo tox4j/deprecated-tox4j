@@ -2,7 +2,8 @@ package im.tox.tox4j
 
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
+import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import org.junit.After
 
 abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
@@ -18,8 +19,8 @@ abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
 
   @NotNull
   @throws[ToxNewException]
-  protected final def newTox(options: ToxOptions, data: Array[Byte]): ToxCore = {
-    ToxCoreFactory(options, data)
+  protected final def newTox(options: ToxOptions): ToxCore = {
+    ToxCoreFactory(options)
   }
 
 }

@@ -6,11 +6,11 @@ import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks.ConnectionStatusCallback
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxProxyType }
+import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
-import im.tox.tox4j.exceptions.ToxException
-import org.junit.Assert._
+import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
+import im.tox.tox4j.testing.ToxTestMixin
 import org.junit.Assume.{ assumeNotNull, assumeTrue }
 import org.scalatest.junit.JUnitSuite
 
@@ -62,7 +62,7 @@ object ToxCoreTestBase {
 
     def iteration(): Unit = toxes.foreach(_.iteration())
 
-    def iterationInterval: Int = toxes.map(_.iterationInterval()).max
+    def iterationInterval: Int = toxes.map(_.iterationInterval).max
 
     def get(index: Int): ToxCore = toxes(index)
     def size: Int = toxes.length
@@ -142,7 +142,7 @@ object ToxCoreTestBase {
 
 }
 
-abstract class ToxCoreTestBase extends JUnitSuite {
+abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
 
   @NotNull
   protected def node: DhtNode
@@ -150,41 +150,34 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected def newTox(options: ToxOptions, data: Array[Byte]): ToxCore
+  protected def newTox(options: ToxOptions): ToxCore
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(): ToxCore = {
-    newTox(new ToxOptions, null)
+    newTox(new ToxOptions)
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(data: Array[Byte]): ToxCore = {
-    newTox(new ToxOptions, data)
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(options: ToxOptions): ToxCore = {
-    newTox(options, null)
+    newTox(new ToxOptions(saveData = SaveDataOptions.ToxSave(data)))
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
   protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled), null)
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled))
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxyType: ToxProxyType, proxyAddress: String, proxyPort: Int): ToxCore = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxyType, proxyAddress, proxyPort), null)
+  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore = {
+    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
   }
 
   @throws[ToxNewException]
@@ -204,22 +197,15 @@ abstract class ToxCoreTestBase extends JUnitSuite {
   @NotNull
   @throws[ToxBootstrapException]
   private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
+    if (!udpEnabled) {
+      tox.addTcpRelay(node.ipv4, node.tcpPort, node.dhtId)
+    }
     tox.bootstrap(
       if (useIPv6) node.ipv6 else node.ipv4,
       if (udpEnabled) node.udpPort else node.tcpPort,
       node.dhtId
     )
     tox
-  }
-
-  protected def expectException(code: Enum[_])(f: ToxCore => Unit) = {
-    try {
-      ToxCoreFactory.withTox(f)
-      fail("Expected exception with code " + code.name())
-    } catch {
-      case e: ToxException[_] =>
-        assertEquals(code, e.code)
-    }
   }
 
 }
