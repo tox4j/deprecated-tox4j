@@ -179,7 +179,7 @@ public final class AudioCallTest extends AliceBobAvTest {
       }
     }
 
-    @Override
+    //@Override
     public void requestAudioFrame(final int friendNumber) {
       assertEquals(FRIEND_NUMBER, friendNumber);
       addTask(new Task() {

@@ -44,17 +44,8 @@ Restart your terminal or `exec $SHELL`.
 
 Install required packages:
 ```
-$ brew install automake libtool libsodium libvpx opus pkg-config protobuf sbt 
-$ mkdir -p ~/code/git
-$ cd ~/code/git
-$ git clone https://github.com/irungentoo/toxcore
-$ cd toxcore && ./autogen.sh
-$ mkdir _build && cd _build
-$ ../configure --prefix=$HOME/homebrew/Cellar/toxcore/0.0.1 --with-libsodium-headers=$HOME/homebrew/include --with-libsodium-libs=$HOME/homebrew/lib
-$ make && make install
-$ cd ~/homebrew/include && ln -s ../../Cellar/toxcore/0.0.1/include/* .
-$ cd ~/homebrew/lib && ln -s ../../Cellar/toxcore/0.0.1/lib/* .
-$ cd ~/homebrew/lib/pkgconfig && ln -s ../../Cellar/toxcore/0.0.1/lib/pkgconfig/* .
+$ brew tap Tox/tox
+$ brew install libtoxcore pkg-config protobuf sbt 
 ```
 
 Now, toxcore should be installed in your `$HOME`. Finally, clone and build tox4j:

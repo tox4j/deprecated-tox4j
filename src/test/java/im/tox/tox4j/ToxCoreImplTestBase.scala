@@ -17,7 +17,7 @@ abstract class ToxCoreImplTestBase extends ToxCoreTestBase {
   }
 
   @NotNull
-  @throws(classOf[ToxNewException])
+  @throws[ToxNewException]
   protected final def newTox(options: ToxOptions, data: Array[Byte]): ToxCore = {
     ToxCoreFactory(options, data)
   }

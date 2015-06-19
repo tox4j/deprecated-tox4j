@@ -25,8 +25,14 @@ object CodeStyle extends Plugin {
 
     } ++ Seq(
 
-      // Disable method name inspection, since we use things like name_=.
-      scapegoatDisabledInspections := Seq("MethodNames"),
+      scapegoatDisabledInspections := Seq(
+        // Disable method name inspection, since we use things like name_=.
+        "MethodNames",
+        // This is simply wrong. Case classes can be extended, but it's a bad idea, so
+        // we would like to make all of them final. WartRemover checks this.
+        "RedundantFinalModifierOnCaseClass"
+      ),
+      scapegoatIgnoredFiles := Seq(".*/target/.*.scala", ".*/im/tox/tox4j/impl/.*Impl\\.scala"),
 
       wartremoverErrors in (Compile, compile) := Warts.allBut(
         Wart.NonUnitStatements,
@@ -40,6 +46,13 @@ object CodeStyle extends Plugin {
         Wart.Throw,
         Wart.Var
       ),
+      wartremoverExcluded := Seq(
+        baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "ToxAvImpl.scala",
+        baseDirectory.value / "src" / "main" / "java" / "im" / "tox" / "tox4j" / "impl" / "ToxCoreImpl.scala",
+        baseDirectory.value / "target/scala-2.11/src_managed/main/compiled_protobuf/im/tox/tox4j/av/proto/Av.scala",
+        baseDirectory.value / "target/scala-2.11/src_managed/main/compiled_protobuf/im/tox/tox4j/core/proto/Core.scala"
+      ),
+
       scalacOptions ++= Seq("-Xlint", "-unchecked", "-feature", "-deprecation"),
 
       // Fail if production code violates the coding style.

@@ -25,8 +25,8 @@ install:
 script:
   # Compile first, so a compile error fails the build.
   - yes q | sbt compile test:compile scalastyle test:scalastyle checkstyle test:checkstyle
-  # Compile again, because sbt coverage deleted our native library.
-  - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coverage compile test || true; fi
+  # Only test if we're not cross-compiling.
+  - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coverage test || true; fi
 
 after_success:
   - if [ "$TOX4J_TARGET" = "host" ]; then yes q | sbt coveralls; fi

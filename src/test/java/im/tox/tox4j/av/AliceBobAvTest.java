@@ -7,10 +7,11 @@ import im.tox.tox4j.av.callbacks.ToxAvEventListener;
 import im.tox.tox4j.av.enums.ToxCallState;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.impl.ToxAvJni;
-import im.tox.tox4j.impl.ToxCoreJni;
+import im.tox.tox4j.impl.ToxAvImpl;
+import im.tox.tox4j.impl.ToxCoreImpl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class AliceBobAvTest extends AliceBobTestBase {
@@ -20,12 +21,10 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
   @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
   private static class AvChatClient extends ChatClient implements ToxAvEventListener {
     @Override public void call(int friendNumber, boolean audioEnabled, boolean videoEnabled) { }
-    @Override public void callState(int friendNumber, @NotNull ToxCallState state) { }
+    @Override public void callState(int friendNumber, @NotNull Collection<ToxCallState> state) { }
     @Override public void receiveAudioFrame(int friendNumber, @NotNull short[] pcm, int channels, int samplingRate) { }
     @SuppressWarnings("checkstyle:parametername")
     @Override public void receiveVideoFrame(int friendNumber, int width, int height, @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a) { }
-    @Override public void requestAudioFrame(int friendNumber) { }
-    @Override public void requestVideoFrame(int friendNumber) { }
   }
 
   protected static class AvClient extends AvChatClient {
@@ -52,8 +51,8 @@ public abstract class AliceBobAvTest extends AliceBobTestBase {
       thread.join();
     }
 
-    public void setup(ToxCore tox) throws ToxException {
-      av = new ToxAvJni((ToxCoreJni) tox);
+    public final void setup(ToxCore tox) {
+      av = new ToxAvImpl((ToxCoreImpl) tox);
       av.callback(this);
       thread = new Thread(new Runnable() {
         @Override
