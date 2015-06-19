@@ -128,9 +128,9 @@ public class ToxFriendAddExceptionTest extends ToxCoreImplTestBase {
   public void testSetNewNospam() throws Exception {
     try (ToxCore tox = newTox()) {
       ToxCore friend = newTox();
-      friend.setNospam(12345678);
+      friend.setNoSpam(12345678);
       tox.addFriend(friend.getAddress(), new byte[1]);
-      friend.setNospam(87654321);
+      friend.setNoSpam(87654321);
       tox.addFriend(friend.getAddress(), new byte[1]);
       fail();
     } catch (ToxFriendAddException e) {

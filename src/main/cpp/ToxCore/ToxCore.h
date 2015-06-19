@@ -30,10 +30,7 @@ template<typename T, size_t get_size (Tox const *), void get_data (Tox const *, 
 typename java_array_t<T>::array_type
 get_vector (JNIEnv *env, Tox const *tox)
 {
-  size_t size = get_size (tox);
-  if (size == 0)
-    return nullptr;
-  std::vector<T> name (size);
+  std::vector<T> name (get_size (tox));
   get_data (tox, name.data ());
 
   return toJavaArray (env, name);

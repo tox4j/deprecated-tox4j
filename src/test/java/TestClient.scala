@@ -1,8 +1,9 @@
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxStatus }
-import im.tox.tox4j.core.{ ToxConstants, ToxOptions }
-import im.tox.tox4j.impl.ToxCoreJni
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
+import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.ToxConstants
+import im.tox.tox4j.impl.ToxCoreImpl
 import org.slf4j.LoggerFactory
 
 object TestClient extends App {
@@ -59,10 +60,7 @@ object TestClient extends App {
       logger.info(s"Creating $count toxes")
 
       val toxes = (1 to count) map { id =>
-        val tox = new ToxCoreJni({
-          val options = new ToxOptions(true, bootstrap.isEmpty)
-          options
-        }, null)
+        val tox = new ToxCoreImpl(new ToxOptions(true, bootstrap.isEmpty))
 
         tox.callback(new TestEventListener(id))
         logger.info(s"[$id] Key: ${readablePublicKey(tox.getPublicKey)}")
@@ -79,7 +77,7 @@ object TestClient extends App {
       if (count > 0) {
         logger.info("Starting event loop")
         while (true) {
-          toxes.foreach(_.iteration)
+          toxes.foreach(_.iteration())
           Thread.sleep(toxes.map(_.iterationInterval).max)
         }
       }
@@ -87,7 +85,7 @@ object TestClient extends App {
 
   private sealed class TestEventListener(id: Int) extends ToxEventListener {
 
-    override def friendStatus(friendNumber: Int, status: ToxStatus): Unit = {
+    override def friendStatus(friendNumber: Int, status: ToxUserStatus): Unit = {
       logger.info(s"[$id] friendStatus($friendNumber, $status)")
     }
 

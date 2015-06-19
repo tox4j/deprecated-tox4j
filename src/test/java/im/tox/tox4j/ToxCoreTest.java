@@ -2,9 +2,13 @@ package im.tox.tox4j;
 
 import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.enums.ToxProxyType;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxSaveDataType;
+import im.tox.tox4j.core.enums.ToxUserStatus;
+import im.tox.tox4j.core.options.ProxyOptions;
+import im.tox.tox4j.core.options.SaveDataOptions;
+import im.tox.tox4j.core.options.SaveDataOptions$;
+import im.tox.tox4j.core.options.ToxOptions;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +27,7 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNew() throws Exception {
-    newTox(new ToxOptions()).close();
+    newTox(new ToxOptions(true, true, ProxyOptions.None$.MODULE$, 33445, 33545, 0, SaveDataOptions.None$.MODULE$)).close();
   }
 
   @Test
@@ -48,15 +52,8 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
 
   @Test
   public void testToxNewProxyGood() throws Exception {
-    newTox(true, true, ToxProxyType.SOCKS5, "localhost", 1).close();
-    newTox(true, true, ToxProxyType.SOCKS5, "localhost", 0xffff).close();
-  }
-
-  @SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
-  @Test
-  public void testToxNewNoProxyBadAddress() throws Exception {
-    // Should ignore the bad address.
-    newTox(true, true, ToxProxyType.NONE, "\u2639", 1).close();
+    newTox(true, true, new ProxyOptions.Socks5("localhost", 1)).close();
+    newTox(true, true, new ProxyOptions.Socks5("localhost", 0xffff)).close();
   }
 
   @Test
@@ -187,11 +184,11 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
         0x7fffffff,
     };
     try (ToxCore tox = newTox()) {
-      assertEquals(tox.getNospam(), tox.getNospam());
+      assertEquals(tox.getNoSpam(), tox.getNoSpam());
       for (int test : tests) {
-        tox.setNospam(test);
-        assertEquals(test, tox.getNospam());
-        assertEquals(tox.getNospam(), tox.getNospam());
+        tox.setNoSpam(test);
+        assertEquals(test, tox.getNoSpam());
+        assertEquals(tox.getNoSpam(), tox.getNoSpam());
         byte[] check = {
             (byte)(test >> 8 * 0),
             (byte)(test >> 8 * 1),
@@ -309,9 +306,9 @@ public class ToxCoreTest extends ToxCoreImplTestBase {
   @Test
   public void testGetAndSetStatus() throws Exception {
     try (ToxCore tox = newTox()) {
-      assertEquals(ToxStatus.NONE, tox.getStatus());
+      assertEquals(ToxUserStatus.NONE, tox.getStatus());
       for (int i = 0; i < 2; i++) {
-        for (ToxStatus status : ToxStatus.values()) {
+        for (ToxUserStatus status : ToxUserStatus.values()) {
           tox.setStatus(status);
           assertEquals(status, tox.getStatus());
         }

@@ -2,7 +2,7 @@ package im.tox.gui;
 
 import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.enums.ToxConnection;
-import im.tox.tox4j.core.enums.ToxStatus;
+import im.tox.tox4j.core.enums.ToxUserStatus;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ public final class Friend implements Serializable {
 
   private String name = "<No name>";
   private transient ToxConnection connectionStatus;
-  private transient ToxStatus status;
+  private transient ToxUserStatus status;
   private String statusMessage;
   private transient boolean typing;
   private final byte[] publicKey;
@@ -43,11 +43,11 @@ public final class Friend implements Serializable {
     return connectionStatus;
   }
 
-  public void setStatus(ToxStatus status) {
+  public void setStatus(ToxUserStatus status) {
     this.status = status;
   }
 
-  public ToxStatus getStatus() {
+  public ToxUserStatus getStatus() {
     return status;
   }
 

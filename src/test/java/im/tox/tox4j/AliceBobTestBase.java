@@ -7,6 +7,7 @@ import im.tox.tox4j.core.callbacks.ToxEventAdapter;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxProxyType;
 import im.tox.tox4j.core.exceptions.ToxNewException;
+import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.exceptions.ToxException;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
     public abstract void perform(@NotNull T tox) throws ToxException;
   }
 
-  protected static class ChatClient extends ToxEventAdapter {
+  public static class ChatClient extends ToxEventAdapter {
 
     protected static final int FRIEND_NUMBER = 10;
 
@@ -295,8 +296,8 @@ public abstract class AliceBobTestBase extends ToxCoreImplTestBase {
         @Override
         public ToxCore make() throws ToxException {
           return bootstrap(
-                  ipv6Enabled, udpEnabled,
-                  newTox(ipv6Enabled, udpEnabled, ToxProxyType.SOCKS5, proxy.getAddress(), proxy.getPort())
+              ipv6Enabled, udpEnabled,
+              newTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress(), proxy.getPort()))
           );
         }
       });

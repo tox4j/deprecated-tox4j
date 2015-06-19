@@ -10,7 +10,7 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
   private val toxes = (0 until count) map { i =>
     val instance = Instance(newTox(), ToxConnection.NONE)
     instance.tox.callbackConnectionStatus(new ConnectionStatusCallback {
-      override def connectionStatus(connectionStatus: ToxConnection) {
+      override def connectionStatus(connectionStatus: ToxConnection): Unit = {
         instance.connected = connectionStatus
       }
     })
@@ -24,7 +24,7 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
 
   def iteration(): Unit = toxes.foreach(_.tox.iteration())
 
-  def iterationInterval: Int = toxes.map(_.tox.iterationInterval()).max
+  def iterationInterval: Int = toxes.map(_.tox.iterationInterval).max
 
   def get(index: Int): ToxCore = toxes(index).tox
   def size: Int = toxes.length

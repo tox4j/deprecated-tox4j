@@ -6,7 +6,13 @@ import im.tox.tox4j.exceptions.ToxException;
 public final class ToxFileGetInfoException extends ToxException<ToxFileGetInfoException.Code> {
 
   public enum Code {
+    /**
+     * The friendNumber passed did not designate a valid friend.
+     */
     FRIEND_NOT_FOUND,
+    /**
+     * No file transfer with the given file number was found for the given friend.
+     */
     NOT_FOUND,
   }
 

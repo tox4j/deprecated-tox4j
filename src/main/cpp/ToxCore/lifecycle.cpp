@@ -231,16 +231,14 @@ tox_new_unique (Tox_Options const *options, TOX_ERR_NEW *error)
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxNew
- * Signature: (ZZILjava/lang/String;I)I
+ * Signature: (ZZILjava/lang/String;IIII)I
  */
 TOX_METHOD (jint, New,
-  jbyteArray saveData, jboolean ipv6Enabled, jboolean udpEnabled,
-  jint proxyType, jstring proxyHost, jint proxyPort)
+  jboolean ipv6Enabled, jboolean udpEnabled,
+  jint proxyType, jstring proxyHost, jint proxyPort,
+  jint startPort, jint endPort, jint tcpPort,
+  jint saveDataType, jbyteArray saveData)
 {
-  tox4j_assert (proxyType >= 0);
-  tox4j_assert (proxyPort >= 0);
-  tox4j_assert (proxyPort <= 65535);
-
 #if 0
   scope_guard {
     [&]{ printf ("creating new instance"); },
@@ -270,9 +268,31 @@ TOX_METHOD (jint, New,
   opts->proxy_host = proxy_host.data ();
   opts->proxy_port = proxyPort;
 
+  opts->start_port = startPort;
+  opts->end_port = endPort;
+  opts->tcp_port = tcpPort;
+
+  auto assert_valid_uint16 = [env](int port) {
+    tox4j_assert (port >= 0);
+    tox4j_assert (port <= 65535);
+  };
+  if (opts->proxy_type != TOX_PROXY_TYPE_NONE)
+    assert_valid_uint16 (proxyPort);
+  assert_valid_uint16 (startPort);
+  assert_valid_uint16 (endPort);
+  assert_valid_uint16 (tcpPort);
+
   ByteArray save_data (env, saveData);
-  opts->savedata_type = save_data.empty () ? TOX_SAVEDATA_TYPE_NONE : TOX_SAVEDATA_TYPE_TOX_SAVE;
-  opts->savedata_data = save_data.data ();
+  opts->savedata_type = [=] {
+    switch (saveDataType)
+      {
+      case 0: return TOX_SAVEDATA_TYPE_NONE;
+      case 1: return TOX_SAVEDATA_TYPE_TOX_SAVE;
+      case 2: return TOX_SAVEDATA_TYPE_SECRET_KEY;
+      }
+    tox4j_fatal ("Invalid savedata type type from Java");
+  } ();
+  opts->savedata_data   = save_data.data ();
   opts->savedata_length = save_data.size ();
 
   return instances.with_error_handling (env, "New",
@@ -281,7 +301,7 @@ TOX_METHOD (jint, New,
         tox4j_assert (tox != nullptr);
 
         // Create the master events object and set up our callbacks.
-        auto events = tox::callbacks (std::unique_ptr<Events> (new Events))
+        auto events = tox::callbacks<Tox> (std::unique_ptr<Events> (new Events))
           .set<tox::callback_self_connection_status,    tox4j_self_connection_status_cb  > ()
           .set<tox::callback_friend_name,               tox4j_friend_name_cb             > ()
           .set<tox::callback_friend_status_message,     tox4j_friend_status_message_cb   > ()

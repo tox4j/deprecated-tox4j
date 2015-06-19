@@ -4,12 +4,14 @@ import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.ToxConstants;
 import im.tox.tox4j.core.ToxCore;
-import im.tox.tox4j.core.ToxOptions;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
 import im.tox.tox4j.core.exceptions.*;
+import im.tox.tox4j.core.options.ProxyOptions;
+import im.tox.tox4j.core.options.SaveDataOptions;
+import im.tox.tox4j.core.options.ToxOptions;
 import im.tox.tox4j.exceptions.ToxException;
-import im.tox.tox4j.impl.ToxCoreJni;
+import im.tox.tox4j.impl.ToxCoreImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,7 +211,7 @@ public class ToxGui extends JFrame {
     }
 
     @Override
-    public void friendStatus(int friendNumber, @NotNull ToxStatus status) {
+    public void friendStatus(int friendNumber, @NotNull ToxUserStatus status) {
       addMessage("friendStatus", friendNumber, status);
       friendListModel.setStatus(friendNumber, status);
     }
@@ -281,13 +283,6 @@ public class ToxGui extends JFrame {
     }
   }
 
-  @NotNull
-  private static ToxOptions enableProxy(
-      @NotNull ToxOptions options, @NotNull ToxProxyType proxyType, @NotNull String proxyAddress, int proxyPort
-  ) throws ToxNewException {
-    return new ToxOptions(options.ipv6Enabled, options.udpEnabled, proxyType, proxyAddress, proxyPort);
-  }
-
   /**
    * Create a new GUI application for Tox testing.
    */
@@ -325,26 +320,33 @@ public class ToxGui extends JFrame {
 
       private void connect() {
         try {
-          ToxOptions options = new ToxOptions(enableIPv6CheckBox.isSelected(), enableUdpCheckBox.isSelected());
+          byte[] toxSave = load();
+
+          ProxyOptions.Type proxy;
           if (httpRadioButton.isSelected()) {
-            options = enableProxy(options,
-                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
-            );
+            proxy = new ProxyOptions.Http(proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
           } else if (socksRadioButton.isSelected()) {
-            options = enableProxy(options,
-                ToxProxyType.HTTP, proxyHost.getText(), Integer.parseInt(proxyPort.getText())
-            );
+            proxy = new ProxyOptions.Socks5(proxyHost.getText(), Integer.parseInt(proxyPort.getText()));
+          } else {
+            proxy = ProxyOptions.None$.MODULE$;
           }
 
-          byte[] toxSave = load();
-          if (toxSave != null) {
-            tox = new ToxCoreJni(options, toxSave);
-            for (int friendNumber : tox.getFriendList()) {
-              friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
-            }
-          } else {
-            tox = new ToxCoreJni(options, null);
+          ToxOptions options = new ToxOptions(
+              enableIPv6CheckBox.isSelected(),
+              enableUdpCheckBox.isSelected(),
+              proxy,
+              33445,
+              33545,
+              0,
+              toxSave != null ? new SaveDataOptions.ToxSave(toxSave) : SaveDataOptions.None$.MODULE$
+          );
+
+          tox = new ToxCoreImpl(options);
+
+          for (int friendNumber : tox.getFriendList()) {
+            friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
           }
+
           selfPublicKey.setText(readablePublicKey(tox.getAddress()));
           tox.callback(toxEvents);
           eventLoop = new Thread(new Runnable() {
@@ -404,6 +406,8 @@ public class ToxGui extends JFrame {
       @Override
       public void actionPerformed(ActionEvent event) {
         try {
+          tox.addTcpRelay(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
+              parsePublicKey(bootstrapKey.getText().trim()));
           tox.bootstrap(bootstrapHost.getText(), Integer.parseInt(bootstrapPort.getText()),
               parsePublicKey(bootstrapKey.getText().trim()));
         } catch (ToxBootstrapException e) {
