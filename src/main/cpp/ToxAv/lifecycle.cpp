@@ -204,7 +204,7 @@ TOX_METHOD (void, Kill,
  * Method:    toxavFinalize
  * Signature: (I)V
  */
-TOX_METHOD (void, finize,
+TOX_METHOD (void, Finalize,
   jint instanceNumber)
 {
   instances.finalize (env, instanceNumber);
