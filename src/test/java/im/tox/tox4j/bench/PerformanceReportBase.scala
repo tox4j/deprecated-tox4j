@@ -1,6 +1,7 @@
 package im.tox.tox4j.bench
 
 import im.tox.tox4j.bench.PerformanceReportBase.toxInstance
+import im.tox.tox4j.bench.picklers.Implicits._
 import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
 import im.tox.tox4j.impl.jni.ToxCoreImpl

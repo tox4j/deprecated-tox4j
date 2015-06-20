@@ -4,6 +4,7 @@ import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.{ Confidence, TimingReport }
 import im.tox.tox4j.core.ToxCore
 import org.scalameter.Gen
+import org.scalameter.picklers.Implicits._
 
 final class FriendListTimingBench extends TimingReport {
 
