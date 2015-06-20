@@ -3,7 +3,7 @@ package im.tox.tox4j.core.enums;
 import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.crypto.ToxCryptoConstants;
 
-public class ToxFileKind {
+public final class ToxFileKind {
   /**
    * Arbitrary file data. Clients can choose to handle it based on the file name
    * or magic or any other way they choose.
@@ -21,13 +21,12 @@ public class ToxFileKind {
    *
    * <p/>
    * Clients who receive avatar send requests can reject it (by sending
-   * {@link im.tox.tox4j.core.enums.ToxFileControl#CANCEL} before any other controls),
-   * or accept it (by sending {@link im.tox.tox4j.core.enums.ToxFileControl#RESUME}).
-   * The file_id of length {@link ToxCryptoConstants#HASH_LENGTH} bytes
-   * (same length as {@link ToxCoreConstants#FILE_ID_LENGTH}) will
-   * contain the hash. A client can compare this hash with a saved hash and send
-   * {@link im.tox.tox4j.core.enums.ToxFileControl#CANCEL} to terminate the avatar
-   * transfer if it matches.
+   * {@link ToxFileControl#CANCEL} before any other controls), or accept it
+   * (by sending {@link ToxFileControl#RESUME}).
+   * The file_id of length {@link ToxCryptoConstants#HASH_LENGTH} bytes (same
+   * length as {@link ToxCoreConstants#FILE_ID_LENGTH}) will contain the hash.
+   * A client can compare this hash with a saved hash and send
+   * {@link ToxFileControl#CANCEL} to terminate the avatar transfer if it matches.
    *
    * <p/>
    * When fileSize is set to 0 in the transfer request it means that the client
