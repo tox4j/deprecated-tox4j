@@ -1,32 +1,28 @@
-// General settings
-organization  := "im.tox"
+// General settings.
 name          := "tox4j"
 version       := "0.0.0-SNAPSHOT"
-scalaVersion  := "2.11.6"
 
-// Mixed project.
-compileOrder := CompileOrder.Mixed
-
-scalaSource in Compile := (javaSource in Compile).value
-scalaSource in Test    := (javaSource in Test   ).value
-
-// Build dependencies
+// Build dependencies.
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "org.json" % "json" % "20131018"
 )
 
-// Test dependencies
+// Test dependencies.
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.4",
+  "com.storm-enroute" %% "scalameter" % "0.7-SNAPSHOT",
+  "junit" % "junit" % "4.12",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
-  "org.slf4j" % "slf4j-log4j12" % "1.7.12",
-  "junit" % "junit" % "4.12"
+  "org.scalatest" %% "scalatest" % "2.2.4",
+  "org.slf4j" % "slf4j-log4j12" % "1.7.12"
 ) map (_ % Test)
 
+// Add ScalaMeter as test framework.
+testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 
-// JNI
-import src.main.scala.Jni.Keys._
+
+// JNI.
+import sbt.tox4j.Jni.Keys._
 
 packageDependencies ++= Seq(
   "protobuf-lite",
@@ -37,13 +33,11 @@ packageDependencies ++= Seq(
   "vpx"
 )
 
-// Keep version in sync with libtoxcore.
-versionSync := "libtoxcore"
-
 // TODO: infer this (harder).
 jniClasses := Seq(
-  "im.tox.tox4j.impl.ToxAvJni",
-  "im.tox.tox4j.impl.ToxCoreJni"
+  "im.tox.tox4j.impl.jni.ToxCryptoImpl$",
+  "im.tox.tox4j.impl.jni.ToxAvJni",
+  "im.tox.tox4j.impl.jni.ToxCoreJni"
 )
 
 // TODO: infer this (easy).
@@ -52,21 +46,8 @@ jniSourceFiles in Compile ++= Seq(
   managedNativeSource.value / "Core.pb.cc"
 )
 
-// Current VM version.
-val javaVersion = sys.props("java.specification.version")
-
-// Java 1.6 for production code.
-javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
-scalacOptions in Compile += "-target:jvm-" + "1.6"
-
-// Latest Java for test code.
-javacOptions in Test ++= Seq("-source", javaVersion, "-target", javaVersion)
-scalacOptions in Test += "-target:jvm-" + javaVersion
-
-// Require 100% test coverage.
-ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 100
-ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
-ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := ".*\\.proto"
+// Ignore generated proto sources in coverage.
+ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := ".*\\.proto\\..*"
 
 // Add Scala linter.
 resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
@@ -75,3 +56,7 @@ scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssigned
 
 // Add Java lint flags.
 javacOptions ++= Seq("-Xlint:unchecked")
+
+// Scalastyle configuration.
+scalastyleConfig in Compile := (scalaSource in Compile).value / "scalastyle-config.xml"
+scalastyleConfig in Test    := (scalaSource in Test   ).value / "scalastyle-config.xml"

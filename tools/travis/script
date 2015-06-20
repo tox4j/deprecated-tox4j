@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -ex
+
+# Compile first, so a compile error fails the build.
+COMMANDS="scalastyle test:scalastyle checkstyle test:checkstyle test:compile"
+
+# Don't run tests if we are cross-compiling.
+if [ "$TOX4J_TARGET" = "host" ]; then
+  COMMANDS="coverage $COMMANDS test"
+fi
+
+case "$TEST_GOAL" in
+  correctness)
+    tools/sbt $COMMANDS
+    ;;
+
+  performance)
+    #tools/sbt benchmark:benchmark
+    tools/sbt "testOnly *TravisBenchSuite" || true
+    tools/sbt benchmark:upload
+    ;;
+esac
+
+# Check whether the code was formatted correctly on push.
+git diff --exit-code

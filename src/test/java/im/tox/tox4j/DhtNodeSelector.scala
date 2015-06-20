@@ -4,7 +4,8 @@ import java.io.IOException
 import java.net.{ InetAddress, Socket }
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory, ToxOptions }
+import im.tox.tox4j.core.options.ToxOptions
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import org.junit.Assume.assumeNotNull
 import org.junit.AssumptionViolatedException
 import org.slf4j.LoggerFactory
@@ -40,17 +41,20 @@ object DhtNodeSelector {
 
     try {
       val status = new ConnectedListener
-      tox.callbackConnectionStatus(status)
+      tox.callbackSelfConnectionStatus(status)
+      if (!udpEnabled) {
+        tox.addTcpRelay(node.ipv4, port, node.dhtId)
+      }
       tox.bootstrap(node.ipv4, port, node.dhtId)
 
       // Try bootstrapping for 10 seconds.
-      (0 to 10000 / tox.iterationInterval()) find { _ =>
-        tox.iteration()
+      (0 to 10000 / tox.iterationInterval) find { _ =>
+        tox.iterate()
         Thread.sleep(tox.iterationInterval)
         status.isConnected
       } match {
         case Some(time) =>
-          logger.info(s"Bootstrapped successfully after ${time * tox.iterationInterval()}ms using $protocol")
+          logger.info(s"Bootstrapped successfully after ${time * tox.iterationInterval}ms using $protocol")
           Some(node)
         case None =>
           logger.info(s"Unable to bootstrap with $protocol")
@@ -85,7 +89,7 @@ object DhtNodeSelector {
 
   def node: DhtNode = findNode({
     (ipv6Enabled: Boolean, udpEnabled: Boolean) =>
-      ToxCoreFactory(new ToxOptions(ipv6Enabled, udpEnabled), null)
+      ToxCoreFactory(new ToxOptions(ipv6Enabled, udpEnabled))
   })
 
 }

@@ -1,3 +1,6 @@
+# GitHub pages.
+/.web
+
 # SBT compiled build system.
 /project/project
 /project/target
@@ -7,6 +10,9 @@
 
 # Generated startup scripts for main classes.
 /bin
+
+# Temporary output files for ScalaMeter.
+/tmp
 
 # IDEA output directory.
 /classes

@@ -2,7 +2,6 @@ package im.tox.tox4j.core
 
 import im.tox.tox4j.DhtNodeSelector.node
 import im.tox.tox4j.TestConstants.TIMEOUT
-import im.tox.tox4j.ToxCoreTestBase.{ assumeIPv4, assumeIPv6 }
 import im.tox.tox4j._
 import im.tox.tox4j.core.NetworkTest.logger
 import im.tox.tox4j.core.ToxCoreFactory.{ withTox, withToxes }
@@ -27,16 +26,15 @@ final class NetworkTest extends FlatSpec with Timeouts {
       logger.info(s"Attempting to $action")
       val start = System.currentTimeMillis
 
-      if (udpEnabled) {
-        tox.bootstrap(ip, port, dhtId)
-      } else {
+      if (!udpEnabled) {
         tox.addTcpRelay(ip, port, dhtId)
       }
+      tox.bootstrap(ip, port, dhtId)
 
       val status = new ConnectedListener
-      tox.callbackConnectionStatus(status)
+      tox.callbackSelfConnectionStatus(status)
       while (!status.isConnected) {
-        tox.iteration()
+        tox.iterate()
         Thread.sleep(tox.iterationInterval)
       }
 
@@ -47,29 +45,29 @@ final class NetworkTest extends FlatSpec with Timeouts {
   }
 
   "bootstrap" should "connect with UDP4" in {
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
-      assumeIPv4()
       testBootstrap(ipv6Enabled = false, udpEnabled = true, node.ipv4, node.udpPort, node.dhtId)
     }
   }
 
   it should "connect with UDP6" in {
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
-      assumeIPv6()
       testBootstrap(ipv6Enabled = true, udpEnabled = true, node.ipv6, node.udpPort, node.dhtId)
     }
   }
 
   it should "connect with TCP4" in {
+    assume(ToxCoreTestBase.checkIPv4.isEmpty)
     failAfter(TIMEOUT millis) {
-      assumeIPv4()
       testBootstrap(ipv6Enabled = false, udpEnabled = false, node.ipv4, node.tcpPort, node.dhtId)
     }
   }
 
   it should "connect with TCP6" in {
+    assume(ToxCoreTestBase.checkIPv6.isEmpty)
     failAfter(TIMEOUT millis) {
-      assumeIPv6()
       testBootstrap(ipv6Enabled = true, udpEnabled = false, node.ipv6, node.tcpPort, node.dhtId)
     }
   }

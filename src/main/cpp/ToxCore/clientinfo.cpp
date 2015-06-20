@@ -91,7 +91,7 @@ TOX_METHOD (void, SelfSetName,
   jint instanceNumber, jbyteArray name)
 {
   ByteArray name_array (env, name);
-  return instances.with_instance_ign (env, instanceNumber, "SetInfo",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_self_set_name, name_array.data (), name_array.size ());
 }
 
@@ -123,7 +123,7 @@ TOX_METHOD (void, SelfSetStatusMessage,
   jint instanceNumber, jbyteArray statusMessage)
 {
   ByteArray status_message_array (env, statusMessage);
-  return instances.with_instance_ign (env, instanceNumber, "SetInfo",
+  return instances.with_instance_ign (env, instanceNumber,
     tox_self_set_status_message, status_message_array.data (), status_message_array.size ());
 }
 

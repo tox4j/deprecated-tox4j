@@ -123,9 +123,21 @@ toJavaArray (JNIEnv *env, std::vector<T> const &data)
 {
   typedef typename java_array_t<T>::java_type java_type;
   static_assert (sizeof (T) == sizeof (java_type),
-                 "Size requirements for Java array not met");
+    "Size requirements for Java array not met");
   return java_array_t<T>::make (env, data.size (),
-                                reinterpret_cast<java_type const *> (data.data ()));
+    reinterpret_cast<java_type const *> (data.data ()));
+}
+
+
+template<typename T, std::size_t N>
+typename java_array_t<T>::array_type
+toJavaArray (JNIEnv *env, T const (&data)[N])
+{
+  typedef typename java_array_t<T>::java_type java_type;
+  static_assert (sizeof (T) == sizeof (java_type),
+    "Size requirements for Java array not met");
+  return java_array_t<T>::make (env, N,
+    reinterpret_cast<java_type const *> (data));
 }
 
 
