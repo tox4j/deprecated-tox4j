@@ -46,6 +46,7 @@ object WartRemover extends Tox4jBuildPlugin {
         "AudioReceiveFrame",
         "AvEvents",
         "Call",
+        "CallControl",
         "CallState",
         "InternalFields_avProto",
         "VideoBitRateStatus",
