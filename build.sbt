@@ -1,6 +1,5 @@
 // General settings.
-name          := "tox4j"
-version       := "0.0.0-SNAPSHOT"
+name := "tox4j"
 
 // Build dependencies.
 libraryDependencies ++= Seq(
