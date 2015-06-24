@@ -16,7 +16,6 @@ object ThisBuild extends sbt.Build {
     Checkstyle,
     Findbugs,
     Scalastyle,
-    Scapegoat,
     WartRemover,
     Xlint,
 

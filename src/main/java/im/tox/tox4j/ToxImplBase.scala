@@ -16,6 +16,7 @@ object ToxImplBase {
    * @param method The method to call on the callback object.
    * @tparam T The type of the callback object.
    */
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Throw"))
   def tryAndLog[T](callback: T)(method: T => Unit): Unit = {
     try {
       method(callback)
