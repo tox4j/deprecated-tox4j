@@ -1,40 +1,23 @@
 package sbt.tox4j.lint
 
 import sbt.Keys._
-import sbt._
-import sbt.tox4j.{Tox4jBuildPlugin, Tox4jLibraryBuild}
+import sbt.{Compile, _}
+import sbt.tox4j.Tox4jBuildPlugin
 import wartremover.Wart
 import wartremover.WartRemover.autoImport._
 
-object WartRemover extends Tox4jBuildPlugin {
+object WartRemoverOverrides extends Tox4jBuildPlugin {
 
   object Keys
 
-  private def custom(classpath: File): Seq[Wart] = {
-    val pathFinder = ((classpath / "im" / "tox" / "tox4j" / "lint") ** "*.class") filter (!_.getName.contains('$'))
-    pathFinder.get map { file =>
-      val checker = file.getName.replace(".class", "")
-      Wart.custom(s"im.tox.tox4j.lint.$checker")
-    }
+  private def custom(checker: String): Wart = {
+    Wart.custom(s"im.tox.tox4j.lint.$checker")
   }
 
   // Enable checkstyle.
   override val moduleSettings = Seq(
-    wartremoverClasspaths += (classDirectory in (Tox4jLibraryBuild.lint, Compile)).value.toURI.toString,
-    wartremoverErrors in (Compile, compile) := Warts.allBut(
-      Wart.DefaultArguments,
-      Wart.NonUnitStatements,
-      Wart.Var
-    ) ++ custom((classDirectory in (Tox4jLibraryBuild.lint, Compile)).value),
-    wartremoverErrors in (Test, compile) := Warts.allBut(
-      Wart.Any,
-      Wart.AsInstanceOf,
-      Wart.DefaultArguments,
-      Wart.IsInstanceOf,
-      Wart.NonUnitStatements,
-      Wart.Null,
-      Wart.Throw,
-      Wart.Var
+    wartremoverErrors in (Compile, compile) ++= Seq(
+      custom("OptionsClasses")
     ),
     wartremoverExcluded := {
       val jni = (scalaSource in Compile).value / "im" / "tox" / "tox4j" / "impl" / "jni"

@@ -5,8 +5,6 @@ import sbt.tox4j.lint._
 
 object Tox4jLibraryBuild extends Build {
 
-  lazy val lint: Project = Project("lint", file("lint"))
-
   lazy val root: Project = Project("root", file("."),
     settings = Seq(
       Assembly,
@@ -20,8 +18,9 @@ object Tox4jLibraryBuild extends Build {
       Scalastyle,
       Scapegoat,
       WartRemover,
+      WartRemoverOverrides,
       Xlint
     ).flatMap(_.moduleSettings)
-  ).configs(ProtobufPlugin.Protobuf).dependsOn(lint)
+  ).configs(ProtobufPlugin.Protobuf)
 
 }

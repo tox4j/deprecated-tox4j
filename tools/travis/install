@@ -97,6 +97,14 @@ case "$TOX4J_TARGET" in
     ;;
 esac
 
+# Install tox4j organisation dependencies.
+for repo in sbt-tox4j linters; do
+  cd "$BASEDIR/git"
+  git clone --depth=1 https://github.com/tox4j/$repo
+  cd $repo
+  $SOURCEDIR/tools/sbt publishLocal
+done
+
 # Install the required Java/Scala packages.
 cd $SOURCEDIR
 tools/sbt update
