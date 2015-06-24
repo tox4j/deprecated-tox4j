@@ -1,5 +1,16 @@
 // General settings.
-name := "tox4j"
+name          := "tox4j"
+organization  := "im.tox"
+scalaVersion  := "2.11.6"
+
+// Mixed project.
+compileOrder := CompileOrder.Mixed
+scalaSource in Compile := (javaSource in Compile).value
+scalaSource in Test    := (javaSource in Test   ).value
+
+// Snapshot and linter repository.
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
 
 // Build dependencies.
 libraryDependencies ++= Seq(
@@ -38,11 +49,14 @@ jniSourceFiles in Compile ++= Seq(
   managedNativeSource.value / "Core.pb.cc"
 )
 
+// Require 100% test coverage.
+ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 75
+ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
+
 // Ignore generated proto sources in coverage.
 ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := ".*\\.proto\\..*"
 
 // Add Scala linter.
-resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
 addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1.9")
 scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssignedUnusedValue"
 
@@ -52,3 +66,14 @@ addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")
 // Scalastyle configuration.
 scalastyleConfig in Compile := (scalaSource in Compile).value / "scalastyle-config.xml"
 scalastyleConfig in Test    := (scalaSource in Test   ).value / "scalastyle-config.xml"
+
+// Current VM version.
+val javaVersion = sys.props("java.specification.version")
+
+// Java 1.6 for production code.
+javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
+scalacOptions in Compile += "-target:jvm-" + "1.6"
+
+// Latest Java for test code.
+javacOptions in Test ++= Seq("-source", javaVersion, "-target", javaVersion)
+scalacOptions in Test += "-target:jvm-" + javaVersion

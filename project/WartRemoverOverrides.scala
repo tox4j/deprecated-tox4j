@@ -1,12 +1,10 @@
-package sbt.tox4j.lint
-
 import sbt.Keys._
 import sbt.{Compile, _}
-import sbt.tox4j.Tox4jBuildPlugin
+import sbt.tox4j.OptionalPlugin
 import wartremover.Wart
 import wartremover.WartRemover.autoImport._
 
-object WartRemoverOverrides extends Tox4jBuildPlugin {
+object WartRemoverOverrides extends OptionalPlugin {
 
   object Keys
 

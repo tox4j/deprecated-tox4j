@@ -12,6 +12,8 @@ LOCAL_CACHE="target/benchmarks"
 BASEDIR=$1
 SOURCEDIR=$2
 
+SBT="$SOURCEDIR/tools/sbt"
+
 mkdir -p "$BASEDIR/cache/global"
 mkdir -p "$BASEDIR/cache/local"
 mkdir -p "$BASEDIR/git"
@@ -102,12 +104,12 @@ for repo in sbt-tox4j linters; do
   cd "$BASEDIR/git"
   git clone --depth=1 https://github.com/tox4j/$repo
   cd $repo
-  $SOURCEDIR/tools/sbt publishLocal
+  make install SBT="$SBT"
 done
 
 # Install the required Java/Scala packages.
 cd $SOURCEDIR
-tools/sbt update
+$SBT update
 
 for dir in $GLOBAL_CACHE; do
   cache_dir="$BASEDIR/cache/global/$dir"
