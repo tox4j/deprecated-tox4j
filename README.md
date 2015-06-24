@@ -4,14 +4,27 @@
 
 # tox4j
 
-New and improved java wrapper for Tox.
+New and improved Java wrapper for Tox.
 
 ## Dependencies
 
 ### Java
 
 * sbt
-* protobuf-java (This is pulled in by sbt, to be the exact same version as protoc. protoc needs to be on $PATH for this to work correctly.)
+* com.google.protobuf : protobuf-java : 2.6.1
+* com.trueaccord.scalapb : scalapb-runtime
+* See [build.sbt](build.sbt) for more dependencies.
+
+Protobuf support libraries are pulled in by sbt, to be the exact same version as protoc. protoc needs to be on $PATH for this to work correctly.
+
+### Tox4j commons
+
+The tox4j build requires the following common packages to be installed:
+
+* [sbt-tox4j](https://github.com/tox4j/sbt-tox4j)
+* [linters](https://github.com/tox4j/linters)
+
+These can be downloaded from Github and installed using `sbt publishLocal`.
 
 ### Native code
 
