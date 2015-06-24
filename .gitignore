@@ -2,32 +2,24 @@
 /.web
 
 # SBT compiled build system.
-/project/project
-/project/target
+/projects/*/project/project
+/projects/*/project/target
 
 # SBT output directory.
-/target
+/projects/*/target
 
 # Generated startup scripts for main classes.
-/bin
-
-# Temporary output files for ScalaMeter.
-/tmp
-
-# IDEA output directory.
-/classes
-
-# Local build files for protobuf. Don't put these in git.
-/generated
+/projects/*/bin
 
 # Local user settings for SBT.
-/local.sbt
+/projects/*/local.sbt
 
 # IDEA meta files.
-/.idea
+.idea
 
-# VIM temporary files.
+# Temporary editor files.
 *.swp
+*~
 
 # Virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
