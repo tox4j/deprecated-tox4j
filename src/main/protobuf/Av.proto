@@ -9,21 +9,6 @@ message Call {
   required bool   videoEnabled     = 3;
 }
 
-message CallControl {
-  enum Kind {
-    RESUME        = 0;
-    PAUSE         = 1;
-    CANCEL        = 2;
-    MUTE_AUDIO    = 3;
-    UNMUTE_AUDIO  = 4;
-    HIDE_VIDEO    = 5;
-    SHOW_VIDEO    = 6;
-  }
-
-  required uint32  friendNumber     = 1;
-  required Kind    control          = 2;
-}
-
 message CallState {
   enum Kind {
     ERROR        = 0;
@@ -74,10 +59,9 @@ message VideoReceiveFrame {
 
 message AvEvents {
   repeated Call                   call                = 1;
-  repeated CallControl            callControl         = 2;
-  repeated CallState              callState           = 3;
-  repeated AudioBitRateStatus     audioBitRateStatus  = 4;
-  repeated VideoBitRateStatus     videoBitRateStatus  = 5;
-  repeated AudioReceiveFrame      audioReceiveFrame   = 6;
-  repeated VideoReceiveFrame      videoReceiveFrame   = 7;
+  repeated CallState              callState           = 2;
+  repeated AudioBitRateStatus     audioBitRateStatus  = 3;
+  repeated VideoBitRateStatus     videoBitRateStatus  = 4;
+  repeated AudioReceiveFrame      audioReceiveFrame   = 5;
+  repeated VideoReceiveFrame      videoReceiveFrame   = 6;
 }

@@ -19,18 +19,6 @@ private object ToxAvImpl {
 
   private val logger = Logger(LoggerFactory.getLogger(getClass))
 
-  private def convert(kind: CallControl.Kind): ToxCallControl = {
-    kind match {
-      case CallControl.Kind.RESUME       => ToxCallControl.RESUME
-      case CallControl.Kind.PAUSE        => ToxCallControl.PAUSE
-      case CallControl.Kind.CANCEL       => ToxCallControl.CANCEL
-      case CallControl.Kind.MUTE_AUDIO   => ToxCallControl.MUTE_AUDIO
-      case CallControl.Kind.UNMUTE_AUDIO => ToxCallControl.UNMUTE_AUDIO
-      case CallControl.Kind.HIDE_VIDEO   => ToxCallControl.HIDE_VIDEO
-      case CallControl.Kind.SHOW_VIDEO   => ToxCallControl.SHOW_VIDEO
-    }
-  }
-
   private def convert(kind: CallState.Kind): ToxCallState = {
     kind match {
       case CallState.Kind.ERROR       => ToxCallState.ERROR
@@ -57,7 +45,6 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
   private val onClose = tox.addOnCloseCallback(close)
 
   private var callCallback = CallCallback.IGNORE
-  private var callControlCallback = CallControlCallback.IGNORE
   private var callStateCallback = CallStateCallback.IGNORE
   private var audioBitRateStatusCallback = AudioBitRateStatusCallback.IGNORE
   private var videoBitRateStatusCallback = VideoBitRateStatusCallback.IGNORE
@@ -93,7 +80,6 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
       case None =>
       case Some(AvEvents(
         call,
-        callControl,
         callState,
         audioBitRateStatus,
         videoBitRateStatus,
@@ -105,13 +91,6 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
               friendNumber,
               audioEnabled,
               videoEnabled
-            ))
-        }
-        callControl.foreach {
-          case CallControl(friendNumber, control) =>
-            tryAndLog(callControlCallback)(_.callControl(
-              friendNumber,
-              convert(control)
             ))
         }
         callState.foreach {
@@ -197,7 +176,6 @@ final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
     ToxAvJni.toxavVideoSendFrame(instanceNumber, friendNumber, width, height, y, u, v, a)
 
   override def callbackCall(callback: CallCallback): Unit = this.callCallback = callback
-  override def callbackCallControl(callback: CallControlCallback): Unit = this.callControlCallback = callback
   override def callbackCallState(callback: CallStateCallback): Unit = this.callStateCallback = callback
   override def callbackVideoReceiveFrame(callback: VideoReceiveFrameCallback): Unit = this.videoReceiveFrameCallback = callback
   override def callbackAudioReceiveFrame(callback: AudioReceiveFrameCallback): Unit = this.audioReceiveFrameCallback = callback

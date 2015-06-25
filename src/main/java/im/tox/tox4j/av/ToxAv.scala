@@ -171,7 +171,6 @@ trait ToxAv extends Closeable {
   ): Unit
 
   def callbackCall(@NotNull callback: CallCallback): Unit
-  def callbackCallControl(@NotNull callback: CallControlCallback): Unit
   def callbackCallState(@NotNull callback: CallStateCallback): Unit
   def callbackAudioBitRateStatus(@NotNull callback: AudioBitRateStatusCallback): Unit
   def callbackVideoBitRateStatus(@NotNull callback: VideoBitRateStatusCallback): Unit
@@ -185,7 +184,6 @@ trait ToxAv extends Closeable {
    */
   def callback(@NotNull handler: ToxAvEventListener): Unit = {
     callbackCall(handler)
-    callbackCallControl(handler)
     callbackCallState(handler)
     callbackAudioBitRateStatus(handler)
     callbackVideoBitRateStatus(handler)

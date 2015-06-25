@@ -18,7 +18,6 @@ namespace tox
 
 #define CALLBACK(NAME)  using callback_##NAME = detail::cb<ToxAV, toxav_##NAME##_cb, toxav_callback_##NAME>
   CALLBACK (call);
-  CALLBACK (call_control);
   CALLBACK (call_state);
   CALLBACK (audio_bit_rate_status);
   CALLBACK (video_bit_rate_status);

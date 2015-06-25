@@ -18,32 +18,6 @@ tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video
 
 
 static void
-tox4j_call_control_cb (ToxAV *av, uint32_t friend_number, TOX_CALL_CONTROL control, Events &events)
-{
-  unused (av);
-  auto msg = events.add_callcontrol ();
-  msg->set_friendnumber (friend_number);
-
-  using proto::CallControl;
-  switch (control)
-    {
-#define call_control_case(CONTROL)              \
-    case TOXAV_CALL_CONTROL_##CONTROL:          \
-      msg->set_control (CallControl::CONTROL);  \
-      break
-    call_control_case (RESUME);
-    call_control_case (PAUSE);
-    call_control_case (CANCEL);
-    call_control_case (MUTE_AUDIO);
-    call_control_case (UNMUTE_AUDIO);
-    call_control_case (HIDE_VIDEO);
-    call_control_case (SHOW_VIDEO);
-#undef call_control_case
-    }
-}
-
-
-static void
 tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &events)
 {
   unused (av);
@@ -166,7 +140,6 @@ TOX_METHOD (jint, New,
               // Create the master events object and set up our callbacks.
               auto events = tox::callbacks<ToxAV> (std::unique_ptr<Events> (new Events))
                 .set<tox::callback_call                 , tox4j_call_cb                 > ()
-                .set<tox::callback_call_control         , tox4j_call_control_cb         > ()
                 .set<tox::callback_call_state           , tox4j_call_state_cb           > ()
                 .set<tox::callback_audio_bit_rate_status, tox4j_audio_bit_rate_status_cb> ()
                 .set<tox::callback_video_bit_rate_status, tox4j_video_bit_rate_status_cb> ()
