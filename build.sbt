@@ -10,7 +10,6 @@ scalaSource in Test    := (javaSource in Test   ).value
 
 // Snapshot and linter repository.
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
 
 // Build dependencies.
 libraryDependencies ++= Seq(
@@ -51,10 +50,6 @@ jniSourceFiles in Compile ++= Seq(
 
 // TODO(iphydf): Require less test coverage for now, until ToxAv is tested.
 ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 78
-
-// Add Scala linter.
-addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1.9")
-scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssignedUnusedValue"
 
 // Tox4j-specific style checkers.
 addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")

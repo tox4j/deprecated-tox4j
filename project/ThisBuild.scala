@@ -15,6 +15,7 @@ object ThisBuild extends sbt.Build {
     // Lint plugins.
     Checkstyle,
     Findbugs,
+    Foursquare,
     Scalastyle,
     WartRemover,
     Xlint,
