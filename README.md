@@ -24,7 +24,9 @@ The tox4j build requires the following common packages to be installed:
 * [sbt-tox4j](https://github.com/tox4j/sbt-tox4j)
 * [linters](https://github.com/tox4j/linters)
 
-These can be downloaded from Github and installed using `sbt publishLocal`.
+These can be downloaded from Github and installed using `make install`. This
+will call `sbt publishLocal` on `sbt-tox4j/basic`, `sbt-tox4j/full`, and
+`linters`.
 
 ### Native code
 
