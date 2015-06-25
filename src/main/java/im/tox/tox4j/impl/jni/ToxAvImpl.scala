@@ -4,7 +4,7 @@ import java.util
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
-import im.tox.tox4j.annotations.Nullable
+import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.av.callbacks._
 import im.tox.tox4j.av.enums.{ ToxCallControl, ToxCallState }
 import im.tox.tox4j.av.exceptions._
@@ -38,7 +38,7 @@ private object ToxAvImpl {
  * @param tox An instance of the C-backed ToxCore implementation.
  */
 @throws[ToxAvNewException]("If there was already an A/V session.")
-final class ToxAvImpl(private val tox: ToxCoreImpl) extends AbstractToxAv {
+final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractToxAv {
 
   private val instanceNumber = ToxAvJni.toxavNew(tox.instanceNumber)
 

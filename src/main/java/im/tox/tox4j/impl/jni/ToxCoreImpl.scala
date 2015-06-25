@@ -93,7 +93,7 @@ private object ToxCoreImpl {
  * @param options Connection options object with optional save-data.
  */
 @throws[ToxNewException]("If an error was detected in the configuration or a runtime error occurred.")
-final class ToxCoreImpl(options: ToxOptions) extends AbstractToxCore {
+final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
 
   private val onCloseCallbacks = new Event
 
