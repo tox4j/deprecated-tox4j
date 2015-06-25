@@ -21,6 +21,6 @@ object ThisBuild extends sbt.Build {
 
     // Local overrides for linters.
     WartRemoverOverrides
-  ).configs(ProtobufJni.Protobuf)
+  )
 
 }
