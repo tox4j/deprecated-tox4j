@@ -1,5 +1,5 @@
 import sbt.Keys._
-import sbt.{Compile, _}
+import sbt._
 import sbt.tox4j.OptionalPlugin
 import wartremover.Wart
 import wartremover.WartRemover.autoImport._

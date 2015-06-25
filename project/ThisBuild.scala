@@ -10,7 +10,7 @@ object ThisBuild extends sbt.Build {
     Benchmarking,
     Jni,
     MakeScripts,
-    ProtobufPlugin,
+    ProtobufJni,
 
     // Lint plugins.
     Checkstyle,
@@ -21,6 +21,6 @@ object ThisBuild extends sbt.Build {
 
     // Local overrides for linters.
     WartRemoverOverrides
-  ).configs(ProtobufPlugin.Protobuf)
+  ).configs(ProtobufJni.Protobuf)
 
 }
