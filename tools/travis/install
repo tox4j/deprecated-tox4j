@@ -13,6 +13,7 @@ BASEDIR=$1
 SOURCEDIR=$2
 
 SBT="$SOURCEDIR/tools/sbt"
+GH_USER=`git config --get remote.origin.url | grep -Po '(\w+)(?=/tox4j)'`
 
 mkdir -p "$BASEDIR/cache/global"
 mkdir -p "$BASEDIR/cache/local"
@@ -102,7 +103,7 @@ esac
 # Install tox4j organisation dependencies.
 for repo in sbt-tox4j linters; do
   cd "$BASEDIR/git"
-  git clone --depth=1 https://github.com/tox4j/$repo
+  git clone --depth=1 https://github.com/$GH_USER/$repo
   cd $repo
   make install SBT="$SBT"
 done
