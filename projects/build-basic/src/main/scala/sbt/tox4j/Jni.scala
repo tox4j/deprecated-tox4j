@@ -6,6 +6,7 @@ import org.apache.commons.io.FilenameUtils
 
 import sbt.Keys._
 import sbt._
+import sbt.tox4j.logic.CMakeGenerator
 import sbt.tox4j.util.NativeFinder
 
 import scala.language.postfixOps
@@ -103,10 +104,8 @@ object Jni extends OptionalPlugin {
    */
   private val cppExtensions = Seq(".cpp", ".cc", ".cxx", ".c")
 
-  private def filterNativeSources(files: Seq[File]) = {
-    files.filter { file =>
-      file.isFile && cppExtensions.exists(file.getName.toLowerCase.endsWith)
-    }
+  private def isNativeSource(file: File): Boolean = {
+    file.isFile && cppExtensions.exists(file.getName.toLowerCase.endsWith)
   }
 
   private val jdkHome = {
@@ -413,8 +412,8 @@ object Jni extends OptionalPlugin {
     // Error on undefined references in shared object.
     ldFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
 
-    jniSourceFiles in Compile := filterNativeSources(((nativeSource in Compile).value ** "*").get),
-    jniSourceFiles in Test := filterNativeSources(((nativeSource in Test).value ** "*").get),
+    jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(isNativeSource).get,
+    jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(isNativeSource).get,
 
     cleanFiles ++= Seq(
       binPath.value,
@@ -454,46 +453,26 @@ object Jni extends OptionalPlugin {
         .value,
 
       cmakeDependenciesFile := {
-        val fileName = nativeTarget.value / "Dependencies.cmake"
-        val out = new PrintWriter(fileName)
-        try {
-          for (dir <- includes.value)
-            out.println(s"include_directories($dir)")
+        val action = CMakeGenerator.dependenciesFile(
+          includes.value,
+          packageDependencies.value,
+          (nativeSource in Compile).value,
+          nativeTarget.value,
+          managedNativeSource.value
+        )
 
-          if (packageDependencies.value.nonEmpty) {
-            out.println("find_package(PkgConfig REQUIRED)")
-          }
-          packageDependencies.value foreach { pkg =>
-            val PKG = pkg.toUpperCase.replace('-', '_')
-            out.println(s"pkg_check_modules($PKG REQUIRED $pkg)")
-            out.println(s"include_directories($${${PKG}_INCLUDE_DIRS})")
-            out.println(s"link_directories($${${PKG}_LIBRARY_DIRS})")
-            out.println(s"link_libraries($${${PKG}_LIBRARIES})")
-          }
-
-          Seq((nativeSource in Compile).value, nativeTarget.value, managedNativeSource.value) foreach { dir =>
-            out.println(s"include_directories($dir)")
-          }
-        } finally {
-          out.close()
-        }
-
-        fileName
+        action()
       },
 
       cmakeMainFile := {
-        val fileName = nativeTarget.value / "Main.cmake"
-        val out = new PrintWriter(fileName)
-        try {
-          val mainSources = (jniSourceFiles in Compile).value
+        val action = CMakeGenerator.mainFile(
+          binPath.value,
+          libraryName.value,
+          nativeTarget.value,
+          (jniSourceFiles in Compile).value
+        )
 
-          out.println(s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${binPath.value})")
-          out.println(s"add_library(${libraryName.value} SHARED ${mainSources.mkString(" ")})")
-        } finally {
-          out.close()
-        }
-
-        fileName
+        action()
       },
 
       gtestPath := {

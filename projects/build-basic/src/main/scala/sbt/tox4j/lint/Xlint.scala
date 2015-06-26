@@ -1,6 +1,6 @@
 package sbt.tox4j.lint
 
-import sbt.{PluginTrigger, AutoPlugin}
+import sbt.{ PluginTrigger, AutoPlugin }
 import sbt.Keys._
 
 object Xlint extends AutoPlugin {

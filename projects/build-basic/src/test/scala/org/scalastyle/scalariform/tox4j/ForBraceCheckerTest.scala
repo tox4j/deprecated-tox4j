@@ -1,5 +1,7 @@
 package org.scalastyle.scalariform.tox4j
 
+import org.scalastyle.scalariform.CheckerTest
+
 // scalastyle:off magic.number
 final class ForBraceCheckerTest extends CheckerTest(new ForBraceChecker) {
 

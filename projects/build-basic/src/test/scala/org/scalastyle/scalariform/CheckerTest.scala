@@ -1,4 +1,4 @@
-package org.scalastyle.scalariform.tox4j
+package org.scalastyle.scalariform
 
 import org.scalastyle._
 import org.scalatest.FlatSpec
