@@ -9,7 +9,7 @@ import sbt.tox4j.lint._
 
 // Build plugins.
 Assembly.moduleSettings
-Benchmarking.moduleSettings
+Benchmarking.projectSettings
 Jni.moduleSettings
 ProtobufJni.moduleSettings
 

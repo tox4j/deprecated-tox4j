@@ -27,4 +27,5 @@ final class ForBraceChecker extends AstChecker("for.brace") {
   private def getLine(t: Token, lines: Lines): Int = {
     lines.toLineColumn(t.offset).map(_.line).getOrElse(0)
   }
+
 }

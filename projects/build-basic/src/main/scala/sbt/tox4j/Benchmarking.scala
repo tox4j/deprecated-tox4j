@@ -7,7 +7,9 @@ import sbt.Keys._
 import sbt._
 
 // scalastyle:off
-object Benchmarking extends OptionalPlugin {
+object Benchmarking extends AutoPlugin {
+
+  override def trigger: PluginTrigger = allRequirements
 
   val Benchmark = config("benchmark")
 
@@ -21,7 +23,7 @@ object Benchmarking extends OptionalPlugin {
 
   import Keys._
 
-  override val moduleSettings = inConfig(Benchmark)(Seq(
+  override val projectSettings = inConfig(Benchmark)(Seq(
     machine := "travis",
 
     execute := (testOnly in Test).toTask(" *Bench").value,

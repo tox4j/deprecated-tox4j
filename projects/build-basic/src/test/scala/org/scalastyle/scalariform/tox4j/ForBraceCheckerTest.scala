@@ -5,7 +5,7 @@ import org.scalastyle.scalariform.CheckerTest
 // scalastyle:off magic.number
 final class ForBraceCheckerTest extends CheckerTest(new ForBraceChecker) {
 
-  "for.brace" should "flag braces on the same line" in {
+  key should "flag braces on the same line" in {
     val source = """
 class Foo {
   for { t <- List(1,2,3) } yield t
