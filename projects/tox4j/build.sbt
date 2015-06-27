@@ -83,14 +83,3 @@ addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")
 // Override Scalastyle configuration for test.
 scalastyleConfigUrl in Test := None
 scalastyleConfig in Test := (scalaSource in Test).value / "scalastyle-config.xml"
-
-// Current VM version.
-val javaVersion = sys.props("java.specification.version")
-
-// Java 1.6 for production code.
-javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
-scalacOptions in Compile += "-target:jvm-" + "1.6"
-
-// Latest Java for test code.
-javacOptions in Test ++= Seq("-source", javaVersion, "-target", javaVersion)
-scalacOptions in Test += "-target:jvm-" + javaVersion
