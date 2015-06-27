@@ -45,7 +45,7 @@ trait ToxAv extends Closeable {
    * notifying peers. After calling this function, no other functions may be
    * called and the av pointer becomes invalid.
    */
-  def close(): Unit
+  override def close(): Unit
 
   /**
    * Returns the interval in milliseconds when the next [[iterate]] call should be.
@@ -190,4 +190,5 @@ trait ToxAv extends Closeable {
     callbackAudioReceiveFrame(handler)
     callbackVideoReceiveFrame(handler)
   }
+
 }

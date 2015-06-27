@@ -61,7 +61,7 @@ trait ToxCore extends Closeable {
    * [[im.tox.tox4j.exceptions.ToxKilledException]]. A closed instance cannot be reused; a new instance must be
    * created.
    */
-  def close(): Unit
+  override def close(): Unit
 
   /**
    * Bootstrap into the tox network.

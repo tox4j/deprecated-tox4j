@@ -76,6 +76,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
     super.finalize()
   }
 
+  @SuppressWarnings(Array("im.tox.tox4j.lint.OptionOrNull"))
   // scalastyle:ignore method.length
   override def iterate(): Unit = {
     Option(ToxAvJni.toxavIterate(instanceNumber)).map(AvEvents.parseFrom) match {

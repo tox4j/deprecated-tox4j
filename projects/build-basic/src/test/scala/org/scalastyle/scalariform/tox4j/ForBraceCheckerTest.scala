@@ -2,51 +2,38 @@ package org.scalastyle.scalariform.tox4j
 
 import org.scalastyle.scalariform.CheckerTest
 
-// scalastyle:off magic.number
 final class ForBraceCheckerTest extends CheckerTest(new ForBraceChecker) {
 
-  key should "flag braces on the same line" in {
-    val source = """
+  test("flag braces on the same line") {
+    assertErrors(1, """
 class Foo {
-  for { t <- List(1,2,3) } yield t
-}
-                 """
-
-    assertErrors(List(columnError(3, 6)), source)
+  for !!{ t <- List(1,2,3) } yield t
+}""")
   }
 
-  it should "not flag parentheses on the same line" in {
-    val source = """
+  test("do not flag parentheses on the same line") {
+    assertErrors(0, """
 class Foo {
   for (t <- List(1,2,3)) yield t
-}
-                 """
-
-    assertErrors(Nil, source)
+}""")
   }
 
-  it should "flag parentheses on a separate line" in {
-    val source = """
+  test("flag parentheses on a separate line") {
+    assertErrors(1, """
 class Foo {
-  for (
+  for !!(
     t <- List(1,2,3)
   ) yield t
-}
-                 """
-
-    assertErrors(List(columnError(3, 6)), source)
+}""")
   }
 
-  it should "not flag braces on a separate line" in {
-    val source = """
+  test("do not flag braces on a separate line") {
+    assertErrors(0, """
 class Foo {
   for {
     t <- List(1,2,3)
   } yield t
-}
-                 """
-
-    assertErrors(Nil, source)
+}""")
   }
 
 }

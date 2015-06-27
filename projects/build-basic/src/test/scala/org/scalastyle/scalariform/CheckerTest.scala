@@ -1,10 +1,10 @@
 package org.scalastyle.scalariform
 
 import org.scalastyle._
-import org.scalatest.FlatSpec
+import org.scalatest.FunSuite
 
 // scalastyle:ignore structural.type
-abstract class CheckerTest(checker: Checker[_] { val errorKey: String }) extends FlatSpec {
+abstract class CheckerTest(checker: Checker[_] { val errorKey: String }) extends FunSuite {
   protected def key = checker.errorKey
   private def classUnderTest: Class[_ <: Checker[_]] = checker.getClass
 

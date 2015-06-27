@@ -13,9 +13,6 @@ object WartRemoverOverrides extends OptionalPlugin {
   }
 
   override val moduleSettings = Seq(
-    wartremoverErrors in (Compile, compile) ++= Seq(
-      custom("OptionsClasses")
-    ),
     wartremoverExcluded := {
       val proto = (sourceManaged in Compile).value / "compiled_protobuf" / "im" / "tox" / "tox4j"
 
