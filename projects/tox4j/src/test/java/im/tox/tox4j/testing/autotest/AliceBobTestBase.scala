@@ -3,19 +3,20 @@ package im.tox.tox4j.testing.autotest
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.testing.ToxTestMixin
-import org.scalatest.FlatSpec
+import org.scalatest.FunSuite
 import org.slf4j.LoggerFactory
+
+import scala.annotation.tailrec
 
 object AliceBobTestBase {
   val FRIEND_NUMBER = 10
 }
 
-abstract class AliceBobTestBase extends FlatSpec with ToxTestMixin {
+abstract class AliceBobTestBase extends FunSuite with ToxTestMixin {
 
   protected val logger = Logger(LoggerFactory.getLogger(classOf[AliceBobTestBase]))
 
   protected def newAlice(name: String, expectedFriendName: String): ChatClient
-  protected def newBob(name: String, expectedFriendName: String): ChatClient = newAlice(name, expectedFriendName)
 
   private def getTopLevelMethod(stackTrace: Array[StackTraceElement]): String = {
     stackTrace
@@ -24,12 +25,25 @@ abstract class AliceBobTestBase extends FlatSpec with ToxTestMixin {
       .fold("<unknown>")(_.getMethodName)
   }
 
+  @tailrec
+  private def mainLoop(clients: Seq[(ToxCore, ChatClient)]): Unit = {
+    clients.foreach { case (tox, client) => tox.iterate() }
+    clients.foreach { case (tox, client) => client.performTasks(tox) }
+
+    val interval = clients.map { case (tox, client) => tox.iterationInterval }.max
+    Thread.sleep(interval)
+
+    if (clients.exists { case (tox, client) => client.isChatting }) {
+      mainLoop(clients)
+    }
+  }
+
   protected def runAliceBobTest(withTox: => (ToxCore => Unit) => Unit): Unit = {
     val method = getTopLevelMethod(Thread.currentThread.getStackTrace)
     logger.info(s"[${Thread.currentThread.getId}] --- ${getClass.getSimpleName}.$method")
 
     val aliceChat = newAlice("Alice", "Bob")
-    val bobChat = newBob("Bob", "Alice")
+    val bobChat = newAlice("Bob", "Alice")
 
     withTox { alice =>
       withTox { bob =>
@@ -50,16 +64,10 @@ abstract class AliceBobTestBase extends FlatSpec with ToxTestMixin {
         aliceChat.setup(alice)
         bobChat.setup(bob)
 
-        while (aliceChat.isChatting || bobChat.isChatting) {
-          alice.iterate()
-          bob.iterate()
-
-          aliceChat.performTasks(alice)
-          bobChat.performTasks(bob)
-
-          val interval = Math.max(alice.iterationInterval, bob.iterationInterval)
-          Thread.sleep(interval)
-        }
+        mainLoop(Seq(
+          (alice, aliceChat),
+          (bob, bobChat)
+        ))
 
         aliceChat.exit()
         bobChat.exit()

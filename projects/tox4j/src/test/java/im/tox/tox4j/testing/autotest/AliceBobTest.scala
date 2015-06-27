@@ -47,7 +47,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     }
   }
 
-  getClass.getSimpleName should "run with UDP4" in {
+  test("UDP4") {
     assume(enableUdp)
     assume(enableIpv4)
     try {
@@ -58,7 +58,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     }
   }
 
-  it should "run with UDP6" in {
+  test("UDP6") {
     assume(enableUdp)
     assume(enableIpv6)
     failAfter(TIMEOUT millis) {
@@ -66,7 +66,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     }
   }
 
-  it should "run with TCP4" in {
+  test("TCP4") {
     assume(enableTcp)
     assume(enableIpv4)
     assume(ToxCoreTestBase.checkIPv4.isEmpty)
@@ -75,7 +75,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     }
   }
 
-  it should "run with TCP6" in {
+  test("TCP6") {
     assume(enableTcp)
     assume(enableIpv6)
     assume(ToxCoreTestBase.checkIPv6.isEmpty)
@@ -84,7 +84,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     }
   }
 
-  it should "run with UDP4+SOCKS5" in {
+  test("UDP4+SOCKS5") {
     assume(enableUdp)
     assume(enableIpv4)
     assume(enableSocks)
@@ -92,7 +92,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = true)
   }
 
-  it should "run with UDP6+SOCKS5" in {
+  test("UDP6+SOCKS5") {
     assume(enableUdp)
     assume(enableIpv6)
     assume(enableSocks)
@@ -100,7 +100,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     runAliceBobTest_Socks(ipv6Enabled = true, udpEnabled = true)
   }
 
-  it should "run with TCP4+SOCKS5" in {
+  test("TCP4+SOCKS5") {
     assume(enableTcp)
     assume(enableIpv4)
     assume(enableSocks)
@@ -108,7 +108,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     runAliceBobTest_Socks(ipv6Enabled = false, udpEnabled = false)
   }
 
-  it should "run with TCP6+SOCKS5" in {
+  test("TCP6+SOCKS5") {
     assume(enableTcp)
     assume(enableIpv6)
     assume(enableSocks)

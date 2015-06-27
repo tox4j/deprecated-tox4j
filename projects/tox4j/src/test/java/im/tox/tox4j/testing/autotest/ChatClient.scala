@@ -3,15 +3,24 @@ package im.tox.tox4j.testing.autotest
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventAdapter
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
+import im.tox.tox4j.core.{ToxCore, ToxCoreConstants}
 import im.tox.tox4j.exceptions.ToxException
 import org.slf4j.LoggerFactory
-
-import scala.collection.mutable.ArrayBuffer
 
 class ChatClient(val selfName: String, val expectedFriendName: String) extends ToxEventAdapter {
 
   val logger = Logger(LoggerFactory.getLogger(getOuterClass(getClass)))
+
+  private case class State(
+    tasks: Seq[(ToxCore => Any, Array[StackTraceElement])] = Nil,
+    done: Boolean = false,
+    chatting: Boolean = true
+  ) {
+    def addTask(task: ToxCore => Any): State = {
+      val creationTrace = Thread.currentThread.getStackTrace
+      copy((task, creationTrace.slice(2, creationTrace.length)) +: tasks)
+    }
+  }
 
   private def getOuterClass(clazz: Class[_]): Class[_] = {
     Option(clazz.getEnclosingClass) match {
@@ -20,18 +29,14 @@ class ChatClient(val selfName: String, val expectedFriendName: String) extends T
     }
   }
 
-  private val tasks = new ArrayBuffer[(ToxCore => Any, Array[StackTraceElement])]
+  private var state = State() // scalastyle:ignore var.field
 
   protected def addTask(task: ToxCore => Any): Unit = {
-    val creationTrace = Thread.currentThread.getStackTrace.tail
-    tasks += ((task, creationTrace))
+    state = state.addTask(task)
   }
 
-  private var isDone: Boolean = false
-  private var chatting: Boolean = true
-
-  def isChatting: Boolean = chatting
-  def finish(): Unit = chatting = false
+  def isChatting: Boolean = state.chatting
+  def finish(): Unit = state = state.copy(chatting = false)
 
   var expectedFriendAddress: Array[Byte] = null
   def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PUBLIC_KEY_SIZE)
@@ -39,9 +44,9 @@ class ChatClient(val selfName: String, val expectedFriendName: String) extends T
   protected def isAlice = selfName == "Alice"
   protected def isBob = selfName == "Bob"
 
-  def isRunning: Boolean = !isDone
+  def isRunning: Boolean = !state.done
 
-  def exit(): Unit = this.isDone = true
+  def exit(): Unit = state = state.copy(done = true)
 
   def setup(tox: ToxCore): Unit = {}
 
@@ -77,9 +82,9 @@ class ChatClient(val selfName: String, val expectedFriendName: String) extends T
   }
 
   def performTasks(tox: ToxCore): Unit = {
-    val iterationTasks = tasks.clone()
-    tasks.clear()
-    for (task <- iterationTasks) {
+    val state = this.state
+    this.state = state.copy(tasks = Nil)
+    for (task <- state.tasks) {
       try {
         task._1.apply(tox)
       } catch {
