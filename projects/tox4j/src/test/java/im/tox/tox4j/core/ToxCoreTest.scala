@@ -1,10 +1,10 @@
 package im.tox.tox4j.core
 
 import im.tox.tox4j.core.ToxCoreFactory.withTox
-import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
+import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.impl.jni.ToxCoreImpl
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.FlatSpec
 import org.scalatest.prop.PropertyChecks
 
@@ -32,7 +32,7 @@ final class ToxCoreTest extends FlatSpec with PropertyChecks {
 
   "iterate" should "not be stopped by exceptions" in {
     withTox { tox =>
-      tox.callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+      tox.callback(new ToxEventListener {
         override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
           throw new RuntimeException("oi")
         }
@@ -44,7 +44,7 @@ final class ToxCoreTest extends FlatSpec with PropertyChecks {
 
   it should "be stopped by fatal VM errors" in {
     withTox { tox =>
-      tox.callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+      tox.callback(new ToxEventListener {
         override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
           throw new StackOverflowError
         }

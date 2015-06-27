@@ -4,14 +4,14 @@ import java.util
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
-import im.tox.tox4j.annotations.{ NotNull, Nullable }
+import im.tox.tox4j.annotations.{NotNull, Nullable}
+import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.{ ToxCallControl, ToxCallState }
+import im.tox.tox4j.av.enums.{ToxCallControl, ToxCallState}
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
-import im.tox.tox4j.av.{ AbstractToxAv, ToxAv }
 import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.impl.jni.ToxAvImpl.{ convert, logger }
+import im.tox.tox4j.impl.jni.ToxAvImpl.{convert, logger}
 import org.slf4j.LoggerFactory
 
 private object ToxAvImpl {
@@ -36,20 +36,15 @@ private object ToxAvImpl {
  *
  * @param tox An instance of the C-backed ToxCore implementation.
  */
-// scalastyle:off var.field no.finalize
+// scalastyle:off no.finalize
 @throws[ToxAvNewException]("If there was already an A/V session.")
-final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractToxAv {
+final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends ToxAv {
 
   private val instanceNumber = ToxAvJni.toxavNew(tox.instanceNumber)
 
   private val onClose = tox.addOnCloseCallback(close)
 
-  private var callCallback = CallCallback.IGNORE
-  private var callStateCallback = CallStateCallback.IGNORE
-  private var audioBitRateStatusCallback = AudioBitRateStatusCallback.IGNORE
-  private var videoBitRateStatusCallback = VideoBitRateStatusCallback.IGNORE
-  private var audioReceiveFrameCallback = AudioReceiveFrameCallback.IGNORE
-  private var videoReceiveFrameCallback = VideoReceiveFrameCallback.IGNORE
+  private var eventListener: ToxAvEventListener = new ToxAvEventAdapter // scalastyle:ignore var.field
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   override def create(tox: ToxCore): ToxAv = {
@@ -79,7 +74,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   private def dispatchCall(call: Seq[Call]): Unit = {
     call.foreach {
       case Call(friendNumber, audioEnabled, videoEnabled) =>
-        tryAndLog(callCallback)(_.call(
+        tryAndLog(eventListener)(_.call(
           friendNumber,
           audioEnabled,
           videoEnabled
@@ -90,7 +85,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   private def dispatchCallState(callState: Seq[CallState]): Unit = {
     callState.foreach {
       case CallState(friendNumber, state) =>
-        tryAndLog(callStateCallback)(_.callState(
+        tryAndLog(eventListener)(_.callState(
           friendNumber,
           util.Arrays.asList(state.map(convert): _*)
         ))
@@ -100,7 +95,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   private def dispatchAudioBitRateStatus(audioBitRateStatus: Seq[AudioBitRateStatus]): Unit = {
     audioBitRateStatus.foreach {
       case AudioBitRateStatus(friendNumber, stable, bitRate) =>
-        tryAndLog(audioBitRateStatusCallback)(_.audioBitRateStatus(
+        tryAndLog(eventListener)(_.audioBitRateStatus(
           friendNumber,
           stable,
           bitRate
@@ -111,7 +106,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   private def dispatchVideoBitRateStatus(videoBitRateStatus: Seq[VideoBitRateStatus]): Unit = {
     videoBitRateStatus.foreach {
       case VideoBitRateStatus(friendNumber, stable, bitRate) =>
-        tryAndLog(videoBitRateStatusCallback)(_.videoBitRateStatus(
+        tryAndLog(eventListener)(_.videoBitRateStatus(
           friendNumber,
           stable,
           bitRate
@@ -122,7 +117,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   private def dispatchAudioReceiveFrame(audioReceiveFrame: Seq[AudioReceiveFrame]): Unit = {
     audioReceiveFrame.foreach {
       case AudioReceiveFrame(friendNumber, pcm, channels, samplingRate) =>
-        tryAndLog(audioReceiveFrameCallback)(_.receiveAudioFrame(
+        tryAndLog(eventListener)(_.receiveAudioFrame(
           friendNumber,
           pcm.map(_.toShort).toArray,
           channels,
@@ -135,7 +130,7 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   private def dispatchVideoReceiveFrame(videoReceiveFrame: Seq[VideoReceiveFrame]): Unit = {
     videoReceiveFrame.foreach {
       case VideoReceiveFrame(friendNumber, width, height, y, u, v, a, yStride, uStride, vStride, aStride) =>
-        tryAndLog(videoReceiveFrameCallback)(_.receiveVideoFrame(
+        tryAndLog(eventListener)(_.receiveVideoFrame(
           friendNumber,
           width,
           height,
@@ -197,11 +192,8 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
   override def videoSendFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], @Nullable a: Array[Byte]): Unit =
     ToxAvJni.toxavVideoSendFrame(instanceNumber, friendNumber, width, height, y, u, v, a)
 
-  override def callbackCall(callback: CallCallback): Unit = this.callCallback = callback
-  override def callbackCallState(callback: CallStateCallback): Unit = this.callStateCallback = callback
-  override def callbackVideoReceiveFrame(callback: VideoReceiveFrameCallback): Unit = this.videoReceiveFrameCallback = callback
-  override def callbackAudioReceiveFrame(callback: AudioReceiveFrameCallback): Unit = this.audioReceiveFrameCallback = callback
-  override def callbackAudioBitRateStatus(callback: AudioBitRateStatusCallback): Unit = this.audioBitRateStatusCallback = callback
-  override def callbackVideoBitRateStatus(callback: VideoBitRateStatusCallback): Unit = this.videoBitRateStatusCallback = callback
+  override def callback(handler: ToxAvEventListener): Unit = {
+    this.eventListener = handler
+  }
 
 }

@@ -1,18 +1,18 @@
 
 package im.tox.tox4j
 
-import java.io.{ Closeable, IOException }
-import java.net.{ InetAddress, Socket }
+import java.io.{Closeable, IOException}
+import java.net.{InetAddress, Socket}
 import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
+import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
+import im.tox.tox4j.core.options.{ProxyOptions, SaveDataOptions, ToxOptions}
+import im.tox.tox4j.core.{ToxCore, ToxCoreFactory}
 import im.tox.tox4j.testing.ToxTestMixin
-import org.junit.{ After, Assume }
+import org.junit.{After, Assume}
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
@@ -47,7 +47,7 @@ object ToxCoreTestBase {
       connected(i) = ToxConnection.NONE
 
       toxes(i) = factory.newTox()
-      toxes(i).callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+      toxes(i).callback(new ToxEventListener {
         override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
           connected(i) = connectionStatus
         }

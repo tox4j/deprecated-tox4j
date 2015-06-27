@@ -506,43 +506,11 @@ trait ToxCore extends Closeable {
   @throws[ToxFriendCustomPacketException]
   def sendLosslessPacket(friendNumber: Int, @NotNull data: Array[Byte]): Unit
 
-  def callbackFriendName(@NotNull callback: FriendNameCallback): Unit
-  def callbackFriendStatusMessage(@NotNull callback: FriendStatusMessageCallback): Unit
-  def callbackFriendStatus(@NotNull callback: FriendStatusCallback): Unit
-  def callbackFriendConnectionStatus(@NotNull callback: FriendConnectionStatusCallback): Unit
-  def callbackFriendTyping(@NotNull callback: FriendTypingCallback): Unit
-  def callbackFriendReadReceipt(@NotNull callback: FriendReadReceiptCallback): Unit
-  def callbackFriendRequest(@NotNull callback: FriendRequestCallback): Unit
-  def callbackFriendMessage(@NotNull callback: FriendMessageCallback): Unit
-  def callbackFileRecvControl(@NotNull callback: FileRecvControlCallback): Unit
-  def callbackFileChunkRequest(@NotNull callback: FileChunkRequestCallback): Unit
-  def callbackFileRecv(@NotNull callback: FileRecvCallback): Unit
-  def callbackFileRecvChunk(@NotNull callback: FileRecvChunkCallback): Unit
-  def callbackFriendLossyPacket(@NotNull callback: FriendLossyPacketCallback): Unit
-  def callbackFriendLosslessPacket(@NotNull callback: FriendLosslessPacketCallback): Unit
-  def callbackSelfConnectionStatus(@NotNull callback: SelfConnectionStatusCallback): Unit
-
   /**
-   * Convenience method to set all event handlers at once.
+   * Register the core event handler.
    *
    * @param handler An event handler capable of handling all Tox events.
    */
-  def callback(@NotNull handler: ToxEventListener): Unit = {
-    callbackSelfConnectionStatus(handler)
-    callbackFileRecvControl(handler)
-    callbackFileRecv(handler)
-    callbackFileRecvChunk(handler)
-    callbackFileChunkRequest(handler)
-    callbackFriendConnectionStatus(handler)
-    callbackFriendMessage(handler)
-    callbackFriendName(handler)
-    callbackFriendRequest(handler)
-    callbackFriendStatus(handler)
-    callbackFriendStatusMessage(handler)
-    callbackFriendTyping(handler)
-    callbackFriendLosslessPacket(handler)
-    callbackFriendLossyPacket(handler)
-    callbackFriendReadReceipt(handler)
-  }
+  def callback(@NotNull handler: ToxEventListener): Unit
 
 }

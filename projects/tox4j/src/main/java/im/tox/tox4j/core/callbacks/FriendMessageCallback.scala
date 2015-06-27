@@ -1,18 +1,12 @@
-package im.tox.tox4j.core.callbacks;
+package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.core.enums.ToxMessageType;
+import im.tox.tox4j.annotations.NotNull
+import im.tox.tox4j.core.enums.ToxMessageType
 
 /**
  * This event is triggered when a message from a friend is received.
  */
-public interface FriendMessageCallback {
-  FriendMessageCallback IGNORE = new FriendMessageCallback() {
-    @Override
-    public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) {
-    }
-  };
-
+trait FriendMessageCallback {
   /**
    * @param friendNumber The friend number of the friend who sent the message.
    * @param type Message type (normal, action, ...).
@@ -23,5 +17,5 @@ public interface FriendMessageCallback {
    *                  approximation of when it was composed.
    * @param message The message data they sent.
    */
-  void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message);
+  def friendMessage(friendNumber: Int, @NotNull `type`: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit = ()
 }

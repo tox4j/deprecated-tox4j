@@ -41,7 +41,7 @@ object DhtNodeSelector {
 
     try {
       val status = new ConnectedListener
-      tox.callbackSelfConnectionStatus(status)
+      tox.callback(status)
       if (!udpEnabled) {
         tox.addTcpRelay(node.ipv4, port, node.dhtId)
       }

@@ -1,6 +1,6 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
+import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.ToxConnection
 
 final class ToxList(newTox: () => ToxCore, count: Int) {
@@ -9,7 +9,7 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
 
   private val toxes = (0 until count) map { i =>
     val instance = Instance(newTox(), ToxConnection.NONE)
-    instance.tox.callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
+    instance.tox.callback(new ToxEventListener {
       override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
         instance.connected = connectionStatus
       }

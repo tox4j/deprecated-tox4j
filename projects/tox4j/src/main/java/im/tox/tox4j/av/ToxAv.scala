@@ -170,25 +170,11 @@ trait ToxAv extends Closeable {
     @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]
   ): Unit
 
-  def callbackCall(@NotNull callback: CallCallback): Unit
-  def callbackCallState(@NotNull callback: CallStateCallback): Unit
-  def callbackAudioBitRateStatus(@NotNull callback: AudioBitRateStatusCallback): Unit
-  def callbackVideoBitRateStatus(@NotNull callback: VideoBitRateStatusCallback): Unit
-  def callbackAudioReceiveFrame(@NotNull callback: AudioReceiveFrameCallback): Unit
-  def callbackVideoReceiveFrame(@NotNull callback: VideoReceiveFrameCallback): Unit
-
   /**
-   * Convenience method to set all event handlers at once.
+   * Set the A/V event handler.
    *
-   * @param handler An event handler capable of handling all Tox AV events.
+   * @param handler An event handler capable of handling all Tox A/V events.
    */
-  def callback(@NotNull handler: ToxAvEventListener): Unit = {
-    callbackCall(handler)
-    callbackCallState(handler)
-    callbackAudioBitRateStatus(handler)
-    callbackVideoBitRateStatus(handler)
-    callbackAudioReceiveFrame(handler)
-    callbackVideoReceiveFrame(handler)
-  }
+  def callback(@NotNull handler: ToxAvEventListener): Unit
 
 }
