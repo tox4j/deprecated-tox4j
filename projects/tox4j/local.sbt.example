@@ -1,3 +1,4 @@
+import sbt.tox4j.Benchmarking._
 import sbt.tox4j.Benchmarking.Keys._
 
 machine in Benchmark := "iphydf"
