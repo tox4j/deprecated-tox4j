@@ -193,142 +193,186 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
   override def iterationInterval: Int =
     ToxCoreJni.toxIterationInterval(instanceNumber)
 
-  // scalastyle:ignore cyclomatic.complexity method.length
-  override def iterate(): Unit = {
-    Option(ToxCoreJni.toxIterate(instanceNumber)).map(CoreEvents.parseFrom) match {
-      case None =>
-      case Some(CoreEvents(
-        selfConnectionStatus,
-        friendName,
-        friendStatusMessage,
-        friendStatus,
-        friendConnectionStatus,
-        friendTyping,
-        friendReadReceipt,
-        friendRequest,
-        friendMessage,
-        fileRecvControl,
-        fileChunkRequest,
-        fileRecv,
-        fileRecvChunk,
-        friendLossyPacket,
-        friendLosslessPacket)) =>
-        selfConnectionStatus.foreach {
-          case SelfConnectionStatus(status) =>
-            tryAndLog(selfConnectionStatusCallback)(_.selfConnectionStatus(
-              convert(status)
-            ))
-        }
-        friendName.foreach {
-          case FriendName(friendNumber, name) =>
-            tryAndLog(friendNameCallback)(_.friendName(
-              friendNumber,
-              name.toByteArray
-            ))
-        }
-        friendStatusMessage.foreach {
-          case FriendStatusMessage(friendNumber, message) =>
-            tryAndLog(friendStatusMessageCallback)(_.friendStatusMessage(
-              friendNumber,
-              message.toByteArray
-            ))
-        }
-        friendStatus.foreach {
-          case FriendStatus(friendNumber, status) =>
-            tryAndLog(friendStatusCallback)(_.friendStatus(
-              friendNumber,
-              convert(status)
-            ))
-        }
-        friendConnectionStatus.foreach {
-          case FriendConnectionStatus(friendNumber, status) =>
-            tryAndLog(friendConnectionStatusCallback)(_.friendConnectionStatus(
-              friendNumber,
-              convert(status)
-            ))
-        }
-        friendTyping.foreach {
-          case FriendTyping(friendNumber, isTyping) =>
-            tryAndLog(friendTypingCallback)(_.friendTyping(
-              friendNumber,
-              isTyping
-            ))
-        }
-        friendReadReceipt.foreach {
-          case FriendReadReceipt(friendNumber, messageId) =>
-            tryAndLog(friendReadReceiptCallback)(_.friendReadReceipt(
-              friendNumber,
-              messageId
-            ))
-        }
-        friendRequest.foreach {
-          case FriendRequest(publicKey, timeDelta, message) =>
-            tryAndLog(friendRequestCallback)(_.friendRequest(
-              publicKey.toByteArray,
-              timeDelta,
-              message.toByteArray
-            ))
-        }
-        friendMessage.foreach {
-          case FriendMessage(friendNumber, messageType, timeDelta, message) =>
-            tryAndLog(friendMessageCallback)(_.friendMessage(
-              friendNumber,
-              convert(messageType),
-              timeDelta,
-              message.toByteArray
-            ))
-        }
-        fileRecvControl.foreach {
-          case FileRecvControl(friendNumber, fileNumber, control) =>
-            tryAndLog(fileRecvControlCallback)(_.fileRecvControl(
-              friendNumber,
-              fileNumber,
-              convert(control)
-            ))
-        }
-        fileChunkRequest.foreach {
-          case FileChunkRequest(friendNumber, fileNumber, position, length) =>
-            tryAndLog(fileChunkRequestCallback)(_.fileChunkRequest(
-              friendNumber,
-              fileNumber,
-              position,
-              length
-            ))
-        }
-        fileRecv.foreach {
-          case FileRecv(friendNumber, fileNumber, kind, fileSize, filename) =>
-            tryAndLog(fileRecvCallback)(_.fileRecv(
-              friendNumber,
-              fileNumber,
-              kind,
-              fileSize,
-              filename.toByteArray
-            ))
-        }
-        fileRecvChunk.foreach {
-          case FileRecvChunk(friendNumber, fileNumber, position, data) =>
-            tryAndLog(fileRecvChunkCallback)(_.fileRecvChunk(
-              friendNumber,
-              fileNumber,
-              position,
-              data.toByteArray
-            ))
-        }
-        friendLossyPacket.foreach {
-          case FriendLossyPacket(friendNumber, data) =>
-            tryAndLog(friendLossyPacketCallback)(_.friendLossyPacket(
-              friendNumber,
-              data.toByteArray
-            ))
-        }
-        friendLosslessPacket.foreach {
-          case FriendLosslessPacket(friendNumber, data) =>
-            tryAndLog(friendLosslessPacketCallback)(_.friendLosslessPacket(
-              friendNumber,
-              data.toByteArray
-            ))
-        }
+  private def dispatchSelfConnectionStatus(selfConnectionStatus: Seq[SelfConnectionStatus]): Unit = {
+    selfConnectionStatus.foreach {
+      case SelfConnectionStatus(status) =>
+        tryAndLog(selfConnectionStatusCallback)(_.selfConnectionStatus(
+          convert(status)
+        ))
     }
+  }
+
+  private def dispatchFriendName(friendName: Seq[FriendName]): Unit = {
+    friendName.foreach {
+      case FriendName(friendNumber, name) =>
+        tryAndLog(friendNameCallback)(_.friendName(
+          friendNumber,
+          name.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendStatusMessage(friendStatusMessage: Seq[FriendStatusMessage]): Unit = {
+    friendStatusMessage.foreach {
+      case FriendStatusMessage(friendNumber, message) =>
+        tryAndLog(friendStatusMessageCallback)(_.friendStatusMessage(
+          friendNumber,
+          message.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendStatus(friendStatus: Seq[FriendStatus]): Unit = {
+    friendStatus.foreach {
+      case FriendStatus(friendNumber, status) =>
+        tryAndLog(friendStatusCallback)(_.friendStatus(
+          friendNumber,
+          convert(status)
+        ))
+    }
+  }
+
+  private def dispatchFriendConnectionStatus(friendConnectionStatus: Seq[FriendConnectionStatus]): Unit = {
+    friendConnectionStatus.foreach {
+      case FriendConnectionStatus(friendNumber, status) =>
+        tryAndLog(friendConnectionStatusCallback)(_.friendConnectionStatus(
+          friendNumber,
+          convert(status)
+        ))
+    }
+  }
+
+  private def dispatchFriendTyping(friendTyping: Seq[FriendTyping]): Unit = {
+    friendTyping.foreach {
+      case FriendTyping(friendNumber, isTyping) =>
+        tryAndLog(friendTypingCallback)(_.friendTyping(
+          friendNumber,
+          isTyping
+        ))
+    }
+  }
+
+  private def dispatchFriendReadReceipt(friendReadReceipt: Seq[FriendReadReceipt]): Unit = {
+    friendReadReceipt.foreach {
+      case FriendReadReceipt(friendNumber, messageId) =>
+        tryAndLog(friendReadReceiptCallback)(_.friendReadReceipt(
+          friendNumber,
+          messageId
+        ))
+    }
+  }
+
+  private def dispatchFriendRequest(friendRequest: Seq[FriendRequest]): Unit = {
+    friendRequest.foreach {
+      case FriendRequest(publicKey, timeDelta, message) =>
+        tryAndLog(friendRequestCallback)(_.friendRequest(
+          publicKey.toByteArray,
+          timeDelta,
+          message.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendMessage(friendMessage: Seq[FriendMessage]): Unit = {
+    friendMessage.foreach {
+      case FriendMessage(friendNumber, messageType, timeDelta, message) =>
+        tryAndLog(friendMessageCallback)(_.friendMessage(
+          friendNumber,
+          convert(messageType),
+          timeDelta,
+          message.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFileRecvControl(fileRecvControl: Seq[FileRecvControl]): Unit = {
+    fileRecvControl.foreach {
+      case FileRecvControl(friendNumber, fileNumber, control) =>
+        tryAndLog(fileRecvControlCallback)(_.fileRecvControl(
+          friendNumber,
+          fileNumber,
+          convert(control)
+        ))
+    }
+  }
+
+  private def dispatchFileChunkRequest(fileChunkRequest: Seq[FileChunkRequest]): Unit = {
+    fileChunkRequest.foreach {
+      case FileChunkRequest(friendNumber, fileNumber, position, length) =>
+        tryAndLog(fileChunkRequestCallback)(_.fileChunkRequest(
+          friendNumber,
+          fileNumber,
+          position,
+          length
+        ))
+    }
+  }
+
+  private def dispatchFileRecv(fileRecv: Seq[FileRecv]): Unit = {
+    fileRecv.foreach {
+      case FileRecv(friendNumber, fileNumber, kind, fileSize, filename) =>
+        tryAndLog(fileRecvCallback)(_.fileRecv(
+          friendNumber,
+          fileNumber,
+          kind,
+          fileSize,
+          filename.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFileRecvChunk(fileRecvChunk: Seq[FileRecvChunk]): Unit = {
+    fileRecvChunk.foreach {
+      case FileRecvChunk(friendNumber, fileNumber, position, data) =>
+        tryAndLog(fileRecvChunkCallback)(_.fileRecvChunk(
+          friendNumber,
+          fileNumber,
+          position,
+          data.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendLossyPacket(friendLossyPacket: Seq[FriendLossyPacket]): Unit = {
+    friendLossyPacket.foreach {
+      case FriendLossyPacket(friendNumber, data) =>
+        tryAndLog(friendLossyPacketCallback)(_.friendLossyPacket(
+          friendNumber,
+          data.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendLosslessPacket(friendLosslessPacket: Seq[FriendLosslessPacket]): Unit = {
+    friendLosslessPacket.foreach {
+      case FriendLosslessPacket(friendNumber, data) =>
+        tryAndLog(friendLosslessPacketCallback)(_.friendLosslessPacket(
+          friendNumber,
+          data.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchEvents(events: CoreEvents): Unit = {
+    dispatchSelfConnectionStatus(events.selfConnectionStatus)
+    dispatchFriendName(events.friendName)
+    dispatchFriendStatusMessage(events.friendStatusMessage)
+    dispatchFriendStatus(events.friendStatus)
+    dispatchFriendConnectionStatus(events.friendConnectionStatus)
+    dispatchFriendTyping(events.friendTyping)
+    dispatchFriendReadReceipt(events.friendReadReceipt)
+    dispatchFriendRequest(events.friendRequest)
+    dispatchFriendMessage(events.friendMessage)
+    dispatchFileRecvControl(events.fileRecvControl)
+    dispatchFileChunkRequest(events.fileChunkRequest)
+    dispatchFileRecv(events.fileRecv)
+    dispatchFileRecvChunk(events.fileRecvChunk)
+    dispatchFriendLossyPacket(events.friendLossyPacket)
+    dispatchFriendLosslessPacket(events.friendLosslessPacket)
+  }
+
+  override def iterate(): Unit = {
+    Option(ToxCoreJni.toxIterate(instanceNumber)).map(CoreEvents.parseFrom).foreach(dispatchEvents)
   }
 
   override def getPublicKey: Array[Byte] =

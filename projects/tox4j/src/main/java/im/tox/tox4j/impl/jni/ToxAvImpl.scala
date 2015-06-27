@@ -76,75 +76,94 @@ final class ToxAvImpl(@NotNull private val tox: ToxCoreImpl) extends AbstractTox
     super.finalize()
   }
 
-  @SuppressWarnings(Array("im.tox.tox4j.lint.OptionOrNull"))
-  // scalastyle:ignore method.length
-  override def iterate(): Unit = {
-    Option(ToxAvJni.toxavIterate(instanceNumber)).map(AvEvents.parseFrom) match {
-      case None =>
-      case Some(AvEvents(
-        call,
-        callState,
-        audioBitRateStatus,
-        videoBitRateStatus,
-        audioReceiveFrame,
-        videoReceiveFrame)) =>
-        call.foreach {
-          case Call(friendNumber, audioEnabled, videoEnabled) =>
-            tryAndLog(callCallback)(_.call(
-              friendNumber,
-              audioEnabled,
-              videoEnabled
-            ))
-        }
-        callState.foreach {
-          case CallState(friendNumber, state) =>
-            tryAndLog(callStateCallback)(_.callState(
-              friendNumber,
-              util.Arrays.asList(state.map(convert): _*)
-            ))
-        }
-        audioBitRateStatus.foreach {
-          case AudioBitRateStatus(friendNumber, stable, bitRate) =>
-            tryAndLog(audioBitRateStatusCallback)(_.audioBitRateStatus(
-              friendNumber,
-              stable,
-              bitRate
-            ))
-        }
-        videoBitRateStatus.foreach {
-          case VideoBitRateStatus(friendNumber, stable, bitRate) =>
-            tryAndLog(videoBitRateStatusCallback)(_.videoBitRateStatus(
-              friendNumber,
-              stable,
-              bitRate
-            ))
-        }
-        audioReceiveFrame.foreach {
-          case AudioReceiveFrame(friendNumber, pcm, channels, samplingRate) =>
-            tryAndLog(audioReceiveFrameCallback)(_.receiveAudioFrame(
-              friendNumber,
-              pcm.map(_.toShort).toArray,
-              channels,
-              samplingRate
-            ))
-        }
-        videoReceiveFrame.foreach {
-          case VideoReceiveFrame(friendNumber, width, height, y, u, v, a, yStride, uStride, vStride, aStride) =>
-            tryAndLog(videoReceiveFrameCallback)(_.receiveVideoFrame(
-              friendNumber,
-              width,
-              height,
-              y.toByteArray,
-              u.toByteArray,
-              v.toByteArray,
-              a.map(_.toByteArray).orNull,
-              yStride,
-              uStride,
-              vStride,
-              aStride
-            ))
-        }
+  private def dispatchCall(call: Seq[Call]): Unit = {
+    call.foreach {
+      case Call(friendNumber, audioEnabled, videoEnabled) =>
+        tryAndLog(callCallback)(_.call(
+          friendNumber,
+          audioEnabled,
+          videoEnabled
+        ))
     }
+  }
+
+  private def dispatchCallState(callState: Seq[CallState]): Unit = {
+    callState.foreach {
+      case CallState(friendNumber, state) =>
+        tryAndLog(callStateCallback)(_.callState(
+          friendNumber,
+          util.Arrays.asList(state.map(convert): _*)
+        ))
+    }
+  }
+
+  private def dispatchAudioBitRateStatus(audioBitRateStatus: Seq[AudioBitRateStatus]): Unit = {
+    audioBitRateStatus.foreach {
+      case AudioBitRateStatus(friendNumber, stable, bitRate) =>
+        tryAndLog(audioBitRateStatusCallback)(_.audioBitRateStatus(
+          friendNumber,
+          stable,
+          bitRate
+        ))
+    }
+  }
+
+  private def dispatchVideoBitRateStatus(videoBitRateStatus: Seq[VideoBitRateStatus]): Unit = {
+    videoBitRateStatus.foreach {
+      case VideoBitRateStatus(friendNumber, stable, bitRate) =>
+        tryAndLog(videoBitRateStatusCallback)(_.videoBitRateStatus(
+          friendNumber,
+          stable,
+          bitRate
+        ))
+    }
+  }
+
+  private def dispatchAudioReceiveFrame(audioReceiveFrame: Seq[AudioReceiveFrame]): Unit = {
+    audioReceiveFrame.foreach {
+      case AudioReceiveFrame(friendNumber, pcm, channels, samplingRate) =>
+        tryAndLog(audioReceiveFrameCallback)(_.receiveAudioFrame(
+          friendNumber,
+          pcm.map(_.toShort).toArray,
+          channels,
+          samplingRate
+        ))
+    }
+  }
+
+  @SuppressWarnings(Array("im.tox.tox4j.lint.OptionOrNull"))
+  private def dispatchVideoReceiveFrame(videoReceiveFrame: Seq[VideoReceiveFrame]): Unit = {
+    videoReceiveFrame.foreach {
+      case VideoReceiveFrame(friendNumber, width, height, y, u, v, a, yStride, uStride, vStride, aStride) =>
+        tryAndLog(videoReceiveFrameCallback)(_.receiveVideoFrame(
+          friendNumber,
+          width,
+          height,
+          y.toByteArray,
+          u.toByteArray,
+          v.toByteArray,
+          a.map(_.toByteArray).orNull,
+          yStride,
+          uStride,
+          vStride,
+          aStride
+        ))
+    }
+  }
+
+  private def dispatchEvents(events: AvEvents): Unit = {
+    dispatchCall(events.call)
+    dispatchCallState(events.callState)
+    dispatchAudioBitRateStatus(events.audioBitRateStatus)
+    dispatchVideoBitRateStatus(events.videoBitRateStatus)
+    dispatchAudioReceiveFrame(events.audioReceiveFrame)
+    dispatchVideoReceiveFrame(events.videoReceiveFrame)
+  }
+
+  override def iterate(): Unit = {
+    Option(ToxAvJni.toxavIterate(instanceNumber))
+      .map(AvEvents.parseFrom)
+      .foreach(dispatchEvents)
   }
 
   override def iterationInterval: Int =

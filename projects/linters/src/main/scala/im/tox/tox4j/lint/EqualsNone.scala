@@ -28,9 +28,9 @@ object EqualsNone extends WartTraverser {
 
       override def traverse(tree: Tree): Unit = {
         tree match {
-          case Select(none, operator) if !isSynthetic(u)(tree) =>
+          case Select(none, operator) =>
             errorIfNoneCompare(operator, none)
-          case Apply(Select(_, operator), List(none)) if !isSynthetic(u)(tree) =>
+          case Apply(Select(_, operator), List(none)) =>
             errorIfNoneCompare(operator, none)
 
           case _ =>
