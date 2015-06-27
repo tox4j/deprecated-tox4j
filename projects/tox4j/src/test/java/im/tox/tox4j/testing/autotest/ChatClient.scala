@@ -84,7 +84,7 @@ class ChatClient(val selfName: String, val expectedFriendName: String) extends T
   def performTasks(tox: ToxCore): Unit = {
     val state = this.state
     this.state = state.copy(tasks = Nil)
-    for (task <- state.tasks) {
+    for (task <- state.tasks.reverse) {
       try {
         task._1.apply(tox)
       } catch {
