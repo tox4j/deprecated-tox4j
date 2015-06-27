@@ -2,6 +2,13 @@ package im.tox.tox4j.lint
 
 import org.brianmckenna.wartremover.{WartTraverser, WartUniverse}
 
+/**
+ * Checks that [[Option.orNull]] is not used. This method is useful for Java
+ * interoperability, but is generally unsafe, as it produces potentially null
+ * values, giving the system opportunity to throw a [[NullPointerException]].
+ *
+ * Code that interoperates with Java code will need to use [[SuppressWarnings]].
+ */
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
 object OptionOrNull extends WartTraverser {
 
