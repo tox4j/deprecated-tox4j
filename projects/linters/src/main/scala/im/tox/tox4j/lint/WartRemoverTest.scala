@@ -12,13 +12,13 @@ object WartRemoverTest {
   final case class Result(errors: List[String], warnings: List[String])
 
   def apply(t: WartTraverser)(a: Any): Result = macro applyImpl
-  def applyImpl(c: whitebox.Context)(t: c.Expr[WartTraverser])(a: c.Expr[Any]) = {
+  def applyImpl(c: whitebox.Context)(t: c.Expr[WartTraverser])(a: c.Expr[Any]): c.Expr[Nothing] = {
     import c.universe._
 
     val traverser = c.eval[WartTraverser](c.Expr(c.untypecheck(t.tree.duplicate)))
 
-    var errors = new ArrayBuffer[String]
-    var warnings = new ArrayBuffer[String]
+    val errors = new ArrayBuffer[String]
+    val warnings = new ArrayBuffer[String]
 
     object MacroTestUniverse extends WartUniverse {
       val universe: c.universe.type = c.universe
