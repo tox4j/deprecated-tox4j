@@ -1,9 +1,9 @@
 package im.tox.tox4j.av.callbacks
 
-trait ToxAvEventListener extends
-  CallCallback with
-  CallStateCallback with
-  AudioBitRateStatusCallback with
-  VideoBitRateStatusCallback with
-  AudioReceiveFrameCallback with
-  VideoReceiveFrameCallback
+trait ToxAvEventListener[ToxCoreState]
+  extends CallCallback[ToxCoreState]
+  with CallStateCallback[ToxCoreState]
+  with AudioBitRateStatusCallback[ToxCoreState]
+  with VideoBitRateStatusCallback[ToxCoreState]
+  with AudioReceiveFrameCallback[ToxCoreState]
+  with VideoReceiveFrameCallback[ToxCoreState]

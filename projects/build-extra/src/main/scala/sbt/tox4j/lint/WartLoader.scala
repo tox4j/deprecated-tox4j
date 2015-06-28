@@ -9,7 +9,7 @@ import sbt._
 import wartremover.Wart
 import wartremover.WartRemover.autoImport._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object WartLoader extends AutoPlugin {
 
@@ -43,14 +43,14 @@ object WartLoader extends AutoPlugin {
       }
 
     val properties = loadProperties(propertiesFile)
-    val customWarts = properties.stringPropertyNames().map(properties.getProperty).toSeq
+    val customWarts = properties.asScala.values.toSeq
 
     (new URI(jarPath), customWarts)
   }
 
   private def filterWartLibraries(classpath: Seq[File]): Seq[(URI, Seq[String])] = {
     val loader = new URLClassLoader(Path.toURLs(classpath))
-    loader.getResources("warts.properties").toSeq.map(asFile)
+    loader.getResources("warts.properties").asScala.map(asFile).toSeq
   }
 
   // Enable wart removers.

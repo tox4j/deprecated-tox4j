@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.enums.ToxSaveDataType
 import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.core.enums.ToxSaveDataType
 
 /**
  * The various kinds of save data that can be loaded by [[ToxCore.load]].

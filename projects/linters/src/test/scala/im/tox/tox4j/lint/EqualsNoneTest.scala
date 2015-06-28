@@ -83,7 +83,7 @@ final class EqualsNoneTest extends FunSuite {
       x match {
         // noinspection EmptyCheck
         case maybe if maybe == None =>
-        case _ =>
+        case _                      =>
       }
     }
 
@@ -107,7 +107,7 @@ final class EqualsNoneTest extends FunSuite {
   test("comparing for None in match-statements is allowed") {
     val result = WartRemoverTest(EqualsNone) {
       sys.env.get("HOME") match {
-        case None =>
+        case None    =>
         case Some(_) =>
       }
     }

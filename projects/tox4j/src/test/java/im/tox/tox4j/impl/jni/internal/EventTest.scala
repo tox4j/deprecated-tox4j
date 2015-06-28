@@ -4,7 +4,7 @@ import org.scalatest.FlatSpec
 
 class EventTest extends FlatSpec {
 
-  "Callback" should "be called on run()" in {
+  "callback" should "be called on run()" in {
     val event = new Event
     var called = false
 
@@ -12,6 +12,18 @@ class EventTest extends FlatSpec {
 
     event()
     assert(called)
+  }
+
+  it should "be called twice if run() is called twice" in {
+    val event = new Event
+    var called = 0
+
+    val id = event += (() => called += 1)
+
+    event()
+    assert(called == 1)
+    event()
+    assert(called == 2)
   }
 
   it should "not be called if it was deleted" in {

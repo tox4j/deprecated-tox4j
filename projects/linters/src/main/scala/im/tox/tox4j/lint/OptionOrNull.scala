@@ -1,6 +1,6 @@
 package im.tox.tox4j.lint
 
-import org.brianmckenna.wartremover.{WartTraverser, WartUniverse}
+import org.brianmckenna.wartremover.{ WartTraverser, WartUniverse }
 
 /**
  * Checks that [[Option.orNull]] is not used. This method is useful for Java

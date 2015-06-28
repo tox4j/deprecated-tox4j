@@ -13,16 +13,21 @@ my $prefix = $data->[1];
 my $exns = $data->[2];
 
 for my $type (keys %$exns) {
-   open my $fh, '>', "Tox${prefix}${type}Exception.java"
-      or die $!;
-
    for (keys $exns->{$type}) {
       my @lines = @{ $exns->{$type}{$_} };
       s/^/     * / for @lines;
       $exns->{$type}{$_} = join "\n", @lines;
    }
+}
 
-   my $codes = join ",\n", map { "    /**\n$exns->{$type}{$_}\n     */\n    $_" } (sort keys $exns->{$type});
+for my $type (keys %$exns) {
+   open my $fh, '>', "Tox${prefix}${type}Exception.java"
+      or die $!;
+
+   my $codes =
+      join ",\n",
+      map { "    /**\n$exns->{$type}{$_}\n     */\n    $_" }
+      (sort keys $exns->{$type});
 
    print $fh <<JAVA;
 package im.tox.tox4j.$package.exceptions;

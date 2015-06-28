@@ -1,34 +1,36 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 import org.junit.Assert.{ assertEquals, assertFalse }
 
 class FriendTypingCallbackTest extends AliceBobTest {
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = Boolean
+  override def initialState: State = true
 
-    private var initial = true
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
-    private def setTyping(friendNumber: Int, isTyping: Boolean): Unit = {
-      addTask { tox =>
+    private def setTyping(state: ChatState)(friendNumber: Int, isTyping: Boolean): ChatState = {
+      state.addTask { (tox, state) =>
         tox.setTyping(friendNumber, isTyping)
+        state
       }
     }
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
-      if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
-        if (isAlice) {
-          setTyping(friendNumber, isTyping = true)
-        }
+    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
+      super.friendConnectionStatus(friendNumber, connectionStatus)(state)
+      if (connectionStatus != ToxConnection.NONE && isAlice) {
+        setTyping(state)(friendNumber, isTyping = true)
+      } else {
+        state
       }
     }
 
-    override def friendTyping(friendNumber: Int, isTyping: Boolean): Unit = {
-      if (initial) {
+    override def friendTyping(friendNumber: Int, isTyping: Boolean)(state: ChatState): ChatState = {
+      if (state.get) {
         assertFalse(isTyping)
-        initial = false
+        state.set(false)
       } else {
         if (isTyping) {
           debug("friend is now typing")
@@ -38,15 +40,17 @@ class FriendTypingCallbackTest extends AliceBobTest {
         assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
         if (isBob) {
           if (isTyping) {
-            setTyping(friendNumber, isTyping = true)
+            setTyping(state)(friendNumber, isTyping = true)
           } else {
-            setTyping(friendNumber, isTyping = false)
-            finish()
+            setTyping(state)(friendNumber, isTyping = false)
+              .finish
           }
         } else {
           if (isTyping) {
-            setTyping(friendNumber, isTyping = false)
-            finish()
+            setTyping(state)(friendNumber, isTyping = false)
+              .finish
+          } else {
+            state
           }
         }
       }

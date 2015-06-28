@@ -9,14 +9,25 @@ final class ProxyOptionsTest extends FlatSpec {
     intercept[IllegalArgumentException] {
       ProxyOptions.Http("localhost", -1)
     }
+    intercept[IllegalArgumentException] {
+      ProxyOptions.Socks5("localhost", -1)
+    }
   }
 
   it should "allow the port to be 0" in {
+    ProxyOptions.Http("localhost", 0)
     ProxyOptions.Socks5("localhost", 0)
   }
 
-  it should "not allow the port to be greater than 65535" in {
+  it should "allow the port to be 65535" in {
+    ProxyOptions.Http("localhost", 65535)
     ProxyOptions.Socks5("localhost", 65535)
+  }
+
+  it should "not allow the port to be greater than 65535" in {
+    intercept[IllegalArgumentException] {
+      ProxyOptions.Http("localhost", 65536)
+    }
     intercept[IllegalArgumentException] {
       ProxyOptions.Socks5("localhost", 65536)
     }

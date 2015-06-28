@@ -5,7 +5,7 @@ import java.util.{ ArrayList, Arrays }
 import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
-import im.tox.tox4j.core.options.{ ToxOptions, SaveDataOptions }
+import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.exceptions.ToxException
 import org.junit.Assert._
 import org.junit.Test
@@ -14,8 +14,8 @@ final class LoadSaveTest extends ToxCoreTestBase {
 
   private trait Check {
     @throws(classOf[ToxException[_]])
-    def change(tox: ToxCore): Boolean
-    def check(tox: ToxCore): Unit
+    def change(tox: ToxCore[Unit]): Boolean
+    def check(tox: ToxCore[Unit]): Unit
   }
 
   private def testLoadSave(check: Check): Unit = {
@@ -38,7 +38,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
       private var expected: Array[Byte] = null
 
       @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         if (expected == null) {
           expected = Array[Byte]()
         } else {
@@ -48,7 +48,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
         expected.length < ToxCoreConstants.MAX_NAME_LENGTH
       }
 
-      override def check(tox: ToxCore): Unit = {
+      override def check(tox: ToxCore[Unit]): Unit = {
         assertArrayEquals(expected, tox.getName)
       }
     })
@@ -59,7 +59,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
       private var expected: Array[Byte] = null
 
       @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         if (expected == null) {
           expected = Array[Byte]()
         } else {
@@ -69,7 +69,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
         expected.length < ToxCoreConstants.MAX_NAME_LENGTH
       }
 
-      override def check(tox: ToxCore): Unit = {
+      override def check(tox: ToxCore[Unit]): Unit = {
         assertArrayEquals(expected, tox.getStatusMessage)
       }
     })
@@ -81,12 +81,12 @@ final class LoadSaveTest extends ToxCoreTestBase {
       private val expected = new ArrayList(Arrays.asList(ToxUserStatus.values(): _*))
 
       @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         tox.setStatus(expected.get(expected.size() - 1))
         expected.size() > 1
       }
 
-      override def check(tox: ToxCore): Unit = {
+      override def check(tox: ToxCore[Unit]): Unit = {
         assertEquals(expected.remove(expected.size() - 1), tox.getStatus)
       }
     })
@@ -97,13 +97,13 @@ final class LoadSaveTest extends ToxCoreTestBase {
       private var expected = -1
 
       @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         expected += 1
         tox.setNoSpam(expected)
         expected < 100
       }
 
-      override def check(tox: ToxCore): Unit = {
+      override def check(tox: ToxCore[Unit]): Unit = {
         assertEquals(expected, tox.getNoSpam)
       }
     })
@@ -114,14 +114,14 @@ final class LoadSaveTest extends ToxCoreTestBase {
       private var expected: Int = 1
 
       @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         withTox { toxFriend =>
           expected = tox.addFriend(toxFriend.getAddress, "hello".getBytes)
         }
         false
       }
 
-      override def check(tox: ToxCore): Unit = {
+      override def check(tox: ToxCore[Unit]): Unit = {
         assertEquals(1, tox.getFriendList.length)
         assertEquals(expected, tox.getFriendList(0))
       }

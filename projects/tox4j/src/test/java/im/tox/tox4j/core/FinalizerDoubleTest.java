@@ -6,6 +6,7 @@ import im.tox.tox4j.core.options.ToxOptions;
 import im.tox.tox4j.impl.jni.ToxCoreImpl;
 import org.junit.Test;
 import org.scalatest.junit.JUnitSuite;
+import scala.runtime.BoxedUnit;
 
 /**
  * This test is just here to check whether calling finalize() twice on a {@link ToxCoreImpl}
@@ -17,14 +18,15 @@ public class FinalizerDoubleTest extends JUnitSuite {
   @Test
   @SuppressWarnings("FinalizeCalledExplicitly")
   public void testFinalizeTwice() {
-    ToxCoreImpl tox = new ToxCoreImpl(new ToxOptions(
+    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(new ToxOptions(
         true,
         true,
         ProxyOptions.None$.MODULE$,
         ToxCoreConstants.DEFAULT_START_PORT,
         ToxCoreConstants.DEFAULT_END_PORT,
         ToxCoreConstants.DEFAULT_TCP_PORT,
-        SaveDataOptions.None$.MODULE$
+        SaveDataOptions.None$.MODULE$,
+        true
     ));
 
     tox.finalize();

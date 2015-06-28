@@ -1,18 +1,16 @@
 
 package im.tox.tox4j
 
-import java.io.{Closeable, IOException}
-import java.net.{InetAddress, Socket}
+import java.io.IOException
+import java.net.{ InetAddress, Socket }
 import java.util.Random
 
 import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.options.{ProxyOptions, SaveDataOptions, ToxOptions}
-import im.tox.tox4j.core.{ToxCore, ToxCoreFactory}
+import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.testing.ToxTestMixin
-import org.junit.{After, Assume}
+import org.junit.{ After, Assume }
 import org.scalatest.junit.JUnitSuite
 
 object ToxCoreTestBase {
@@ -37,38 +35,6 @@ object ToxCoreTestBase {
     new DhtNode("198.98.51.198", "2605:6400:1:fed5:22:45af:ec10:f329", 33445, "1D5A5F2F5D6233058BF0259B09622FB40B482E4FA0931EB8FD3AB8E7BF7DAF6F"),
     new DhtNode("80.232.246.79", null, 33445, "0B8DCEAA7BDDC44BB11173F987CAE3566A2D7057D8DD3CC642BD472B9391002A")
   )
-
-  protected[tox4j] class ToxList(factory: ToxCoreTestBase, count: Int) extends Closeable {
-
-    private val toxes = new Array[ToxCore](count)
-    private val connected = new Array[ToxConnection](count)
-
-    (0 until count) foreach { i =>
-      connected(i) = ToxConnection.NONE
-
-      toxes(i) = factory.newTox()
-      toxes(i).callback(new ToxEventListener {
-        override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
-          connected(i) = connectionStatus
-        }
-      })
-    }
-
-    def close(): Unit = {
-      toxes.foreach(_.close())
-    }
-
-    def isAllConnected: Boolean = !connected.contains(ToxConnection.NONE)
-    def isAnyConnected: Boolean = connected.exists(_ != ToxConnection.NONE)
-
-    def iteration(): Unit = toxes.foreach(_.iterate())
-
-    def iterationInterval: Int = toxes.map(_.iterationInterval).max
-
-    def get(index: Int): ToxCore = toxes(index)
-    def size: Int = toxes.length
-
-  }
 
   private[tox4j] def entropy(@NotNull data: Array[Byte]): Double = {
     val frequencies = new Array[Int](256)
@@ -166,35 +132,35 @@ abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(options: ToxOptions): ToxCore = {
+  protected final def newTox(options: ToxOptions): ToxCore[Unit] = {
     ToxCoreFactory(options)
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(): ToxCore = {
+  protected final def newTox(): ToxCore[Unit] = {
     newTox(new ToxOptions)
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(data: Array[Byte]): ToxCore = {
+  protected final def newTox(data: Array[Byte]): ToxCore[Unit] = {
     newTox(new ToxOptions(saveData = SaveDataOptions.ToxSave(data)))
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore = {
+  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore[Unit] = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled))
   }
 
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore = {
+  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore[Unit] = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
   }
 

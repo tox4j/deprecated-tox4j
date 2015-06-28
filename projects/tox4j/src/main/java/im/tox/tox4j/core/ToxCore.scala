@@ -18,7 +18,7 @@ import im.tox.tox4j.core.options.ToxOptions
  * should be stopped or stop using the instance before one thread invokes [[ToxCore.close]] on it, or appropriate
  * exception handlers should be installed in all threads.
  */
-trait ToxCore extends Closeable {
+trait ToxCore[ToxCoreState] extends Closeable {
 
   /**
    * Store all information associated with the tox instance to a byte array.
@@ -49,7 +49,7 @@ trait ToxCore extends Closeable {
    */
   @NotNull
   @throws[ToxNewException]
-  def load(@NotNull options: ToxOptions): ToxCore
+  def load(@NotNull options: ToxOptions): ToxCore[ToxCoreState]
 
   /**
    * Shut down the tox instance.
@@ -137,7 +137,7 @@ trait ToxCore extends Closeable {
    *
    * This should be invoked every [[iterationInterval]] milliseconds.
    */
-  def iterate(): Unit
+  def iterate(state: ToxCoreState): ToxCoreState
 
   /**
    * Copy the Tox Public Key (long term) from the Tox object.
@@ -511,6 +511,6 @@ trait ToxCore extends Closeable {
    *
    * @param handler An event handler capable of handling all Tox events.
    */
-  def callback(@NotNull handler: ToxEventListener): Unit
+  def callback(@NotNull handler: ToxEventListener[ToxCoreState]): Unit
 
 }

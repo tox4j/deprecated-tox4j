@@ -1,11 +1,10 @@
 package im.tox.tox4j.lint
 
-import org.brianmckenna.wartremover.WartTraverser
-import org.brianmckenna.wartremover.WartUniverse
+import org.brianmckenna.wartremover.{ WartTraverser, WartUniverse }
 
-import language.experimental.macros
-import reflect.macros.whitebox
 import scala.collection.mutable.ArrayBuffer
+import scala.language.experimental.macros
+import scala.reflect.macros.whitebox
 
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Nothing"))
 object WartRemoverTest {

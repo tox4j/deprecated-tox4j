@@ -4,7 +4,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys._
 
 object Coverage extends sbt.Plugin {
 
-  override val settings = Seq(
+  override def settings: Seq[sbt.Setting[_]] = Seq(
     // Require 100% test coverage.
     coverageMinimum := 100,
     coverageFailOnMinimum := true,

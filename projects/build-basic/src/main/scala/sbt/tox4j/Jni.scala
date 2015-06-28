@@ -3,7 +3,6 @@ package sbt.tox4j
 import java.io.{ File, PrintWriter }
 
 import org.apache.commons.io.FilenameUtils
-
 import sbt.Keys._
 import sbt._
 import sbt.tox4j.logic.CMakeGenerator

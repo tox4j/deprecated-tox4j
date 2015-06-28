@@ -3,15 +3,11 @@
  */
 package im.tox.irc
 
-import java.io.{ ByteArrayOutputStream, PrintStream }
+import java.io.{ByteArrayOutputStream, PrintStream}
 import java.util.concurrent.TimeUnit
-
-import com.google.common.cache.{ CacheBuilder, CacheLoader, RemovalListener, RemovalNotification }
-import org.jibble.pircbot.{ NickAlreadyInUseException, PircBot }
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.tools.nsc.interpreter.IMain
 
 object EvalBot extends PircBot {
 
@@ -68,7 +64,7 @@ object EvalBot extends PircBot {
 
   override def handleLine(line: String): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    import scala.concurrent.{ Future, Promise }
+    import scala.concurrent.{Future, Promise}
     import scala.util.Success
 
     val timeout = Promise[Boolean]()
@@ -108,7 +104,6 @@ object EvalBot extends PircBot {
 
   private def evaluateCode(code: String, channel: String) = {
     sendLines(channel, scalaInterpreter(channel) { (si, output) =>
-      import scala.tools.nsc.interpreter.Results._
       lastCode += ((channel, code))
       si interpret code match {
         case Success =>

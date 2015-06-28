@@ -3,9 +3,8 @@ package im.tox.tox4j.core.callbacks
 import java.util
 import java.util.Random
 
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxFileKind, ToxMessageType }
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxFileKind }
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 import org.junit.Assert._
 
 /**
@@ -20,11 +19,14 @@ import org.junit.Assert._
  */
 final class FileResumeAfterRestartTest extends AliceBobTest {
 
+  override type State = Unit
+  override def initialState: State = ()
+
   private val fileData = new Array[Byte](13710)
   private var aliceAddress = Array.ofDim[Byte](0)
   new Random().nextBytes(fileData)
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new Alice(name, expectedFriendName)
+  protected override def newChatClient(name: String, expectedFriendName: String) = new Alice(name, expectedFriendName)
 
   final class Alice(name: String, expectedFriendName: String) extends ChatClient(name, expectedFriendName) {
 
@@ -37,96 +39,110 @@ final class FileResumeAfterRestartTest extends AliceBobTest {
     private var bobOffset = 0L
     private var selfPublicKey = Array.ofDim[Byte](0)
 
-    override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte]) {
+    override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte])(state: ChatState): ChatState = {
       assertTrue(isAlice)
-      addTask { tox =>
+      state.addTask { (tox, state) =>
         debug("accept Bob's friend request")
         tox.addFriendNoRequest(publicKey)
         aliceShouldPause = 1
+        state
       }
     }
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
+    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection)(state: ChatState): ChatState = {
       if (isAlice) {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
           assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
           debug(s"initiate file sending to friend $friendNumber")
-          addTask { tox =>
+          state.addTask { (tox, state) =>
             aliceSentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
-              Array.ofDim[Byte](0), "file for $expectedFriendName.png".getBytes)
+              Array.ofDim[Byte](0), s"file for $expectedFriendName.png".getBytes)
             fileId = tox.fileGetFileId(friendNumber, aliceSentFileNumber)
             aliceAddress = tox.getAddress
+            state
           }
+        } else {
+          state
         }
-      } else if (isBob) {
+      } else {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
           assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+          state
         } else {
           debug("See alice go off-line")
-          addTask { tox =>
+          state.addTask { (tox, state) =>
             tox.deleteFriend(friendNumber)
             tox.addFriend(aliceAddress, "Please add me back".getBytes)
+            state
           }
         }
       }
     }
 
-    override def fileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit = {
+    override def fileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int)(state: ChatState): ChatState = {
       assertTrue(isAlice)
       debug(s"got request for ${length}B from $friendNumber for file $fileNumber at $position")
       assertTrue(length >= 0)
       if (length == 0) {
         aliceSentFileNumber = -1
         debug("finish transmission")
-        finish()
+        state.finish
       } else {
         if (aliceShouldPause != 0) {
-          addTask { tox =>
+          val nextState = state.addTask { (tox, state) =>
             debug(s"sending $length B to $friendNumber from position $position")
             tox.fileSendChunk(friendNumber, fileNumber, position,
               util.Arrays.copyOfRange(fileData, position.toInt, Math.min(position.toInt + length, fileData.length)))
+            state
           }
           aliceOffset += length
           if (aliceOffset >= fileData.length / 10 && aliceShouldPause == -1) {
-            addTask { tox =>
+            aliceShouldPause = 0
+            nextState.addTask { (tox, state) =>
               debug("pause file transmission")
               tox.fileControl(friendNumber, fileNumber, ToxFileControl.PAUSE)
               tox.deleteFriend(friendNumber)
+              state
             }
-            aliceShouldPause = 0
+          } else {
+            nextState
           }
+        } else {
+          state
         }
       }
     }
 
-    override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte]): Unit = {
+    override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
       assertTrue(isBob)
       debug(s"received file send request $fileNumber from friend number $friendNumber current offset $bobOffset")
       assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
       assertEquals(ToxFileKind.DATA, kind)
       assertEquals(s"file for $name.png", new String(filename))
-      addTask { tox =>
+      bobSentFileNumber = fileNumber
+      state.addTask { (tox, state) =>
         selfPublicKey = tox.getPublicKey
         debug(s"sending control RESUME for $fileNumber")
         debug(s"seek file to $bobOffset")
         tox.fileSeek(friendNumber, bobSentFileNumber, bobOffset)
         tox.fileControl(friendNumber, fileNumber, ToxFileControl.RESUME)
+        state
       }
-      bobSentFileNumber = fileNumber
     }
 
-    override def fileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte]): Unit = {
+    override def fileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte])(state: ChatState): ChatState = {
       assertTrue(isBob)
       debug(s"receive file chunk from position $position of length ${data.length}")
       if (data.length == 0 && receivedData.length == bobOffset) {
         assertArrayEquals(fileData, receivedData)
         debug("finish transmission")
-        finish()
+        state.finish
       } else {
         System.arraycopy(data, 0, receivedData, position.toInt, data.length)
         bobOffset += data.length
+        state
       }
     }
 

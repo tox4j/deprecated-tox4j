@@ -1,16 +1,21 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, ChatClient }
+import im.tox.tox4j.testing.autotest.AliceBobTest
 
 class FriendConnectionStatusCallbackTest extends AliceBobTest {
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = Unit
+  override def initialState: State = ()
 
-    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection): Unit = {
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+
+    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
+      super.friendConnectionStatus(friendNumber, connectionStatus)(state)
       if (connectionStatus != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
-        finish()
+        state.finish
+      } else {
+        state
       }
     }
 

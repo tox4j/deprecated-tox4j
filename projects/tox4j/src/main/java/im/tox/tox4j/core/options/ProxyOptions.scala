@@ -1,8 +1,7 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 
 /**
  * Proxy options for [[ToxCore.load]]

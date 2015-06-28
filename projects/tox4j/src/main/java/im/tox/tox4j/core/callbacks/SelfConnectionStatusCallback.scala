@@ -11,9 +11,11 @@ import im.tox.tox4j.core.enums.ToxConnection
  * amounts of time. Clients should therefore not immediately bootstrap on
  * receiving a disconnect.
  */
-trait SelfConnectionStatusCallback {
+trait SelfConnectionStatusCallback[ToxCoreState] {
   /**
    * @param connectionStatus The new connection status.
    */
-  def selfConnectionStatus(@NotNull connectionStatus: ToxConnection): Unit = ()
+  def selfConnectionStatus(
+    @NotNull connectionStatus: ToxConnection
+  )(state: ToxCoreState): ToxCoreState = state
 }

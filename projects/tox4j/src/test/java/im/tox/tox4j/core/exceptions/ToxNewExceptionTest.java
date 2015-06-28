@@ -4,6 +4,7 @@ import im.tox.tox4j.ToxCoreTestBase;
 import im.tox.tox4j.core.ToxCore;
 import im.tox.tox4j.core.options.ProxyOptions;
 import org.junit.Test;
+import scala.runtime.BoxedUnit;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,7 +77,7 @@ public class ToxNewExceptionTest extends ToxCoreTestBase {
   @Test
   public void testTooManyToxCreations() throws Exception {
     try {
-      Collection<ToxCore> toxes = new ArrayList<>();
+      Collection<ToxCore<BoxedUnit>> toxes = new ArrayList<>();
       for (int i = 0; i < 102; i++) {
         // One of these will fail.
         toxes.add(newTox());
@@ -93,7 +94,7 @@ public class ToxNewExceptionTest extends ToxCoreTestBase {
 
   @Test
   public void testLoadEncrypted() throws Exception {
-    try (ToxCore tox = newTox("toxEsave blah blah blah".getBytes())) {
+    try (ToxCore<BoxedUnit> tox = newTox("toxEsave blah blah blah".getBytes())) {
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.LOAD_ENCRYPTED, e.code());
@@ -102,7 +103,7 @@ public class ToxNewExceptionTest extends ToxCoreTestBase {
 
   @Test
   public void testLoadBadFormat() throws Exception {
-    try (ToxCore tox = newTox("blah blah blah".getBytes())) {
+    try (ToxCore<BoxedUnit> tox = newTox("blah blah blah".getBytes())) {
       fail();
     } catch (ToxNewException e) {
       assertEquals(ToxNewException.Code.LOAD_BAD_FORMAT, e.code());

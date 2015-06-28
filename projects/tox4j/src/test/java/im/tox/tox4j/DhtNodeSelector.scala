@@ -32,7 +32,7 @@ object DhtNodeSelector {
     }
   }
 
-  private def tryBootstrap(factory: (Boolean, Boolean) => ToxCore, node: DhtNode, udpEnabled: Boolean) = {
+  private def tryBootstrap(factory: (Boolean, Boolean) => ToxCore[Unit], node: DhtNode, udpEnabled: Boolean) = {
     val protocol = if (udpEnabled) "UDP" else "TCP"
     val port = if (udpEnabled) node.udpPort else node.tcpPort
     logger.info(s"Trying to bootstrap with ${node.ipv4}:$port using $protocol")
@@ -49,7 +49,7 @@ object DhtNodeSelector {
 
       // Try bootstrapping for 10 seconds.
       (0 to 10000 / tox.iterationInterval) find { _ =>
-        tox.iterate()
+        tox.iterate(())
         Thread.sleep(tox.iterationInterval)
         status.isConnected
       } match {
@@ -65,7 +65,7 @@ object DhtNodeSelector {
     }
   }
 
-  private def findNode(factory: (Boolean, Boolean) => ToxCore): DhtNode = {
+  private def findNode(factory: (Boolean, Boolean) => ToxCore[Unit]): DhtNode = {
     DhtNodeSelector.selectedNode match {
       case Some(node) => node
       case None =>

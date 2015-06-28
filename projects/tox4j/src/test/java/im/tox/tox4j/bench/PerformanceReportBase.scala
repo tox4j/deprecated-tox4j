@@ -54,9 +54,9 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
   /**
    * The same as the above, but adding [[toxInstance]] as last element of the tuple.
    */
-  def usingTox[A](a: Gen[A]): Using[(A, ToxCore)] = using(a, toxInstance)
-  def usingTox[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxCore)] = using(a, b, toxInstance)
-  def usingTox[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxCore)] = using(a, b, c, toxInstance)
+  def usingTox[A](a: Gen[A]): Using[(A, ToxCore[Unit])] = using(a, toxInstance)
+  def usingTox[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxCore[Unit])] = using(a, b, toxInstance)
+  def usingTox[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxCore[Unit])] = using(a, b, c, toxInstance)
 
 }
 
@@ -109,8 +109,8 @@ object PerformanceReportBase {
    * @param friendCount The number of friends to add.
    * @return A new [[ToxCore]] instance with a name, status message, and friendCount friends.
    */
-  def makeToxWithFriends(friendCount: Int): ToxCore = {
-    val tox = ToxCoreFactory.make(toxOptions)
+  def makeToxWithFriends(friendCount: Int): ToxCore[Unit] = {
+    val tox = ToxCoreFactory.make[Unit](toxOptions)
     tox.setName(Array.ofDim(ToxCoreConstants.MAX_NAME_LENGTH))
     tox.setStatusMessage(Array.ofDim(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH))
     friendKeys(friendCount) foreach tox.addFriendNoRequest
@@ -125,7 +125,7 @@ object PerformanceReportBase {
    *
    * @return A new [[ToxCore]] instance with a name, status message, and 1 friend.
    */
-  def makeTox(): ToxCore = {
+  def makeTox(): ToxCore[Unit] = {
     makeToxWithFriends(1)
   }
 
@@ -136,7 +136,7 @@ object PerformanceReportBase {
    * should not mutate it. If it does, it needs to ensure that it returns to an equivalent state as before the test
    * began. In particular, if you add friends, you need to ensure that you remove all but 1 friends on tearDown.
    */
-  val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl]).map(_ => makeTox())
+  val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl[Unit]]).map(_ => makeTox())
 
   /**
    * Helper function to create a range axis evenly divided into 10 samples. The range starts with `upto / 10` and ends
@@ -181,15 +181,15 @@ object PerformanceReportBase {
    *
    * Do not mutate objects returned by this function.
    */
-  object toxWithFriends extends (Int => ToxCore) with Serializable {
+  object toxWithFriends extends (Int => ToxCore[Unit]) with Serializable {
     /**
      * [[immutable.HashMap]] was chosen here for its semantics, not efficiency. A [[Vector]][([[Int]], [[ToxCore]])] or
      * an [[Array]] would possibly be faster, but the map is easier to use.
      */
     @transient
-    private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore]
+    private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore[Unit]]
 
-    override def apply(sz: Int): ToxCore = {
+    override def apply(sz: Int): ToxCore[Unit] = {
       toxesWithFriends.get(sz) match {
         case Some(tox) =>
           tox
@@ -217,7 +217,7 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore): (Seq[Int], ToxCore) = {
+  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore[Unit]): (Seq[Int], ToxCore[Unit]) = {
     val friendList = random.shuffle(tox.getFriendList.toSeq)
     if (limit != 0) {
       (friendList.slice(0, limit), tox)
@@ -234,7 +234,7 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendKeys(limit: Int)(tox: ToxCore): (Seq[Array[Byte]], ToxCore) = {
+  def toxAndFriendKeys(limit: Int)(tox: ToxCore[Unit]): (Seq[Array[Byte]], ToxCore[Unit]) = {
     toxAndFriendNumbers(limit)(tox) match {
       case (friendList, `tox`) => (friendList map tox.getFriendPublicKey, tox)
     }

@@ -2,11 +2,14 @@ package im.tox.gui;
 
 import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.annotations.Nullable;
-import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.ToxCore;
+import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.*;
-import im.tox.tox4j.core.exceptions.*;
+import im.tox.tox4j.core.exceptions.ToxBootstrapException;
+import im.tox.tox4j.core.exceptions.ToxFileSendException;
+import im.tox.tox4j.core.exceptions.ToxFriendAddException;
+import im.tox.tox4j.core.exceptions.ToxFriendSendMessageException;
 import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.core.options.SaveDataOptions;
 import im.tox.tox4j.core.options.ToxOptions;
@@ -15,6 +18,7 @@ import im.tox.tox4j.impl.jni.ToxCoreImpl;
 import im.tox.tox4j.testing.WrappedArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.runtime.BoxedUnit;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -63,7 +67,7 @@ public class ToxGui extends JFrame {
   private JProgressBar fileProgress;
   private JButton sendFileButton;
 
-  private ToxCore tox;
+  private ToxCore<BoxedUnit> tox;
   private Thread eventLoop;
 
   private DefaultListModel<String> messageModel = new DefaultListModel<>();
@@ -91,150 +95,199 @@ public class ToxGui extends JFrame {
     save();
   }
 
-  private final ToxEventListener toxEvents = new InvokeLaterToxEventListener(new ToxEventListener() {
+  private final ToxEventListener<BoxedUnit> toxEvents;
 
-    private void addMessage(String method, Object... args) {
-      StringBuilder str = new StringBuilder();
-      str.append(method);
-      str.append('(');
-      boolean first = true;
-      for (Object arg : args) {
-        if (!first) {
-          str.append(", ");
-        }
-        str.append(arg);
-        first = false;
-      }
-      str.append(')');
-      ToxGui.this.addMessage(str.toString());
-    }
+  {
+    toxEvents = new InvokeLaterToxEventListener<>(new ToxEventListener<BoxedUnit>() {
 
-    @Override
-    public void selfConnectionStatus(@NotNull ToxConnection connectionStatus) {
-      addMessage("selfConnectionStatus", connectionStatus);
-    }
-
-    @Override
-    public void fileRecvControl(int friendNumber, int fileNumber, @NotNull ToxFileControl control) {
-      addMessage("fileRecvControl", friendNumber, fileNumber, control);
-      try {
-        switch (control) {
-          case RESUME:
-            fileModel.get(friendNumber, fileNumber).resume();
-            break;
-          case CANCEL:
-            throw new UnsupportedOperationException("CANCEL");
-          case PAUSE:
-            throw new UnsupportedOperationException("PAUSE");
-        }
-      } catch (Throwable e) {
-        JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
-      }
-    }
-
-    @Override
-    public void fileRecv(int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename) {
-      addMessage("fileRecv", friendNumber, fileNumber, kind, fileSize, new String(filename));
-      try {
-        int confirmation = JOptionPane.showConfirmDialog(
-            ToxGui.this, "Incoming file transfer: " + new String(filename)
-        );
-        if (confirmation == JOptionPane.OK_OPTION) {
-          JFileChooser chooser = new JFileChooser();
-          int returnVal = chooser.showOpenDialog(ToxGui.this);
-          if (returnVal == JFileChooser.APPROVE_OPTION) {
-            fileModel.addIncoming(friendNumber, fileNumber, kind, fileSize, chooser.getSelectedFile());
-            tox.fileControl(friendNumber, fileNumber, ToxFileControl.RESUME);
-            return;
+      private void addMessage(String method, Object... args) {
+        StringBuilder str = new StringBuilder();
+        str.append(method);
+        str.append('(');
+        boolean first = true;
+        for (Object arg : args) {
+          if (!first) {
+            str.append(", ");
           }
+          str.append(arg);
+          first = false;
         }
-        tox.fileControl(friendNumber, fileNumber, ToxFileControl.CANCEL);
-      } catch (Throwable e) {
-        JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+        str.append(')');
+        ToxGui.this.addMessage(str.toString());
       }
-    }
 
-    @Override
-    public void fileRecvChunk(int friendNumber, int fileNumber, long position, @NotNull byte[] data) {
-      addMessage("fileRecvChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
-      try {
-        fileModel.get(friendNumber, fileNumber).write(position, data);
-      } catch (Throwable e) {
-        JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+      @Override
+      public BoxedUnit selfConnectionStatus(
+          @NotNull ToxConnection connectionStatus, BoxedUnit state
+      ) {
+        addMessage("selfConnectionStatus", connectionStatus);
+        return state;
       }
-    }
 
-    @Override
-    public void fileChunkRequest(int friendNumber, int fileNumber, long position, int length) {
-      addMessage("fileChunkRequest", friendNumber, fileNumber, position, length);
-      try {
-        if (length == 0) {
-          fileModel.remove(friendNumber, fileNumber);
-        } else {
-          tox.fileSendChunk(friendNumber, fileNumber, position,
-              fileModel.get(friendNumber, fileNumber).read(position, length));
+      @Override
+      public BoxedUnit fileRecvControl(
+          int friendNumber, int fileNumber, @NotNull ToxFileControl control, BoxedUnit state
+      ) {
+        addMessage("fileRecvControl", friendNumber, fileNumber, control);
+        try {
+          switch (control) {
+            case RESUME:
+              fileModel.get(friendNumber, fileNumber).resume();
+              break;
+            case CANCEL:
+              throw new UnsupportedOperationException("CANCEL");
+            case PAUSE:
+              throw new UnsupportedOperationException("PAUSE");
+          }
+        } catch (Throwable e) {
+          JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
         }
-      } catch (Throwable e) {
-        JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+        return state;
       }
-    }
 
-    @Override
-    public void friendConnectionStatus(int friendNumber, @NotNull ToxConnection connectionStatus) {
-      addMessage("friendConnectionStatus", friendNumber, connectionStatus);
-      friendListModel.setConnectionStatus(friendNumber, connectionStatus);
-    }
+      @Override
+      public BoxedUnit fileRecv(
+          int friendNumber, int fileNumber, int kind, long fileSize, @NotNull byte[] filename, BoxedUnit state
+      ) {
+        addMessage("fileRecv", friendNumber, fileNumber, kind, fileSize, new String(filename));
+        try {
+          int confirmation = JOptionPane.showConfirmDialog(
+              ToxGui.this, "Incoming file transfer: " + new String(filename)
+          );
+          if (confirmation == JOptionPane.OK_OPTION) {
+            JFileChooser chooser = new JFileChooser();
+            int returnVal = chooser.showOpenDialog(ToxGui.this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+              fileModel.addIncoming(friendNumber, fileNumber, kind, fileSize, chooser.getSelectedFile());
+              tox.fileControl(friendNumber, fileNumber, ToxFileControl.RESUME);
+              return state;
+            }
+          }
+          tox.fileControl(friendNumber, fileNumber, ToxFileControl.CANCEL);
+        } catch (Throwable e) {
+          JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+        }
+        return state;
+      }
 
-    @Override
-    public void friendLosslessPacket(int friendNumber, @NotNull byte[] data) {
-      addMessage("friendLosslessPacket", friendNumber, readablePublicKey(data));
-    }
+      @Override
+      public BoxedUnit fileRecvChunk(
+          int friendNumber, int fileNumber, long position, @NotNull byte[] data, BoxedUnit state
+      ) {
+        addMessage("fileRecvChunk", friendNumber, fileNumber, position, "byte[" + data.length + ']');
+        try {
+          fileModel.get(friendNumber, fileNumber).write(position, data);
+        } catch (Throwable e) {
+          JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+        }
+        return state;
+      }
 
-    @Override
-    public void friendLossyPacket(int friendNumber, @NotNull byte[] data) {
-      addMessage("friendLossyPacket", friendNumber, readablePublicKey(data));
-    }
+      @Override
+      public BoxedUnit fileChunkRequest(
+          int friendNumber, int fileNumber, long position, int length, BoxedUnit state
+      ) {
+        addMessage("fileChunkRequest", friendNumber, fileNumber, position, length);
+        try {
+          if (length == 0) {
+            fileModel.remove(friendNumber, fileNumber);
+          } else {
+            tox.fileSendChunk(friendNumber, fileNumber, position,
+                fileModel.get(friendNumber, fileNumber).read(position, length));
+          }
+        } catch (Throwable e) {
+          JOptionPane.showMessageDialog(ToxGui.this, printExn(e));
+        }
+        return state;
+      }
 
-    @Override
-    public void friendMessage(int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message) {
-      addMessage("friendMessage", friendNumber, type, timeDelta, new String(message));
-    }
+      @Override
+      public BoxedUnit friendConnectionStatus(
+          int friendNumber, @NotNull ToxConnection connectionStatus, BoxedUnit state
+      ) {
+        addMessage("friendConnectionStatus", friendNumber, connectionStatus);
+        friendListModel.setConnectionStatus(friendNumber, connectionStatus);
+        return state;
+      }
 
-    @Override
-    public void friendName(int friendNumber, @NotNull byte[] name) {
-      addMessage("friendName", friendNumber, new String(name));
-      friendListModel.setName(friendNumber, new String(name));
-    }
+      @Override
+      public BoxedUnit friendLosslessPacket(
+          int friendNumber, @NotNull byte[] data, BoxedUnit state
+      ) {
+        addMessage("friendLosslessPacket", friendNumber, readablePublicKey(data));
+        return state;
+      }
 
-    @Override
-    public void friendRequest(@NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message) {
-      addMessage("friendRequest", readablePublicKey(publicKey), timeDelta, new String(message));
-    }
+      @Override
+      public BoxedUnit friendLossyPacket(
+          int friendNumber, @NotNull byte[] data, BoxedUnit state
+      ) {
+        addMessage("friendLossyPacket", friendNumber, readablePublicKey(data));
+        return state;
+      }
 
-    @Override
-    public void friendStatus(int friendNumber, @NotNull ToxUserStatus status) {
-      addMessage("friendStatus", friendNumber, status);
-      friendListModel.setStatus(friendNumber, status);
-    }
+      @Override
+      public BoxedUnit friendMessage(
+          int friendNumber, @NotNull ToxMessageType type, int timeDelta, @NotNull byte[] message, BoxedUnit state
+      ) {
+        addMessage("friendMessage", friendNumber, type, timeDelta, new String(message));
+        return state;
+      }
 
-    @Override
-    public void friendStatusMessage(int friendNumber, @NotNull byte[] message) {
-      addMessage("friendStatusMessage", friendNumber, new String(message));
-      friendListModel.setStatusMessage(friendNumber, new String(message));
-    }
+      @Override
+      public BoxedUnit friendName(
+          int friendNumber, @NotNull byte[] name, BoxedUnit state
+      ) {
+        addMessage("friendName", friendNumber, new String(name));
+        friendListModel.setName(friendNumber, new String(name));
+        return state;
+      }
 
-    @Override
-    public void friendTyping(int friendNumber, boolean isTyping) {
-      addMessage("friendTyping", friendNumber, isTyping);
-      friendListModel.setTyping(friendNumber, isTyping);
-    }
+      @Override
+      public BoxedUnit friendRequest(
+          @NotNull byte[] publicKey, int timeDelta, @NotNull byte[] message, BoxedUnit state
+      ) {
+        addMessage("friendRequest", readablePublicKey(publicKey), timeDelta, new String(message));
+        return state;
+      }
 
-    @Override
-    public void friendReadReceipt(int friendNumber, int messageId) {
-      addMessage("friendReadReceipt", friendNumber, messageId);
-    }
+      @Override
+      public BoxedUnit friendStatus(
+          int friendNumber, @NotNull ToxUserStatus status, BoxedUnit state
+      ) {
+        addMessage("friendStatus", friendNumber, status);
+        friendListModel.setStatus(friendNumber, status);
+        return state;
+      }
 
-  });
+      @Override
+      public BoxedUnit friendStatusMessage(
+          int friendNumber, @NotNull byte[] message, BoxedUnit state
+      ) {
+        addMessage("friendStatusMessage", friendNumber, new String(message));
+        friendListModel.setStatusMessage(friendNumber, new String(message));
+        return state;
+      }
+
+      @Override
+      public BoxedUnit friendTyping(
+          int friendNumber, boolean isTyping, BoxedUnit state
+      ) {
+        addMessage("friendTyping", friendNumber, isTyping);
+        friendListModel.setTyping(friendNumber, isTyping);
+        return state;
+      }
+
+      @Override
+      public BoxedUnit friendReadReceipt(
+          int friendNumber, int messageId, BoxedUnit state
+      ) {
+        addMessage("friendReadReceipt", friendNumber, messageId);
+        return state;
+      }
+
+    });
+  }
 
   private static final class SaveData implements Serializable {
     public final byte[] toxSave;
@@ -336,13 +389,14 @@ public class ToxGui extends JFrame {
               enableIPv6CheckBox.isSelected(),
               enableUdpCheckBox.isSelected(),
               proxy,
-              33445,
-              33545,
-              0,
-              toxSave != null ? new SaveDataOptions.ToxSave(new WrappedArray(toxSave)) : SaveDataOptions.None$.MODULE$
+              ToxCoreConstants.DEFAULT_START_PORT,
+              ToxCoreConstants.DEFAULT_END_PORT,
+              ToxCoreConstants.DEFAULT_TCP_PORT,
+              toxSave != null ? new SaveDataOptions.ToxSave(new WrappedArray(toxSave)) : SaveDataOptions.None$.MODULE$,
+              true
           );
 
-          tox = new ToxCoreImpl(options);
+          tox = new ToxCoreImpl<>(options);
 
           for (int friendNumber : tox.getFriendList()) {
             friendListModel.add(friendNumber, tox.getFriendPublicKey(friendNumber));
@@ -354,7 +408,7 @@ public class ToxGui extends JFrame {
             @Override
             public void run() {
               while (true) {
-                tox.iterate();
+                tox.iterate(BoxedUnit.UNIT);
                 try {
                   Thread.sleep(tox.iterationInterval());
                 } catch (InterruptedException e) {

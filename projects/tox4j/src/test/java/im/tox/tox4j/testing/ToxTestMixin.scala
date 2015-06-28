@@ -19,7 +19,7 @@ trait ToxTestMixin {
     }
   }
 
-  protected def interceptWithTox(code: Enum[_])(f: ToxCore => Unit) = {
+  protected def interceptWithTox(code: Enum[_])(f: ToxCore[Unit] => Unit) = {
     intercept(code) {
       ToxCoreFactory.withTox(f)
     }
@@ -27,7 +27,7 @@ trait ToxTestMixin {
 
   @throws[ToxNewException]
   @throws[ToxFriendAddException]
-  protected def addFriends(@NotNull tox: ToxCore, count: Int): Int = {
+  protected def addFriends[ToxCoreState](@NotNull tox: ToxCore[ToxCoreState], count: Int): Int = {
     if (count < 1) {
       throw new IllegalArgumentException("Cannot add less than 1 friend: " + count)
     }
@@ -40,7 +40,7 @@ trait ToxTestMixin {
   }
 
   @throws[ToxBootstrapException]
-  private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
+  private[tox4j] def bootstrap[ToxCoreState](useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore[ToxCoreState]): ToxCore[ToxCoreState] = {
     if (!udpEnabled) {
       tox.addTcpRelay(node.ipv4, node.tcpPort, node.dhtId)
     }

@@ -10,10 +10,12 @@ import im.tox.tox4j.core.enums.ToxConnection
  * This callback is not called when adding friends. It is assumed that when
  * adding friends, their connection status is initially offline.
  */
-trait FriendConnectionStatusCallback {
+trait FriendConnectionStatusCallback[ToxCoreState] {
   /**
    * @param friendNumber The friend number of the friend whose connection status changed.
    * @param connectionStatus The new connection status.
    */
-  def friendConnectionStatus(friendNumber: Int, @NotNull connectionStatus: ToxConnection): Unit = ()
+  def friendConnectionStatus(
+    friendNumber: Int, @NotNull connectionStatus: ToxConnection
+  )(state: ToxCoreState): ToxCoreState = state
 }

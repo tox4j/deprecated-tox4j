@@ -2,7 +2,7 @@ package im.tox.tox4j.core
 
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.impl.jni.ToxCoreImpl
-import org.scalatest.{Tag, FlatSpec}
+import org.scalatest.{ FlatSpec, Tag }
 
 /**
  * These tests solely exist to exercise the C++ code paths that deal with closing and finalisation. If the C++ code has
@@ -15,13 +15,13 @@ final class FinalizerTest extends FlatSpec {
 
   "Garbage collection" should "not crash the JVM when collecting a closed ToxCoreImpl" in {
     System.gc()
-    new ToxCoreImpl(new ToxOptions).close()
+    new ToxCoreImpl[Unit](new ToxOptions).close()
     System.gc()
   }
 
   it should "not crash the JVM when collecting an unclosed ToxCoreImpl" in {
     System.gc()
-    new ToxCoreImpl(new ToxOptions)
+    new ToxCoreImpl[Unit](new ToxOptions)
     System.gc()
   }
 }
@@ -29,7 +29,7 @@ final class FinalizerTest extends FlatSpec {
 object FinalizerTest {
   val emptyTags: Seq[Tag] = Nil
 
-  abstract class ToxFunction extends (ToxCore => Unit) {
-    override def apply(tox: ToxCore): Unit
+  abstract class ToxFunction extends (ToxCore[Unit] => Unit) {
+    override def apply(tox: ToxCore[Unit]): Unit
   }
 }

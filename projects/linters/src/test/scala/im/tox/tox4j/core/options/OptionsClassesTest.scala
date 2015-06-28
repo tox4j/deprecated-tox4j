@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.lint.{OptionsClasses, WartRemoverTest}
+import im.tox.tox4j.lint.{ OptionsClasses, WartRemoverTest }
 import org.scalatest.FunSuite
 
 import scala.collection.mutable.ArrayBuffer

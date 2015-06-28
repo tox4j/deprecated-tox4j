@@ -11,9 +11,9 @@ tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video
 {
   unused (av);
   auto msg = events.add_call ();
-  msg->set_friendnumber (friend_number);
-  msg->set_audioenabled (audio_enabled);
-  msg->set_videoenabled (video_enabled);
+  msg->set_friend_number (friend_number);
+  msg->set_audio_enabled (audio_enabled);
+  msg->set_video_enabled (video_enabled);
 }
 
 
@@ -21,13 +21,13 @@ static void
 tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &events)
 {
   unused (av);
-  auto msg = events.add_callstate ();
+  auto msg = events.add_call_state ();
   msg->set_friendnumber (friend_number);
 
   using proto::CallState;
 #define call_state_case(STATE)          \
   if (state & TOXAV_CALL_STATE_##STATE) \
-    msg->add_state (CallState::STATE)
+    msg->add_call_state (CallState::STATE)
   call_state_case (ERROR);
   call_state_case (FINISHED);
   call_state_case (SENDING_A);
@@ -46,10 +46,10 @@ tox4j_audio_bit_rate_status_cb (ToxAV *av,
                                 Events &events)
 {
   unused (av);
-  auto msg = events.add_audiobitratestatus ();
-  msg->set_friendnumber (friend_number);
+  auto msg = events.add_audio_bitrate_status ();
+  msg->set_friend_number (friend_number);
   msg->set_stable (stable);
-  msg->set_bitrate (bit_rate);
+  msg->set_bit_rate (bit_rate);
 }
 
 
@@ -61,10 +61,10 @@ tox4j_video_bit_rate_status_cb (ToxAV *av,
                                 Events &events)
 {
   unused (av);
-  auto msg = events.add_videobitratestatus ();
-  msg->set_friendnumber (friend_number);
+  auto msg = events.add_video_bitrate_status ();
+  msg->set_friend_number (friend_number);
   msg->set_stable (stable);
-  msg->set_bitrate (bit_rate);
+  msg->set_bit_rate (bit_rate);
 }
 
 
@@ -78,14 +78,14 @@ tox4j_audio_receive_frame_cb (ToxAV *av,
                               Events &events)
 {
   unused (av);
-  auto msg = events.add_audioreceiveframe ();
-  msg->set_friendnumber (friend_number);
+  auto msg = events.add_audio_receive_frame ();
+  msg->set_friend_number (friend_number);
 
   for (size_t i = 0; i < sample_count * channels; i++)
     msg->add_pcm (pcm[i]);
 
   msg->set_channels (channels);
-  msg->set_samplingrate (sampling_rate);
+  msg->set_sampling_rate (sampling_rate);
 }
 
 
@@ -98,8 +98,8 @@ tox4j_video_receive_frame_cb (ToxAV *av,
                               Events &events)
 {
   unused (av);
-  auto msg = events.add_videoreceiveframe ();
-  msg->set_friendnumber (friend_number);
+  auto msg = events.add_video_receive_frame ();
+  msg->set_friend_number (friend_number);
   msg->set_width (width);
   msg->set_height (height);
   msg->set_y (y, width * height);
@@ -107,10 +107,10 @@ tox4j_video_receive_frame_cb (ToxAV *av,
   msg->set_v (v, width * height);
   if (a != nullptr)
     msg->set_a (a, width * height);
-  msg->set_ystride (ystride);
-  msg->set_ustride (ustride);
-  msg->set_vstride (vstride);
-  msg->set_astride (astride);
+  msg->set_y_stride (ystride);
+  msg->set_u_stride (ustride);
+  msg->set_v_stride (vstride);
+  msg->set_a_stride (astride);
 }
 
 

@@ -27,7 +27,7 @@ import im.tox.tox4j.core.ToxCore
  * closing of ToxAv instance, all active calls will be forcibly terminated without
  * notifying peers.
  */
-trait ToxAv extends Closeable {
+trait ToxAv[ToxCoreState] extends Closeable {
 
   /**
    * Start new A/V session. There can only be only one session per Tox instance.
@@ -36,7 +36,7 @@ trait ToxAv extends Closeable {
    * @return the new A/V session.
    */
   @throws[ToxAvNewException]
-  def create(tox: ToxCore): ToxAv
+  def create(tox: ToxCore[ToxCoreState]): ToxAv[ToxCoreState]
 
   /**
    * Releases all resources associated with the A/V session.
@@ -57,7 +57,7 @@ trait ToxAv extends Closeable {
    * [[iterationInterval]] milliseconds. It is best called in the separate
    * thread from [[ToxCore.iterate]].
    */
-  def iterate(): Unit
+  def iterate(state: ToxCoreState): ToxCoreState
 
   /**
    * Call a friend. This will start ringing the friend.
@@ -175,6 +175,6 @@ trait ToxAv extends Closeable {
    *
    * @param handler An event handler capable of handling all Tox A/V events.
    */
-  def callback(@NotNull handler: ToxAvEventListener): Unit
+  def callback(@NotNull handler: ToxAvEventListener[ToxCoreState]): Unit
 
 }

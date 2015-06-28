@@ -1,12 +1,11 @@
 package im.tox.tox4j.av.callbacks
 
-import im.tox.tox4j.annotations.NotNull
-import im.tox.tox4j.annotations.Nullable
+import im.tox.tox4j.annotations.{ NotNull, Nullable }
 
 /**
  * Triggered when a video frame is received.
  */
-trait VideoReceiveFrameCallback {
+trait VideoReceiveFrameCallback[ToxCoreState] {
   /**
    * @param friendNumber The friend number of the friend who sent a video frame.
    * @param width Width of the frame in pixels.
@@ -35,5 +34,5 @@ trait VideoReceiveFrameCallback {
     width: Int, height: Int,
     @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte],
     yStride: Int, uStride: Int, vStride: Int, aStride: Int
-  ): Unit = ()
+  )(state: ToxCoreState): ToxCoreState = state
 }

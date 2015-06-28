@@ -1,8 +1,7 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, ChatClient }
-import org.junit.Assert.assertNotEquals
+import im.tox.tox4j.testing.autotest.AliceBobTest
 
 class SelfConnectionStatusCallbackTest extends AliceBobTest {
 
@@ -13,15 +12,15 @@ class SelfConnectionStatusCallbackTest extends AliceBobTest {
   override protected def enableHttp = true
   override protected def enableSocks = true
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = ToxConnection
+  override def initialState: State = ToxConnection.NONE
 
-    private var connection = ToxConnection.NONE
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
-    override def selfConnectionStatus(connection: ToxConnection): Unit = {
-      super.selfConnectionStatus(connection)
-      assertNotEquals(this.connection, connection)
-      this.connection = connection
-      finish()
+    override def selfConnectionStatus(connection: ToxConnection)(state: ChatState): ChatState = {
+      super.selfConnectionStatus(connection)(state)
+      assert(state.get != connection)
+      state.set(connection).finish
     }
 
   }

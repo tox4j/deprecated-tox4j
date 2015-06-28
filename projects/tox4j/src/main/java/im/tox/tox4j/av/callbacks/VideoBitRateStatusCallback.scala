@@ -3,7 +3,7 @@ package im.tox.tox4j.av.callbacks
 /**
  * Called after setting the video bit rate to report on success or failure.
  */
-trait VideoBitRateStatusCallback {
+trait VideoBitRateStatusCallback[ToxCoreState] {
   /**
    * @param friendNumber The friend number of the friend for which to set the
    *                     video bit rate.
@@ -15,5 +15,7 @@ trait VideoBitRateStatusCallback {
    *               or the non forceful change failed.
    * @param bitRate The bit rate in Kb/sec.
    */
-  def videoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int): Unit = ()
+  def videoBitRateStatus(
+    friendNumber: Int, stable: Boolean, bitRate: Int
+  )(state: ToxCoreState): ToxCoreState = state
 }

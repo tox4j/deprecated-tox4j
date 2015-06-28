@@ -11,19 +11,19 @@ final class CallbackTimingBench extends TimingReport {
   val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
   val data = Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
 
-  def invokePerformance(method: String, f: ToxCoreImpl => Unit): Unit = {
+  def invokePerformance(method: String, f: ToxCoreImpl[Unit] => Unit): Unit = {
     performance of method in {
       usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
+        case (sz, tox: ToxCoreImpl[Unit]) =>
           (0 until sz) foreach { _ =>
             f(tox)
-            tox.iterate()
+            tox.iterate(())
           }
       }
     }
   }
 
-  def invokeAllCallbacks(tox: ToxCoreImpl): Unit = {
+  def invokeAllCallbacks(tox: ToxCoreImpl[Unit]): Unit = {
     tox.invokeFileChunkRequest(1, 2, 3, 4)
     tox.invokeFileRecv(1, 2, 3, 4, data)
     tox.invokeFileRecvChunk(1, 2, 3, data)
@@ -41,20 +41,20 @@ final class CallbackTimingBench extends TimingReport {
     tox.invokeSelfConnectionStatus(ToxConnection.TCP)
   }
 
-  timing of classOf[ToxCore] in {
+  timing of classOf[ToxCore[Unit]] in {
 
     measure method "iterate" in {
       usingTox(iterations1k) in {
         case (sz, tox) =>
           (0 until sz) foreach { _ =>
-            tox.iterate()
+            tox.iterate(())
           }
       }
     }
 
     performance of "enqueuing a callback" in {
       usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
+        case (sz, tox: ToxCoreImpl[Unit]) =>
           (0 until sz) foreach { _ =>
             tox.invokeFileChunkRequest(1, 2, 3, 4)
           }
@@ -63,7 +63,7 @@ final class CallbackTimingBench extends TimingReport {
 
     performance of "enqueue all callbacks" in {
       usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
+        case (sz, tox: ToxCoreImpl[Unit]) =>
           (0 until sz) foreach { _ =>
             invokeAllCallbacks(tox)
           }
@@ -72,10 +72,10 @@ final class CallbackTimingBench extends TimingReport {
 
     performance of "call all callbacks" in {
       usingTox(iterations1k) in {
-        case (sz, tox: ToxCoreImpl) =>
+        case (sz, tox: ToxCoreImpl[Unit]) =>
           (0 until sz) foreach { _ =>
             invokeAllCallbacks(tox)
-            tox.iterate()
+            tox.iterate(())
           }
       }
     }

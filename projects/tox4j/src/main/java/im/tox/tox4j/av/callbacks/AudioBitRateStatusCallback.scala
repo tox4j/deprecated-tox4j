@@ -3,7 +3,7 @@ package im.tox.tox4j.av.callbacks
 /**
  * Called after setting the audio bit rate to report on success or failure.
  */
-trait AudioBitRateStatusCallback {
+trait AudioBitRateStatusCallback[ToxCoreState] {
   /**
    * @param friendNumber The friend number of the friend for which to set the
    *                     audio bit rate.
@@ -15,5 +15,7 @@ trait AudioBitRateStatusCallback {
    *               or the non forceful change failed.
    * @param bitRate The bit rate in Kb/sec.
    */
-  def audioBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int): Unit = ()
+  def audioBitRateStatus(
+    friendNumber: Int, stable: Boolean, bitRate: Int
+  )(state: ToxCoreState): ToxCoreState = state
 }

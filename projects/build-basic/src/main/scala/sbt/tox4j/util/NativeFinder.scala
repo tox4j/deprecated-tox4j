@@ -3,42 +3,40 @@
  */
 package sbt.tox4j.util
 
-import java.io.{ ByteArrayOutputStream, FileInputStream }
+import java.io.FileInputStream
 import java.lang.reflect.Method
 import javassist.util.proxy.{ MethodFilter, MethodHandler, ProxyFactory }
 
 import org.objectweb.asm._
 import sbt._
 
-// scalastyle:off
 object NativeFinder {
   def natives(classes: Set[File]): Map[String, Seq[String]] = {
-    var current: String = null
+    var currentClassName: String = null
     var nativeList: Map[String, Seq[String]] = Map.empty
 
     val factory = new ProxyFactory()
     factory.setSuperclass(classOf[ClassVisitor])
     factory.setFilter(new MethodFilter {
-      override def isHandled(p1: Method): Boolean = Seq("visit", "visitMethod").contains(p1.getName)
+      override def isHandled(m: Method): Boolean = Seq("visit", "visitMethod").contains(m.getName)
     })
 
-    val h = new MethodHandler {
+    val handler = new MethodHandler {
       override def invoke(self: scala.Any, thisMethod: Method, proceed: Method, args: Array[AnyRef]) = {
         thisMethod.getName match {
           case "visit" =>
             if (args.length > 2) {
-              current = args(2).toString
+              currentClassName = args(2).toString.replaceAll("/", ".")
             }
           case "visitMethod" =>
             val access = args(0).asInstanceOf[Int]
             val name = args(1).toString
             if ((access & Opcodes.ACC_NATIVE) != 0) {
-              val className = current.replaceAll("/", ".")
-              nativeList.get(className) match {
+              nativeList.get(currentClassName) match {
                 case None =>
-                  nativeList += ((className, Seq(name)))
+                  nativeList += ((currentClassName, Seq(name)))
                 case Some(names) =>
-                  nativeList += ((className, name +: names))
+                  nativeList += ((currentClassName, name +: names))
               }
 
             }
@@ -48,11 +46,8 @@ object NativeFinder {
       }
     }
 
-    factory.create(Array(classOf[Int]), Array(Opcodes.ASM4.asInstanceOf[AnyRef]), h) match {
+    factory.create(Array(classOf[Int]), Array(Integer.valueOf(Opcodes.ASM4)), handler) match {
       case x: ClassVisitor =>
-        val readbuf = Array.ofDim[Byte](Short.MaxValue)
-        val buf = new ByteArrayOutputStream
-
         classes foreach { entry =>
           val in = new FileInputStream(entry)
           val r = new ClassReader(in)
