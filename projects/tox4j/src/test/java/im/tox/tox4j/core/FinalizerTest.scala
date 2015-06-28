@@ -2,7 +2,7 @@ package im.tox.tox4j.core
 
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.impl.jni.ToxCoreImpl
-import org.scalatest.FlatSpec
+import org.scalatest.{Tag, FlatSpec}
 
 /**
  * These tests solely exist to exercise the C++ code paths that deal with closing and finalisation. If the C++ code has
@@ -23,5 +23,13 @@ final class FinalizerTest extends FlatSpec {
     System.gc()
     new ToxCoreImpl(new ToxOptions)
     System.gc()
+  }
+}
+
+object FinalizerTest {
+  val emptyTags: Seq[Tag] = Nil
+
+  abstract class ToxFunction extends (ToxCore => Unit) {
+    override def apply(tox: ToxCore): Unit
   }
 }
