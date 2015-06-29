@@ -118,6 +118,7 @@ TOX_METHOD (jbyteArray, Iterate,
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events) -> jbyteArray
       {
+        debug_log (instanceNumber, tox_iterate, tox);
         tox_iterate (tox);
         if (events.ByteSize () == 0)
           return nullptr;
