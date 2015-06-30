@@ -3,11 +3,33 @@
 #include <tox/core.h>
 
 #include <cctype>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 
+struct null_out_buf
+  : std::streambuf
+{
+  std::streamsize xsputn (char const *, std::streamsize n) override { return n; }
+  int overflow (int) override { return 1; }
+};
+
+struct null_out_stream
+  : std::ostream
+{
+  null_out_stream() : std::ostream (&buf) { }
+
+private:
+  null_out_buf buf;
+};
+
+static null_out_stream null_out;
+
 bool output_data_pointer = false;
-std::ostream &debug_out = std::cout;
+std::ostream &debug_out =
+  std::getenv ("TOX4J_DEBUG")
+    ? std::cout
+    : null_out;
 
 #undef register_func
 #define register_func(func) std::make_pair (reinterpret_cast<uintptr_t> (func), #func)
@@ -47,7 +69,6 @@ print_arg (Arg arg)
   debug_out << arg;
 }
 
-template void print_arg<char const *      > (char const *      );
 template void print_arg<bool              > (bool              );
 template void print_arg<  signed char     > (  signed char     );
 template void print_arg<unsigned char     > (unsigned char     );
@@ -57,6 +78,16 @@ template void print_arg<  signed long     > (  signed long     );
 template void print_arg<unsigned long     > (unsigned long     );
 template void print_arg<  signed long long> (  signed long long);
 template void print_arg<unsigned long long> (unsigned long long);
+
+template<>
+void
+print_arg<char const *> (char const *data)
+{
+  if (data == nullptr)
+    debug_out << "<null>";
+  else
+    debug_out << data;
+}
 
 template<>
 void
