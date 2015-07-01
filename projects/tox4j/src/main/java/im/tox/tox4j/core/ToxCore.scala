@@ -2,11 +2,11 @@ package im.tox.tox4j.core
 
 import java.io.Closeable
 
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
+import org.jetbrains.annotations.NotNull
 
 /**
  * Interface for a basic wrapper of tox chat functionality.

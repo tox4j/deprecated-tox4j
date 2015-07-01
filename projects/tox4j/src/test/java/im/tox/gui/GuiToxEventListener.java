@@ -1,11 +1,11 @@
 package im.tox.gui;
 
-import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.core.callbacks.ToxEventListener;
 import im.tox.tox4j.core.enums.ToxConnection;
 import im.tox.tox4j.core.enums.ToxFileControl;
 import im.tox.tox4j.core.enums.ToxMessageType;
 import im.tox.tox4j.core.enums.ToxUserStatus;
+import org.jetbrains.annotations.NotNull;
 import scala.runtime.BoxedUnit;
 
 import javax.swing.*;

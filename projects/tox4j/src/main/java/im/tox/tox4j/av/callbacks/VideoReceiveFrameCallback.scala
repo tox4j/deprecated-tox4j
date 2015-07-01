@@ -1,6 +1,6 @@
 package im.tox.tox4j.av.callbacks
 
-import im.tox.tox4j.annotations.{ NotNull, Nullable }
+import org.jetbrains.annotations.{ NotNull, Nullable }
 
 /**
  * Triggered when a video frame is received.

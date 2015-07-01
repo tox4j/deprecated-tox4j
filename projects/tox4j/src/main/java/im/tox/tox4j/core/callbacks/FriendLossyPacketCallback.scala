@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.annotations.NotNull
+import org.jetbrains.annotations.NotNull
 
 /**
  * This event is triggered when a custom lossy packet arrives from a friend.

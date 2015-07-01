@@ -5,7 +5,7 @@ import java.net.{ InetAddress, ServerSocket, Socket }
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.SocksServer.{ FIRST_PORT, LAST_PORT, logger }
-import im.tox.tox4j.annotations.NotNull
+import org.jetbrains.annotations.NotNull
 import org.junit.Assert.assertEquals
 import org.slf4j.LoggerFactory
 

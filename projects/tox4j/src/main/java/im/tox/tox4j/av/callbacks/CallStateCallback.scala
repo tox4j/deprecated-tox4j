@@ -2,8 +2,8 @@ package im.tox.tox4j.av.callbacks
 
 import java.util
 
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.av.enums.ToxCallState
+import org.jetbrains.annotations.NotNull
 
 /**
  * Called when the call state changes.

@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.enums.ToxUserStatus
+import org.jetbrains.annotations.NotNull
 
 /**
  * This event is triggered when a friend changes their user status.

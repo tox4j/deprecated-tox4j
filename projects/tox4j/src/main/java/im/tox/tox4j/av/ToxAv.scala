@@ -2,11 +2,11 @@ package im.tox.tox4j.av
 
 import java.io.Closeable
 
-import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.av.callbacks._
 import im.tox.tox4j.av.enums.ToxCallControl
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.ToxCore
+import org.jetbrains.annotations.{ NotNull, Nullable }
 
 /**
  * Public audio/video API for Tox clients.

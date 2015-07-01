@@ -4,7 +4,6 @@ import java.util
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
-import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
 import im.tox.tox4j.av.enums.{ ToxCallControl, ToxCallState }
@@ -12,6 +11,7 @@ import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.impl.jni.ToxAvImpl.{ convert, logger }
+import org.jetbrains.annotations.{ NotNull, Nullable }
 import org.slf4j.LoggerFactory
 
 import scalaz.Scalaz._

@@ -1,6 +1,6 @@
 package im.tox.tox4j.av.callbacks
 
-import im.tox.tox4j.annotations.NotNull
+import org.jetbrains.annotations.NotNull
 
 /**
  * Called when an audio frame is received.

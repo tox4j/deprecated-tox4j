@@ -1,10 +1,10 @@
 package im.tox.tox4j.testing
 
 import im.tox.tox4j.DhtNodeSelector._
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.exceptions.ToxException
+import org.jetbrains.annotations.NotNull
 import org.junit.Assert._
 
 trait ToxTestMixin {

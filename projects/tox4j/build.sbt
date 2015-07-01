@@ -23,6 +23,7 @@ resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repos
 
 // Build dependencies.
 libraryDependencies ++= Seq(
+  "com.intellij" % "annotations" % "12.0",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "org.json" % "json" % "20131018",
   "org.scalaz" %% "scalaz-core" % "7.2.0-M1"

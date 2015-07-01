@@ -1,7 +1,7 @@
 package im.tox.tox4j.av.exceptions;
 
-import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
+import org.jetbrains.annotations.NotNull;
 
 public final class ToxAvCallControlException extends ToxException<ToxAvCallControlException.Code> {
 

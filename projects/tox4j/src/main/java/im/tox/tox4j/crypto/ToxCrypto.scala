@@ -1,7 +1,7 @@
 package im.tox.tox4j.crypto
 
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
+import org.jetbrains.annotations.NotNull
 
 /**
  * To perform encryption, first derive an encryption key from a password with

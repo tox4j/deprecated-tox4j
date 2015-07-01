@@ -1,7 +1,5 @@
 package im.tox.gui;
 
-import im.tox.gui.forms.MainViewBase;
-
 import javax.swing.*;
 
 public final class ToxGuiClient {

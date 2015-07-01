@@ -5,11 +5,11 @@ import java.io.IOException
 import java.net.{ InetAddress, Socket }
 import java.util.Random
 
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.testing.ToxTestMixin
+import org.jetbrains.annotations.NotNull
 import org.junit.{ After, Assume }
 import org.scalatest.junit.JUnitSuite
 

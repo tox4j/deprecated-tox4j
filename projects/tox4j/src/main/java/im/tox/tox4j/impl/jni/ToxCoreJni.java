@@ -1,8 +1,8 @@
 package im.tox.tox4j.impl.jni;
 
-import im.tox.tox4j.annotations.NotNull;
-import im.tox.tox4j.annotations.Nullable;
 import im.tox.tox4j.core.exceptions.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import scala.MatchError;
 
 @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})

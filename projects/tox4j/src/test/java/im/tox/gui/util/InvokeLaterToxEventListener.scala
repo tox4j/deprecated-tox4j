@@ -2,9 +2,9 @@ package im.tox.gui.util
 
 import javax.swing._
 
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus}
+import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
+import org.jetbrains.annotations.NotNull
 
 // scalastyle:off line.size.limit
 final class InvokeLaterToxEventListener[ToxCoreState](underlying: ToxEventListener[ToxCoreState]) extends ToxEventListener[ToxCoreState] {
