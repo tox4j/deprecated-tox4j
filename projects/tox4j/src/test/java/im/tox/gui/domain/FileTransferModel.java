@@ -1,4 +1,4 @@
-package im.tox.gui;
+package im.tox.gui.domain;
 
 import javax.swing.*;
 import java.io.File;

@@ -1,4 +1,4 @@
-package im.tox.gui;
+package im.tox.gui.domain;
 
 import java.io.File;
 import java.io.FileNotFoundException;

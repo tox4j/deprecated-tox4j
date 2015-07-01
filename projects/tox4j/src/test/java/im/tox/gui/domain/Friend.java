@@ -1,4 +1,4 @@
-package im.tox.gui;
+package im.tox.gui.domain;
 
 import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.enums.ToxConnection;

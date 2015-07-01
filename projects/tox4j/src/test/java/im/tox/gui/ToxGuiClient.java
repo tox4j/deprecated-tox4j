@@ -1,5 +1,7 @@
 package im.tox.gui;
 
+import im.tox.gui.forms.MainViewBase;
+
 import javax.swing.*;
 
 public final class ToxGuiClient {
@@ -15,7 +17,7 @@ public final class ToxGuiClient {
       }
     }
 
-    ToxGui dialog = new ToxGui();
+    MainView dialog = new MainView();
     dialog.pack();
     dialog.setVisible(true);
   }
