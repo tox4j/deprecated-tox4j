@@ -1,6 +1,7 @@
 package im.tox.gui
 
 import java.io._
+import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.swing._
@@ -72,15 +73,18 @@ final class MainView extends MainViewBase {
 
   def save(): Unit = {
     if (tox != null) {
-      val saveFile = new ObjectOutputStream(new FileOutputStream("/tmp/toxgui.tox"))
+      val saveDataPath = Files.createTempFile("toxgui", ".tox")
+      saveDataPath.toFile.deleteOnExit()
+
+      val saveDataStream = new ObjectOutputStream(Files.newOutputStream(saveDataPath))
       try {
         val saveData = new MainView.SaveData(tox.getSaveData, friendListModel, messageModel)
-        saveFile.writeObject(saveData)
+        saveDataStream.writeObject(saveData)
       } catch {
         case e: IOException =>
           e.printStackTrace()
       } finally {
-        saveFile.close()
+        saveDataStream.close()
       }
     }
   }

@@ -116,7 +116,7 @@
    Check that a class does not import certain classes
    <check level="error" class="org.scalastyle.scalariform.IllegalImportsChecker" enabled="true">
       <parameters>
-         <parameter name="illegalImports">android._,sun._,java.awt._</parameter>
+         <parameter name="illegalImports">android._,sun._</parameter>
       </parameters>
    </check>
 

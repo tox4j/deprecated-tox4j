@@ -22,7 +22,7 @@ final class FileTransferModel extends AbstractListModel[FileTransfer] {
     var position = 0
     for (list <- transfers) {
       if (position + list.length > index) {
-        return list(index - position)
+        return list(index - position) // scalastyle:ignore return
       }
       position += list.length
     }

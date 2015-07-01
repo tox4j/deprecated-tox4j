@@ -5,7 +5,8 @@ import javax.swing._
 
 import im.tox.gui.MainView
 import im.tox.tox4j.ToxCoreTestBase.readablePublicKey
-import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.options.ProxyOptions.Type
+import im.tox.tox4j.core.options.{ SaveDataOptions, ProxyOptions, ToxOptions }
 import im.tox.tox4j.exceptions.ToxException
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 
@@ -39,31 +40,33 @@ final class ConnectButtonOnAction(toxGui: MainView) extends ActionListener {
     ).foreach(_.setEnabled(!enabled))
   }
 
+  private def toxOptions: ToxOptions = {
+    val proxy: Type =
+      if (toxGui.httpRadioButton.isSelected) {
+        ProxyOptions.Http(toxGui.proxyHost.getText, toxGui.proxyPort.getText.toInt)
+      } else if (toxGui.socksRadioButton.isSelected) {
+        ProxyOptions.Socks5(toxGui.proxyHost.getText, toxGui.proxyPort.getText.toInt)
+      } else {
+        ProxyOptions.None
+      }
+
+    val toxSave: SaveDataOptions.Type =
+      toxGui.load() match {
+        case None       => SaveDataOptions.None
+        case Some(data) => SaveDataOptions.ToxSave(data)
+      }
+
+    ToxOptions(
+      toxGui.enableIPv6CheckBox.isSelected,
+      toxGui.enableUdpCheckBox.isSelected,
+      proxy = proxy,
+      saveData = toxSave
+    )
+  }
+
   private def connect(): Unit = {
     try {
-      val proxy: ProxyOptions.Type =
-        if (toxGui.httpRadioButton.isSelected) {
-          ProxyOptions.Http(toxGui.proxyHost.getText, toxGui.proxyPort.getText.toInt)
-        } else if (toxGui.socksRadioButton.isSelected) {
-          ProxyOptions.Socks5(toxGui.proxyHost.getText, toxGui.proxyPort.getText.toInt)
-        } else {
-          ProxyOptions.None
-        }
-
-      val toxSave: SaveDataOptions.Type =
-        toxGui.load() match {
-          case None       => SaveDataOptions.None
-          case Some(data) => SaveDataOptions.ToxSave(data)
-        }
-
-      val options = ToxOptions(
-        toxGui.enableIPv6CheckBox.isSelected,
-        toxGui.enableUdpCheckBox.isSelected,
-        proxy = proxy,
-        saveData = toxSave
-      )
-
-      toxGui.tox = new ToxCoreImpl[Unit](options)
+      toxGui.tox = new ToxCoreImpl[Unit](toxOptions)
 
       for (friendNumber <- toxGui.tox.getFriendList) {
         toxGui.friendListModel.add(
@@ -88,7 +91,6 @@ final class ConnectButtonOnAction(toxGui: MainView) extends ActionListener {
       toxGui.connectButton.setText("Disconnect")
       setConnectSettingsEnabled(false)
       toxGui.addMessage("Created Tox instance; started event loop")
-
     } catch {
       case e: ToxException[_] =>
         toxGui.addMessage("Error creating Tox instance: " + e.code)
