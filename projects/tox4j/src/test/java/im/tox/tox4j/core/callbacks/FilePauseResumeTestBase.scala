@@ -3,7 +3,8 @@ package im.tox.tox4j.core.callbacks
 import java.util
 import java.util.Random
 
-import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.TestConstants
+import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxFileKind, ToxMessageType }
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 import org.junit.Assert._
@@ -12,10 +13,10 @@ import org.junit.Assert._
  * This test intends to simulate the situation of file pause
  * and resume initiated by both the sending side and the receiving side.
  * - Alice initiated the file transmission and Bob accepted
- * - After sending 1/6 of the file, Alice paused the transmission
+ * - After sending 1/4 of the file, Alice paused the transmission
  * - Bob saw Alice's paused transmission and sent a message to request resuming
  * - Alice resumed the transmission
- * - Bob paused the transmission after receiving 1/3 of the file
+ * - Bob paused the transmission after receiving 2/4 of the file
  * - Alice saw Bob paused transmission and sent a message to request resuming
  * - Bob resumed the transmission and received all the data
  */
@@ -24,7 +25,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
   final override type State = Unit
   final override def initialState: State = ()
 
-  protected val fileData = new Array[Byte](300 * 1371) // (TestConstants.ITERATIONS * ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+  protected val fileData = new Array[Byte](TestConstants.ITERATIONS * ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
   new Random().nextBytes(fileData)
   protected var aliceSentFileNumber = -1
   private var aliceOffset = 0L
@@ -86,26 +87,22 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
         debug("finish transmission")
         state.finish
       } else {
-        if (aliceShouldPause != 0) {
-          val nextState = state.addTask { (tox, state) =>
-            debug(s"sending ${length}B to $friendNumber from position $position")
-            tox.fileSendChunk(friendNumber, fileNumber, position,
-              util.Arrays.copyOfRange(fileData, position.toInt, Math.min(position.toInt + length, fileData.length)))
+        val nextState = state.addTask { (tox, state) =>
+          debug(s"sending ${length}B to $friendNumber from position $position")
+          tox.fileSendChunk(friendNumber, fileNumber, position,
+            util.Arrays.copyOfRange(fileData, position.toInt, Math.min(position.toInt + length, fileData.length)))
+          state
+        }
+        aliceOffset += length
+        if (aliceOffset >= fileData.length / 4 && aliceShouldPause == -1) {
+          aliceShouldPause = 0
+          nextState.addTask { (tox, state) =>
+            tox.fileControl(friendNumber, fileNumber, ToxFileControl.PAUSE)
+            debug("pause file transmission")
             state
           }
-          aliceOffset += length
-          if (aliceOffset >= fileData.length / 3 && aliceShouldPause == -1) {
-            aliceShouldPause = 0
-            nextState.addTask { (tox, state) =>
-              tox.fileControl(friendNumber, fileNumber, ToxFileControl.PAUSE)
-              debug("pause file transmission")
-              state
-            }
-          } else {
-            nextState
-          }
         } else {
-          state
+          nextState
         }
       }
     }
@@ -154,7 +151,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
       } else {
         System.arraycopy(data, 0, receivedData, position.toInt, data.length)
         bobOffset += data.length
-        if (bobOffset >= fileData.length / 2 && bobShouldPause == -1) {
+        if (bobOffset >= fileData.length * 2 / 4 && bobShouldPause == -1) {
           bobShouldPause = 0
           state.addTask { (tox, state) =>
             debug("send file control to pause")
