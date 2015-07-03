@@ -4,6 +4,7 @@ name          := "tox4j"
 scalaVersion  := "2.11.6"
 
 // Enable the plugins we want.
+import ScoverageSbtPlugin.ScoverageKeys._
 import sbt.tox4j._
 import sbt.tox4j.lint._
 
@@ -79,7 +80,8 @@ Scalastyle.moduleSettings
 WartRemoverOverrides.moduleSettings
 
 // TODO(iphydf): Require less test coverage for now, until ToxAv is tested.
-ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 78
+Coverage.projectSettings
+coverageMinimum := 78
 
 // Tox4j-specific style checkers.
 addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")

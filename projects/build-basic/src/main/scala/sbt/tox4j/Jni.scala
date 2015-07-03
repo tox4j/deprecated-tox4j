@@ -14,6 +14,9 @@ import scala.language.postfixOps
 object Jni extends OptionalPlugin {
 
   private val DEBUG = false
+  private val coverageEnabled = true
+
+  val Native = config("native")
 
   object BuildTool {
     sealed trait T { def name: String; def command: String }
@@ -45,6 +48,8 @@ object Jni extends OptionalPlugin {
     val cxxFlags = settingKey[Seq[String]]("Flags to be passed to the native C++ compiler when compiling")
     val ldFlags = settingKey[Seq[String]]("Flags to be passed to the native compiler when linking")
 
+    val coverageFlags = settingKey[Seq[String]]("Flags to be passed to the native compiler to enable coverage recording")
+
     val buildTool = settingKey[BuildTool.T]("Build tool to use [make, ninja]")
     val buildFlags = settingKey[Seq[String]]("Flags to be passed to the build tool")
 
@@ -56,13 +61,11 @@ object Jni extends OptionalPlugin {
 
   import Keys._
 
-  val Native = config("native")
-
   private object PrivateKeys {
 
     // tasks
 
-    val javah = taskKey[Unit]("Generates JNI header files")
+    val javah = taskKey[Seq[String]]("Generates JNI header files")
     val gtestPath = taskKey[Option[File]]("Finds the Google Test source path or downloads gtest from the internet")
     val cmakeDependenciesFile = taskKey[File]("Generates Dependencies.cmake containing C++ dependency information")
     val cmakeMainFile = taskKey[File]("Generates Main.cmake containing instructions for the main module")
@@ -157,6 +160,7 @@ object Jni extends OptionalPlugin {
     } finally {
       targetFile.delete()
       sourceFile.delete()
+      file(FilenameUtils.removeExtension(sourceFile.getAbsolutePath) + ".gcno").delete()
     }
   }
 
@@ -304,132 +308,138 @@ object Jni extends OptionalPlugin {
     val settings = jniSettings(platform)
   }
 
-  override val moduleSettings = inConfig(Native)(Seq(
+  override val moduleSettings = Seq(
+    inConfig(Native)(Seq[Setting[_]](
 
-    jniClasses := {
-      val classes = (compileIncremental in Compile).value
-        .analysis
-        .relations
-        .allProducts
-        .filter(_.name.endsWith(".class"))
-        .toSet
-      NativeFinder.natives(classes)
-    },
+      jniClasses := {
+        val classes = (compileIncremental in Compile).value
+          .analysis
+          .relations
+          .allProducts
+          .filter(_.name.endsWith(".class"))
+          .toSet
+        NativeFinder.natives(classes)
+      },
 
-    // Target for javah-generated headers.
-    headersPath := nativeTarget.value / "include",
+      // Target for javah-generated headers.
+      headersPath := nativeTarget.value / "include",
 
-    // Include directories.
-    includes := Nil,
+      // Include directories.
+      includes := Nil,
 
-    includes ++= Seq(
-      headersPath.value,
-      (nativeSource in Compile).value,
-      (managedNativeSource in Compile).value
+      includes ++= Seq(
+        headersPath.value,
+        (nativeSource in Compile).value,
+        (managedNativeSource in Compile).value
+      ),
+
+      includes ++= jreInclude(toolchainPath.value).getOrElse(Nil)
+    )),
+
+    Seq[Setting[_]](
+      // Library name defaults to the project name.
+      libraryName := name.value,
+
+      // Initialise pkg-config dependencies to the empty sequence.
+      packageDependencies := Nil,
+      pkgConfigPath := sys.env.get("PKG_CONFIG_PATH").map(_.split(File.pathSeparator).toSeq.map(file)).getOrElse(Nil),
+
+      // Native source directory defaults to "src/main/cpp".
+      nativeSource in Compile := (sourceDirectory in Compile).value / "cpp",
+      nativeSource in Test := (sourceDirectory in Test).value / "cpp",
+      nativeTarget := (target in Compile).value / "cpp",
+      managedNativeSource := nativeTarget.value / "source",
+
+      // Put the linked library in here.
+      binPath := nativeTarget.value / "bin",
+
+      // Default to global toolchain.
+      toolchainPath := None,
+
+      // Default native C++ compiler to Clang.
+      nativeCC := findCc(toolchainPath.value),
+      nativeCXX := findCxx(toolchainPath.value),
+
+      // Defaults from the environment.
+      cppFlags := sys.env.get("CPPFLAGS").toSeq,
+      cFlags := sys.env.get("CFLAGS").toSeq,
+      cxxFlags := sys.env.get("CXXFLAGS").toSeq,
+      ldFlags := sys.env.get("LDFLAGS").toSeq,
+
+      // Build with parallel tasks by default.
+      buildTool := {
+        import BuildTool._
+
+        Seq(Ninja, Make).foldLeft[Option[T]](None) { (found, next) =>
+          found match {
+            case Some(_) => found
+            case None =>
+              try {
+                Seq(next.command, "--version") !< nullLog
+                Some(next)
+              } catch {
+                case _: java.io.IOException => None
+              }
+          }
+        } getOrElse Make
+      },
+      buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
+
+      // C++14 flags.
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(
+        Seq("-std=c++14"),
+        Seq("-std=c++1y")
+      ),
+
+      // Debug flags.
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(
+        Seq("-ggdb3"),
+        Seq("-g3"),
+        Seq("-g")
+      ),
+
+      // Warning flags.
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wall")),
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wextra")),
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-pedantic")),
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fcolor-diagnostics")),
+
+      // Use libc++ if available.
+      //ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-stdlib=libc++")),
+
+      // No RTTI and no exceptions.
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fno-exceptions")),
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fno-rtti")),
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
+      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-DGTEST_HAS_RTTI=0")),
+
+      // Error on undefined references in shared object.
+      ldFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
+
+      // Enable test coverage collection.
+      coverageFlags := checkCcOptions(nativeCXX.value)(Seq("-fprofile-arcs", "-ftest-coverage")),
+
+      jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(isNativeSource).get,
+      jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(isNativeSource).get,
+
+      cleanFiles ++= Seq(
+        binPath.value,
+        (headersPath in Native).value
+      ),
+
+      // Make shared lib available at runtime. Must be used with forked JVM to work.
+      javaOptions ++= Seq(
+        s"-Djava.library.path=${binPath.value}",
+        "-Xmx1g"
+      ),
+      initialCommands in console := "im.tox.tox4j.JavaLibraryPath.addLibraryPath(\"" + binPath.value + "\")",
+      // Required in order to have a separate JVM to set Java options.
+      fork := true
     ),
 
-    includes ++= jreInclude(toolchainPath.value).getOrElse(Nil)
+    Platform.settings,
 
-  )) ++ Seq(
-
-    // Library name defaults to the project name.
-    libraryName := name.value,
-
-    // Initialise pkg-config dependencies to the empty sequence.
-    packageDependencies := Nil,
-    pkgConfigPath := sys.env.get("PKG_CONFIG_PATH").map(_.split(File.pathSeparator).toSeq.map(file)).getOrElse(Nil),
-
-    // Native source directory defaults to "src/main/cpp".
-    nativeSource in Compile := (sourceDirectory in Compile).value / "cpp",
-    nativeSource in Test := (sourceDirectory in Test).value / "cpp",
-    nativeTarget := (target in Compile).value / "cpp",
-    managedNativeSource := nativeTarget.value / "source",
-
-    // Put the linked library in here.
-    binPath := nativeTarget.value / "bin",
-
-    // Default to global toolchain.
-    toolchainPath := None,
-
-    // Default native C++ compiler to Clang.
-    nativeCC := findCc(toolchainPath.value),
-    nativeCXX := findCxx(toolchainPath.value),
-
-    // Defaults from the environment.
-    cppFlags := sys.env.get("CPPFLAGS").toSeq,
-    cFlags := sys.env.get("CFLAGS").toSeq,
-    cxxFlags := sys.env.get("CXXFLAGS").toSeq,
-    ldFlags := sys.env.get("LDFLAGS").toSeq,
-
-    // Build with parallel tasks by default.
-    buildTool := {
-      import BuildTool._
-
-      Seq(Ninja, Make).foldLeft[Option[T]](None) { (found, next) =>
-        found match {
-          case Some(_) => found
-          case None =>
-            try {
-              Seq(next.command, "--version") !< nullLog
-              Some(next)
-            } catch {
-              case _: java.io.IOException => None
-            }
-        }
-      } getOrElse Make
-    },
-    buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
-
-    // C++14 flags.
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(
-      Seq("-std=c++14"),
-      Seq("-std=c++1y")
-    ),
-
-    // Debug flags.
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(
-      Seq("-ggdb3"),
-      Seq("-g3"),
-      Seq("-g")
-    ),
-
-    // Warning flags.
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wall")),
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wextra")),
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-pedantic")),
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fcolor-diagnostics")),
-
-    // Use libc++ if available.
-    //ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-stdlib=libc++")),
-
-    // No RTTI and no exceptions.
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fno-exceptions")),
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fno-rtti")),
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
-    cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-DGTEST_HAS_RTTI=0")),
-
-    // Error on undefined references in shared object.
-    ldFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
-
-    jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(isNativeSource).get,
-    jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(isNativeSource).get,
-
-    cleanFiles ++= Seq(
-      binPath.value,
-      (headersPath in Native).value
-    ),
-
-    // Make shared lib available at runtime. Must be used with forked JVM to work.
-    javaOptions ++= Seq(
-      s"-Djava.library.path=${binPath.value}",
-      "-Xmx1g"
-    ),
-    initialCommands in console := "im.tox.tox4j.JavaLibraryPath.addLibraryPath(\"" + binPath.value + "\")",
-    // Required in order to have a separate JVM to set Java options.
-    fork := true
-
-  ) ++ Platform.settings ++ inConfig(Native)(Seq(
-
+    inConfig(Native)(Seq[Setting[_]](
       javah := Def.task {
         val log = streams.value.log
 
@@ -440,14 +450,18 @@ object Jni extends OptionalPlugin {
           Seq((classDirectory in Compile).value)
         ).mkString(File.pathSeparator)
 
+        val jniClassNames = jniClasses.value.keys.toSeq
+
         val command = Seq(
           "javah",
           "-d", headersPath.value.getPath,
           "-classpath", classpath
-        ) ++ jniClasses.value.keys.toSeq
+        ) ++ jniClassNames
 
-        log.info(s"Running javah to generate ${jniClasses.value.size} JNI headers")
+        log.info(s"Running javah to generate ${jniClassNames.size} JNI headers")
         checkExitCode(command, log)
+
+        jniClassNames
       }.tag(Tags.Compile, Tags.CPU)
         .value,
 
@@ -584,10 +598,18 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
         // Make sure the output directory exists.
         binPath.value.mkdirs()
 
+        val coverageflags =
+          if (coverageEnabled) {
+            log.info(s"Coverage enabled: adding ${coverageFlags.value} to CXXFLAGS and LDFLAGS")
+            coverageFlags.value
+          } else {
+            Nil
+          }
+
         val cppflags = cppFlags.value.distinct
         val cflags = cFlags.value.distinct
-        val cxxflags = cxxFlags.value.distinct
-        val ldflags = ldFlags.value.distinct
+        val cxxflags = cxxFlags.value.distinct ++ coverageflags
+        val ldflags = ldFlags.value.distinct ++ coverageflags
 
         val pkgConfigDirs =
           mkPkgConfigPath(pkgConfigPath.value, toolchainPath.value).mkString(File.pathSeparator)
@@ -655,12 +677,12 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
       }.dependsOn(javah)
         .tag(Tags.Compile, Tags.CPU)
         .value
+    )),
 
-    )) ++ Seq(
-
+    Seq[Setting[_]](
       (compile in Compile) <<= (compile in Compile).dependsOn(jniCompile in Native),
       (test in Test) <<= (test in Test).dependsOn(jniCompile in Native)
-
     )
+  ).flatten
 
 }
