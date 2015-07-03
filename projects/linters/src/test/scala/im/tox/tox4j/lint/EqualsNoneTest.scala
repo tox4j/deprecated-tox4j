@@ -1,11 +1,12 @@
 package im.tox.tox4j.lint
 
+import org.brianmckenna.wartremover.test.WartTestTraverser
 import org.scalatest.FunSuite
 
 final class EqualsNoneTest extends FunSuite {
 
   test("x == None is flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       // noinspection EmptyCheck
       x == None
@@ -15,7 +16,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("None == x is flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       // noinspection EmptyCheck
       None == x
@@ -25,7 +26,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("x == y where y: None is flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       def y: None.type = None
       x == y
@@ -35,7 +36,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("x != None is flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       // noinspection EmptyCheck
       x != None
@@ -45,7 +46,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("None != x is flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       // noinspection EmptyCheck
       None != x
@@ -55,7 +56,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("None eq x is not flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       None eq x
     }
@@ -64,7 +65,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("None == x for a non-scala.Option 'None' is not flagged") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       // Define our own Option that should not be flagged.
       sealed trait Option[+A]
       case object None extends Option[Nothing]
@@ -78,7 +79,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("x == None in a match guard is not allowed") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       x match {
         // noinspection EmptyCheck
@@ -91,7 +92,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("both guard and body of a match case are checked") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       def x: Option[Int] = Some(1)
       x match {
         // noinspection EmptyCheck
@@ -105,7 +106,7 @@ final class EqualsNoneTest extends FunSuite {
   }
 
   test("comparing for None in match-statements is allowed") {
-    val result = WartRemoverTest(EqualsNone) {
+    val result = WartTestTraverser(EqualsNone) {
       sys.env.get("HOME") match {
         case None    =>
         case Some(_) =>

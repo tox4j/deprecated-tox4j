@@ -20,11 +20,8 @@ private[jni] object Event {
   }
 
   private final class IdImpl(private var index: Int) extends Id {
-    def value: Int = index
-
-    def reset(): Unit = {
-      index = INVALID_INDEX
-    }
+    override def value: Int = index
+    override def reset(): Unit = index = INVALID_INDEX
   }
 }
 
