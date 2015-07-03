@@ -123,6 +123,13 @@ private:
         return false;
       }
 
+    // An instance should never be on this list twice.
+    if (std::find (freelist.begin (), freelist.end (), instanceNumber) != freelist.end ())
+      {
+        throw_illegal_state_exception (env, instanceNumber, "instance already on free list");
+        return false;
+      }
+
     return true;
   }
 
@@ -226,13 +233,6 @@ public:
     if (!check_instance_number (env, instanceNumber, true))
       return;
 
-    // An instance should never be on this list twice.
-    if (std::find (freelist.begin (), freelist.end (), instanceNumber) != freelist.end ())
-      {
-        throw_illegal_state_exception (env, instanceNumber, "instance already on free list");
-        return;
-      }
-
     // The C++ side should already have been killed.
     if (instances[instanceNumber - 1])
       {
@@ -277,10 +277,7 @@ public:
       } ();
 
     if (!instance)
-      {
-        throw_tox_killed_exception (env, instanceNumber, "function invoked on killed instance");
-        return return_type ();
-      }
+      return return_type ();
 
     // After this function returns, the unique_lock in the instance object will
     // be destroyed, unlocking the instance.
