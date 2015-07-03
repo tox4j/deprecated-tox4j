@@ -126,7 +126,7 @@ private:
     // An instance should never be on this list twice.
     if (std::find (freelist.begin (), freelist.end (), instanceNumber) != freelist.end ())
       {
-        throw_illegal_state_exception (env, instanceNumber, "instance already on free list");
+        throw_illegal_state_exception (env, instanceNumber, "accessed instance thought to be garbage collected");
         return false;
       }
 
@@ -277,7 +277,11 @@ public:
       } ();
 
     if (!instance)
-      return return_type ();
+      {
+        if (!env->ExceptionCheck ())
+          throw_tox_killed_exception (env, instanceNumber, "function called on killed tox instance");
+        return return_type ();
+      }
 
     // After this function returns, the unique_lock in the instance object will
     // be destroyed, unlocking the instance.

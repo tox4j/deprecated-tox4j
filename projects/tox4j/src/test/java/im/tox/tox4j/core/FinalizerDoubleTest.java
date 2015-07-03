@@ -77,7 +77,7 @@ public class FinalizerDoubleTest extends JUnitSuite {
     tox.close();
   }
 
-  @Test(expected = ToxKilledException.class)
+  @Test(expected = IllegalStateException.class)
   @SuppressWarnings("FinalizeCalledExplicitly")
   public void testAnyMethodAfterFinalize() {
     ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(new ToxOptions(
