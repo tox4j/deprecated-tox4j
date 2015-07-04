@@ -160,7 +160,7 @@ object Jni extends OptionalPlugin {
     } finally {
       targetFile.delete()
       sourceFile.delete()
-      file(FilenameUtils.removeExtension(sourceFile.getAbsolutePath) + ".gcno").delete()
+      file(FilenameUtils.removeExtension(sourceFile.getName) + ".gcno").delete()
     }
   }
 
@@ -180,36 +180,44 @@ object Jni extends OptionalPlugin {
     }
   }
 
-  private def findTool(toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: Seq[String]) = {
+  private def findTool(toolName: String, toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: Seq[String]) = {
     mkToolchain(toolchainPath, candidates) find { cc =>
       try {
         val flagsOpt = Seq[String]() +: flags
         debugLog.info(s"Trying $cc")
-        Seq(cc, "--version") !< debugLog == 0 && findCcOptions(cc, false, code)(flagsOpt: _*) != None
+        Seq(cc, "--version") !< debugLog == 0 && findCcOptions(cc, required = false, code)(flagsOpt: _*).isDefined
       } catch {
         case _: java.io.IOException => false
       }
-    } getOrElse "false"
+    } getOrElse {
+      sys.error(s"Could not find a working $toolName; tried: " + candidates)
+    }
   }
 
   private def findCc(toolchainPath: Option[File]) = findTool(
+    "C89 compiler",
     toolchainPath,
-    // Check for a working C89 compiler.
     """
     int foo(void);
     """
   )(
       Seq("-std=c89")
-    )(sys.env.get("CC").toSeq ++ Seq("clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc"))
+    )(sys.env.get("CC").toSeq ++ Seq("clang-3.6", "clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc"))
 
   private def findCxx(toolchainPath: Option[File]) = findTool(
+    "C++14 compiler",
     toolchainPath,
-    // Check for a working C++14 compiler.
     """
     auto f = [](auto i) mutable { return i; };
 
     template<typename... Args>
     int bar (Args ...args) { return sizeof... (Args); }
+
+    template<typename T>
+    extern char const *x;
+
+    template<>
+    char const *x<int> = "int";
 
     template<typename... Args>
     auto foo (Args ...args) {
@@ -219,7 +227,7 @@ object Jni extends OptionalPlugin {
   )(
       Seq("-std=c++14"),
       Seq("-std=c++1y")
-    )(sys.env.get("CXX").toSeq ++ Seq("clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++"))
+    )(sys.env.get("CXX").toSeq ++ Seq("clang++-3.6", "clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++"))
 
   private def checkExitCode(command: ProcessBuilder, log: Logger) = {
     command ! log match {
@@ -417,7 +425,10 @@ object Jni extends OptionalPlugin {
       ldFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
 
       // Enable test coverage collection.
-      coverageFlags := checkCcOptions(nativeCXX.value)(Seq("-fprofile-arcs", "-ftest-coverage")),
+      coverageFlags := checkCcOptions(nativeCXX.value)(
+        Seq("--coverage"),
+        Seq("-fprofile-arcs", "-ftest-coverage")
+      ),
 
       jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(isNativeSource).get,
       jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(isNativeSource).get,
