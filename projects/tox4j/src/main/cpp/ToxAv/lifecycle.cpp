@@ -22,11 +22,11 @@ tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &
 {
   unused (av);
   auto msg = events.add_call_state ();
-  msg->set_friendnumber (friend_number);
+  msg->set_friend_number (friend_number);
 
   using proto::CallState;
-#define call_state_case(STATE)          \
-  if (state & TOXAV_CALL_STATE_##STATE) \
+#define call_state_case(STATE)                  \
+  if (state & TOXAV_FRIEND_CALL_STATE_##STATE)  \
     msg->add_call_state (CallState::STATE)
   call_state_case (ERROR);
   call_state_case (FINISHED);
@@ -46,7 +46,7 @@ tox4j_audio_bit_rate_status_cb (ToxAV *av,
                                 Events &events)
 {
   unused (av);
-  auto msg = events.add_audio_bitrate_status ();
+  auto msg = events.add_audio_bit_rate_status ();
   msg->set_friend_number (friend_number);
   msg->set_stable (stable);
   msg->set_bit_rate (bit_rate);
@@ -61,7 +61,7 @@ tox4j_video_bit_rate_status_cb (ToxAV *av,
                                 Events &events)
 {
   unused (av);
-  auto msg = events.add_video_bitrate_status ();
+  auto msg = events.add_video_bit_rate_status ();
   msg->set_friend_number (friend_number);
   msg->set_stable (stable);
   msg->set_bit_rate (bit_rate);
@@ -93,8 +93,8 @@ static void
 tox4j_video_receive_frame_cb (ToxAV *av,
                               uint32_t friend_number,
                               uint16_t width, uint16_t height,
-                              uint8_t const *y, uint8_t const *u, uint8_t const *v, uint8_t const *a,
-                              int32_t ystride, int32_t ustride, int32_t vstride, int32_t astride,
+                              uint8_t const *y, uint8_t const *u, uint8_t const *v/*, uint8_t const *a*/,
+                              int32_t ystride, int32_t ustride, int32_t vstride/*, int32_t astride*/,
                               Events &events)
 {
   unused (av);
@@ -105,12 +105,16 @@ tox4j_video_receive_frame_cb (ToxAV *av,
   msg->set_y (y, width * height);
   msg->set_u (u, width * height);
   msg->set_v (v, width * height);
+#if 0
   if (a != nullptr)
     msg->set_a (a, width * height);
+#endif
   msg->set_y_stride (ystride);
   msg->set_u_stride (ustride);
   msg->set_v_stride (vstride);
+#if 0
   msg->set_a_stride (astride);
+#endif
 }
 
 

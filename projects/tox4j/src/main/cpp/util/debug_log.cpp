@@ -83,31 +83,37 @@ template<>
 void
 print_arg<char const *> (char const *data)
 {
-  if (data == nullptr)
-    debug_out << "<null>";
-  else
+  if (data != nullptr)
     debug_out << data;
+  else
+    debug_out << "<null>";
 }
 
 template<>
 void
 print_arg<uint8_t *> (uint8_t *data)
 {
-  (void)data;
-  debug_out << "in data";
+  if (data != nullptr)
+    debug_out << "in data";
+  else
+    debug_out << "<null>";
 }
 
 template<>
 void
 print_arg<uint8_t const *> (uint8_t const *data)
 {
-  (void)data;
-  debug_out << "out data";
+  if (data != nullptr)
+    debug_out << "out data";
+  else
+    debug_out << "<null>";
 }
 
 void
 print_arg (unsigned char const *data, std::size_t length)
 {
-  (void)data;
-  debug_out << "out data[" << length << "]";
+  if (data != nullptr)
+    debug_out << "out data[" << length << "]";
+  else
+    debug_out << "<null>";
 }
