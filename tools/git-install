@@ -5,7 +5,8 @@ set -ex
 PREFIX=$1
 BASEURL=$2
 REPO=$3
-shift 3
+BRANCH=$4
+shift 4
 
 TMPDIR=/tmp/git-install-$$
 
@@ -13,11 +14,11 @@ mkdir -p $PREFIX
 mkdir -p $TMPDIR
 
 cd $TMPDIR
-git clone --depth=1 --branch="master" $BASEURL/$REPO.git \
+git clone --depth=1 --branch="$BRANCH" $BASEURL/$REPO.git \
   || git clone $BASEURL/$REPO.git
 cd $REPO
 
-git checkout master
+git checkout $BRANCH
 git rev-parse HEAD > $REPO.HEAD
 if diff "$PREFIX/$REPO.HEAD" $REPO.HEAD; then
   rm -rf $TMPDIR

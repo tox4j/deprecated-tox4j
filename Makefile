@@ -1,5 +1,12 @@
-PREFIX	?= $(HOME)
-GOAL	?= coverage
+PREFIX		?= $(HOME)
+GOAL		?= coverage
+
+ifeq ($(TOXCORE_REPO),)
+TOXCORE_REPO	:= irungentoo
+endif
+ifeq ($(TOXCORE_BRANCH),)
+TOXCORE_BRANCH	:= master
+endif
 
 export PATH		:= $(PREFIX)/.usr/bin:$(PATH)
 export PKG_CONFIG_PATH	:= $(PREFIX)/.usr/lib/pkgconfig:$(PKG_CONFIG_PATH)
@@ -31,12 +38,12 @@ install:
 
 setup:
 	# Install external packages from git.
-	tools/git-install $(PREFIX)/.usr https://github.com/yasm       yasm
-	tools/git-install $(PREFIX)/.usr https://git.chromium.org/webm libvpx    --enable-pic --enable-shared
-	tools/git-install $(PREFIX)/.usr git://git.opus-codec.org      opus
-	tools/git-install $(PREFIX)/.usr https://github.com/jedisct1   libsodium
-	tools/git-install $(PREFIX)/.usr https://github.com/irungentoo toxcore
-	tools/git-install $(PREFIX)/.usr https://github.com/google     protobuf
+	tools/git-install $(PREFIX)/.usr https://github.com/yasm            yasm	master
+	tools/git-install $(PREFIX)/.usr https://git.chromium.org/webm      libvpx	master    --enable-pic --enable-shared
+	tools/git-install $(PREFIX)/.usr git://git.opus-codec.org           opus	master
+	tools/git-install $(PREFIX)/.usr https://github.com/jedisct1        libsodium	master
+	tools/git-install $(PREFIX)/.usr https://github.com/$(TOXCORE_REPO) toxcore	$(TOXCORE_BRANCH)
+	tools/git-install $(PREFIX)/.usr https://github.com/google          protobuf	master
 
 setup-host: setup
 

@@ -13,6 +13,7 @@ cache:
 env:
   matrix:
     - TOX4J_TARGET=arm-linux-androideabi
+    - TOX4J_TARGET=host REPO=mannol BRANCH=new_api
     - TOX4J_TARGET=host TEST_GOAL=coverage
     - TOX4J_TARGET=host TEST_GOAL=performance
 
@@ -33,7 +34,7 @@ install:
 
 script:
   # Build/install step.
-  - make install PREFIX=$HOME GOAL=$TEST_GOAL
+  - make install PREFIX=$HOME GOAL=$TEST_GOAL TOXCORE_REPO=$REPO TOXCORE_BRANCH=$BRANCH
 
 before_cache:
   - ln -s $PWD/.git projects/tox4j/
