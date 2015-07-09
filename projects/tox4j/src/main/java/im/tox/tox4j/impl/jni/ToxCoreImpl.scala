@@ -488,8 +488,8 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
     ToxCoreJni.invokeFriendReadReceipt(instanceNumber, friendNumber, messageId)
   def invokeFriendRequest(@NotNull publicKey: Array[Byte], timeDelta: Int, @NotNull message: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendRequest(instanceNumber, publicKey, timeDelta, message)
-  def invokeFriendMessage(friendNumber: Int, @NotNull `type`: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit =
-    ToxCoreJni.invokeFriendMessage(instanceNumber, friendNumber, `type`.ordinal(), timeDelta, message)
+  def invokeFriendMessage(friendNumber: Int, @NotNull messageType: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendMessage(instanceNumber, friendNumber, messageType.ordinal(), timeDelta, message)
   def invokeFileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit =
     ToxCoreJni.invokeFileChunkRequest(instanceNumber, friendNumber, fileNumber, position, length)
   def invokeFileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, @NotNull filename: Array[Byte]): Unit =

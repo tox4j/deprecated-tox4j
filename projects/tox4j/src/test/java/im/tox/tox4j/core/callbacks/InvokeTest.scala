@@ -158,8 +158,8 @@ class InvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("FriendMessage") {
-    forAll { (friendNumber: Int, `type`: ToxMessageType, timeDelta: Int, message: Array[Byte]) =>
-      callbackTest(_.invokeFriendMessage(friendNumber, `type`, timeDelta, message), FriendMessage(friendNumber, `type`, /* timeDelta */ 0, message))
+    forAll { (friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]) =>
+      callbackTest(_.invokeFriendMessage(friendNumber, messageType, timeDelta, message), FriendMessage(friendNumber, messageType, /* timeDelta */ 0, message))
     }
   }
 
