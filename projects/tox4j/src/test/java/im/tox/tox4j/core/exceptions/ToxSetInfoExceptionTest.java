@@ -14,7 +14,7 @@ public class ToxSetInfoExceptionTest extends ToxCoreTestBase {
   @Test
   public void testSetNameTooLong() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH + 1);
+      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH() + 1);
       tox.setName(array);
       fail();
     } catch (ToxSetInfoException e) {
@@ -25,7 +25,7 @@ public class ToxSetInfoExceptionTest extends ToxCoreTestBase {
   @Test
   public void testSetStatusMessageTooLong() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH + 1);
+      byte[] array = ToxCoreTestBase$.MODULE$.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH() + 1);
       tox.setStatusMessage(array);
       fail();
     } catch (ToxSetInfoException e) {

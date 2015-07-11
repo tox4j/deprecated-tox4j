@@ -29,6 +29,17 @@ public class FinalizerDoubleTest extends JUnitSuite {
 
   private static final Logger logger = LoggerFactory.getLogger(FinalizerDoubleTest.class);
 
+  private static final ToxOptions OPTIONS = new ToxOptions(
+      true,
+      true,
+      ProxyOptions.None$.MODULE$,
+      ToxCoreConstants.DEFAULT_START_PORT(),
+      ToxCoreConstants.DEFAULT_END_PORT(),
+      ToxCoreConstants.DEFAULT_TCP_PORT(),
+      SaveDataOptions.None$.MODULE$,
+      true
+  );
+
   @Before
   public void setUp() {
     logger.info("Exceptions about 'a serious problem in native code' are expected.");
@@ -46,16 +57,7 @@ public class FinalizerDoubleTest extends JUnitSuite {
   @Test
   @SuppressWarnings("FinalizeCalledExplicitly")
   public void testFinalizeTwice() {
-    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(new ToxOptions(
-        true,
-        true,
-        ProxyOptions.None$.MODULE$,
-        ToxCoreConstants.DEFAULT_START_PORT,
-        ToxCoreConstants.DEFAULT_END_PORT,
-        ToxCoreConstants.DEFAULT_TCP_PORT,
-        SaveDataOptions.None$.MODULE$,
-        true
-    ));
+    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(OPTIONS);
 
     tox.finalize();
     tox.finalize();
@@ -64,16 +66,7 @@ public class FinalizerDoubleTest extends JUnitSuite {
   @Test(expected = IllegalStateException.class)
   @SuppressWarnings("FinalizeCalledExplicitly")
   public void testCloseAfterFinalize() {
-    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(new ToxOptions(
-        true,
-        true,
-        ProxyOptions.None$.MODULE$,
-        ToxCoreConstants.DEFAULT_START_PORT,
-        ToxCoreConstants.DEFAULT_END_PORT,
-        ToxCoreConstants.DEFAULT_TCP_PORT,
-        SaveDataOptions.None$.MODULE$,
-        true
-    ));
+    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(OPTIONS);
     tox.finalize();
     tox.close();
   }
@@ -81,16 +74,7 @@ public class FinalizerDoubleTest extends JUnitSuite {
   @Test(expected = IllegalStateException.class)
   @SuppressWarnings("FinalizeCalledExplicitly")
   public void testAnyMethodAfterFinalize() {
-    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(new ToxOptions(
-        true,
-        true,
-        ProxyOptions.None$.MODULE$,
-        ToxCoreConstants.DEFAULT_START_PORT,
-        ToxCoreConstants.DEFAULT_END_PORT,
-        ToxCoreConstants.DEFAULT_TCP_PORT,
-        SaveDataOptions.None$.MODULE$,
-        true
-    ));
+    ToxCoreImpl<BoxedUnit> tox = new ToxCoreImpl<>(OPTIONS);
     tox.finalize();
     tox.iterationInterval();
   }

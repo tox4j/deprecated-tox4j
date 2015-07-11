@@ -28,14 +28,14 @@ public class ToxFriendAddExceptionTest extends ToxCoreTestBase {
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidAddress2() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.addFriend(new byte[ToxCoreConstants.TOX_ADDRESS_SIZE - 1], new byte[1]);
+      tox.addFriend(new byte[ToxCoreConstants.TOX_ADDRESS_SIZE() - 1], new byte[1]);
     }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidAddress3() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.addFriend(new byte[ToxCoreConstants.TOX_ADDRESS_SIZE + 1], new byte[1]);
+      tox.addFriend(new byte[ToxCoreConstants.TOX_ADDRESS_SIZE() + 1], new byte[1]);
     }
   }
 
@@ -62,21 +62,21 @@ public class ToxFriendAddExceptionTest extends ToxCoreTestBase {
   @Test
   public void testNot_TooLong1() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.addFriend(validAddress, new byte[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH - 1]);
+      tox.addFriend(validAddress, new byte[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH() - 1]);
     }
   }
 
   @Test
   public void testNot_TooLong2() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.addFriend(validAddress, new byte[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH]);
+      tox.addFriend(validAddress, new byte[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH()]);
     }
   }
 
   @Test
   public void testTooLong() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.addFriend(validAddress, new byte[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH + 1]);
+      tox.addFriend(validAddress, new byte[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH() + 1]);
       fail();
     } catch (ToxFriendAddException e) {
       assertEquals(ToxFriendAddException.Code.TOO_LONG, e.code());
