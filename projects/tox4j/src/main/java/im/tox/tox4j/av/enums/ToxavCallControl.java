@@ -3,7 +3,7 @@ package im.tox.tox4j.av.enums;
 /**
  * Call control.
  */
-public enum ToxCallControl {
+public enum ToxavCallControl {
   /**
    * Resume a previously paused call. Only valid if the pause was caused by this
    * client, if not, this control is ignored. Not valid before the call is accepted.

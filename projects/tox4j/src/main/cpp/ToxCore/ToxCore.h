@@ -16,6 +16,7 @@
 #define PREFIX    tox
 #endif
 
+#ifdef TOX_VERSION_MAJOR
 namespace core
 {
   namespace proto = im::tox::tox4j::core::proto;
@@ -24,6 +25,7 @@ namespace core
 
   extern ToxInstances<tox::core_ptr, std::unique_ptr<Events>> instances;
 }
+#endif
 
 
 

@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.{ ToxCallControl, ToxCallState }
+import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavCallState }
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.core.ToxCore
@@ -20,14 +20,14 @@ private object ToxAvImpl {
 
   private val logger = Logger(LoggerFactory.getLogger(getClass))
 
-  private def convert(kind: CallState.Kind): ToxCallState = {
+  private def convert(kind: CallState.Kind): ToxavCallState = {
     kind match {
-      case CallState.Kind.ERROR       => ToxCallState.ERROR
-      case CallState.Kind.FINISHED    => ToxCallState.FINISHED
-      case CallState.Kind.SENDING_A   => ToxCallState.SENDING_A
-      case CallState.Kind.SENDING_V   => ToxCallState.SENDING_V
-      case CallState.Kind.RECEIVING_A => ToxCallState.RECEIVING_A
-      case CallState.Kind.RECEIVING_V => ToxCallState.RECEIVING_V
+      case CallState.Kind.ERROR       => ToxavCallState.ERROR
+      case CallState.Kind.FINISHED    => ToxavCallState.FINISHED
+      case CallState.Kind.SENDING_A   => ToxavCallState.SENDING_A
+      case CallState.Kind.SENDING_V   => ToxavCallState.SENDING_V
+      case CallState.Kind.RECEIVING_A => ToxavCallState.RECEIVING_A
+      case CallState.Kind.RECEIVING_V => ToxavCallState.RECEIVING_V
     }
   }
 
@@ -176,7 +176,7 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
     ToxAvJni.toxavAnswer(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
   @throws[ToxAvCallControlException]
-  override def callControl(friendNumber: Int, control: ToxCallControl): Unit =
+  override def callControl(friendNumber: Int, control: ToxavCallControl): Unit =
     ToxAvJni.toxavCallControl(instanceNumber, friendNumber, control.ordinal)
 
   @throws[ToxAvSetBitRateException]

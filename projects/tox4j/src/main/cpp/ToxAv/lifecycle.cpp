@@ -186,4 +186,5 @@ TOX_METHOD (void, Finalize,
 {
   instances.finalize (env, instanceNumber);
 }
+
 #endif

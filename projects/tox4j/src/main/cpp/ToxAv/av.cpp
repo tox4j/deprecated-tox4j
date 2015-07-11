@@ -164,4 +164,5 @@ TOX_METHOD (void, VideoSendFrame,
     toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data ()/*, aData.data ()*/
   );
 }
+
 #endif

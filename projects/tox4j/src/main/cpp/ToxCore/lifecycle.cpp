@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -258,15 +260,7 @@ TOX_METHOD (jint, New,
   opts->ipv6_enabled = ipv6Enabled;
   opts->udp_enabled = udpEnabled;
 
-  opts->proxy_type = [=] {
-    switch (proxyType)
-      {
-      case 0: return TOX_PROXY_TYPE_NONE;
-      case 1: return TOX_PROXY_TYPE_HTTP;
-      case 2: return TOX_PROXY_TYPE_SOCKS5;
-      }
-    tox4j_fatal ("Invalid proxy type from Java");
-  } ();
+  opts->proxy_type = enum_value<TOX_PROXY_TYPE> (env, proxyType);
   UTFChars proxy_host (env, proxyHost);
   opts->proxy_host = proxy_host.data ();
   opts->proxy_port = proxyPort;
@@ -286,15 +280,7 @@ TOX_METHOD (jint, New,
   assert_valid_uint16 (tcpPort);
 
   ByteArray save_data (env, saveData);
-  opts->savedata_type = [=] {
-    switch (saveDataType)
-      {
-      case 0: return TOX_SAVEDATA_TYPE_NONE;
-      case 1: return TOX_SAVEDATA_TYPE_TOX_SAVE;
-      case 2: return TOX_SAVEDATA_TYPE_SECRET_KEY;
-      }
-    tox4j_fatal ("Invalid savedata type type from Java");
-  } ();
+  opts->savedata_type = enum_value<TOX_SAVEDATA_TYPE> (env, saveDataType);
   opts->savedata_data   = save_data.data ();
   opts->savedata_length = save_data.size ();
 
@@ -642,3 +628,5 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendReadRec
       }
   );
 }
+
+#endif

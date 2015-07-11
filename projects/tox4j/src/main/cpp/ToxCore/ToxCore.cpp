@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -239,3 +241,5 @@ HANDLE ("FileGet", FILE_GET)
     }
   return unhandled ();
 }
+
+#endif

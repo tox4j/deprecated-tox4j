@@ -5,13 +5,13 @@ import im.tox.tox4j.core.ToxCoreConstants;
 /**
  * Type of savedata to create the Tox instance from.
  */
-public enum ToxSaveDataType {
+public enum ToxSavedataType {
   /**
    * No savedata.
    */
   NONE,
   /**
-   * Savedata is one that was obtained from {@link im.tox.tox4j.core.ToxCore#getSaveData}.
+   * Savedata is one that was obtained from {@link im.tox.tox4j.core.ToxCore#getSavedata}.
    */
   TOX_SAVE,
   /**

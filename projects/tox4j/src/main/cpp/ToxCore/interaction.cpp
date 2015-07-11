@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -23,20 +25,14 @@ TOX_METHOD (void, SelfSetTyping,
  * Signature: (IIII[B)I
  */
 TOX_METHOD (jint, FriendSendMessage,
-  jint instanceNumber, jint friendNumber, jint type, jint timeDelta, jbyteArray message)
+  jint instanceNumber, jint friendNumber, jint messageType, jint timeDelta, jbyteArray message)
 {
   ByteArray const message_array (env, message);
-  TOX_MESSAGE_TYPE const message_type = [=] {
-    switch (type)
-      {
-      case 0: return TOX_MESSAGE_TYPE_NORMAL;
-      case 1: return TOX_MESSAGE_TYPE_ACTION;
-      }
-    tox4j_fatal ("Invalid message type from Java");
-  } ();
 
   return instances.with_instance_err (env, instanceNumber,
     identity,
-    tox_friend_send_message, friendNumber, message_type, message_array.data (), message_array.size ()
+    tox_friend_send_message, friendNumber, enum_value<TOX_MESSAGE_TYPE> (env, messageType), message_array.data (), message_array.size ()
   );
 }
+
+#endif

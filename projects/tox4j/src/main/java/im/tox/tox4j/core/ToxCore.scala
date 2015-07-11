@@ -30,7 +30,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * @return a byte array containing the serialised tox instance.
    */
   @NotNull
-  def getSaveData: Array[Byte]
+  def getSavedata: Array[Byte]
 
   /**
    * Create a new [[ToxCore]] instance with different options. The implementation may choose to create an object of
@@ -41,7 +41,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * loop with a new instance will operate correctly.
    *
    * If the [[ToxOptions.saveData]] field is not empty, this function will load the Tox instance
-   * from a byte array previously filled by [[getSaveData]].
+   * from a byte array previously filled by [[getSavedata]].
    *
    * If loading failed or succeeded only partially, an exception will be thrown.
    *
@@ -353,7 +353,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * are incremented by 1 each time a message is sent. If [[Integer.MAX_VALUE]] messages were
    * sent, the next message ID is [[Integer.MIN_VALUE]].
    *
-   * Message IDs are not stored in the array returned by [[getSaveData]].
+   * Message IDs are not stored in the array returned by [[getSavedata]].
    *
    * @param friendNumber The friend number of the friend to send the message to.
    * @param messageType Message type (normal, action, ...).

@@ -1,9 +1,9 @@
 #include "ToxAv.h"
 
+#ifdef TOXAV_VERSION_MAJOR
+
 #include <algorithm>
 #include <vector>
-
-#ifdef TOXAV_VERSION_MAJOR
 
 template<>
 void

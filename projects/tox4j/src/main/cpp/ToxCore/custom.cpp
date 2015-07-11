@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -30,3 +32,5 @@ TOX_METHOD (void, SendLosslessPacket,
     tox_friend_send_lossless_packet, friendNumber, packetData.data (), packetData.size ()
   );
 }
+
+#endif

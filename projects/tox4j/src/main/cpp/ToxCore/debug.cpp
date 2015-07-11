@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 #include <algorithm>
 #include <vector>
 
@@ -117,49 +119,4 @@ print_arg<TOX_FILE_KIND> (TOX_FILE_KIND kind)
     }
 }
 
-template<>
-void
-print_arg<TOX_CONNECTION> (TOX_CONNECTION kind)
-{
-  switch (kind)
-    {
-    enum_case (CONNECTION_NONE);
-    enum_case (CONNECTION_TCP);
-    enum_case (CONNECTION_UDP);
-    }
-}
-
-template<>
-void
-print_arg<TOX_USER_STATUS> (TOX_USER_STATUS kind)
-{
-  switch (kind)
-    {
-    enum_case (USER_STATUS_NONE);
-    enum_case (USER_STATUS_AWAY);
-    enum_case (USER_STATUS_BUSY);
-    }
-}
-
-template<>
-void
-print_arg<TOX_FILE_CONTROL> (TOX_FILE_CONTROL kind)
-{
-  switch (kind)
-    {
-    enum_case (FILE_CONTROL_RESUME);
-    enum_case (FILE_CONTROL_PAUSE);
-    enum_case (FILE_CONTROL_CANCEL);
-    }
-}
-
-template<>
-void
-print_arg<TOX_MESSAGE_TYPE> (TOX_MESSAGE_TYPE kind)
-{
-  switch (kind)
-    {
-    enum_case (MESSAGE_TYPE_NORMAL);
-    enum_case (MESSAGE_TYPE_ACTION);
-    }
-}
+#endif

@@ -32,6 +32,7 @@ libraryDependencies ++= Seq(
 
 // Test dependencies.
 libraryDependencies ++= Seq(
+  "com.google.guava" % "guava" % "18.0",
   "com.intellij" % "forms_rt" % "7.0.3",
   "com.storm-enroute" %% "scalameter" % "0.7-SNAPSHOT",
   "junit" % "junit" % "4.12",

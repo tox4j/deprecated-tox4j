@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -11,18 +13,8 @@ using namespace core;
 TOX_METHOD (void, FileControl,
   jint instanceNumber, jint friendNumber, jint fileNumber, jint control)
 {
-  TOX_FILE_CONTROL const file_control = [=] {
-    switch (control)
-      {
-      case 0: return TOX_FILE_CONTROL_RESUME;
-      case 1: return TOX_FILE_CONTROL_PAUSE;
-      case 2: return TOX_FILE_CONTROL_CANCEL;
-      }
-    tox4j_fatal ("Invalid file control from Java");
-  } ();
-
   return instances.with_instance_ign (env, instanceNumber,
-    tox_file_control, friendNumber, fileNumber, file_control
+    tox_file_control, friendNumber, fileNumber, enum_value<TOX_FILE_CONTROL> (env, control)
   );
 }
 
@@ -49,14 +41,6 @@ TOX_METHOD (jint, FileSend,
 {
   ByteArray fileIdData (env, fileId);
   ByteArray filenameData (env, filename);
-  TOX_FILE_KIND const file_kind = [=] {
-    switch (kind)
-      {
-      case 0: return TOX_FILE_KIND_DATA;
-      case 1: return TOX_FILE_KIND_AVATAR;
-      }
-    tox4j_fatal ("Invalid file kind from Java");
-  } ();
 
   // In Java, we only have 63 bit positive file sizes, so all negative values
   // are streaming.
@@ -65,7 +49,7 @@ TOX_METHOD (jint, FileSend,
 
   return instances.with_instance_err (env, instanceNumber,
     identity,
-    tox_file_send, friendNumber, file_kind, fileSize, fileIdData.data (), filenameData.data (), filenameData.size ()
+    tox_file_send, friendNumber, kind, fileSize, fileIdData.data (), filenameData.data (), filenameData.size ()
   );
 }
 
@@ -100,3 +84,5 @@ TOX_METHOD (jbyteArray, FileGetFileId,
     tox_file_get_file_id, friendNumber, fileNumber, file_id.data ()
   );
 }
+
+#endif

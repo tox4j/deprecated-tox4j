@@ -21,12 +21,12 @@ public final class ToxFileKind {
    *
    * <p/>
    * Clients who receive avatar send requests can reject it (by sending
-   * {@link ToxFileControl#CANCEL} before any other controls), or accept it
-   * (by sending {@link ToxFileControl#RESUME}).
+   * {@link FileControl#CANCEL} before any other controls), or accept it
+   * (by sending {@link FileControl#RESUME}).
    * The file_id of length {@link ToxCryptoConstants#HASH_LENGTH} bytes (same
    * length as {@link ToxCoreConstants#FILE_ID_LENGTH}) will contain the hash.
    * A client can compare this hash with a saved hash and send
-   * {@link ToxFileControl#CANCEL} to terminate the avatar transfer if it matches.
+   * {@link FileControl#CANCEL} to terminate the avatar transfer if it matches.
    *
    * <p/>
    * When fileSize is set to 0 in the transfer request it means that the client

@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -154,18 +156,8 @@ TOX_METHOD (jbyteArray, SelfGetStatusMessage,
 TOX_METHOD (void, SelfSetStatus,
   jint instanceNumber, jint status)
 {
-  TOX_USER_STATUS const status_enum = [=] {
-    switch (status)
-      {
-      case 0: return TOX_USER_STATUS_NONE;
-      case 1: return TOX_USER_STATUS_AWAY;
-      case 2: return TOX_USER_STATUS_BUSY;
-      }
-    tox4j_fatal ("Invalid user status from Java");
-  } ();
-
   return instances.with_instance_noerr (env, instanceNumber,
-    tox_self_set_status, status_enum);
+    tox_self_set_status, enum_value<TOX_USER_STATUS> (env, status));
 }
 
 /*
@@ -176,11 +168,8 @@ TOX_METHOD (void, SelfSetStatus,
 TOX_METHOD (jint, SelfGetStatus,
   jint instanceNumber)
 {
-  switch (instances.with_instance_noerr (env, instanceNumber, tox_self_get_status))
-    {
-    case TOX_USER_STATUS_NONE: return 0;
-    case TOX_USER_STATUS_AWAY: return 1;
-    case TOX_USER_STATUS_BUSY: return 2;
-    }
-  tox4j_fatal ("Invalid result from tox_self_get_status");
+  return enum_ordinal (env,
+    instances.with_instance_noerr (env, instanceNumber, tox_self_get_status));
 }
+
+#endif

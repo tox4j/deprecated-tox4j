@@ -24,7 +24,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
     while (moreTests) {
       withTox { tox =>
         moreTests = check.change(tox)
-        data = tox.getSaveData
+        data = tox.getSavedata
       }
 
       withTox(SaveDataOptions.ToxSave(data)) { tox =>
@@ -130,7 +130,7 @@ final class LoadSaveTest extends ToxCoreTestBase {
 
   @Test def testSaveNotEmpty(): Unit = {
     withTox { tox =>
-      var data = tox.getSaveData
+      var data = tox.getSavedata
       assertNotNull(data)
       assertNotEquals(0, data.length)
     }
@@ -138,20 +138,20 @@ final class LoadSaveTest extends ToxCoreTestBase {
 
   @Test def testSaveRepeatable(): Unit = {
     withTox { tox =>
-      assertArrayEquals(tox.getSaveData, tox.getSaveData)
+      assertArrayEquals(tox.getSavedata, tox.getSavedata)
     }
   }
 
   @Test def testLoadSave1(): Unit = {
     withTox { tox =>
-      var data = tox.getSaveData
+      var data = tox.getSavedata
       var data1: Array[Byte] = new Array[Byte](0)
       var data2: Array[Byte] = new Array[Byte](0)
       withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
-        data1 = tox1.getSaveData
+        data1 = tox1.getSavedata
       }
       withTox(SaveDataOptions.ToxSave(data)) { tox2 =>
-        data2 = tox2.getSaveData
+        data2 = tox2.getSavedata
       }
       assertArrayEquals(data1, data2)
     }
@@ -159,18 +159,18 @@ final class LoadSaveTest extends ToxCoreTestBase {
 
   @Test def testLoadSave2(): Unit = {
     withTox { tox =>
-      var data = tox.getSaveData
+      var data = tox.getSavedata
       withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
-        assertEquals(data.length, tox1.getSaveData.length)
+        assertEquals(data.length, tox1.getSavedata.length)
       }
     }
   }
 
   @Test def testLoadSave3(): Unit = {
     withTox { tox =>
-      var data = tox.getSaveData
+      var data = tox.getSavedata
       withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
-        assertArrayEquals(data, tox1.getSaveData)
+        assertArrayEquals(data, tox1.getSavedata)
       }
     }
   }

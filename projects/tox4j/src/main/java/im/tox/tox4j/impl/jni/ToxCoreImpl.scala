@@ -95,7 +95,7 @@ private object ToxCoreImpl {
 }
 
 /**
- * Initialises the new Tox instance with an optional save-data received from [[getSaveData]].
+ * Initialises the new Tox instance with an optional save-data received from [[getSavedata]].
  *
  * @param options Connection options object with optional save-data.
  */
@@ -164,7 +164,7 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
     ToxCoreJni.toxAddTcpRelay(instanceNumber, address, port, publicKey)
   }
 
-  override def getSaveData: Array[Byte] =
+  override def getSavedata: Array[Byte] =
     ToxCoreJni.toxGetSavedata(instanceNumber)
 
   @throws[ToxGetPortException]

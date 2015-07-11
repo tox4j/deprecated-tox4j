@@ -78,7 +78,7 @@ final class MainView extends MainViewBase {
 
       val saveDataStream = new ObjectOutputStream(Files.newOutputStream(saveDataPath))
       try {
-        val saveData = new MainView.SaveData(tox.getSaveData, friendListModel, messageModel)
+        val saveData = new MainView.SaveData(tox.getSavedata, friendListModel, messageModel)
         saveDataStream.writeObject(saveData)
       } catch {
         case e: IOException =>

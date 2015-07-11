@@ -241,10 +241,10 @@ object PerformanceReportBase {
   }
 
   /**
-   * Produces [[instances]] valid Tox save data arrays as produced by [[ToxCore.getSaveData]].
+   * Produces [[instances]] valid Tox save data arrays as produced by [[ToxCore.getSavedata]].
    */
   val toxSaves = instances.map { sz =>
-    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSaveData)))
+    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSavedata)))
   }
 
   val names = nameLengths.map(Array.ofDim[Byte])

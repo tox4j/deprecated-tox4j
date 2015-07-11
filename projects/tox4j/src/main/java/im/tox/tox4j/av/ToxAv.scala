@@ -3,7 +3,7 @@ package im.tox.tox4j.av
 import java.io.Closeable
 
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.ToxCallControl
+import im.tox.tox4j.av.enums.ToxavCallControl
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.ToxCore
 import org.jetbrains.annotations.{ NotNull, Nullable }
@@ -93,7 +93,7 @@ trait ToxAv[ToxCoreState] extends Closeable {
    * @param control The control command to send.
    */
   @throws[ToxAvCallControlException]
-  def callControl(friendNumber: Int, @NotNull control: ToxCallControl): Unit
+  def callControl(friendNumber: Int, @NotNull control: ToxavCallControl): Unit
 
   /**
    * Set the audio bit rate to be used in subsequent audio frames.
