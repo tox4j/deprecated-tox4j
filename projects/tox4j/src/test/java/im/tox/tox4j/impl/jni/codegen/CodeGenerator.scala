@@ -6,7 +6,7 @@ import com.google.common.base.CaseFormat
 
 abstract class CodeGenerator extends App {
 
-  def writeFile(path: String)(code: => String): Unit = {
+  def writeFile(path: String)(code: String): Unit = {
     val writer = new PrintWriter(new File("src/main/cpp", path))
     try {
       writer.println(code.trim)
