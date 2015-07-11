@@ -37,7 +37,7 @@
    Checks that a regular expression cannot be matched, if found reports this
    <check level="error" class="org.scalastyle.file.RegexChecker" enabled="true">
       <parameters>
-         <parameter name="regex"><![CDATA[println]]></parameter>
+         <parameter name="regex"><![CDATA[ println]]></parameter>
       </parameters>
    </check>
 

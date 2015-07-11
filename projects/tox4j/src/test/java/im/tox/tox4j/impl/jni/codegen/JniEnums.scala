@@ -20,7 +20,7 @@ object JniEnums extends CodeGenerator {
     out.println("  switch (value)")
     out.println("    {")
     values foreach { value =>
-      out.println(s"    case ${cEnum}_${value.name}: return ${value.ordinal()};")
+      out.println(s"    case ${cEnum}_${value.name}: return ${value.ordinal};")
     }
     out.println("    }")
     out.println("  tox4j_fatal (\"Invalid enumerator from toxcore\");")
@@ -33,7 +33,7 @@ object JniEnums extends CodeGenerator {
     out.println("  switch (ordinal)")
     out.println("    {")
     values foreach { value =>
-      out.println(s"    case ${value.ordinal()}: return ${cEnum}_${value.name};")
+      out.println(s"    case ${value.ordinal}: return ${cEnum}_${value.name};")
     }
     out.println("    }")
     out.println("  tox4j_fatal (\"Invalid enumerator from Java\");")
