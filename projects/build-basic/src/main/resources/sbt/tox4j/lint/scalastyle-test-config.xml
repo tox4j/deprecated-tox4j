@@ -129,7 +129,7 @@
   <check level="error" class="org.scalastyle.scalariform.LowercasePatternMatchChecker" enabled="false"/>
 
   Checks for use of magic numbers
-  <check level="error" class="org.scalastyle.scalariform.MagicNumberChecker" enabled="true">
+  <check level="error" class="org.scalastyle.scalariform.MagicNumberChecker" enabled="false">
     <parameters>
       <parameter name="ignore">-1,0,1,2,3</parameter>
     </parameters>
