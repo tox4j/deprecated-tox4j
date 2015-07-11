@@ -1,7 +1,5 @@
 package im.tox.tox4j.impl.jni.codegen
 
-import java.io.File
-
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
@@ -39,7 +37,7 @@ object JniErrorCodes extends CodeGenerator {
     |""".stripMargin
   }
 
-  writeFile(new File("src/main/cpp/ToxAv/generated/errors.cpp")) {
+  writeFile("ToxAv/generated/errors.cpp") {
     s"""
     |#include "../ToxAv.h"
     |
@@ -56,7 +54,7 @@ object JniErrorCodes extends CodeGenerator {
     |""".stripMargin
   }
 
-  writeFile(new File("src/main/cpp/ToxCore/generated/errors.cpp")) {
+  writeFile("ToxCore/generated/errors.cpp") {
     s"""
     |#include "../ToxCore.h"
     |
@@ -83,7 +81,7 @@ object JniErrorCodes extends CodeGenerator {
     |""".stripMargin
   }
 
-  writeFile(new File("src/main/cpp/ToxCrypto/generated/errors.cpp")) {
+  writeFile("ToxCrypto/generated/errors.cpp") {
     s"""
     |#include "../ToxCrypto.h"
     |

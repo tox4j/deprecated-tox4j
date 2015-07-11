@@ -1,7 +1,5 @@
 package im.tox.tox4j.impl.jni.codegen
 
-import java.io.File
-
 import com.google.common.base.CaseFormat
 import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
 import im.tox.tox4j.core.enums._
@@ -49,7 +47,7 @@ object JniEnums extends CodeGenerator {
     |""".stripMargin
   }
 
-  writeFile(new File("src/main/cpp/ToxAv/generated/enums.cpp")) {
+  writeFile("ToxAv/generated/enums.cpp") {
     s"""
     |#include "../ToxAv.h"
     |
@@ -62,7 +60,7 @@ object JniEnums extends CodeGenerator {
     |""".stripMargin
   }
 
-  writeFile(new File("src/main/cpp/ToxCore/generated/enums.cpp")) {
+  writeFile("ToxCore/generated/enums.cpp") {
     s"""
     |#include "../ToxCore.h"
     |
