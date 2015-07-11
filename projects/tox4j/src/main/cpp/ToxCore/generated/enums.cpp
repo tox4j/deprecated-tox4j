@@ -1,5 +1,7 @@
 #include "../ToxCore.h"
+
 #ifdef TOX_VERSION_MAJOR
+
 
 template<>
 jint
@@ -13,6 +15,7 @@ enum_ordinal<TOX_CONNECTION> (JNIEnv *env, TOX_CONNECTION value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOX_CONNECTION
 enum_value<TOX_CONNECTION> (JNIEnv *env, jint ordinal)
@@ -25,6 +28,7 @@ enum_value<TOX_CONNECTION> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOX_CONNECTION> (TOX_CONNECTION value)
@@ -38,6 +42,7 @@ print_arg<TOX_CONNECTION> (TOX_CONNECTION value)
     }
 }
 
+
 template<>
 jint
 enum_ordinal<TOX_FILE_CONTROL> (JNIEnv *env, TOX_FILE_CONTROL value)
@@ -50,6 +55,7 @@ enum_ordinal<TOX_FILE_CONTROL> (JNIEnv *env, TOX_FILE_CONTROL value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOX_FILE_CONTROL
 enum_value<TOX_FILE_CONTROL> (JNIEnv *env, jint ordinal)
@@ -62,6 +68,7 @@ enum_value<TOX_FILE_CONTROL> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOX_FILE_CONTROL> (TOX_FILE_CONTROL value)
@@ -75,6 +82,7 @@ print_arg<TOX_FILE_CONTROL> (TOX_FILE_CONTROL value)
     }
 }
 
+
 template<>
 jint
 enum_ordinal<TOX_MESSAGE_TYPE> (JNIEnv *env, TOX_MESSAGE_TYPE value)
@@ -86,6 +94,7 @@ enum_ordinal<TOX_MESSAGE_TYPE> (JNIEnv *env, TOX_MESSAGE_TYPE value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOX_MESSAGE_TYPE
 enum_value<TOX_MESSAGE_TYPE> (JNIEnv *env, jint ordinal)
@@ -97,6 +106,7 @@ enum_value<TOX_MESSAGE_TYPE> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOX_MESSAGE_TYPE> (TOX_MESSAGE_TYPE value)
@@ -108,6 +118,7 @@ print_arg<TOX_MESSAGE_TYPE> (TOX_MESSAGE_TYPE value)
     default: debug_out << "(TOX_MESSAGE_TYPE)" << value; break;
     }
 }
+
 
 template<>
 jint
@@ -121,6 +132,7 @@ enum_ordinal<TOX_PROXY_TYPE> (JNIEnv *env, TOX_PROXY_TYPE value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOX_PROXY_TYPE
 enum_value<TOX_PROXY_TYPE> (JNIEnv *env, jint ordinal)
@@ -133,6 +145,7 @@ enum_value<TOX_PROXY_TYPE> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOX_PROXY_TYPE> (TOX_PROXY_TYPE value)
@@ -146,6 +159,7 @@ print_arg<TOX_PROXY_TYPE> (TOX_PROXY_TYPE value)
     }
 }
 
+
 template<>
 jint
 enum_ordinal<TOX_SAVEDATA_TYPE> (JNIEnv *env, TOX_SAVEDATA_TYPE value)
@@ -158,6 +172,7 @@ enum_ordinal<TOX_SAVEDATA_TYPE> (JNIEnv *env, TOX_SAVEDATA_TYPE value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOX_SAVEDATA_TYPE
 enum_value<TOX_SAVEDATA_TYPE> (JNIEnv *env, jint ordinal)
@@ -170,6 +185,7 @@ enum_value<TOX_SAVEDATA_TYPE> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOX_SAVEDATA_TYPE> (TOX_SAVEDATA_TYPE value)
@@ -183,6 +199,7 @@ print_arg<TOX_SAVEDATA_TYPE> (TOX_SAVEDATA_TYPE value)
     }
 }
 
+
 template<>
 jint
 enum_ordinal<TOX_USER_STATUS> (JNIEnv *env, TOX_USER_STATUS value)
@@ -195,6 +212,7 @@ enum_ordinal<TOX_USER_STATUS> (JNIEnv *env, TOX_USER_STATUS value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOX_USER_STATUS
 enum_value<TOX_USER_STATUS> (JNIEnv *env, jint ordinal)
@@ -207,6 +225,7 @@ enum_value<TOX_USER_STATUS> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOX_USER_STATUS> (TOX_USER_STATUS value)
@@ -219,4 +238,6 @@ print_arg<TOX_USER_STATUS> (TOX_USER_STATUS value)
     default: debug_out << "(TOX_USER_STATUS)" << value; break;
     }
 }
+
+
 #endif

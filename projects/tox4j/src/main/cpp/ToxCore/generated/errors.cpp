@@ -1,5 +1,7 @@
 #include "../ToxCore.h"
+
 #ifdef TOX_VERSION_MAJOR
+
 
 HANDLE ("Bootstrap", BOOTSTRAP)
 {
@@ -12,6 +14,7 @@ HANDLE ("Bootstrap", BOOTSTRAP)
     }
   return unhandled ();
 }
+
 
 HANDLE ("FileControl", FILE_CONTROL)
 {
@@ -29,6 +32,7 @@ HANDLE ("FileControl", FILE_CONTROL)
   return unhandled ();
 }
 
+
 HANDLE ("FileGet", FILE_GET)
 {
   switch (error)
@@ -40,6 +44,7 @@ HANDLE ("FileGet", FILE_GET)
     }
   return unhandled ();
 }
+
 
 HANDLE ("FileSeek", FILE_SEEK)
 {
@@ -55,6 +60,7 @@ HANDLE ("FileSeek", FILE_SEEK)
     }
   return unhandled ();
 }
+
 
 HANDLE ("FileSendChunk", FILE_SEND_CHUNK)
 {
@@ -73,6 +79,7 @@ HANDLE ("FileSendChunk", FILE_SEND_CHUNK)
   return unhandled ();
 }
 
+
 HANDLE ("FileSend", FILE_SEND)
 {
   switch (error)
@@ -86,6 +93,7 @@ HANDLE ("FileSend", FILE_SEND)
     }
   return unhandled ();
 }
+
 
 HANDLE ("FriendAdd", FRIEND_ADD)
 {
@@ -104,6 +112,7 @@ HANDLE ("FriendAdd", FRIEND_ADD)
   return unhandled ();
 }
 
+
 HANDLE ("FriendByPublicKey", FRIEND_BY_PUBLIC_KEY)
 {
   switch (error)
@@ -114,6 +123,7 @@ HANDLE ("FriendByPublicKey", FRIEND_BY_PUBLIC_KEY)
     }
   return unhandled ();
 }
+
 
 HANDLE ("FriendCustomPacket", FRIEND_CUSTOM_PACKET)
 {
@@ -131,6 +141,7 @@ HANDLE ("FriendCustomPacket", FRIEND_CUSTOM_PACKET)
   return unhandled ();
 }
 
+
 HANDLE ("FriendDelete", FRIEND_DELETE)
 {
   switch (error)
@@ -141,6 +152,7 @@ HANDLE ("FriendDelete", FRIEND_DELETE)
   return unhandled ();
 }
 
+
 HANDLE ("FriendGetPublicKey", FRIEND_GET_PUBLIC_KEY)
 {
   switch (error)
@@ -150,6 +162,7 @@ HANDLE ("FriendGetPublicKey", FRIEND_GET_PUBLIC_KEY)
     }
   return unhandled ();
 }
+
 
 HANDLE ("FriendSendMessage", FRIEND_SEND_MESSAGE)
 {
@@ -166,6 +179,7 @@ HANDLE ("FriendSendMessage", FRIEND_SEND_MESSAGE)
   return unhandled ();
 }
 
+
 HANDLE ("GetPort", GET_PORT)
 {
   switch (error)
@@ -175,6 +189,7 @@ HANDLE ("GetPort", GET_PORT)
     }
   return unhandled ();
 }
+
 
 HANDLE ("New", NEW)
 {
@@ -194,6 +209,7 @@ HANDLE ("New", NEW)
   return unhandled ();
 }
 
+
 HANDLE ("SetInfo", SET_INFO)
 {
   switch (error)
@@ -205,6 +221,7 @@ HANDLE ("SetInfo", SET_INFO)
   return unhandled ();
 }
 
+
 HANDLE ("SetTyping", SET_TYPING)
 {
   switch (error)
@@ -214,4 +231,6 @@ HANDLE ("SetTyping", SET_TYPING)
     }
   return unhandled ();
 }
+
+
 #endif

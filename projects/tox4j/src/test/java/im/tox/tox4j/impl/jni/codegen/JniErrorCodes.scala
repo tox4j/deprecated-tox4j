@@ -1,15 +1,15 @@
 package im.tox.tox4j.impl.jni.codegen
 
-import java.io.{ File, PrintWriter }
+import java.io.File
 
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.exceptions._
-import im.tox.tox4j.crypto.exceptions.{ ToxKeyDerivationException, ToxEncryptionException, ToxDecryptionException }
+import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
 import im.tox.tox4j.exceptions.JavaOnly
 
 object JniErrorCodes extends CodeGenerator {
 
-  private def generateErrorCode[E <: Enum[E]](out: PrintWriter, values: Array[E]): Unit = {
+  def generateErrorCode[E <: Enum[E]](values: Array[E]): String = {
     val exceptionClass = {
       val name = cxxTypeName(values(0).getClass.getEnclosingClass.getSimpleName)
       name.substring(name.indexOf('_') + 1, name.lastIndexOf('_'))
@@ -18,61 +18,79 @@ object JniErrorCodes extends CodeGenerator {
     val javaEnum = values(0).getClass.getSimpleName
     val cxxEnum = cxxTypeName(javaEnum)
 
-    out.println()
-    out.println("HANDLE (\"" + javaTypeName(exceptionClass) + "\", " + exceptionClass + ")")
-    out.println("{")
-    out.println("  switch (error)")
-    out.println("    {")
-    out.println(s"    success_case ($exceptionClass);")
-    values foreach { value =>
+    val failureCases = values.flatMap { value =>
       if (value.getClass.getField(value.name).getAnnotation(classOf[JavaOnly]) == null) {
-        out.println(s"    failure_case ($exceptionClass, ${value.name()});")
+        Seq(s"    failure_case ($exceptionClass, ${value.name()});")
+      } else {
+        Nil
       }
-    }
-    out.println("    }")
-    out.println("  return unhandled ();")
-    out.println("}")
+    }.mkString("\n")
+
+    s"""
+    |HANDLE ("${javaTypeName(exceptionClass)}", $exceptionClass)
+    |{
+    |  switch (error)
+    |    {
+    |    success_case ($exceptionClass);
+    |$failureCases
+    |    }
+    |  return unhandled ();
+    |}
+    |""".stripMargin
   }
 
-  withFile(new File("src/main/cpp/ToxAv/generated/errors.cpp")) { out =>
-    out.println("#include \"../ToxAv.h\"")
-    out.println("#ifdef TOXAV_VERSION_MAJOR")
-    generateErrorCode(out, ToxavAnswerException.Code.values)
-    generateErrorCode(out, ToxavCallControlException.Code.values)
-    generateErrorCode(out, ToxavCallException.Code.values)
-    generateErrorCode(out, ToxavNewException.Code.values)
-    generateErrorCode(out, ToxavSendFrameException.Code.values)
-    generateErrorCode(out, ToxavSetBitRateException.Code.values)
-    out.println("#endif")
+  writeFile(new File("src/main/cpp/ToxAv/generated/errors.cpp")) {
+    s"""
+    |#include "../ToxAv.h"
+    |
+    |#ifdef TOXAV_VERSION_MAJOR
+    |
+    |${generateErrorCode(ToxavAnswerException.Code.values)}
+    |${generateErrorCode(ToxavCallControlException.Code.values)}
+    |${generateErrorCode(ToxavCallException.Code.values)}
+    |${generateErrorCode(ToxavNewException.Code.values)}
+    |${generateErrorCode(ToxavSendFrameException.Code.values)}
+    |${generateErrorCode(ToxavSetBitRateException.Code.values)}
+    |
+    |#endif
+    |""".stripMargin
   }
 
-  withFile(new File("src/main/cpp/ToxCore/generated/errors.cpp")) { out =>
-    out.println("#include \"../ToxCore.h\"")
-    out.println("#ifdef TOX_VERSION_MAJOR")
-    generateErrorCode(out, ToxBootstrapException.Code.values)
-    generateErrorCode(out, ToxFileControlException.Code.values)
-    generateErrorCode(out, ToxFileGetException.Code.values)
-    generateErrorCode(out, ToxFileSeekException.Code.values)
-    generateErrorCode(out, ToxFileSendChunkException.Code.values)
-    generateErrorCode(out, ToxFileSendException.Code.values)
-    generateErrorCode(out, ToxFriendAddException.Code.values)
-    generateErrorCode(out, ToxFriendByPublicKeyException.Code.values)
-    generateErrorCode(out, ToxFriendCustomPacketException.Code.values)
-    generateErrorCode(out, ToxFriendDeleteException.Code.values)
-    generateErrorCode(out, ToxFriendGetPublicKeyException.Code.values)
-    generateErrorCode(out, ToxFriendSendMessageException.Code.values)
-    generateErrorCode(out, ToxGetPortException.Code.values)
-    generateErrorCode(out, ToxNewException.Code.values)
-    generateErrorCode(out, ToxSetInfoException.Code.values)
-    generateErrorCode(out, ToxSetTypingException.Code.values)
-    out.println("#endif")
+  writeFile(new File("src/main/cpp/ToxCore/generated/errors.cpp")) {
+    s"""
+    |#include "../ToxCore.h"
+    |
+    |#ifdef TOX_VERSION_MAJOR
+    |
+    |${generateErrorCode(ToxBootstrapException.Code.values)}
+    |${generateErrorCode(ToxFileControlException.Code.values)}
+    |${generateErrorCode(ToxFileGetException.Code.values)}
+    |${generateErrorCode(ToxFileSeekException.Code.values)}
+    |${generateErrorCode(ToxFileSendChunkException.Code.values)}
+    |${generateErrorCode(ToxFileSendException.Code.values)}
+    |${generateErrorCode(ToxFriendAddException.Code.values)}
+    |${generateErrorCode(ToxFriendByPublicKeyException.Code.values)}
+    |${generateErrorCode(ToxFriendCustomPacketException.Code.values)}
+    |${generateErrorCode(ToxFriendDeleteException.Code.values)}
+    |${generateErrorCode(ToxFriendGetPublicKeyException.Code.values)}
+    |${generateErrorCode(ToxFriendSendMessageException.Code.values)}
+    |${generateErrorCode(ToxGetPortException.Code.values)}
+    |${generateErrorCode(ToxNewException.Code.values)}
+    |${generateErrorCode(ToxSetInfoException.Code.values)}
+    |${generateErrorCode(ToxSetTypingException.Code.values)}
+    |
+    |#endif
+    |""".stripMargin
   }
 
-  withFile(new File("src/main/cpp/ToxCrypto/generated/errors.cpp")) { out =>
-    out.println("#include \"../ToxCrypto.h\"")
-    generateErrorCode(out, ToxDecryptionException.Code.values)
-    generateErrorCode(out, ToxEncryptionException.Code.values)
-    generateErrorCode(out, ToxKeyDerivationException.Code.values)
+  writeFile(new File("src/main/cpp/ToxCrypto/generated/errors.cpp")) {
+    s"""
+    |#include "../ToxCrypto.h"
+    |
+    |${generateErrorCode(ToxDecryptionException.Code.values)}
+    |${generateErrorCode(ToxEncryptionException.Code.values)}
+    |${generateErrorCode(ToxKeyDerivationException.Code.values)}
+    |""".stripMargin
   }
 
 }

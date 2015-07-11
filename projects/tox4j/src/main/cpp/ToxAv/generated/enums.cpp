@@ -1,5 +1,7 @@
 #include "../ToxAv.h"
+
 #ifdef TOXAV_VERSION_MAJOR
+
 
 template<>
 jint
@@ -17,6 +19,7 @@ enum_ordinal<TOXAV_CALL_CONTROL> (JNIEnv *env, TOXAV_CALL_CONTROL value)
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOXAV_CALL_CONTROL
 enum_value<TOXAV_CALL_CONTROL> (JNIEnv *env, jint ordinal)
@@ -33,6 +36,7 @@ enum_value<TOXAV_CALL_CONTROL> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOXAV_CALL_CONTROL> (TOXAV_CALL_CONTROL value)
@@ -50,6 +54,7 @@ print_arg<TOXAV_CALL_CONTROL> (TOXAV_CALL_CONTROL value)
     }
 }
 
+
 template<>
 jint
 enum_ordinal<TOXAV_FRIEND_CALL_STATE> (JNIEnv *env, TOXAV_FRIEND_CALL_STATE value)
@@ -65,6 +70,7 @@ enum_ordinal<TOXAV_FRIEND_CALL_STATE> (JNIEnv *env, TOXAV_FRIEND_CALL_STATE valu
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
+
 template<>
 TOXAV_FRIEND_CALL_STATE
 enum_value<TOXAV_FRIEND_CALL_STATE> (JNIEnv *env, jint ordinal)
@@ -80,6 +86,7 @@ enum_value<TOXAV_FRIEND_CALL_STATE> (JNIEnv *env, jint ordinal)
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
+
 template<>
 void
 print_arg<TOXAV_FRIEND_CALL_STATE> (TOXAV_FRIEND_CALL_STATE value)
@@ -95,4 +102,6 @@ print_arg<TOXAV_FRIEND_CALL_STATE> (TOXAV_FRIEND_CALL_STATE value)
     default: debug_out << "(TOXAV_FRIEND_CALL_STATE)" << value; break;
     }
 }
+
+
 #endif

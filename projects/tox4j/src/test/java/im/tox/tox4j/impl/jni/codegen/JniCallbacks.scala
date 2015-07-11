@@ -1,26 +1,28 @@
 package im.tox.tox4j.impl.jni.codegen
 
-import java.io.{ PrintWriter, File }
+import java.io.File
 
 import im.tox.tox4j.av.callbacks.ToxAvEventAdapter
 import im.tox.tox4j.core.callbacks.ToxEventAdapter
 
 object JniCallbacks extends CodeGenerator {
 
-  def printCallbacks(out: PrintWriter, clazz: Class[_]): Unit = {
-    clazz.getMethods.sortBy(method => method.getName).foreach { method =>
+  def generateCallbacks(clazz: Class[_]): String = {
+    clazz.getMethods.sortBy(method => method.getName).flatMap { method =>
       if (method.getDeclaringClass == clazz) {
-        out.println("CALLBACK (" + cxxVarName(method.getName) + ")")
+        Seq("CALLBACK (" + cxxVarName(method.getName) + ")")
+      } else {
+        Nil
       }
-    }
+    }.mkString("\n")
   }
 
-  withFile(new File("src/main/cpp/tox/generated/av.h")) { out =>
-    printCallbacks(out, classOf[ToxAvEventAdapter[_]])
+  writeFile(new File("src/main/cpp/tox/generated/av.h")) {
+    generateCallbacks(classOf[ToxAvEventAdapter[_]])
   }
 
-  withFile(new File("src/main/cpp/tox/generated/core.h")) { out =>
-    printCallbacks(out, classOf[ToxEventAdapter[_]])
+  writeFile(new File("src/main/cpp/tox/generated/core.h")) {
+    generateCallbacks(classOf[ToxEventAdapter[_]])
   }
 
 }

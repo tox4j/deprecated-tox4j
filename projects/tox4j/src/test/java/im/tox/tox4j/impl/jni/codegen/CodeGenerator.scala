@@ -6,10 +6,10 @@ import com.google.common.base.CaseFormat
 
 abstract class CodeGenerator extends App {
 
-  def withFile(path: File)(printCode: PrintWriter => Unit): Unit = {
+  def writeFile(path: File)(code: => String): Unit = {
     val writer = new PrintWriter(path)
     try {
-      printCode(writer)
+      writer.println(code.trim)
     } finally {
       writer.close()
     }
@@ -18,5 +18,9 @@ abstract class CodeGenerator extends App {
   def cxxVarName(name: String): String = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, name)
   def cxxTypeName(name: String): String = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name)
   def javaTypeName(name: String): String = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name)
+
+  def mkLines[T](strings: Seq[T])(transform: T => String): String = {
+    strings.map(transform).mkString("\n")
+  }
 
 }
