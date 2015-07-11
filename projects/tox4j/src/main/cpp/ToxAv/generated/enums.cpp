@@ -2,7 +2,6 @@
 
 #ifdef TOXAV_VERSION_MAJOR
 
-
 template<>
 jint
 enum_ordinal<TOXAV_CALL_CONTROL> (JNIEnv *env, TOXAV_CALL_CONTROL value)
@@ -43,17 +42,16 @@ print_arg<TOXAV_CALL_CONTROL> (TOXAV_CALL_CONTROL value)
 {
   switch (value)
     {
-    case TOXAV_CALL_CONTROL_RESUME: debug_out << "TOXAV_CALL_CONTROL_RESUME"; break;
-    case TOXAV_CALL_CONTROL_PAUSE: debug_out << "TOXAV_CALL_CONTROL_PAUSE"; break;
-    case TOXAV_CALL_CONTROL_CANCEL: debug_out << "TOXAV_CALL_CONTROL_CANCEL"; break;
-    case TOXAV_CALL_CONTROL_MUTE_AUDIO: debug_out << "TOXAV_CALL_CONTROL_MUTE_AUDIO"; break;
-    case TOXAV_CALL_CONTROL_UNMUTE_AUDIO: debug_out << "TOXAV_CALL_CONTROL_UNMUTE_AUDIO"; break;
-    case TOXAV_CALL_CONTROL_HIDE_VIDEO: debug_out << "TOXAV_CALL_CONTROL_HIDE_VIDEO"; break;
-    case TOXAV_CALL_CONTROL_SHOW_VIDEO: debug_out << "TOXAV_CALL_CONTROL_SHOW_VIDEO"; break;
-    default: debug_out << "(TOXAV_CALL_CONTROL)" << value; break;
+    case TOXAV_CALL_CONTROL_RESUME: debug_out << "TOXAV_CALL_CONTROL_RESUME"; return;
+    case TOXAV_CALL_CONTROL_PAUSE: debug_out << "TOXAV_CALL_CONTROL_PAUSE"; return;
+    case TOXAV_CALL_CONTROL_CANCEL: debug_out << "TOXAV_CALL_CONTROL_CANCEL"; return;
+    case TOXAV_CALL_CONTROL_MUTE_AUDIO: debug_out << "TOXAV_CALL_CONTROL_MUTE_AUDIO"; return;
+    case TOXAV_CALL_CONTROL_UNMUTE_AUDIO: debug_out << "TOXAV_CALL_CONTROL_UNMUTE_AUDIO"; return;
+    case TOXAV_CALL_CONTROL_HIDE_VIDEO: debug_out << "TOXAV_CALL_CONTROL_HIDE_VIDEO"; return;
+    case TOXAV_CALL_CONTROL_SHOW_VIDEO: debug_out << "TOXAV_CALL_CONTROL_SHOW_VIDEO"; return;
     }
+  debug_out << "(TOXAV_CALL_CONTROL)" << value;
 }
-
 
 template<>
 jint
@@ -93,15 +91,14 @@ print_arg<TOXAV_FRIEND_CALL_STATE> (TOXAV_FRIEND_CALL_STATE value)
 {
   switch (value)
     {
-    case TOXAV_FRIEND_CALL_STATE_ERROR: debug_out << "TOXAV_FRIEND_CALL_STATE_ERROR"; break;
-    case TOXAV_FRIEND_CALL_STATE_FINISHED: debug_out << "TOXAV_FRIEND_CALL_STATE_FINISHED"; break;
-    case TOXAV_FRIEND_CALL_STATE_SENDING_A: debug_out << "TOXAV_FRIEND_CALL_STATE_SENDING_A"; break;
-    case TOXAV_FRIEND_CALL_STATE_SENDING_V: debug_out << "TOXAV_FRIEND_CALL_STATE_SENDING_V"; break;
-    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_A: debug_out << "TOXAV_FRIEND_CALL_STATE_ACCEPTING_A"; break;
-    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_V: debug_out << "TOXAV_FRIEND_CALL_STATE_ACCEPTING_V"; break;
-    default: debug_out << "(TOXAV_FRIEND_CALL_STATE)" << value; break;
+    case TOXAV_FRIEND_CALL_STATE_ERROR: debug_out << "TOXAV_FRIEND_CALL_STATE_ERROR"; return;
+    case TOXAV_FRIEND_CALL_STATE_FINISHED: debug_out << "TOXAV_FRIEND_CALL_STATE_FINISHED"; return;
+    case TOXAV_FRIEND_CALL_STATE_SENDING_A: debug_out << "TOXAV_FRIEND_CALL_STATE_SENDING_A"; return;
+    case TOXAV_FRIEND_CALL_STATE_SENDING_V: debug_out << "TOXAV_FRIEND_CALL_STATE_SENDING_V"; return;
+    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_A: debug_out << "TOXAV_FRIEND_CALL_STATE_ACCEPTING_A"; return;
+    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_V: debug_out << "TOXAV_FRIEND_CALL_STATE_ACCEPTING_V"; return;
     }
+  debug_out << "(TOXAV_FRIEND_CALL_STATE)" << value;
 }
-
 
 #endif

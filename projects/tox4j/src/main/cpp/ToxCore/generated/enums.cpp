@@ -2,7 +2,6 @@
 
 #ifdef TOX_VERSION_MAJOR
 
-
 template<>
 jint
 enum_ordinal<TOX_CONNECTION> (JNIEnv *env, TOX_CONNECTION value)
@@ -35,13 +34,12 @@ print_arg<TOX_CONNECTION> (TOX_CONNECTION value)
 {
   switch (value)
     {
-    case TOX_CONNECTION_NONE: debug_out << "TOX_CONNECTION_NONE"; break;
-    case TOX_CONNECTION_TCP: debug_out << "TOX_CONNECTION_TCP"; break;
-    case TOX_CONNECTION_UDP: debug_out << "TOX_CONNECTION_UDP"; break;
-    default: debug_out << "(TOX_CONNECTION)" << value; break;
+    case TOX_CONNECTION_NONE: debug_out << "TOX_CONNECTION_NONE"; return;
+    case TOX_CONNECTION_TCP: debug_out << "TOX_CONNECTION_TCP"; return;
+    case TOX_CONNECTION_UDP: debug_out << "TOX_CONNECTION_UDP"; return;
     }
+  debug_out << "(TOX_CONNECTION)" << value;
 }
-
 
 template<>
 jint
@@ -75,13 +73,12 @@ print_arg<TOX_FILE_CONTROL> (TOX_FILE_CONTROL value)
 {
   switch (value)
     {
-    case TOX_FILE_CONTROL_RESUME: debug_out << "TOX_FILE_CONTROL_RESUME"; break;
-    case TOX_FILE_CONTROL_PAUSE: debug_out << "TOX_FILE_CONTROL_PAUSE"; break;
-    case TOX_FILE_CONTROL_CANCEL: debug_out << "TOX_FILE_CONTROL_CANCEL"; break;
-    default: debug_out << "(TOX_FILE_CONTROL)" << value; break;
+    case TOX_FILE_CONTROL_RESUME: debug_out << "TOX_FILE_CONTROL_RESUME"; return;
+    case TOX_FILE_CONTROL_PAUSE: debug_out << "TOX_FILE_CONTROL_PAUSE"; return;
+    case TOX_FILE_CONTROL_CANCEL: debug_out << "TOX_FILE_CONTROL_CANCEL"; return;
     }
+  debug_out << "(TOX_FILE_CONTROL)" << value;
 }
-
 
 template<>
 jint
@@ -113,12 +110,11 @@ print_arg<TOX_MESSAGE_TYPE> (TOX_MESSAGE_TYPE value)
 {
   switch (value)
     {
-    case TOX_MESSAGE_TYPE_NORMAL: debug_out << "TOX_MESSAGE_TYPE_NORMAL"; break;
-    case TOX_MESSAGE_TYPE_ACTION: debug_out << "TOX_MESSAGE_TYPE_ACTION"; break;
-    default: debug_out << "(TOX_MESSAGE_TYPE)" << value; break;
+    case TOX_MESSAGE_TYPE_NORMAL: debug_out << "TOX_MESSAGE_TYPE_NORMAL"; return;
+    case TOX_MESSAGE_TYPE_ACTION: debug_out << "TOX_MESSAGE_TYPE_ACTION"; return;
     }
+  debug_out << "(TOX_MESSAGE_TYPE)" << value;
 }
-
 
 template<>
 jint
@@ -152,13 +148,12 @@ print_arg<TOX_PROXY_TYPE> (TOX_PROXY_TYPE value)
 {
   switch (value)
     {
-    case TOX_PROXY_TYPE_NONE: debug_out << "TOX_PROXY_TYPE_NONE"; break;
-    case TOX_PROXY_TYPE_HTTP: debug_out << "TOX_PROXY_TYPE_HTTP"; break;
-    case TOX_PROXY_TYPE_SOCKS5: debug_out << "TOX_PROXY_TYPE_SOCKS5"; break;
-    default: debug_out << "(TOX_PROXY_TYPE)" << value; break;
+    case TOX_PROXY_TYPE_NONE: debug_out << "TOX_PROXY_TYPE_NONE"; return;
+    case TOX_PROXY_TYPE_HTTP: debug_out << "TOX_PROXY_TYPE_HTTP"; return;
+    case TOX_PROXY_TYPE_SOCKS5: debug_out << "TOX_PROXY_TYPE_SOCKS5"; return;
     }
+  debug_out << "(TOX_PROXY_TYPE)" << value;
 }
-
 
 template<>
 jint
@@ -192,13 +187,12 @@ print_arg<TOX_SAVEDATA_TYPE> (TOX_SAVEDATA_TYPE value)
 {
   switch (value)
     {
-    case TOX_SAVEDATA_TYPE_NONE: debug_out << "TOX_SAVEDATA_TYPE_NONE"; break;
-    case TOX_SAVEDATA_TYPE_TOX_SAVE: debug_out << "TOX_SAVEDATA_TYPE_TOX_SAVE"; break;
-    case TOX_SAVEDATA_TYPE_SECRET_KEY: debug_out << "TOX_SAVEDATA_TYPE_SECRET_KEY"; break;
-    default: debug_out << "(TOX_SAVEDATA_TYPE)" << value; break;
+    case TOX_SAVEDATA_TYPE_NONE: debug_out << "TOX_SAVEDATA_TYPE_NONE"; return;
+    case TOX_SAVEDATA_TYPE_TOX_SAVE: debug_out << "TOX_SAVEDATA_TYPE_TOX_SAVE"; return;
+    case TOX_SAVEDATA_TYPE_SECRET_KEY: debug_out << "TOX_SAVEDATA_TYPE_SECRET_KEY"; return;
     }
+  debug_out << "(TOX_SAVEDATA_TYPE)" << value;
 }
-
 
 template<>
 jint
@@ -232,12 +226,11 @@ print_arg<TOX_USER_STATUS> (TOX_USER_STATUS value)
 {
   switch (value)
     {
-    case TOX_USER_STATUS_NONE: debug_out << "TOX_USER_STATUS_NONE"; break;
-    case TOX_USER_STATUS_AWAY: debug_out << "TOX_USER_STATUS_AWAY"; break;
-    case TOX_USER_STATUS_BUSY: debug_out << "TOX_USER_STATUS_BUSY"; break;
-    default: debug_out << "(TOX_USER_STATUS)" << value; break;
+    case TOX_USER_STATUS_NONE: debug_out << "TOX_USER_STATUS_NONE"; return;
+    case TOX_USER_STATUS_AWAY: debug_out << "TOX_USER_STATUS_AWAY"; return;
+    case TOX_USER_STATUS_BUSY: debug_out << "TOX_USER_STATUS_BUSY"; return;
     }
+  debug_out << "(TOX_USER_STATUS)" << value;
 }
-
 
 #endif

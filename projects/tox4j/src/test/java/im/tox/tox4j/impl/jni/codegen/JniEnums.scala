@@ -3,78 +3,108 @@ package im.tox.tox4j.impl.jni.codegen
 import com.google.common.base.CaseFormat
 import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
 import im.tox.tox4j.core.enums._
+import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 
 object JniEnums extends CodeGenerator {
 
-  def generateEnumConversions[E <: Enum[E]](values: Array[E]): String = {
+  final case class Side[E <: Enum[E]](
+    ty: Type,
+    name: String,
+    origin: String,
+    expr: E => Expr
+  )
+
+  def enumMapping[E <: Enum[E]](values: Seq[E], cxxEnum: String, from: Side[E], to: Side[E]): Decl = {
+    TemplateFun(
+      typeParams = Nil,
+      typeArgs = Seq(Typename(cxxEnum)),
+      fun = Fun(
+        returnType = to.ty,
+        name = "enum_" + to.name,
+        params = Seq(
+          Param(Pointer(Typename("JNIEnv")), "env"),
+          Param(from.ty, from.name)
+        ),
+        body = CompoundStmt(
+          Switch(Identifier(from.name), CompoundStmt(values.map { value =>
+            Case(from.expr(value), Return(to.expr(value)))
+          })),
+          ExprStmt(FunCall(Identifier("tox4j_fatal"), Seq(StringLiteral(s"Invalid enumerator from ${from.origin}"))))
+        )
+      )
+    )
+  }
+
+  def enumMappings[E <: Enum[E]](values: Seq[E], cxxEnum: String): TranslationUnit = {
+    val from = Side[E](Typename(cxxEnum), "value", "toxcore", value => Identifier(cxxEnum + "_" + value.name))
+    val to = Side[E](Type.jint, "ordinal", "Java", value => IntegerLiteral(value.ordinal))
+
+    Seq(
+      enumMapping(values, cxxEnum, from, to),
+      enumMapping(values, cxxEnum, to, from)
+    )
+  }
+
+  def debugOut(exprs: Expr*): Stmt = {
+    ExprStmt(exprs.foldLeft(Identifier("debug_out"): Expr) { (stream, arg) =>
+      LeftShift(stream, arg)
+    })
+  }
+
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Product", "org.brianmckenna.wartremover.warts.Serializable"))
+  def printArg[E <: Enum[E]](values: Seq[E], cxxEnum: String): Decl = {
+    TemplateFun(
+      typeParams = Nil,
+      typeArgs = Seq(Typename(cxxEnum)),
+      fun = Fun(
+        returnType = Type.void,
+        name = "print_arg",
+        params = Seq(
+          Param(Typename(cxxEnum), "value")
+        ),
+        body = CompoundStmt(
+          Switch(Identifier("value"), CompoundStmt(values.flatMap { value =>
+            Seq(Oneliner(
+              Case(
+                Identifier(cxxEnum + "_" + value.name),
+                debugOut(StringLiteral(cxxEnum + "_" + value.name))
+              ),
+              Return()
+            ))
+          })),
+          debugOut(StringLiteral(s"($cxxEnum)"), Identifier("value"))
+        )
+      )
+    )
+  }
+
+  def generateEnumConversions[E <: Enum[E]](values: Array[E]): TranslationUnit = {
     val javaEnum = values(0).getClass.getSimpleName
-    val cEnum = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, javaEnum)
-    def cEnumerator(value: E) = cEnum + "_" + value.name
+    val cxxEnum = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, javaEnum)
 
-    s"""
-    |template<>
-    |jint
-    |enum_ordinal<$cEnum> (JNIEnv *env, $cEnum value)
-    |{
-    |  switch (value)
-    |    {
-    |${mkLines(values) { value => s"    case ${cEnumerator(value)}: return ${value.ordinal};" }}
-    |    }
-    |  tox4j_fatal ("Invalid enumerator from toxcore");
-    |}
-    |
-    |template<>
-    |$cEnum
-    |enum_value<$cEnum> (JNIEnv *env, jint ordinal)
-    |{
-    |  switch (ordinal)
-    |    {
-    |${mkLines(values) { value => s"    case ${value.ordinal}: return ${cEnumerator(value)};" }}
-    |    }
-    |  tox4j_fatal ("Invalid enumerator from Java");
-    |}
-    |
-    |template<>
-    |void
-    |print_arg<$cEnum> ($cEnum value)
-    |{
-    |  switch (value)
-    |    {
-    |${mkLines(values) { value => "    case " + cEnumerator(value) + ": debug_out << \"" + cEnumerator(value) + "\"; break;" }}
-    |    default: debug_out << "($cEnum)" << value; break;
-    |    }
-    |}
-    |""".stripMargin
+    enumMappings(values, cxxEnum) :+ printArg(values, cxxEnum)
   }
 
-  writeFile("ToxAv/generated/enums.cpp") {
-    s"""
-    |#include "../ToxAv.h"
-    |
-    |#ifdef TOXAV_VERSION_MAJOR
-    |
-    |${generateEnumConversions(ToxavCallControl.values)}
-    |${generateEnumConversions(ToxavFriendCallState.values)}
-    |
-    |#endif
-    |""".stripMargin
+  writeCode("ToxAv/generated/enums.cpp") {
+    ifdef(
+      "../ToxAv.h",
+      "TOXAV_VERSION_MAJOR",
+      generateEnumConversions(ToxavCallControl.values),
+      generateEnumConversions(ToxavFriendCallState.values)
+    )
   }
 
-  writeFile("ToxCore/generated/enums.cpp") {
-    s"""
-    |#include "../ToxCore.h"
-    |
-    |#ifdef TOX_VERSION_MAJOR
-    |
-    |${generateEnumConversions(ToxConnection.values)}
-    |${generateEnumConversions(ToxFileControl.values)}
-    |${generateEnumConversions(ToxMessageType.values)}
-    |${generateEnumConversions(ToxProxyType.values)}
-    |${generateEnumConversions(ToxSavedataType.values)}
-    |${generateEnumConversions(ToxUserStatus.values)}
-    |
-    |#endif
-    |""".stripMargin
+  writeCode("ToxCore/generated/enums.cpp") {
+    ifdef(
+      "../ToxCore.h",
+      "TOX_VERSION_MAJOR",
+      generateEnumConversions(ToxConnection.values),
+      generateEnumConversions(ToxFileControl.values),
+      generateEnumConversions(ToxMessageType.values),
+      generateEnumConversions(ToxProxyType.values),
+      generateEnumConversions(ToxSavedataType.values),
+      generateEnumConversions(ToxUserStatus.values)
+    )
   }
 
 }

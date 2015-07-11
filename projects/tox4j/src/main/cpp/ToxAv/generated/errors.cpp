@@ -2,7 +2,6 @@
 
 #ifdef TOXAV_VERSION_MAJOR
 
-
 HANDLE ("Answer", ANSWER)
 {
   switch (error)
@@ -16,7 +15,6 @@ HANDLE ("Answer", ANSWER)
   return unhandled ();
 }
 
-
 HANDLE ("CallControl", CALL_CONTROL)
 {
   switch (error)
@@ -28,7 +26,6 @@ HANDLE ("CallControl", CALL_CONTROL)
     }
   return unhandled ();
 }
-
 
 HANDLE ("Call", CALL)
 {
@@ -44,7 +41,6 @@ HANDLE ("Call", CALL)
   return unhandled ();
 }
 
-
 HANDLE ("New", NEW)
 {
   switch (error)
@@ -56,7 +52,6 @@ HANDLE ("New", NEW)
     }
   return unhandled ();
 }
-
 
 HANDLE ("SendFrame", SEND_FRAME)
 {
@@ -73,7 +68,6 @@ HANDLE ("SendFrame", SEND_FRAME)
   return unhandled ();
 }
 
-
 HANDLE ("SetBitRate", SET_BIT_RATE)
 {
   switch (error)
@@ -85,6 +79,5 @@ HANDLE ("SetBitRate", SET_BIT_RATE)
     }
   return unhandled ();
 }
-
 
 #endif

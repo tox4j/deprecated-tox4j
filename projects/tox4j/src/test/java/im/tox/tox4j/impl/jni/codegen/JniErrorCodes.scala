@@ -4,10 +4,12 @@ import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
 import im.tox.tox4j.exceptions.JavaOnly
+import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 
 object JniErrorCodes extends CodeGenerator {
 
-  def generateErrorCode[E <: Enum[E]](values: Array[E]): String = {
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Product", "org.brianmckenna.wartremover.warts.Serializable"))
+  def generateErrorCode[E <: Enum[E]](values: Array[E]): Decl = {
     val exceptionClass = {
       val name = cxxTypeName(values(0).getClass.getEnclosingClass.getSimpleName)
       name.substring(name.indexOf('_') + 1, name.lastIndexOf('_'))
@@ -16,79 +18,83 @@ object JniErrorCodes extends CodeGenerator {
     val javaEnum = values(0).getClass.getSimpleName
     val cxxEnum = cxxTypeName(javaEnum)
 
-    val failureCases = values.flatMap { value =>
-      if (value.getClass.getField(value.name).getAnnotation(classOf[JavaOnly]) == null) {
-        Seq(s"    failure_case ($exceptionClass, ${value.name()});")
-      } else {
-        Nil
-      }
-    }.mkString("\n")
+    val failureCases = values filter { value =>
+      value.getClass.getField(value.name).getAnnotation(classOf[JavaOnly]) == null
+    } map { value =>
+      FunCall(Identifier("failure_case"), Seq(Identifier(exceptionClass), Identifier(value.name)))
+    } map ExprStmt
 
-    s"""
-    |HANDLE ("${javaTypeName(exceptionClass)}", $exceptionClass)
-    |{
-    |  switch (error)
-    |    {
-    |    success_case ($exceptionClass);
-    |$failureCases
-    |    }
-    |  return unhandled ();
-    |}
-    |""".stripMargin
+    MacroFun(
+      init = FunCall(
+        callee = Identifier("HANDLE"),
+        args = Seq(
+          StringLiteral(javaTypeName(exceptionClass)),
+          Identifier(exceptionClass)
+        )
+      ),
+      body = CompoundStmt(
+        Switch(
+          cond = Identifier("error"),
+          body = CompoundStmt(
+            ExprStmt(FunCall(Identifier("success_case"), Seq(Identifier(exceptionClass)))) +:
+              failureCases
+          )
+        ),
+        Return(FunCall(Identifier("unhandled"), Nil))
+      )
+    )
   }
 
-  writeFile("ToxAv/generated/errors.cpp") {
-    s"""
-    |#include "../ToxAv.h"
-    |
-    |#ifdef TOXAV_VERSION_MAJOR
-    |
-    |${generateErrorCode(ToxavAnswerException.Code.values)}
-    |${generateErrorCode(ToxavCallControlException.Code.values)}
-    |${generateErrorCode(ToxavCallException.Code.values)}
-    |${generateErrorCode(ToxavNewException.Code.values)}
-    |${generateErrorCode(ToxavSendFrameException.Code.values)}
-    |${generateErrorCode(ToxavSetBitRateException.Code.values)}
-    |
-    |#endif
-    |""".stripMargin
+  writeCode("ToxAv/generated/errors.cpp") {
+    ifdef(
+      "../ToxAv.h",
+      "TOXAV_VERSION_MAJOR",
+      Seq(
+        generateErrorCode(ToxavAnswerException.Code.values),
+        generateErrorCode(ToxavCallControlException.Code.values),
+        generateErrorCode(ToxavCallException.Code.values),
+        generateErrorCode(ToxavNewException.Code.values),
+        generateErrorCode(ToxavSendFrameException.Code.values),
+        generateErrorCode(ToxavSetBitRateException.Code.values)
+      )
+    )
   }
 
-  writeFile("ToxCore/generated/errors.cpp") {
-    s"""
-    |#include "../ToxCore.h"
-    |
-    |#ifdef TOX_VERSION_MAJOR
-    |
-    |${generateErrorCode(ToxBootstrapException.Code.values)}
-    |${generateErrorCode(ToxFileControlException.Code.values)}
-    |${generateErrorCode(ToxFileGetException.Code.values)}
-    |${generateErrorCode(ToxFileSeekException.Code.values)}
-    |${generateErrorCode(ToxFileSendChunkException.Code.values)}
-    |${generateErrorCode(ToxFileSendException.Code.values)}
-    |${generateErrorCode(ToxFriendAddException.Code.values)}
-    |${generateErrorCode(ToxFriendByPublicKeyException.Code.values)}
-    |${generateErrorCode(ToxFriendCustomPacketException.Code.values)}
-    |${generateErrorCode(ToxFriendDeleteException.Code.values)}
-    |${generateErrorCode(ToxFriendGetPublicKeyException.Code.values)}
-    |${generateErrorCode(ToxFriendSendMessageException.Code.values)}
-    |${generateErrorCode(ToxGetPortException.Code.values)}
-    |${generateErrorCode(ToxNewException.Code.values)}
-    |${generateErrorCode(ToxSetInfoException.Code.values)}
-    |${generateErrorCode(ToxSetTypingException.Code.values)}
-    |
-    |#endif
-    |""".stripMargin
+  writeCode("ToxCore/generated/errors.cpp") {
+    ifdef(
+      "../ToxCore.h",
+      "TOX_VERSION_MAJOR",
+      Seq(
+        generateErrorCode(ToxBootstrapException.Code.values),
+        generateErrorCode(ToxFileControlException.Code.values),
+        generateErrorCode(ToxFileGetException.Code.values),
+        generateErrorCode(ToxFileSeekException.Code.values),
+        generateErrorCode(ToxFileSendChunkException.Code.values),
+        generateErrorCode(ToxFileSendException.Code.values),
+        generateErrorCode(ToxFriendAddException.Code.values),
+        generateErrorCode(ToxFriendByPublicKeyException.Code.values),
+        generateErrorCode(ToxFriendCustomPacketException.Code.values),
+        generateErrorCode(ToxFriendDeleteException.Code.values),
+        generateErrorCode(ToxFriendGetPublicKeyException.Code.values),
+        generateErrorCode(ToxFriendSendMessageException.Code.values),
+        generateErrorCode(ToxGetPortException.Code.values),
+        generateErrorCode(ToxNewException.Code.values),
+        generateErrorCode(ToxSetInfoException.Code.values),
+        generateErrorCode(ToxSetTypingException.Code.values)
+      )
+    )
   }
 
-  writeFile("ToxCrypto/generated/errors.cpp") {
-    s"""
-    |#include "../ToxCrypto.h"
-    |
-    |${generateErrorCode(ToxDecryptionException.Code.values)}
-    |${generateErrorCode(ToxEncryptionException.Code.values)}
-    |${generateErrorCode(ToxKeyDerivationException.Code.values)}
-    |""".stripMargin
+  writeCode("ToxCrypto/generated/errors.cpp") {
+    ifdef(
+      "../ToxCrypto.h",
+      "TOX_DEFINED",
+      Seq(
+        generateErrorCode(ToxDecryptionException.Code.values),
+        generateErrorCode(ToxEncryptionException.Code.values),
+        generateErrorCode(ToxKeyDerivationException.Code.values)
+      )
+    )
   }
 
 }
