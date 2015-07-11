@@ -3,7 +3,7 @@ package im.tox.tox4j.av.exceptions;
 import im.tox.tox4j.exceptions.ToxException;
 import org.jetbrains.annotations.NotNull;
 
-public final class ToxAvSendFrameException extends ToxException<ToxAvSendFrameException.Code> {
+public final class ToxavSendFrameException extends ToxException<ToxavSendFrameException.Code> {
 
   public enum Code {
     /**
@@ -25,16 +25,21 @@ public final class ToxAvSendFrameException extends ToxException<ToxAvSendFrameEx
      */
     NULL,
     /**
+     * Either friend turned off audio or video receiving or we turned off sending
+     * for the said payload.
+     */
+    PAYLOAD_TYPE_DISABLED,
+    /**
      * Failed to push frame through rtp interface.
      */
     RTP_FAILED,
   }
 
-  public ToxAvSendFrameException(@NotNull Code code) {
+  public ToxavSendFrameException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxAvSendFrameException(@NotNull Code code, String message) {
+  public ToxavSendFrameException(@NotNull Code code, String message) {
     super(code, message);
   }
 

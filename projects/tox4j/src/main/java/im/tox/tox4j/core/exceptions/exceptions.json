@@ -6,7 +6,7 @@
       "passed was invalid."
     ],
     "BAD_PORT": ["The port passed was invalid. The valid port range is (1, 65535)."],
-    "BAD_KEY": ["The public key was of invalid length."]
+    "@JavaOnly BAD_KEY": ["The public key was of invalid length."]
   },
   "FileControl": {
     "FRIEND_NOT_FOUND": ["The friendNumber passed did not designate a valid friend."],
@@ -112,7 +112,6 @@
     ],
     "PROXY_NOT_FOUND": ["The proxy address passed could not be resolved."],
     "LOAD_ENCRYPTED": ["The byte array to be loaded contained an encrypted save."],
-    "LOAD_DECRYPTION_FAILED": ["An encrypted save format was found, but the key was wrong or the data was corrupt."],
     "LOAD_BAD_FORMAT": [
       "The data format was invalid. This can happen when loading data that was",
       "saved by an older version of Tox, or when the data has been corrupted.",

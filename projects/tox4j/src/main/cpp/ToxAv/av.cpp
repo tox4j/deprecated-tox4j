@@ -74,21 +74,8 @@ TOX_METHOD (void, Answer,
 TOX_METHOD (void, CallControl,
   jint instanceNumber, jint friendNumber, jint control)
 {
-  TOXAV_CALL_CONTROL call_control = [=] {
-    switch (control)
-      {
-      case 0: return TOXAV_CALL_CONTROL_RESUME;
-      case 1: return TOXAV_CALL_CONTROL_PAUSE;
-      case 2: return TOXAV_CALL_CONTROL_CANCEL;
-      case 3: return TOXAV_CALL_CONTROL_MUTE_AUDIO;
-      case 4: return TOXAV_CALL_CONTROL_UNMUTE_AUDIO;
-      case 5: return TOXAV_CALL_CONTROL_HIDE_VIDEO;
-      case 6: return TOXAV_CALL_CONTROL_SHOW_VIDEO;
-      }
-    tox4j_fatal ("Invalid call control from Java");
-  } ();
   return instances.with_instance_ign (env, instanceNumber,
-    toxav_call_control, friendNumber, call_control
+    toxav_call_control, friendNumber, enum_value<TOXAV_CALL_CONTROL> (env, control)
   );
 }
 

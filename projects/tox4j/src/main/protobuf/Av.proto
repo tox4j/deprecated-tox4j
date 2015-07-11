@@ -17,8 +17,8 @@ message CallState {
     FINISHED     = 1;
     SENDING_A    = 2;
     SENDING_V    = 3;
-    RECEIVING_A  = 4;
-    RECEIVING_V  = 5;
+    ACCEPTING_A  = 4;
+    ACCEPTING_V  = 5;
   }
 
   required uint32  friend_number    = 1;

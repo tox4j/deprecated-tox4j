@@ -29,23 +29,4 @@ print_arg<int16_t const *> (int16_t const *data)
     debug_out << "<null>";
 }
 
-#define enum_case(ENUM)                               \
-    case TOXAV_##ENUM: debug_out << "TOXAV_" #ENUM; break
-
-template<>
-void
-print_arg<TOXAV_CALL_CONTROL> (TOXAV_CALL_CONTROL kind)
-{
-  switch (kind)
-    {
-    enum_case (CALL_CONTROL_PAUSE);
-    enum_case (CALL_CONTROL_RESUME);
-    enum_case (CALL_CONTROL_CANCEL);
-    enum_case (CALL_CONTROL_MUTE_AUDIO);
-    enum_case (CALL_CONTROL_UNMUTE_AUDIO);
-    enum_case (CALL_CONTROL_HIDE_VIDEO);
-    enum_case (CALL_CONTROL_SHOW_VIDEO);
-    }
-}
-
 #endif

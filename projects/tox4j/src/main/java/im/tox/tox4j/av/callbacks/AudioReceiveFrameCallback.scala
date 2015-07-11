@@ -12,7 +12,7 @@ trait AudioReceiveFrameCallback[ToxCoreState] {
    * @param channels Number of audio channels.
    * @param samplingRate Sampling rate used in this frame.
    */
-  def receiveAudioFrame(
+  def audioReceiveFrame(
     friendNumber: Int, @NotNull pcm: Array[Short], channels: Int, samplingRate: Int
   )(state: ToxCoreState): ToxCoreState = state
 }

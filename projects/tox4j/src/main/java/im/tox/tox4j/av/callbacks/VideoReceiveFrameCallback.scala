@@ -29,7 +29,7 @@ trait VideoReceiveFrameCallback[ToxCoreState] {
    *                calculating plane buffer size.
    */
   // scalastyle:ignore parameter.number
-  def receiveVideoFrame(
+  def videoReceiveFrame(
     friendNumber: Int,
     width: Int, height: Int,
     @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte],

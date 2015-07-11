@@ -1,4 +1,4 @@
-#include "ToxCore.h"
+#include "../ToxCore.h"
 #ifdef TOX_VERSION_MAJOR
 
 template<>

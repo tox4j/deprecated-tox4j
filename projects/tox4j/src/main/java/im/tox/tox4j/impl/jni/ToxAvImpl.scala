@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavCallState }
+import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.core.ToxCore
@@ -20,14 +20,14 @@ private object ToxAvImpl {
 
   private val logger = Logger(LoggerFactory.getLogger(getClass))
 
-  private def convert(kind: CallState.Kind): ToxavCallState = {
+  private def convert(kind: CallState.Kind): ToxavFriendCallState = {
     kind match {
-      case CallState.Kind.ERROR       => ToxavCallState.ERROR
-      case CallState.Kind.FINISHED    => ToxavCallState.FINISHED
-      case CallState.Kind.SENDING_A   => ToxavCallState.SENDING_A
-      case CallState.Kind.SENDING_V   => ToxavCallState.SENDING_V
-      case CallState.Kind.RECEIVING_A => ToxavCallState.RECEIVING_A
-      case CallState.Kind.RECEIVING_V => ToxavCallState.RECEIVING_V
+      case CallState.Kind.ERROR       => ToxavFriendCallState.ERROR
+      case CallState.Kind.FINISHED    => ToxavFriendCallState.FINISHED
+      case CallState.Kind.SENDING_A   => ToxavFriendCallState.SENDING_A
+      case CallState.Kind.SENDING_V   => ToxavFriendCallState.SENDING_V
+      case CallState.Kind.ACCEPTING_A => ToxavFriendCallState.ACCEPTING_A
+      case CallState.Kind.ACCEPTING_V => ToxavFriendCallState.ACCEPTING_V
     }
   }
 
@@ -39,7 +39,7 @@ private object ToxAvImpl {
  * @param tox An instance of the C-backed ToxCore implementation.
  */
 // scalastyle:off no.finalize
-@throws[ToxAvNewException]("If there was already an A/V session.")
+@throws[ToxavNewException]("If there was already an A/V session.")
 final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCoreState]) extends ToxAv[ToxCoreState] {
 
   private val instanceNumber = ToxAvJni.toxavNew(tox.instanceNumber)
@@ -54,7 +54,7 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
       new ToxAvImpl(tox.asInstanceOf[ToxCoreImpl[ToxCoreState]])
     } catch {
       case _: ClassCastException =>
-        throw new ToxAvNewException(ToxAvNewException.Code.INCOMPATIBLE, tox.getClass.getCanonicalName)
+        throw new ToxavNewException(ToxavNewException.Code.INCOMPATIBLE, tox.getClass.getCanonicalName)
     }
   }
 
@@ -119,7 +119,7 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   private def dispatchAudioReceiveFrame(audioReceiveFrame: Seq[AudioReceiveFrame])(state: ToxCoreState): ToxCoreState = {
     audioReceiveFrame.foldLeft(state) {
       case (state, AudioReceiveFrame(friendNumber, pcm, channels, samplingRate)) =>
-        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.receiveAudioFrame(
+        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.audioReceiveFrame(
           friendNumber,
           pcm.map(_.toShort).toArray,
           channels,
@@ -132,7 +132,7 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   private def dispatchVideoReceiveFrame(videoReceiveFrame: Seq[VideoReceiveFrame])(state: ToxCoreState): ToxCoreState = {
     videoReceiveFrame.foldLeft(state) {
       case (state, VideoReceiveFrame(friendNumber, width, height, y, u, v, a, yStride, uStride, vStride, aStride)) =>
-        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.receiveVideoFrame(
+        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.videoReceiveFrame(
           friendNumber,
           width,
           height,
@@ -167,31 +167,31 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   override def iterationInterval: Int =
     ToxAvJni.toxavIterationInterval(instanceNumber)
 
-  @throws[ToxAvCallException]
+  @throws[ToxavCallException]
   override def call(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
     ToxAvJni.toxavCall(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
-  @throws[ToxAvAnswerException]
+  @throws[ToxavAnswerException]
   override def answer(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
     ToxAvJni.toxavAnswer(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
-  @throws[ToxAvCallControlException]
+  @throws[ToxavCallControlException]
   override def callControl(friendNumber: Int, control: ToxavCallControl): Unit =
     ToxAvJni.toxavCallControl(instanceNumber, friendNumber, control.ordinal)
 
-  @throws[ToxAvSetBitRateException]
+  @throws[ToxavSetBitRateException]
   override def audioBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit =
     ToxAvJni.toxavAudioBitRateSet(instanceNumber, friendNumber, bitRate, force)
 
-  @throws[ToxAvSetBitRateException]
+  @throws[ToxavSetBitRateException]
   override def videoBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit =
     ToxAvJni.toxavVideoBitRateSet(instanceNumber, friendNumber, bitRate, force)
 
-  @throws[ToxAvSendFrameException]
+  @throws[ToxavSendFrameException]
   override def audioSendFrame(friendNumber: Int, pcm: Array[Short], sampleCount: Int, channels: Int, samplingRate: Int): Unit =
     ToxAvJni.toxavAudioSendFrame(instanceNumber, friendNumber, pcm, sampleCount, channels, samplingRate)
 
-  @throws[ToxAvSendFrameException]
+  @throws[ToxavSendFrameException]
   override def videoSendFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], @Nullable a: Array[Byte]): Unit =
     ToxAvJni.toxavVideoSendFrame(instanceNumber, friendNumber, width, height, y, u, v, a)
 

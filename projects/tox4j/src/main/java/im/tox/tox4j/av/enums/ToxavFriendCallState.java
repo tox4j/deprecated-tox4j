@@ -3,7 +3,7 @@ package im.tox.tox4j.av.enums;
 /**
  * Call state graph.
  */
-public enum ToxavCallState {
+public enum ToxavFriendCallState {
   /**
    * Set by the AV core if an error occurred on the remote end or if friend
    * timed out. This is the final state after which no more state
@@ -32,10 +32,10 @@ public enum ToxavCallState {
   /**
    * The flag that marks that friend is receiving audio.
    */
-  RECEIVING_A,
+  ACCEPTING_A,
 
   /**
    * The flag that marks that friend is receiving video.
    */
-  RECEIVING_V,
+  ACCEPTING_V,
 }

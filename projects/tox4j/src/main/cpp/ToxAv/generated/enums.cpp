@@ -1,4 +1,4 @@
-#include "ToxAv.h"
+#include "../ToxAv.h"
 #ifdef TOXAV_VERSION_MAJOR
 
 template<>
@@ -52,47 +52,47 @@ print_arg<TOXAV_CALL_CONTROL> (TOXAV_CALL_CONTROL value)
 
 template<>
 jint
-enum_ordinal<TOXAV_CALL_STATE> (JNIEnv *env, TOXAV_CALL_STATE value)
+enum_ordinal<TOXAV_FRIEND_CALL_STATE> (JNIEnv *env, TOXAV_FRIEND_CALL_STATE value)
 {
   switch (value)
     {
-    case TOXAV_CALL_STATE_ERROR: return 0;
-    case TOXAV_CALL_STATE_FINISHED: return 1;
-    case TOXAV_CALL_STATE_SENDING_A: return 2;
-    case TOXAV_CALL_STATE_SENDING_V: return 3;
-    case TOXAV_CALL_STATE_RECEIVING_A: return 4;
-    case TOXAV_CALL_STATE_RECEIVING_V: return 5;
+    case TOXAV_FRIEND_CALL_STATE_ERROR: return 0;
+    case TOXAV_FRIEND_CALL_STATE_FINISHED: return 1;
+    case TOXAV_FRIEND_CALL_STATE_SENDING_A: return 2;
+    case TOXAV_FRIEND_CALL_STATE_SENDING_V: return 3;
+    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_A: return 4;
+    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_V: return 5;
     }
   tox4j_fatal ("Invalid enumerator from toxcore");
 }
 template<>
-TOXAV_CALL_STATE
-enum_value<TOXAV_CALL_STATE> (JNIEnv *env, jint ordinal)
+TOXAV_FRIEND_CALL_STATE
+enum_value<TOXAV_FRIEND_CALL_STATE> (JNIEnv *env, jint ordinal)
 {
   switch (ordinal)
     {
-    case 0: return TOXAV_CALL_STATE_ERROR;
-    case 1: return TOXAV_CALL_STATE_FINISHED;
-    case 2: return TOXAV_CALL_STATE_SENDING_A;
-    case 3: return TOXAV_CALL_STATE_SENDING_V;
-    case 4: return TOXAV_CALL_STATE_RECEIVING_A;
-    case 5: return TOXAV_CALL_STATE_RECEIVING_V;
+    case 0: return TOXAV_FRIEND_CALL_STATE_ERROR;
+    case 1: return TOXAV_FRIEND_CALL_STATE_FINISHED;
+    case 2: return TOXAV_FRIEND_CALL_STATE_SENDING_A;
+    case 3: return TOXAV_FRIEND_CALL_STATE_SENDING_V;
+    case 4: return TOXAV_FRIEND_CALL_STATE_ACCEPTING_A;
+    case 5: return TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
     }
   tox4j_fatal ("Invalid enumerator from Java");
 }
 template<>
 void
-print_arg<TOXAV_CALL_STATE> (TOXAV_CALL_STATE value)
+print_arg<TOXAV_FRIEND_CALL_STATE> (TOXAV_FRIEND_CALL_STATE value)
 {
   switch (value)
     {
-    case TOXAV_CALL_STATE_ERROR: debug_out << "TOXAV_CALL_STATE_ERROR"; break;
-    case TOXAV_CALL_STATE_FINISHED: debug_out << "TOXAV_CALL_STATE_FINISHED"; break;
-    case TOXAV_CALL_STATE_SENDING_A: debug_out << "TOXAV_CALL_STATE_SENDING_A"; break;
-    case TOXAV_CALL_STATE_SENDING_V: debug_out << "TOXAV_CALL_STATE_SENDING_V"; break;
-    case TOXAV_CALL_STATE_RECEIVING_A: debug_out << "TOXAV_CALL_STATE_RECEIVING_A"; break;
-    case TOXAV_CALL_STATE_RECEIVING_V: debug_out << "TOXAV_CALL_STATE_RECEIVING_V"; break;
-    default: debug_out << "(TOXAV_CALL_STATE)" << value; break;
+    case TOXAV_FRIEND_CALL_STATE_ERROR: debug_out << "TOXAV_FRIEND_CALL_STATE_ERROR"; break;
+    case TOXAV_FRIEND_CALL_STATE_FINISHED: debug_out << "TOXAV_FRIEND_CALL_STATE_FINISHED"; break;
+    case TOXAV_FRIEND_CALL_STATE_SENDING_A: debug_out << "TOXAV_FRIEND_CALL_STATE_SENDING_A"; break;
+    case TOXAV_FRIEND_CALL_STATE_SENDING_V: debug_out << "TOXAV_FRIEND_CALL_STATE_SENDING_V"; break;
+    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_A: debug_out << "TOXAV_FRIEND_CALL_STATE_ACCEPTING_A"; break;
+    case TOXAV_FRIEND_CALL_STATE_ACCEPTING_V: debug_out << "TOXAV_FRIEND_CALL_STATE_ACCEPTING_V"; break;
+    default: debug_out << "(TOXAV_FRIEND_CALL_STATE)" << value; break;
     }
 }
 #endif

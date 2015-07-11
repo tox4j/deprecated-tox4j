@@ -1,4 +1,4 @@
-["av", "Av", {
+["av", "av", {
   "New": {
     "NULL": ["One of the arguments to the function was NULL when it was not expected."],
     "MALLOC": [
@@ -6,7 +6,7 @@
       "the A/V session."
     ],
     "MULTIPLE": ["Attempted to create a second session for the same Tox instance."],
-    "INCOMPATIBLE": ["The ToxCore implementation passed was not compatible with this ToxAv implementation."]
+    "@JavaOnly INCOMPATIBLE": ["The ToxCore implementation passed was not compatible with this ToxAv implementation."]
   },
   "Call": {
     "MALLOC": ["A memory allocation error occurred."],
@@ -51,6 +51,10 @@
       "One or more of the frame parameters was invalid. E.g. the resolution may be too",
       "small or too large, or the audio sampling rate may be unsupported."
     ],
-    "RTP_FAILED": ["Failed to push frame through rtp interface."]
+    "RTP_FAILED": ["Failed to push frame through rtp interface."],
+    "PAYLOAD_TYPE_DISABLED": [
+      "Either friend turned off audio or video receiving or we turned off sending",
+      "for the said payload."
+    ]
   }
 }]

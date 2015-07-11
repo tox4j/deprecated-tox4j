@@ -29,10 +29,15 @@ for my $type (keys %$exns) {
       map { "    /**\n$exns->{$type}{$_}\n     */\n    $_" }
       (sort keys $exns->{$type});
 
+   my $JavaOnly =
+   	$codes =~ /\@JavaOnly/
+      	? "import im.tox.tox4j.exceptions.JavaOnly;\n"
+         : "";
+
    print $fh <<JAVA;
 package im.tox.tox4j.$package.exceptions;
 
-import im.tox.tox4j.exceptions.ToxException;
+${JavaOnly}import im.tox.tox4j.exceptions.ToxException;
 import org.jetbrains.annotations.NotNull;
 
 public final class Tox${prefix}${type}Exception extends ToxException<Tox${prefix}${type}Exception.Code> {

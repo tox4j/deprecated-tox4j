@@ -228,10 +228,6 @@ tox_new_unique (Tox_Options const *options, TOX_ERR_NEW *error)
   return tox::core_ptr (tox_new (options, error));
 }
 
-register_funcs (
-  register_func (tox_new_unique)
-);
-
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
@@ -284,46 +280,23 @@ TOX_METHOD (jint, New,
   opts->savedata_data   = save_data.data ();
   opts->savedata_length = save_data.size ();
 
+  register_funcs (
+#define CALLBACK(NAME)   register_func (tox4j_##NAME##_cb),
+#include "tox/generated/core.h"
+#undef CALLBACK
+    register_func (tox_new_unique)
+  );
+
   return instances.with_error_handling (env,
     [env] (tox::core_ptr tox)
       {
         tox4j_assert (tox != nullptr);
 
-        register_funcs (
-          register_func (tox4j_self_connection_status_cb  ),
-          register_func (tox4j_friend_name_cb             ),
-          register_func (tox4j_friend_status_message_cb   ),
-          register_func (tox4j_friend_status_cb           ),
-          register_func (tox4j_friend_connection_status_cb),
-          register_func (tox4j_friend_typing_cb           ),
-          register_func (tox4j_friend_read_receipt_cb     ),
-          register_func (tox4j_friend_request_cb          ),
-          register_func (tox4j_friend_message_cb          ),
-          register_func (tox4j_file_recv_cb               ),
-          register_func (tox4j_file_recv_control_cb       ),
-          register_func (tox4j_file_recv_chunk_cb         ),
-          register_func (tox4j_file_chunk_request_cb      ),
-          register_func (tox4j_friend_lossy_packet_cb     ),
-          register_func (tox4j_friend_lossless_packet_cb  )
-        );
-
         // Create the master events object and set up our callbacks.
         auto events = tox::callbacks<Tox> (std::unique_ptr<Events> (new Events))
-          .set<tox::callback_self_connection_status,    tox4j_self_connection_status_cb  > ()
-          .set<tox::callback_friend_name,               tox4j_friend_name_cb             > ()
-          .set<tox::callback_friend_status_message,     tox4j_friend_status_message_cb   > ()
-          .set<tox::callback_friend_status,             tox4j_friend_status_cb           > ()
-          .set<tox::callback_friend_connection_status,  tox4j_friend_connection_status_cb> ()
-          .set<tox::callback_friend_typing,             tox4j_friend_typing_cb           > ()
-          .set<tox::callback_friend_read_receipt,       tox4j_friend_read_receipt_cb     > ()
-          .set<tox::callback_friend_request,            tox4j_friend_request_cb          > ()
-          .set<tox::callback_friend_message,            tox4j_friend_message_cb          > ()
-          .set<tox::callback_file_recv,                 tox4j_file_recv_cb               > ()
-          .set<tox::callback_file_recv_control,         tox4j_file_recv_control_cb       > ()
-          .set<tox::callback_file_recv_chunk,           tox4j_file_recv_chunk_cb         > ()
-          .set<tox::callback_file_chunk_request,        tox4j_file_chunk_request_cb      > ()
-          .set<tox::callback_friend_lossy_packet,       tox4j_friend_lossy_packet_cb     > ()
-          .set<tox::callback_friend_lossless_packet,    tox4j_friend_lossless_packet_cb  > ()
+#define CALLBACK(NAME)   .set<tox::callback_##NAME, tox4j_##NAME##_cb> ()
+#include "tox/generated/core.h"
+#undef CALLBACK
           .set (tox.get ());
 
         // We can create the new instance outside instance_manager's critical section.

@@ -1,5 +1,6 @@
 package im.tox.tox4j.core.exceptions;
 
+import im.tox.tox4j.exceptions.JavaOnly;
 import im.tox.tox4j.exceptions.ToxException;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,14 +8,14 @@ public final class ToxBootstrapException extends ToxException<ToxBootstrapExcept
 
   public enum Code {
     /**
+     * The public key was of invalid length.
+     */
+    @JavaOnly BAD_KEY,
+    /**
      * The address could not be resolved to an IP address, or the IP address
      * passed was invalid.
      */
     BAD_HOST,
-    /**
-     * The public key was of invalid length.
-     */
-    BAD_KEY,
     /**
      * The port passed was invalid. The valid port range is (1, 65535).
      */

@@ -32,8 +32,8 @@ tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &
   call_state_case (FINISHED);
   call_state_case (SENDING_A);
   call_state_case (SENDING_V);
-  call_state_case (RECEIVING_A);
-  call_state_case (RECEIVING_V);
+  call_state_case (ACCEPTING_A);
+  call_state_case (ACCEPTING_V);
 #undef call_state_case
 }
 
@@ -133,6 +133,13 @@ toxav_new_unique (Tox *tox, TOXAV_ERR_NEW *error)
 TOX_METHOD (jint, New,
   jint toxInstanceNumber)
 {
+  register_funcs (
+#define CALLBACK(NAME)   register_func (tox4j_##NAME##_cb),
+#include "tox/generated/av.h"
+#undef CALLBACK
+    register_func (toxav_new_unique)
+  );
+
   return core::instances.with_instance (env, toxInstanceNumber,
     [=] (Tox *tox, core::Events &)
       {
@@ -143,12 +150,9 @@ TOX_METHOD (jint, New,
 
               // Create the master events object and set up our callbacks.
               auto events = tox::callbacks<ToxAV> (std::unique_ptr<Events> (new Events))
-                .set<tox::callback_call                 , tox4j_call_cb                 > ()
-                .set<tox::callback_call_state           , tox4j_call_state_cb           > ()
-                .set<tox::callback_audio_bit_rate_status, tox4j_audio_bit_rate_status_cb> ()
-                .set<tox::callback_video_bit_rate_status, tox4j_video_bit_rate_status_cb> ()
-                .set<tox::callback_audio_receive_frame  , tox4j_audio_receive_frame_cb  > ()
-                .set<tox::callback_video_receive_frame  , tox4j_video_receive_frame_cb  > ()
+#define CALLBACK(NAME)   .set<tox::callback_##NAME, tox4j_##NAME##_cb> ()
+#include "tox/generated/av.h"
+#undef CALLBACK
                 .set (toxav.get ());
 
               // We can create the new instance outside instance_manager's critical section.

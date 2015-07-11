@@ -1,15 +1,16 @@
 package im.tox.tox4j.av.exceptions;
 
+import im.tox.tox4j.exceptions.JavaOnly;
 import im.tox.tox4j.exceptions.ToxException;
 import org.jetbrains.annotations.NotNull;
 
-public final class ToxAvNewException extends ToxException<ToxAvNewException.Code> {
+public final class ToxavNewException extends ToxException<ToxavNewException.Code> {
 
   public enum Code {
     /**
      * The ToxCore implementation passed was not compatible with this ToxAv implementation.
      */
-    INCOMPATIBLE,
+    @JavaOnly INCOMPATIBLE,
     /**
      * Memory allocation failure while trying to allocate structures required for
      * the A/V session.
@@ -25,11 +26,11 @@ public final class ToxAvNewException extends ToxException<ToxAvNewException.Code
     NULL,
   }
 
-  public ToxAvNewException(@NotNull Code code) {
+  public ToxavNewException(@NotNull Code code) {
     this(code, "");
   }
 
-  public ToxAvNewException(@NotNull Code code, String message) {
+  public ToxavNewException(@NotNull Code code, String message) {
     super(code, message);
   }
 

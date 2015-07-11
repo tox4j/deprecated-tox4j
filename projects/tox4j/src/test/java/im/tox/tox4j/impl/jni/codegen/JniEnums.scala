@@ -3,19 +3,10 @@ package im.tox.tox4j.impl.jni.codegen
 import java.io.{ File, PrintWriter }
 
 import com.google.common.base.CaseFormat
-import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavCallState }
+import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
 import im.tox.tox4j.core.enums._
 
-object JniEnums extends App {
-
-  def withFile(path: File)(printCode: PrintWriter => Unit): Unit = {
-    val writer = new PrintWriter(path)
-    try {
-      printCode(writer)
-    } finally {
-      writer.close()
-    }
-  }
+object JniEnums extends CodeGenerator {
 
   private def generateEnumConversions[E <: Enum[E]](out: PrintWriter, values: Array[E]): Unit = {
     val javaEnum = values(0).getClass.getSimpleName
@@ -63,16 +54,16 @@ object JniEnums extends App {
     out.println("}")
   }
 
-  withFile(new File("src/main/cpp/ToxAv/enums.cpp")) { out =>
-    out.println("#include \"ToxAv.h\"")
+  withFile(new File("src/main/cpp/ToxAv/generated/enums.cpp")) { out =>
+    out.println("#include \"../ToxAv.h\"")
     out.println("#ifdef TOXAV_VERSION_MAJOR")
     generateEnumConversions(out, ToxavCallControl.values)
-    generateEnumConversions(out, ToxavCallState.values)
+    generateEnumConversions(out, ToxavFriendCallState.values)
     out.println("#endif")
   }
 
-  withFile(new File("src/main/cpp/ToxCore/enums.cpp")) { out =>
-    out.println("#include \"ToxCore.h\"")
+  withFile(new File("src/main/cpp/ToxCore/generated/enums.cpp")) { out =>
+    out.println("#include \"../ToxCore.h\"")
     out.println("#ifdef TOX_VERSION_MAJOR")
     generateEnumConversions(out, ToxConnection.values)
     generateEnumConversions(out, ToxFileControl.values)
