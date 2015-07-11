@@ -19,7 +19,8 @@ COMMANDS :=		\
 	test:scalastyle	\
 	checkstyle	\
 	test:checkstyle	\
-	publishLocal
+	publishLocal	\
+	makeScripts
 
 ifeq ($(GOAL),coverage)
 COMMANDS += coverage test
@@ -34,6 +35,7 @@ install:
 	cd projects/build-extra  && sbt -batch $(COMMANDS)
 	cd projects/linters      && sbt -batch $(COMMANDS)
 	cd projects/tox4j        && sbt -batch $(COMMANDS)
+	cd projects/tox4j        && for i in bin/Jni*; do $$i; done
 	git diff --exit-code
 
 setup:
