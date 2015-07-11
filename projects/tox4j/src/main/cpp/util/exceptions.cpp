@@ -51,47 +51,35 @@ void
 throw_tox_exception (JNIEnv *env, char const *module, char const *prefix, char const *method, char const *code)
 {
   std::string className = "im/tox/tox4j/";
-
   className += module;
   className += "/exceptions/Tox";
   className += prefix;
   className += method;
   className += "Exception";
-  jclass exClass = env->FindClass (className.c_str ());
-  if (!exClass)
-    {
-      throw_exception (env, 0, "java/lang/NoClassDefFoundError", className.c_str ());
-      return;
-    }
+
+  jclass exceptionClass = env->FindClass (className.c_str ());
+  if (!exceptionClass)
+    return;
 
   std::string enumName = className + "$Code";
   jclass enumClass = env->FindClass (enumName.c_str ());
   if (!enumClass)
-    {
-      throw_exception (env, 0, "java/lang/NoClassDefFoundError", enumName.c_str ());
-      return;
-    }
+    return;
 
   std::string valueOfSig = "(Ljava/lang/String;)L" + enumName + ";";
   jmethodID valueOf = env->GetStaticMethodID (enumClass, "valueOf", valueOfSig.c_str ());
   if (!valueOf)
-    {
-      throw_exception (env, 0, "java/lang/NoSuchMethodException", ("valueOf" + valueOfSig).c_str ());
-      return;
-    }
+    return;
 
   std::string constructorSig = "(L" + enumName + ";)V";
-  jmethodID constructor = env->GetMethodID (exClass, "<init>", constructorSig.c_str ());
+  jmethodID constructor = env->GetMethodID (exceptionClass, "<init>", constructorSig.c_str ());
   if (!constructor)
-    {
-      throw_exception (env, 0, "java/lang/NoSuchMethodException", ("<init>" + constructorSig).c_str ());
-      return;
-    }
+    return;
 
   jobject enumCode = env->CallStaticObjectMethod (enumClass, valueOf, env->NewStringUTF (code));
   tox4j_assert (enumCode);
 
-  jobject exception = env->NewObject (exClass, constructor, enumCode);
+  jobject exception = env->NewObject (exceptionClass, constructor, enumCode);
   tox4j_assert (exception);
 
   env->Throw ((jthrowable)exception);
