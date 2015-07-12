@@ -6,7 +6,7 @@ import im.tox.tox4j.impl.jni.codegen.NameConversions.cxxVarName
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 import im.tox.tox4j.impl.jni.{ ToxAvJni, ToxCoreJni }
 
-object JniMethods extends CodeGenerator {
+object JniMethodRefs extends CodeGenerator {
 
   def generateNativeDecls(clazz: Class[_]): TranslationUnit = {
     clazz.getDeclaredMethods

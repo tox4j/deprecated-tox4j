@@ -53,10 +53,10 @@ TOX_METHOD (void, AddTcpRelay,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxGetUdpPort
+ * Method:    toxSelfGetUdpPort
  * Signature: (I)I
  */
-TOX_METHOD (jint, GetUdpPort,
+TOX_METHOD (jint, SelfGetUdpPort,
   jint instanceNumber)
 {
   return instances.with_instance_err (env, instanceNumber,
@@ -67,10 +67,10 @@ TOX_METHOD (jint, GetUdpPort,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxGetTcpPort
+ * Method:    toxSelfGetTcpPort
  * Signature: (I)I
  */
-TOX_METHOD (jint, GetTcpPort,
+TOX_METHOD (jint, SelfGetTcpPort,
   jint instanceNumber)
 {
   return instances.with_instance_err (env, instanceNumber,
@@ -81,10 +81,10 @@ TOX_METHOD (jint, GetTcpPort,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxGetDhtId
+ * Method:    toxSelfGetDhtId
  * Signature: (I)[B
  */
-TOX_METHOD (jbyteArray, GetDhtId,
+TOX_METHOD (jbyteArray, SelfGetDhtId,
   jint instanceNumber)
 {
   return instances.with_instance (env, instanceNumber,

@@ -4,8 +4,8 @@
 
 using namespace core;
 
-static PP_UNUSED void
-reference_symbols ()
+void
+reference_symbols_tox ()
 {
   int tox_finalize; // For Java only.
 #include "generated/natives.h"

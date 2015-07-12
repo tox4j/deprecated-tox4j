@@ -7,10 +7,10 @@ using namespace core;
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSendLossyPacket
+ * Method:    toxFriendSendLossyPacket
  * Signature: (II[B)V
  */
-TOX_METHOD (void, SendLossyPacket,
+TOX_METHOD (void, FriendSendLossyPacket,
   jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
   ByteArray packetData (env, packet);
@@ -21,10 +21,10 @@ TOX_METHOD (void, SendLossyPacket,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSendLosslessPacket
+ * Method:    toxFriendSendLosslessPacket
  * Signature: (II[B)V
  */
-TOX_METHOD (void, SendLosslessPacket,
+TOX_METHOD (void, FriendSendLosslessPacket,
   jint instanceNumber, jint friendNumber, jbyteArray packet)
 {
   ByteArray packetData (env, packet);

@@ -4,8 +4,8 @@
 
 using namespace av;
 
-static PP_UNUSED void
-reference_symbols ()
+void
+reference_symbols_toxav ()
 {
   int toxav_finalize; // For Java only.
 #include "generated/natives.h"
