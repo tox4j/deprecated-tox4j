@@ -1,7 +1,7 @@
 // General settings.
 organization  := "im.tox"
 name          := "tox4j"
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.11.7"
 
 // Enable the plugins we want.
 import ScoverageSbtPlugin.ScoverageKeys._

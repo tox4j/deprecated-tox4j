@@ -6,7 +6,6 @@ import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 import org.scalameter.api._
-import org.scalameter.{ Gen, KeyValue, api }
 
 import scala.collection.immutable
 import scala.util.Random
@@ -35,10 +34,10 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
 
   protected def confidence = Confidence.normal
 
-  final override def defaultConfig: Context = Context.empty ++ Seq[KeyValue](
+  final override def defaultConfig: Context = Context.empty ++ Context(
     verbose -> false,
     reports.resultDir -> "target/benchmarks",
-    exec.jvmflags -> ("-Djava.library.path=" + sys.props("java.library.path")),
+    exec.jvmflags -> List("-Djava.library.path=" + sys.props("java.library.path")),
     exec.reinstantiation.frequency -> 1000,
     exec.reinstantiation.fullGC -> true
   ) ++ confidence
@@ -157,11 +156,11 @@ object PerformanceReportBase {
   val nodes = range("nodes")(100)
   val instances = range("instances")(100)
 
-  def friends: Int => api.Gen[Int] = range("friends")
+  def friends: Int => Gen[Int] = range("friends")
   val friends1k = friends(1000)
   val friends10k = friends(10000)
 
-  def iterations: Int => api.Gen[Int] = range("iterations")
+  def iterations: Int => Gen[Int] = range("iterations")
   val iterations1k = iterations(1000)
   val iterations10k = iterations(10000)
   val iterations100k = iterations(100000)
@@ -177,7 +176,7 @@ object PerformanceReportBase {
    * each friend count, there is exactly one instance with that number of friends.
    *
    * Experiments have shown that this custom caching takes 2.3GB for a 10-step range of 1000-10000 friends instead of
-   * 2.7GB when using [[Gen.cached]]. It is also about 15% faster.
+   * 2.7GB when using [[org.scalameter.Gen.cached]]. It is also about 15% faster.
    *
    * Do not mutate objects returned by this function.
    */

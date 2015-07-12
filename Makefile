@@ -23,7 +23,7 @@ COMMANDS :=		\
 	makeScripts
 
 ifeq ($(GOAL),coverage)
-COMMANDS += coverage test
+COMMANDS += clean coverage test
 endif
 
 ifeq ($(GOAL),performance)

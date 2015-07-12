@@ -17,7 +17,7 @@ import org.brianmckenna.wartremover.{ WartTraverser, WartUniverse }
  *   carriers.
  */
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
-object OptionsClasses extends WartTraverser {
+object ToxOptionsClasses extends WartTraverser {
 
   def errorDefaultArguments: String = "Non-ADT options case class must have default arguments for all parameters"
   def errorCaseClass: String = "Options classes must be case classes"

@@ -1,6 +1,6 @@
 organization  := "im.tox"
 name          := "linters"
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.11.7"
 
 // Build dependencies.
 libraryDependencies ++= Seq(
