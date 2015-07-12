@@ -1,7 +1,11 @@
 package im.tox.tox4j.lint
 
+import java.io.IOException
+
 import org.brianmckenna.wartremover.test.WartTestTraverser
 import org.scalatest.FunSuite
+
+import scala.util.Try
 
 final class OverrideTest extends FunSuite {
 
@@ -67,6 +71,28 @@ final class OverrideTest extends FunSuite {
         def foo: Int
       }
       case class Derived(foo: Int) extends Base
+    }
+
+    assert(result.errors == Nil)
+  }
+
+  test("don't flag synthesised isDefinedAt for anonymous partial functions") {
+    val result = WartTestTraverser(Override) {
+      Try(2) recover { case x: IOException => 0 }
+    }
+
+    assert(result.errors == Nil)
+  }
+
+  test("don't flag synthesised $init$ for mixin-traits extending other mixin-traits") {
+    val result = WartTestTraverser(Override) {
+      trait Base {
+        def foo: String = ""
+      }
+
+      trait OverrideTest extends Base {
+        def bar: String = ""
+      }
     }
 
     assert(result.errors == Nil)

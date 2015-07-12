@@ -32,6 +32,8 @@ object Override extends WartTraverser {
 
     !isSynthetic(u)(method) &&
       method.name != termNames.CONSTRUCTOR &&
+      method.name != TermName("$init$") &&
+      method.name != TermName("isDefinedAt") &&
       !method.mods.hasFlag(Flag.OVERRIDE) &&
       !method.mods.hasFlag(Flag.CASEACCESSOR) &&
       baseClasses.exists { base =>
