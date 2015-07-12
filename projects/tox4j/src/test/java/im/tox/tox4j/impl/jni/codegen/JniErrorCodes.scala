@@ -8,7 +8,6 @@ import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 
 object JniErrorCodes extends CodeGenerator {
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Product", "org.brianmckenna.wartremover.warts.Serializable"))
   def generateErrorCode[E <: Enum[E]](values: Array[E]): Decl = {
     val exceptionClass = {
       val name = cxxTypeName(values(0).getClass.getEnclosingClass.getSimpleName)

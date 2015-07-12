@@ -1,12 +1,12 @@
 /*
  * This file is part of the gnieh-pp project.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,13 +22,13 @@ package gnieh.pp
  *
  *  @author Lucas Satabin
  */
-sealed trait SimpleDoc {
+sealed abstract class SimpleDoc {
 
   def fits(width: Int): Boolean
 
   def layout: String
 
-  override def toString = layout
+  override def toString: String = layout
 
 }
 
@@ -37,11 +37,9 @@ sealed trait SimpleDoc {
  *  @author Lucas Satabin
  */
 case object SEmpty extends SimpleDoc {
-  def fits(width: Int) =
-    width >= 0 // always fits if there is enough place
+  override def fits(width: Int): Boolean = width >= 0 // always fits if there is enough place
 
-  val layout =
-    ""
+  override def layout: String = ""
 }
 
 /**
@@ -49,11 +47,13 @@ case object SEmpty extends SimpleDoc {
  *  @author Lucas Satabin
  */
 final case class SText(text: String, next: SimpleDoc) extends SimpleDoc {
-  def fits(width: Int) =
+  def fits(width: Int): Boolean = {
     next.fits(width - text.length)
+  }
 
-  lazy val layout =
+  override def layout: String = {
     text + next.layout
+  }
 }
 
 /**
@@ -62,12 +62,13 @@ final case class SText(text: String, next: SimpleDoc) extends SimpleDoc {
  *  @author Lucas Satabin
  */
 final case class SLine(indent: Int, next: SimpleDoc) extends SimpleDoc {
-  def fits(width: Int) =
-    width >= 0 // always fits if there is enough place
+  override def fits(width: Int): Boolean = width >= 0 // always fits if there is enough place
 
-  lazy val layout =
-    if (next.layout.isEmpty)
+  override def layout: String = {
+    if (next.layout.isEmpty) {
       ""
-    else
+    } else {
       "\n" + (" " * indent) + next.layout
+    }
+  }
 }

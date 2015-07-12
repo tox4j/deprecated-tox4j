@@ -1,5 +1,6 @@
 package im.tox.tox4j.impl.jni.codegen.cxx
 
+// scalastyle:ignore number.of.types
 object Ast {
 
   /**

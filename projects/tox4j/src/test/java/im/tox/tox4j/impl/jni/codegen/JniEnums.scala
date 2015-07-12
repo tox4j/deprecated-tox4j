@@ -51,7 +51,6 @@ object JniEnums extends CodeGenerator {
     })
   }
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Product", "org.brianmckenna.wartremover.warts.Serializable"))
   def printArg[E <: Enum[E]](values: Seq[E], cxxEnum: String): Decl = {
     TemplateFun(
       typeParams = Nil,

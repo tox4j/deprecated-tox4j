@@ -8,7 +8,6 @@ import scala.util.{ Success, Failure, Try }
 
 object JniCallbacks extends CodeGenerator {
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Nothing", "org.brianmckenna.wartremover.warts.Product", "org.brianmckenna.wartremover.warts.Serializable"))
   def generateCallbacks(clazz: Class[_]): TranslationUnit = {
     clazz.getMethods
       .filter(_.getDeclaringClass == clazz)

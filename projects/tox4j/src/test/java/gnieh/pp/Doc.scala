@@ -20,16 +20,19 @@ package gnieh.pp
  *
  *  @author Lucas Satabin
  */
-sealed trait Doc {
+// scalastyle:off method.name
+sealed abstract class Doc {
 
   // for all operators, the empty document is a right and left unit
-  private def withUnit(f: Doc => Doc)(that: Doc): Doc =
-    if (this == EmptyDoc)
+  private def withUnit(f: Doc => Doc)(that: Doc): Doc = {
+    if (this == EmptyDoc) {
       that
-    else if (that == EmptyDoc)
+    } else if (that == EmptyDoc) {
       this
-    else
+    } else {
       f(that)
+    }
+  }
 
   /**
    * Concatenates two documents.
@@ -66,11 +69,11 @@ sealed trait Doc {
 
   /** Equivalent to `align(this :|: that)` */
   @inline
-  def ||(that: Doc) =
+  def ||(that: Doc): Doc =
     align(this :|: that)
 
   /** A flatten (no new lines) version of this document */
-  val flatten: Doc
+  def flatten: Doc
 
 }
 
@@ -79,8 +82,7 @@ sealed trait Doc {
  *  @author Lucas Satabin
  */
 final case class NestDoc(indent: Int, inner: Doc) extends Doc {
-  lazy val flatten =
-    NestDoc(indent, inner.flatten)
+  lazy val flatten = NestDoc(indent, inner.flatten)
 }
 
 /**
@@ -89,8 +91,7 @@ final case class NestDoc(indent: Int, inner: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class UnionDoc(long: Doc, short: Doc) extends Doc {
-  val flatten =
-    long.flatten
+  override def flatten: Doc = long.flatten
 }
 
 /**
@@ -98,8 +99,7 @@ final case class UnionDoc(long: Doc, short: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 case object EmptyDoc extends Doc {
-  val flatten =
-    this
+  override def flatten: Doc = this
 }
 
 /**
@@ -107,8 +107,7 @@ case object EmptyDoc extends Doc {
  *  @author Lucas Satabin
  */
 final case class TextDoc(text: String) extends Doc {
-  val flatten =
-    this
+  override def flatten: Doc = this
 }
 
 /**
@@ -116,8 +115,7 @@ final case class TextDoc(text: String) extends Doc {
  *  @author Lucas Satabin
  */
 final case class LineDoc(repl: Doc) extends Doc {
-  lazy val flatten =
-    repl
+  override def flatten: Doc = repl
 }
 
 /**
@@ -125,8 +123,7 @@ final case class LineDoc(repl: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class ConsDoc(first: Doc, second: Doc) extends Doc {
-  lazy val flatten =
-    ConsDoc(first.flatten, second.flatten)
+  override val flatten = ConsDoc(first.flatten, second.flatten)
 }
 
 /**
@@ -134,8 +131,7 @@ final case class ConsDoc(first: Doc, second: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class AlignDoc(inner: Doc) extends Doc {
-  lazy val flatten =
-    AlignDoc(inner.flatten)
+  override val flatten = AlignDoc(inner.flatten)
 }
 
 /**
@@ -143,6 +139,5 @@ final case class AlignDoc(inner: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class ColumnDoc(f: Int => Doc) extends Doc {
-  lazy val flatten =
-    ColumnDoc(f.andThen(_.flatten))
+  override val flatten = ColumnDoc(f.andThen(_.flatten))
 }

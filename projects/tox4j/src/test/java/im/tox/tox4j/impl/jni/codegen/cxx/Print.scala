@@ -52,6 +52,7 @@ object Print {
   /**
    * Statements.
    */
+  // scalastyle:ignore cyclomatic.complexity
   def printStmt(stmt: Stmt): Doc = {
     stmt match {
       case Switch(cond, CompoundStmt(cases)) =>
@@ -78,7 +79,7 @@ object Print {
   def printExpr(expr: Expr): Doc = {
     expr match {
       case Identifier(name)      => name
-      case IntegerLiteral(value) => value.toString
+      case IntegerLiteral(value) => value
       case StringLiteral(value)  => "\"" :: StringEscapeUtils.escapeJava(value) :: "\""
       case FunCall(callee, args) => printExpr(callee) :+: "(" :: printSeq(printExpr, args, "," :: space) :: ")"
       case LeftShift(lhs, rhs)   => printExpr(lhs) :+: "<<" :+: printExpr(rhs)
