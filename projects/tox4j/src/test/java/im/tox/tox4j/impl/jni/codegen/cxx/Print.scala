@@ -58,7 +58,7 @@ object Print {
       case Switch(cond, CompoundStmt(cases)) =>
         "switch (" :: printExpr(cond) :: nest(2)(")" :|:
           "{" :|:
-          printSeq[Stmt](printStmt, cases, line) :|:
+          printSeq(printStmt, cases, line) :|:
           "}") ::
           line
       case Switch(cond, body)  => sys.error("Invalid switch-body: " + body)
@@ -67,8 +67,8 @@ object Print {
       case Break               => "break;"
       case Return(expr)        => "return" :: expr.fold(empty)(expr => space :: printExpr(expr)) :: ";"
       case ExprStmt(expr)      => printExpr(expr) :: ";"
-      case CompoundStmt(stmts) => nest(2)("{" :|: printSeq[Stmt](printStmt, stmts)) :|: "}"
-      case stmt: Oneliner      => printSeq[Stmt](printStmt, stmt.stmts, space)
+      case CompoundStmt(stmts) => nest(2)("{" :|: printSeq(printStmt, stmts)) :|: "}"
+      case stmt: Oneliner      => printSeq(printStmt, stmt.stmts, space)
       case pp: Preproc         => printPreproc(pp)
     }
   }

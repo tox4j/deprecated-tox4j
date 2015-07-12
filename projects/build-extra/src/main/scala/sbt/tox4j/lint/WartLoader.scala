@@ -53,6 +53,36 @@ object WartLoader extends AutoPlugin {
     loader.getResources("warts.properties").asScala.map(asFile).toSeq
   }
 
+  private def ignoredCompile = Seq(
+    // This is too useful to disallow.
+    Wart.DefaultArguments,
+    // https://github.com/puffnfresh/wartremover/issues/179
+    Wart.NoNeedForMonad,
+    // Scala typechecker deficiencies cause Nothing to be inferred in
+    // polymorphic functions.
+    Wart.Nothing,
+    // Seq(TyCon1, TyCon2) infers Product instead of the ADT the TyCons
+    // are a part of.
+    Wart.Product,
+    // Too many false positives.
+    Wart.NonUnitStatements,
+    // The same reason as Product.
+    Wart.Serializable,
+    // https://github.com/puffnfresh/wartremover/issues/182
+    Wart.Throw,
+    // Already checked by scalastyle.
+    Wart.Var
+  )
+
+  private def ignoredTest = ignoredCompile ++ Seq(
+    Wart.Any,
+    Wart.AsInstanceOf,
+    Wart.IsInstanceOf,
+    Wart.Null,
+    Wart.OptionPartial,
+    Wart.Throw
+  )
+
   // Enable wart removers.
   override val projectSettings = Seq(
     scalacOptions in (Compile, compile) ++= {
@@ -64,25 +94,8 @@ object WartLoader extends AutoPlugin {
           } :+ "-P:wartremover:cp:" + cp
       }
     },
-    wartremoverErrors in (Compile, compile) := Warts.allBut(
-      Wart.DefaultArguments,
-      Wart.NoNeedForMonad, // https://github.com/puffnfresh/wartremover/issues/179
-      Wart.NonUnitStatements,
-      Wart.Throw, // https://github.com/puffnfresh/wartremover/issues/182
-      Wart.Var
-    ),
-    wartremoverErrors in (Test, compile) := Warts.allBut(
-      Wart.Any,
-      Wart.AsInstanceOf,
-      Wart.DefaultArguments,
-      Wart.IsInstanceOf,
-      Wart.NoNeedForMonad, // https://github.com/puffnfresh/wartremover/issues/179
-      Wart.NonUnitStatements,
-      Wart.Null,
-      Wart.OptionPartial,
-      Wart.Throw,
-      Wart.Var
-    )
+    wartremoverErrors in (Compile, compile) := Warts.allBut(ignoredCompile: _*),
+    wartremoverErrors in (Test, compile) := Warts.allBut(ignoredTest: _*)
   )
 
 }
