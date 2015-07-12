@@ -9,8 +9,7 @@ import scala.util.{ Success, Failure, Try }
 object JniCallbacks extends CodeGenerator {
 
   def generateCallbacks(clazz: Class[_]): TranslationUnit = {
-    clazz.getMethods
-      .filter(_.getDeclaringClass == clazz)
+    clazz.getDeclaredMethods
       .sortBy(method => method.getName)
       .flatMap { method =>
         val baseType = clazz.getInterfaces.toList.flatMap { interface =>
