@@ -55,18 +55,6 @@ TOX_METHOD (void, SelfSetNospam,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSelfGetNospam
- * Signature: (I)I
- */
-TOX_METHOD (jint, SelfGetNospam,
-  jint instanceNumber)
-{
-  return instances.with_instance_noerr (env, instanceNumber,
-    tox_self_get_nospam);
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetAddress
  * Signature: (I)[B
  */
@@ -158,18 +146,6 @@ TOX_METHOD (void, SelfSetStatus,
 {
   return instances.with_instance_noerr (env, instanceNumber,
     tox_self_set_status, enum_value<TOX_USER_STATUS> (env, status));
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSelfGetStatus
- * Signature: (I)I
- */
-TOX_METHOD (jint, SelfGetStatus,
-  jint instanceNumber)
-{
-  return enum_ordinal (env,
-    instances.with_instance_noerr (env, instanceNumber, tox_self_get_status));
 }
 
 #endif

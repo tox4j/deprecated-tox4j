@@ -46,6 +46,10 @@ object Print {
       case Endif                => "#endif"
       case MacroCall(expr)      => printExpr(expr)
       case MacroFun(init, body) => printExpr(init) :|: printStmt(body)
+      case ToxFun(returnType, name, params, body) =>
+        "JAVA_METHOD" :+: nest(2)("(" :: printType(returnType) :: "," :+: name :: "," :|:
+          printSeq(printDecl, params, "," :: space) :: ")") :|:
+          printStmt(body)
     }
   }
 
@@ -83,6 +87,7 @@ object Print {
       case StringLiteral(value)  => "\"" :: StringEscapeUtils.escapeJava(value) :: "\""
       case FunCall(callee, args) => printExpr(callee) :+: "(" :: printSeq(printExpr, args, "," :: space) :: ")"
       case LeftShift(lhs, rhs)   => printExpr(lhs) :+: "<<" :+: printExpr(rhs)
+      case Access(lhs, name)     => printExpr(lhs) :: "." :: name
     }
   }
 

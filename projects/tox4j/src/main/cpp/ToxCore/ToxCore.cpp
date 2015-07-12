@@ -4,6 +4,8 @@
 
 using namespace core;
 
+#include "generated/impls.h"
+
 void
 reference_symbols_tox ()
 {

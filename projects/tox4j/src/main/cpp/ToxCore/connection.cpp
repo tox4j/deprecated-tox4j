@@ -99,18 +99,6 @@ TOX_METHOD (jbyteArray, SelfGetDhtId,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxIterationInterval
- * Signature: (I)I
- */
-TOX_METHOD (jint, IterationInterval,
-  jint instanceNumber)
-{
-  return instances.with_instance_noerr (env, instanceNumber,
-    tox_iteration_interval);
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxIterate
  * Signature: (I)[B
  */
