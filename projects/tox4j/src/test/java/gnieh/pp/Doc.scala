@@ -82,7 +82,7 @@ sealed abstract class Doc {
  *  @author Lucas Satabin
  */
 final case class NestDoc(indent: Int, inner: Doc) extends Doc {
-  lazy val flatten = NestDoc(indent, inner.flatten)
+  override lazy val flatten = NestDoc(indent, inner.flatten)
 }
 
 /**
@@ -91,7 +91,7 @@ final case class NestDoc(indent: Int, inner: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class UnionDoc(long: Doc, short: Doc) extends Doc {
-  override def flatten: Doc = long.flatten
+  override lazy val flatten = long.flatten
 }
 
 /**
@@ -123,7 +123,7 @@ final case class LineDoc(repl: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class ConsDoc(first: Doc, second: Doc) extends Doc {
-  override val flatten = ConsDoc(first.flatten, second.flatten)
+  override lazy val flatten = ConsDoc(first.flatten, second.flatten)
 }
 
 /**
@@ -131,7 +131,7 @@ final case class ConsDoc(first: Doc, second: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class AlignDoc(inner: Doc) extends Doc {
-  override val flatten = AlignDoc(inner.flatten)
+  override lazy val flatten = AlignDoc(inner.flatten)
 }
 
 /**
@@ -139,5 +139,5 @@ final case class AlignDoc(inner: Doc) extends Doc {
  *  @author Lucas Satabin
  */
 final case class ColumnDoc(f: Int => Doc) extends Doc {
-  override val flatten = ColumnDoc(f.andThen(_.flatten))
+  override lazy val flatten = ColumnDoc(f.andThen(_.flatten))
 }
