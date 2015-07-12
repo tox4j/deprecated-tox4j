@@ -43,18 +43,6 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxSelfSetNospam
- * Signature: (II)V
- */
-TOX_METHOD (void, SelfSetNospam,
-  jint instanceNumber, jint nospam)
-{
-  return instances.with_instance_noerr (env, instanceNumber,
-    tox_self_set_nospam, nospam);
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetAddress
  * Signature: (I)[B
  */

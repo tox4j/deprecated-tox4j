@@ -87,18 +87,6 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxFriendExists
- * Signature: (II)Z
- */
-TOX_METHOD (jboolean, FriendExists,
-  jint instanceNumber, jint friendNumber)
-{
-  return instances.with_instance_noerr (env, instanceNumber,
-    tox_friend_exists, friendNumber);
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetFriendList
  * Signature: (I)[I
  */

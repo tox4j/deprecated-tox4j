@@ -14,6 +14,7 @@ object Ast {
   object Type {
     val void = Typename("void")
     val jint = Typename("jint")
+    val jboolean = Typename("jboolean")
   }
 
   /**
