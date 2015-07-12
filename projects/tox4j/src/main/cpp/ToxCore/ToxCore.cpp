@@ -4,6 +4,12 @@
 
 using namespace core;
 
+static PP_UNUSED void
+reference_symbols ()
+{
+  int tox_finalize; // For Java only.
+#include "generated/natives.h"
+}
 
 ToxInstances<tox::core_ptr, std::unique_ptr<Events>> core::instances;
 

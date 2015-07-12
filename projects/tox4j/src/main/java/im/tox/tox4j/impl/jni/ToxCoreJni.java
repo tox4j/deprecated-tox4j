@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import scala.MatchError;
 
 @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
-final class ToxCoreJni {
+public final class ToxCoreJni {
 
   static {
     System.loadLibrary("tox4j");
@@ -31,10 +31,10 @@ final class ToxCoreJni {
   static native byte[] toxGetSavedata(int instanceNumber);
   static native void toxBootstrap(int instanceNumber, @NotNull String address, int port, @NotNull byte[] publicKey) throws ToxBootstrapException;
   static native void toxAddTcpRelay(int instanceNumber, @NotNull String address, int port, @NotNull byte[] publicKey) throws ToxBootstrapException;
-  static native int toxGetUdpPort(int instanceNumber) throws ToxGetPortException;
-  static native int toxGetTcpPort(int instanceNumber) throws ToxGetPortException;
+  static native int toxSelfGetUdpPort(int instanceNumber) throws ToxGetPortException;
+  static native int toxSelfGetTcpPort(int instanceNumber) throws ToxGetPortException;
   @NotNull
-  static native byte[] toxGetDhtId(int instanceNumber);
+  static native byte[] toxSelfGetDhtId(int instanceNumber);
   static native int toxIterationInterval(int instanceNumber);
   @Nullable
   static native byte[] toxIterate(int instanceNumber);
@@ -71,8 +71,8 @@ final class ToxCoreJni {
   static native void toxFileSendChunk(int instanceNumber, int friendNumber, int fileNumber, long position, @NotNull byte[] data) throws ToxFileSendChunkException;
   @NotNull
   static native byte[] toxFileGetFileId(int instanceNumber, int friendNumber, int fileNumber) throws ToxFileGetException;
-  static native void toxSendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
-  static native void toxSendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
+  static native void toxFriendSendLossyPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
+  static native void toxFriendSendLosslessPacket(int instanceNumber, int friendNumber, @NotNull byte[] data) throws ToxFriendCustomPacketException;
 
   static native void invokeSelfConnectionStatus(int instanceNumber, int connectionStatus);
   static native void invokeFileRecvControl(int instanceNumber, int friendNumber, int fileNumber, int control);

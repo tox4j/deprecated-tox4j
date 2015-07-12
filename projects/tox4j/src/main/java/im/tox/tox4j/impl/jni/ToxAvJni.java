@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import scala.MatchError;
 
 @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
-final class ToxAvJni {
+public final class ToxAvJni {
 
   static {
     System.loadLibrary("tox4j");

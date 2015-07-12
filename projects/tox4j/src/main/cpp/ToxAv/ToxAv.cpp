@@ -4,6 +4,12 @@
 
 using namespace av;
 
+static PP_UNUSED void
+reference_symbols ()
+{
+  int toxav_finalize; // For Java only.
+#include "generated/natives.h"
+}
 
 ToxInstances<tox::av_ptr, std::unique_ptr<Events>> av::instances;
 

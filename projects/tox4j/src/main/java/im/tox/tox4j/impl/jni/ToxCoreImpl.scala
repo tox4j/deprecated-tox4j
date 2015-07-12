@@ -169,14 +169,14 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
 
   @throws[ToxGetPortException]
   override def getUdpPort: Int =
-    ToxCoreJni.toxGetUdpPort(instanceNumber)
+    ToxCoreJni.toxSelfGetUdpPort(instanceNumber)
 
   @throws[ToxGetPortException]
   override def getTcpPort: Int =
-    ToxCoreJni.toxGetTcpPort(instanceNumber)
+    ToxCoreJni.toxSelfGetTcpPort(instanceNumber)
 
   override def getDhtId: Array[Byte] =
-    ToxCoreJni.toxGetDhtId(instanceNumber)
+    ToxCoreJni.toxSelfGetDhtId(instanceNumber)
 
   override def iterationInterval: Int =
     ToxCoreJni.toxIterationInterval(instanceNumber)
@@ -464,11 +464,11 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
 
   @throws[ToxFriendCustomPacketException]
   override def sendLossyPacket(friendNumber: Int, data: Array[Byte]): Unit =
-    ToxCoreJni.toxSendLossyPacket(instanceNumber, friendNumber, data)
+    ToxCoreJni.toxFriendSendLossyPacket(instanceNumber, friendNumber, data)
 
   @throws[ToxFriendCustomPacketException]
   override def sendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
-    ToxCoreJni.toxSendLosslessPacket(instanceNumber, friendNumber, data)
+    ToxCoreJni.toxFriendSendLosslessPacket(instanceNumber, friendNumber, data)
 
   override def callback(handler: ToxEventListener[ToxCoreState]): Unit = {
     this.eventListener = handler

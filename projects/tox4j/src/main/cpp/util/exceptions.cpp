@@ -4,7 +4,7 @@
 #include <sstream>
 
 
-TOX4J_NORETURN void
+PP_NORETURN void
 tox4j_fatal_error (JNIEnv *env, char const *message)
 {
   env->FatalError (message);
