@@ -23,7 +23,7 @@ final class FriendListTimingBench extends TimingReport {
     val (friendList, tox) = pair
     val missing = friendList.length - tox.getFriendList.length
     assert(missing >= 0)
-    friendKeys(missing) foreach tox.addFriendNoRequest
+    friendKeys(missing) foreach tox.addFriendNorequest
   }
 
   timing of classOf[ToxCore[Unit]] in {
@@ -38,7 +38,7 @@ final class FriendListTimingBench extends TimingReport {
     measure method "addFriendNoRequest" in {
       using(friends(100) map friendKeys, toxInstance.cached) tearDown clearFriendList in {
         case (friendList, tox) =>
-          friendList foreach tox.addFriendNoRequest
+          friendList foreach tox.addFriendNorequest
       }
     }
 
@@ -87,7 +87,7 @@ final class FriendListTimingBench extends TimingReport {
       using(toxWithFriends1k map toxAndFriendKeys(limit = 100), Gen.single("iterations")(100)) in {
         case ((friendList, tox), iterations) =>
           (0 until iterations) foreach { _ =>
-            friendList foreach (key => tox.getFriendByPublicKey(key))
+            friendList foreach (key => tox.friendByPublicKey(key))
           }
       }
     }

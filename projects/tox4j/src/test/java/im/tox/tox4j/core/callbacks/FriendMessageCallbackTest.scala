@@ -15,7 +15,7 @@ final class FriendMessageCallbackTest extends AliceBobTest {
       super.friendConnectionStatus(friendNumber, connectionStatus)(state)
       if (connectionStatus != ToxConnection.NONE) {
         state.addTask { (tox, state) =>
-          tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, s"My name is $selfName".getBytes)
+          tox.friendSendMessage(friendNumber, ToxMessageType.NORMAL, 0, s"My name is $selfName".getBytes)
           state
         }
       } else {

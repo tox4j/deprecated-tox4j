@@ -12,7 +12,7 @@ public class ToxFriendByPublicKeyExceptionTest extends ToxCoreTestBase {
   @Test
   public void testNull() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.getFriendByPublicKey(null);
+      tox.friendByPublicKey(null);
       fail();
     } catch (ToxFriendByPublicKeyException e) {
       assertEquals(ToxFriendByPublicKeyException.Code.NULL, e.code());
@@ -22,7 +22,7 @@ public class ToxFriendByPublicKeyExceptionTest extends ToxCoreTestBase {
   @Test
   public void testNotFound() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      tox.getFriendByPublicKey(tox.getPublicKey());
+      tox.friendByPublicKey(tox.getPublicKey());
       fail();
     } catch (ToxFriendByPublicKeyException e) {
       assertEquals(ToxFriendByPublicKeyException.Code.NOT_FOUND, e.code());

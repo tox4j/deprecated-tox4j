@@ -34,7 +34,7 @@ trait ToxTestMixin {
     val message = "heyo".getBytes
     (0 until count).map { (i: Int) =>
       ToxCoreFactory.withTox { friend =>
-        tox.addFriendNoRequest(friend.getPublicKey)
+        tox.addFriendNorequest(friend.getPublicKey)
       }
     }.last
   }

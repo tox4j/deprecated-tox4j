@@ -109,7 +109,7 @@ trait ToxAv[ToxCoreState] extends Closeable {
    * @param force True if the bit rate change is forceful.
    */
   @throws[ToxavSetBitRateException]
-  def audioBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit
+  def setAudioBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit
 
   /**
    * Set the video bit rate to be used in subsequent audio frames.
@@ -125,7 +125,7 @@ trait ToxAv[ToxCoreState] extends Closeable {
    * @param force True if the bit rate change is forceful.
    */
   @throws[ToxavSetBitRateException]
-  def videoBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit
+  def setVideoBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit
 
   /**
    * Send an audio frame to a friend.

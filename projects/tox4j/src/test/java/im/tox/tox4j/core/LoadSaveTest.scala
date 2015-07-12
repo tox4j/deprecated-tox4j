@@ -99,12 +99,12 @@ final class LoadSaveTest extends ToxCoreTestBase {
       @throws(classOf[ToxException[_]])
       override def change(tox: ToxCore[Unit]): Boolean = {
         expected += 1
-        tox.setNoSpam(expected)
+        tox.setNospam(expected)
         expected < 100
       }
 
       override def check(tox: ToxCore[Unit]): Unit = {
-        assertEquals(expected, tox.getNoSpam)
+        assertEquals(expected, tox.getNospam)
       }
     })
   }

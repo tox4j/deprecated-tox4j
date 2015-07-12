@@ -112,7 +112,7 @@ object PerformanceReportBase {
     val tox = ToxCoreFactory.make[Unit](toxOptions)
     tox.setName(Array.ofDim(ToxCoreConstants.MAX_NAME_LENGTH))
     tox.setStatusMessage(Array.ofDim(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH))
-    friendKeys(friendCount) foreach tox.addFriendNoRequest
+    friendKeys(friendCount) foreach tox.addFriendNorequest
     tox
   }
 

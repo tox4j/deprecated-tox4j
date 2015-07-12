@@ -181,11 +181,11 @@ public class ToxCoreTest extends ToxCoreTestBase {
         0x7fffffff,
     };
     try (ToxCore<BoxedUnit> tox = newTox()) {
-      assertEquals(tox.getNoSpam(), tox.getNoSpam());
+      assertEquals(tox.getNospam(), tox.getNospam());
       for (int test : tests) {
-        tox.setNoSpam(test);
-        assertEquals(test, tox.getNoSpam());
-        assertEquals(tox.getNoSpam(), tox.getNoSpam());
+        tox.setNospam(test);
+        assertEquals(test, tox.getNospam());
+        assertEquals(tox.getNospam(), tox.getNospam());
         byte[] check = {
             (byte)(test >> 8 * 0),
             (byte)(test >> 8 * 1),
@@ -330,7 +330,7 @@ public class ToxCoreTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       for (int i = 0; i < ITERATIONS(); i++) {
         try (ToxCore friend = newTox()) {
-          int friendNumber = tox.addFriendNoRequest(friend.getPublicKey());
+          int friendNumber = tox.addFriendNorequest(friend.getPublicKey());
           assertEquals(i, friendNumber);
         }
       }
@@ -419,7 +419,7 @@ public class ToxCoreTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       addFriends(tox, 10);
       for (int i = 0; i < 10; i++) {
-        assertEquals(i, tox.getFriendByPublicKey(tox.getFriendPublicKey(i)));
+        assertEquals(i, tox.friendByPublicKey(tox.getFriendPublicKey(i)));
       }
     }
   }

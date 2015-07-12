@@ -68,8 +68,8 @@ abstract class AliceBobTestBase extends FunSuite with ToxTestMixin {
         addFriends(alice, AliceBobTestBase.FRIEND_NUMBER)
         addFriends(bob, AliceBobTestBase.FRIEND_NUMBER)
 
-        alice.addFriendNoRequest(bob.getPublicKey)
-        bob.addFriendNoRequest(alice.getPublicKey)
+        alice.addFriendNorequest(bob.getPublicKey)
+        bob.addFriendNorequest(alice.getPublicKey)
 
         aliceChat.expectedFriendAddress = bob.getAddress
         bobChat.expectedFriendAddress = alice.getAddress

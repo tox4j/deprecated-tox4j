@@ -25,7 +25,7 @@ final class GettersTimingBench extends TimingReport {
     measure method "getNoSpam" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.getNoSpam)
+          (0 until sz) foreach (_ => tox.getNospam)
       }
     }
 
@@ -74,7 +74,7 @@ final class GettersTimingBench extends TimingReport {
     measure method "getNoSpam" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.getNoSpam)
+          (0 until sz) foreach (_ => tox.getNospam)
       }
     }
 

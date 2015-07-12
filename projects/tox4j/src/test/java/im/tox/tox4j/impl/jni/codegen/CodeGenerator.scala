@@ -5,7 +5,16 @@ import java.io.{ File, PrintWriter }
 import com.google.common.base.CaseFormat
 import gnieh.pp.PrettyRenderer
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
-import im.tox.tox4j.impl.jni.codegen.cxx.{ Print, Ast }
+import im.tox.tox4j.impl.jni.codegen.cxx.{ Ast, Print }
+
+object NameConversions {
+
+  def cxxVarName(name: String): String = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, name)
+  def cxxTypeName(name: String): String = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name)
+  def javaVarName(name: String): String = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
+  def javaTypeName(name: String): String = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name)
+
+}
 
 abstract class CodeGenerator extends App {
 
@@ -19,11 +28,6 @@ abstract class CodeGenerator extends App {
       writer.close()
     }
   }
-
-  def cxxVarName(name: String): String = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, name)
-  def cxxTypeName(name: String): String = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name)
-  def javaVarName(name: String): String = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
-  def javaTypeName(name: String): String = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name)
 
   def ifdef(header: String, guard: String, code: TranslationUnit*): TranslationUnit = {
     Include(header) +:

@@ -14,7 +14,7 @@ public class ToxFriendSendMessageExceptionTest extends ToxCoreTestBase {
   public void testSendMessageNotFound() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       try {
-        tox.sendMessage(0, ToxMessageType.NORMAL, 0, "hello".getBytes());
+        tox.friendSendMessage(0, ToxMessageType.NORMAL, 0, "hello".getBytes());
         fail();
       } catch (ToxFriendSendMessageException e) {
         assertEquals(ToxFriendSendMessageException.Code.FRIEND_NOT_FOUND, e.code());
@@ -27,7 +27,7 @@ public class ToxFriendSendMessageExceptionTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       int friendNumber = addFriends(tox, 1);
       try {
-        tox.sendMessage(friendNumber, ToxMessageType.ACTION, 0, "hello".getBytes());
+        tox.friendSendMessage(friendNumber, ToxMessageType.ACTION, 0, "hello".getBytes());
         fail();
       } catch (ToxFriendSendMessageException e) {
         assertEquals(ToxFriendSendMessageException.Code.FRIEND_NOT_CONNECTED, e.code());
@@ -40,7 +40,7 @@ public class ToxFriendSendMessageExceptionTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       int friendNumber = addFriends(tox, 1);
       try {
-        tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, null);
+        tox.friendSendMessage(friendNumber, ToxMessageType.NORMAL, 0, null);
         fail();
       } catch (ToxFriendSendMessageException e) {
         assertEquals(ToxFriendSendMessageException.Code.NULL, e.code());
@@ -53,7 +53,7 @@ public class ToxFriendSendMessageExceptionTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       int friendNumber = addFriends(tox, 1);
       try {
-        tox.sendMessage(friendNumber, ToxMessageType.ACTION, 0, new byte[0]);
+        tox.friendSendMessage(friendNumber, ToxMessageType.ACTION, 0, new byte[0]);
         fail();
       } catch (ToxFriendSendMessageException e) {
         assertEquals(ToxFriendSendMessageException.Code.EMPTY, e.code());

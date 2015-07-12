@@ -14,7 +14,7 @@ public class ToxFriendCustomPacketExceptionTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       int friendNumber = addFriends(tox, 1);
       try {
-        tox.sendLossyPacket(friendNumber, new byte[]{(byte) 200, 0, 1, 2, 3});
+        tox.friendSendLossyPacket(friendNumber, new byte[]{(byte) 200, 0, 1, 2, 3});
         fail();
       } catch (ToxFriendCustomPacketException e) {
         assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.code());
@@ -27,7 +27,7 @@ public class ToxFriendCustomPacketExceptionTest extends ToxCoreTestBase {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       int friendNumber = addFriends(tox, 1);
       try {
-        tox.sendLosslessPacket(friendNumber, new byte[]{(byte) 160, 0, 1, 2, 3});
+        tox.friendSendLosslessPacket(friendNumber, new byte[]{(byte) 160, 0, 1, 2, 3});
         fail();
       } catch (ToxFriendCustomPacketException e) {
         assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_CONNECTED, e.code());
@@ -39,7 +39,7 @@ public class ToxFriendCustomPacketExceptionTest extends ToxCoreTestBase {
   public void testSendLossyPacketNotFound() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       try {
-        tox.sendLossyPacket(0, new byte[]{(byte) 200, 0, 1, 2, 3});
+        tox.friendSendLossyPacket(0, new byte[]{(byte) 200, 0, 1, 2, 3});
         fail();
       } catch (ToxFriendCustomPacketException e) {
         assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_FOUND, e.code());
@@ -51,7 +51,7 @@ public class ToxFriendCustomPacketExceptionTest extends ToxCoreTestBase {
   public void testSendLosslessPacketNotFound() throws Exception {
     try (ToxCore<BoxedUnit> tox = newTox()) {
       try {
-        tox.sendLosslessPacket(0, new byte[]{(byte) 160, 0, 1, 2, 3});
+        tox.friendSendLosslessPacket(0, new byte[]{(byte) 160, 0, 1, 2, 3});
         fail();
       } catch (ToxFriendCustomPacketException e) {
         assertEquals(ToxFriendCustomPacketException.Code.FRIEND_NOT_FOUND, e.code());

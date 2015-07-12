@@ -17,10 +17,10 @@ final class SendButtonOnAction(toxGui: MainView) extends ActionListener {
       }
 
       if (toxGui.messageRadioButton.isSelected) {
-        toxGui.tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, toxGui.messageText.getText.getBytes)
+        toxGui.tox.friendSendMessage(friendNumber, ToxMessageType.NORMAL, 0, toxGui.messageText.getText.getBytes)
         toxGui.addMessage("Sent message to ", friendNumber + ": " + toxGui.messageText.getText)
       } else if (toxGui.actionRadioButton.isSelected) {
-        toxGui.tox.sendMessage(friendNumber, ToxMessageType.ACTION, 0, toxGui.messageText.getText.getBytes)
+        toxGui.tox.friendSendMessage(friendNumber, ToxMessageType.ACTION, 0, toxGui.messageText.getText.getBytes)
         toxGui.addMessage("Sent action to ", friendNumber + ": " + toxGui.messageText.getText)
       }
 

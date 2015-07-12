@@ -2,9 +2,10 @@ package im.tox.tox4j.impl.jni.codegen
 
 import im.tox.tox4j.av.callbacks.ToxAvEventAdapter
 import im.tox.tox4j.core.callbacks.ToxEventAdapter
+import im.tox.tox4j.impl.jni.codegen.NameConversions.{ cxxTypeName, cxxVarName, javaVarName }
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 
-import scala.util.{ Success, Failure, Try }
+import scala.util.{ Failure, Success, Try }
 
 object JniCallbacks extends CodeGenerator {
 

@@ -45,7 +45,7 @@ final class FileRecvCallbackTest extends AliceBobTest {
       }
       assertEquals(s"file for $selfName.png", new String(filename))
       state.addTask { (tox, state) =>
-        val fileId = tox.fileGetFileId(friendNumber, fileNumber)
+        val fileId = tox.getFileFileId(friendNumber, fileNumber)
         assertNotNull(fileId)
         assertEquals(ToxCoreConstants.FILE_ID_LENGTH, fileId.length)
         state.finish

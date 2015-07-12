@@ -12,7 +12,7 @@ final class SettersTimingBench extends TimingReport {
     measure method "setNoSpam" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (i => tox.setNoSpam(i))
+          (0 until sz) foreach (i => tox.setNospam(i))
       }
     }
 

@@ -16,7 +16,7 @@ final class AddFriendButtonOnAction(toxGui: MainView) extends ActionListener {
 
       val friendNumber =
         if (toxGui.friendRequest.getText.isEmpty) {
-          toxGui.tox.addFriendNoRequest(publicKey)
+          toxGui.tox.addFriendNorequest(publicKey)
         } else {
           toxGui.tox.addFriend(publicKey, toxGui.friendRequest.getText.getBytes)
         }

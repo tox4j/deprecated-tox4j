@@ -21,7 +21,7 @@ final class FriendReadReceiptCallbackTest extends AliceBobTest {
           assert(state.get.isEmpty)
           val pendingIds = (0 until ITERATIONS).foldLeft(state.get) {
             case (receipts, i) =>
-              val receipt = tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes)
+              val receipt = tox.friendSendMessage(friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes)
               assert(!receipts.contains(receipt))
               receipts + receipt
           }

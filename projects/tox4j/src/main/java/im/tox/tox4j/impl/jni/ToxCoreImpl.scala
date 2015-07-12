@@ -372,10 +372,10 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
   override def getSecretKey: Array[Byte] =
     ToxCoreJni.toxSelfGetSecretKey(instanceNumber)
 
-  override def setNoSpam(nospam: Int): Unit =
+  override def setNospam(nospam: Int): Unit =
     ToxCoreJni.toxSelfSetNospam(instanceNumber, nospam)
 
-  override def getNoSpam: Int =
+  override def getNospam: Int =
     ToxCoreJni.toxSelfGetNospam(instanceNumber)
 
   override def getAddress: Array[Byte] =
@@ -411,7 +411,7 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
   }
 
   @throws[ToxFriendAddException]
-  override def addFriendNoRequest(publicKey: Array[Byte]): Int = {
+  override def addFriendNorequest(publicKey: Array[Byte]): Int = {
     ToxCoreImpl.checkLength("Public Key", publicKey, ToxCoreConstants.PUBLIC_KEY_SIZE)
     ToxCoreJni.toxFriendAddNorequest(instanceNumber, publicKey)
   }
@@ -421,7 +421,7 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
     ToxCoreJni.toxFriendDelete(instanceNumber, friendNumber)
 
   @throws[ToxFriendByPublicKeyException]
-  override def getFriendByPublicKey(publicKey: Array[Byte]): Int =
+  override def friendByPublicKey(publicKey: Array[Byte]): Int =
     ToxCoreJni.toxFriendByPublicKey(instanceNumber, publicKey)
 
   @throws[ToxFriendGetPublicKeyException]
@@ -439,7 +439,7 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
     ToxCoreJni.toxSelfSetTyping(instanceNumber, friendNumber, typing)
 
   @throws[ToxFriendSendMessageException]
-  override def sendMessage(friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]): Int =
+  override def friendSendMessage(friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]): Int =
     ToxCoreJni.toxFriendSendMessage(instanceNumber, friendNumber, messageType.ordinal, timeDelta, message)
 
   @throws[ToxFileControlException]
@@ -459,15 +459,15 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
     ToxCoreJni.toxFileSendChunk(instanceNumber, friendNumber, fileNumber, position, data)
 
   @throws[ToxFileGetException]
-  override def fileGetFileId(friendNumber: Int, fileNumber: Int): Array[Byte] =
+  override def getFileFileId(friendNumber: Int, fileNumber: Int): Array[Byte] =
     ToxCoreJni.toxFileGetFileId(instanceNumber, friendNumber, fileNumber)
 
   @throws[ToxFriendCustomPacketException]
-  override def sendLossyPacket(friendNumber: Int, data: Array[Byte]): Unit =
+  override def friendSendLossyPacket(friendNumber: Int, data: Array[Byte]): Unit =
     ToxCoreJni.toxFriendSendLossyPacket(instanceNumber, friendNumber, data)
 
   @throws[ToxFriendCustomPacketException]
-  override def sendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
+  override def friendSendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
     ToxCoreJni.toxFriendSendLosslessPacket(instanceNumber, friendNumber, data)
 
   override def callback(handler: ToxEventListener[ToxCoreState]): Unit = {

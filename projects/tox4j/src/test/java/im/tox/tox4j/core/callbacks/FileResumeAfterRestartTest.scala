@@ -43,7 +43,7 @@ final class FileResumeAfterRestartTest extends AliceBobTest {
       assertTrue(isAlice)
       state.addTask { (tox, state) =>
         debug("accept Bob's friend request")
-        tox.addFriendNoRequest(publicKey)
+        tox.addFriendNorequest(publicKey)
         aliceShouldPause = 1
         state
       }
@@ -58,7 +58,7 @@ final class FileResumeAfterRestartTest extends AliceBobTest {
           state.addTask { (tox, state) =>
             aliceSentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
               Array.ofDim[Byte](0), s"file for $expectedFriendName.png".getBytes)
-            fileId = tox.fileGetFileId(friendNumber, aliceSentFileNumber)
+            fileId = tox.getFileFileId(friendNumber, aliceSentFileNumber)
             aliceAddress = tox.getAddress
             state
           }
