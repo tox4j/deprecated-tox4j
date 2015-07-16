@@ -25,7 +25,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   private def withBootstrappedTox(
     ipv6Enabled: Boolean,
     udpEnabled: Boolean,
-    proxyOptions: ProxyOptions.Type = ProxyOptions.None
+    proxyOptions: ProxyOptions = ProxyOptions.None
   )(
     f: ToxCore[ChatState] => Unit
   ): Unit = {

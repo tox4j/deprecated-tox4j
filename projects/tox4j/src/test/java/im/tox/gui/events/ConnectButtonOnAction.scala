@@ -5,7 +5,6 @@ import javax.swing._
 
 import im.tox.gui.MainView
 import im.tox.tox4j.ToxCoreTestBase.readablePublicKey
-import im.tox.tox4j.core.options.ProxyOptions.Type
 import im.tox.tox4j.core.options.{ SaveDataOptions, ProxyOptions, ToxOptions }
 import im.tox.tox4j.exceptions.ToxException
 import im.tox.tox4j.impl.jni.ToxCoreImpl
@@ -41,7 +40,7 @@ final class ConnectButtonOnAction(toxGui: MainView) extends ActionListener {
   }
 
   private def toxOptions: ToxOptions = {
-    val proxy: Type =
+    val proxy: ProxyOptions =
       if (toxGui.httpRadioButton.isSelected) {
         ProxyOptions.Http(toxGui.proxyHost.getText, toxGui.proxyPort.getText.toInt)
       } else if (toxGui.socksRadioButton.isSelected) {
@@ -50,7 +49,7 @@ final class ConnectButtonOnAction(toxGui: MainView) extends ActionListener {
         ProxyOptions.None
       }
 
-    val toxSave: SaveDataOptions.Type =
+    val toxSave: SaveDataOptions =
       toxGui.load() match {
         case None       => SaveDataOptions.None
         case Some(data) => SaveDataOptions.ToxSave(data)

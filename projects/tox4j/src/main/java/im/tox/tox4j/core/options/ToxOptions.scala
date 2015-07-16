@@ -36,11 +36,11 @@ import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 final case class ToxOptions(
     ipv6Enabled: Boolean = true,
     udpEnabled: Boolean = true,
-    proxy: ProxyOptions.Type = ProxyOptions.None,
+    proxy: ProxyOptions = ProxyOptions.None,
     startPort: Int = ToxCoreConstants.DEFAULT_START_PORT,
     endPort: Int = ToxCoreConstants.DEFAULT_END_PORT,
     tcpPort: Int = ToxCoreConstants.DEFAULT_TCP_PORT,
-    saveData: SaveDataOptions.Type = SaveDataOptions.None,
+    saveData: SaveDataOptions = SaveDataOptions.None,
     fatalErrors: Boolean = true
 ) {
   private def requireValidPort(name: String, port: Int): Unit = {

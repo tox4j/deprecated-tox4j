@@ -4,29 +4,29 @@ import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxSavedataType
 
 /**
+ * Base type for all save data kinds.
+ */
+sealed trait SaveDataOptions {
+  /**
+   * The low level [[ToxSavedataType]] enum to pass to [[ToxCore.load]].
+   */
+  def kind: ToxSavedataType
+
+  /**
+   * Serialised save data. The format depends on [[kind]].
+   */
+  def data: Seq[Byte]
+}
+
+/**
  * The various kinds of save data that can be loaded by [[ToxCore.load]].
  */
 object SaveDataOptions {
 
   /**
-   * Base type for all save data kinds.
-   */
-  sealed trait Type {
-    /**
-     * The low level [[ToxSavedataType]] enum to pass to [[ToxCore.load]].
-     */
-    def kind: ToxSavedataType
-
-    /**
-     * Serialised save data. The format depends on [[kind]].
-     */
-    def data: Seq[Byte]
-  }
-
-  /**
    * No save data.
    */
-  case object None extends Type {
+  case object None extends SaveDataOptions {
     override def kind: ToxSavedataType = ToxSavedataType.NONE
     override def data: Seq[Byte] = Nil
   }
@@ -35,7 +35,7 @@ object SaveDataOptions {
    * Full save data containing friend list, last seen DHT nodes, name, and all other information
    * contained within a Tox instance.
    */
-  final case class ToxSave(data: Seq[Byte]) extends Type {
+  final case class ToxSave(data: Seq[Byte]) extends SaveDataOptions {
     override def kind: ToxSavedataType = ToxSavedataType.TOX_SAVE
   }
 
@@ -44,7 +44,7 @@ object SaveDataOptions {
    * secret key, the friend list, name, and noSpam value is sufficient to restore the observable
    * behaviour of a Tox instance without the full save data in [[ToxSave]].
    */
-  final case class SecretKey(data: Seq[Byte]) extends Type {
+  final case class SecretKey(data: Seq[Byte]) extends SaveDataOptions {
     override def kind: ToxSavedataType = ToxSavedataType.SECRET_KEY
   }
 

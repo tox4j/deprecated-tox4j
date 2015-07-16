@@ -49,7 +49,7 @@ object ToxCoreFactory {
     withTox(make[Unit](options))(f)
   }
 
-  def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type)(f: ToxCore[Unit] => R): R = {
+  def withTox[R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions)(f: ToxCore[Unit] => R): R = {
     withTox(ToxOptions(ipv6Enabled, udpEnabled, proxy))(f)
   }
 
@@ -61,7 +61,7 @@ object ToxCoreFactory {
     withTox(ToxOptions(fatalErrors = fatalErrors))(f)
   }
 
-  def withTox[R](saveData: SaveDataOptions.Type)(f: ToxCore[Unit] => R): R = {
+  def withTox[R](saveData: SaveDataOptions)(f: ToxCore[Unit] => R): R = {
     withTox(new ToxOptions(saveData = saveData))(f)
   }
 
@@ -77,7 +77,7 @@ object ToxCoreFactory {
     withToxS(ToxOptions(ipv6Enabled, udpEnabled))(f)
   }
 
-  def withToxS[ToxCoreState, R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type)(f: ToxCore[ToxCoreState] => R): R = {
+  def withToxS[ToxCoreState, R](ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions)(f: ToxCore[ToxCoreState] => R): R = {
     withToxS(ToxOptions(ipv6Enabled, udpEnabled, proxy))(f)
   }
 

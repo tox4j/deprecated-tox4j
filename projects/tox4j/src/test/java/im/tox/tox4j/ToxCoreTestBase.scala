@@ -160,7 +160,7 @@ abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
   @NotNull
   @throws[ToxNewException]
   @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions.Type): ToxCore[Unit] = {
+  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions): ToxCore[Unit] = {
     newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
   }
 
