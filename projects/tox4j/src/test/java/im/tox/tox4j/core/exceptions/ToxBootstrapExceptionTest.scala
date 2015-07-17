@@ -4,7 +4,7 @@ import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreConstants
 import org.junit.Test
 
-class ToxBootstrapExceptionTest extends ToxCoreTestBase {
+final class ToxBootstrapExceptionTest extends ToxCoreTestBase {
 
   @Test
   def testBootstrapBadPort1(): Unit = {

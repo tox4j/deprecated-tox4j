@@ -27,8 +27,8 @@ final class AvCallbackTimingBench extends TimingReport {
 
     val pcm = range("samples")(100).map(Array.ofDim[Short])
 
-    //invokePerformance("invokeAudioBitRateStatus", _.invokeAudioBitRateStatus(1, stable = true, 1))
-    //invokePerformance("invokeAudioReceiveFrame", _.invokeAudioReceiveFrame(1, pcm, 1, 1))
+    // invokePerformance("invokeAudioBitRateStatus", _.invokeAudioBitRateStatus(1, stable = true, 1))
+    // invokePerformance("invokeAudioReceiveFrame", _.invokeAudioReceiveFrame(1, pcm, 1, 1))
 
     performance of "invokeAudioReceiveFrame" in {
       usingToxAv(iterations1k, pcm) in {
