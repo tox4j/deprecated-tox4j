@@ -2,8 +2,8 @@ package im.tox.tox4j.crypto
 
 import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
-import im.tox.tox4j.testing.WrappedArray.Conversions._
-import im.tox.tox4j.testing.{ NonEmptyByteArray, ToxTestMixin, WrappedArray }
+import im.tox.tox4j.testing.WrappedByteArray.Conversions._
+import im.tox.tox4j.testing.{ NonEmptyByteArray, ToxTestMixin, WrappedByteArray }
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{ Arbitrary, Gen }
 import org.scalatest.WordSpec
@@ -14,11 +14,11 @@ import scala.util.Random
 
 abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec with PropertyChecks with ToxTestMixin {
 
-  private final class Salt(data: Array[Byte]) extends WrappedArray(data) {
+  private final class Salt(data: Array[Byte]) extends WrappedByteArray(data) {
     require(data.length == ToxCryptoConstants.SALT_LENGTH)
   }
 
-  private final class EncryptedData(data: Array[Byte]) extends WrappedArray(data) {
+  private final class EncryptedData(data: Array[Byte]) extends WrappedByteArray(data) {
     require(data.length > ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH)
   }
 

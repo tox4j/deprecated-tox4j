@@ -133,22 +133,20 @@ TOX_METHOD (void, AudioSendFrame,
  * Signature: (IIII[B[B[B[B)V
  */
 TOX_METHOD (void, VideoSendFrame,
-  jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jbyteArray a)
+  jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v)
 {
   size_t pixel_count = width * height;
 
   ByteArray yData (env, y);
   ByteArray uData (env, u);
   ByteArray vData (env, v);
-  ByteArray aData (env, a);
   if (yData.size () != pixel_count ||
       uData.size () != pixel_count ||
-      vData.size () != pixel_count ||
-      (!aData.empty () && aData.size () != pixel_count))
+      vData.size () != pixel_count)
     return throw_tox_exception<ToxAV> (env, TOXAV_ERR_SEND_FRAME_INVALID);
 
   return instances.with_instance_ign (env, instanceNumber,
-    toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data ()/*, aData.data ()*/
+    toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data ()
   );
 }
 

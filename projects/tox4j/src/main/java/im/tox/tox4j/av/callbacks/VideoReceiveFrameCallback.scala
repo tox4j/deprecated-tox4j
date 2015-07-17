@@ -1,6 +1,6 @@
 package im.tox.tox4j.av.callbacks
 
-import org.jetbrains.annotations.{ NotNull, Nullable }
+import org.jetbrains.annotations.NotNull
 
 /**
  * Triggered when a video frame is received.
@@ -13,26 +13,23 @@ trait VideoReceiveFrameCallback[ToxCoreState] {
    * @param y Y-plane.
    * @param u U-plane.
    * @param v V-plane.
-   * @param a Alpha-plane.
    *          The size of plane data is derived from width and height where
    *          Y = max(width,   abs(yStride)) * height
    *          U = max(width/2, abs(uStride)) * (height/2)
-   *          V = max(width/2, abs(vStride)) * (height/2)
-   *          A = max(width,   abs(aStride)) * height.
+   *          V = max(width/2, abs(vStride)) * (height/2).
    * @param yStride Stride length for Y-plane.
    * @param uStride Stride length for U-plane.
-   * @param vStride Stride length for V-plane.
-   * @param aStride Stride length for Alpha-plane. Strides represent padding for
+   * @param vStride Stride length for V-plane. Strides represent padding for
    *                each plane that may or may not be present. You must handle
    *                strides in your image processing code. Strides are negative
-   *                if the image is bottom-up hence why you MUST abs() it when
+   *                if the image is bottom-up hence why you must abs() it when
    *                calculating plane buffer size.
    */
   // scalastyle:ignore parameter.number
   def videoReceiveFrame(
     friendNumber: Int,
     width: Int, height: Int,
-    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte],
-    yStride: Int, uStride: Int, vStride: Int, aStride: Int
+    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte],
+    yStride: Int, uStride: Int, vStride: Int
   )(state: ToxCoreState): ToxCoreState = state
 }

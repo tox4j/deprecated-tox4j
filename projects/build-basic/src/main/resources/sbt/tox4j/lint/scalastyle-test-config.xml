@@ -204,7 +204,7 @@
   Maximum number of parameters for a method
   <check level="error" class="org.scalastyle.scalariform.ParameterNumberChecker" enabled="true">
     <parameters>
-      <parameter name="maxParameters">8</parameter>
+      <parameter name="maxParameters">9</parameter>
     </parameters>
   </check>
 

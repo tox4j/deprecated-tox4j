@@ -1,10 +1,11 @@
 package im.tox.tox4j.bench
 
-import im.tox.tox4j.bench.PerformanceReportBase.toxInstance
+import im.tox.tox4j.av.ToxAv
+import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.picklers.Implicits._
 import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
-import im.tox.tox4j.impl.jni.ToxCoreImpl
+import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
 import org.scalameter.api._
 
 import scala.collection.immutable
@@ -56,6 +57,13 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
   def usingTox[A](a: Gen[A]): Using[(A, ToxCore[Unit])] = using(a, toxInstance)
   def usingTox[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxCore[Unit])] = using(a, b, toxInstance)
   def usingTox[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxCore[Unit])] = using(a, b, c, toxInstance)
+
+  /**
+   * The same as the above, but adding [[toxAvInstance]] as last element of the tuple.
+   */
+  def usingToxAv[A](a: Gen[A]): Using[(A, ToxAv[Unit])] = using(a, toxAvInstance)
+  def usingToxAv[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxAv[Unit])] = using(a, b, toxAvInstance)
+  def usingToxAv[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxAv[Unit])] = using(a, b, c, toxAvInstance)
 
 }
 
@@ -135,7 +143,12 @@ object PerformanceReportBase {
    * should not mutate it. If it does, it needs to ensure that it returns to an equivalent state as before the test
    * began. In particular, if you add friends, you need to ensure that you remove all but 1 friends on tearDown.
    */
-  val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl[Unit]]).map(_ => makeTox())
+  val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl[Unit]]).map(_ => makeTox()).cached
+
+  /**
+   * Generator for a [[ToxAv]] instance.
+   */
+  val toxAvInstance = toxInstance.map(tox => new ToxAvImpl[Unit](tox.asInstanceOf[ToxCoreImpl[Unit]]): ToxAv[Unit]).cached
 
   /**
    * Helper function to create a range axis evenly divided into 10 samples. The range starts with `upto / 10` and ends
@@ -148,7 +161,7 @@ object PerformanceReportBase {
    * @param upto The highest value this generator will produce.
    * @return A generator from `upto / 10` to `upto`.
    */
-  private def range(axisName: String)(upto: Int) = {
+  def range(axisName: String)(upto: Int): Gen[Int] = {
     require(upto % 10 == 0)
     Gen.range(axisName)(upto / 10, upto, upto / 10)
   }

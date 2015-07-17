@@ -6,7 +6,7 @@ import im.tox.tox4j.av.callbacks._
 import im.tox.tox4j.av.enums.ToxavCallControl
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.ToxCore
-import org.jetbrains.annotations.{ NotNull, Nullable }
+import org.jetbrains.annotations.NotNull
 
 /**
  * Public audio/video API for Tox clients.
@@ -161,13 +161,12 @@ trait ToxAv[ToxCoreState] extends Closeable {
    * @param y Y (Luminance) plane data.
    * @param u U (Chroma) plane data.
    * @param v V (Chroma) plane data.
-   * @param a A (Alpha) plane data.
    */
   @throws[ToxavSendFrameException]
   def videoSendFrame(
     friendNumber: Int,
     width: Int, height: Int,
-    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]
+    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte]
   ): Unit
 
   /**

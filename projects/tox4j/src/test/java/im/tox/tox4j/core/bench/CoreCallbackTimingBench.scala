@@ -6,7 +6,7 @@ import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, 
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 
-final class CallbackTimingBench extends TimingReport {
+final class CoreCallbackTimingBench extends TimingReport {
 
   val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
   val data = Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)

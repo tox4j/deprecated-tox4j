@@ -35,8 +35,22 @@ public final class ToxAvJni {
       int instanceNumber,
       int friendNumber,
       int width, int height,
-      @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v, @Nullable byte[] a
+      @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v
   ) throws ToxavSendFrameException;
+
+  static native void invokeAudioBitRateStatus(int instanceNumber, int friendNumber, boolean stable, int bitRate);
+  static native void invokeAudioReceiveFrame(int instanceNumber, int friendNumber, short[] pcm, int channels, int samplingRate);
+  static native void invokeCall(int instanceNumber, int friendNumber, boolean audioEnabled, boolean videoEnabled);
+  static native void invokeCallState(int instanceNumber, int friendNumber, int callState);
+  static native void invokeVideoBitRateStatus(int instanceNumber, int friendNumber, boolean stable, int bitRate);
+  @SuppressWarnings("checkstyle:parametername")
+  static native void invokeVideoReceiveFrame(
+      int instanceNumber,
+      int friendNumber,
+      int width, int height,
+      @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v,
+      int yStride, int uStride, int vStride
+  );
 
   static <T> T conversionError(@NotNull String className, @NotNull String name) {
     throw new MatchError("ToxAv: Could not convert " + className + "." + name);

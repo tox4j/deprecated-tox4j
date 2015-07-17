@@ -39,23 +39,21 @@ message VideoBitRateStatus {
 
 message AudioReceiveFrame {
   required uint32  friend_number    = 1;
-  repeated int32   pcm              = 2 [packed = true];
+  required bytes   pcm              = 2;
   required uint32  channels         = 3;
   required uint32  sampling_rate    = 4;
 }
 
 message VideoReceiveFrame {
-  required uint32  friend_number    =  1;
-  required uint32  width            =  2;
-  required uint32  height           =  3;
-  required bytes   y                =  4;
-  required bytes   u                =  5;
-  required bytes   v                =  6;
-  optional bytes   a                =  7;
-  required int32   y_stride         =  8;
-  required int32   u_stride         =  9;
-  required int32   v_stride         = 10;
-  required int32   a_stride         = 11;
+  required uint32  friend_number    = 1;
+  required uint32  width            = 2;
+  required uint32  height           = 3;
+  required bytes   y                = 4;
+  required bytes   u                = 5;
+  required bytes   v                = 6;
+  required int32   y_stride         = 7;
+  required int32   u_stride         = 8;
+  required int32   v_stride         = 9;
 }
 
 
