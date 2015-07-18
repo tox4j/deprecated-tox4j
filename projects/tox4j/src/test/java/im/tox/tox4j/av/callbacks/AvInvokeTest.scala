@@ -2,6 +2,7 @@ package im.tox.tox4j.av.callbacks
 
 import java.util
 
+import im.tox.tox4j.ToxAvTestBase
 import im.tox.tox4j.av.callbacks.AvInvokeTest._
 import im.tox.tox4j.av.enums.ToxavFriendCallState
 import im.tox.tox4j.core.SmallInt
@@ -57,6 +58,7 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("AudioBitRateStatus") {
+    assume(ToxAvTestBase.enabled)
     forAll { (friendNumber: Int, stable: Boolean, bitRate: Int) =>
       callbackTest(
         _.invokeAudioBitRateStatus(friendNumber, stable, bitRate),
@@ -66,6 +68,7 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("AudioReceiveFrame") {
+    assume(ToxAvTestBase.enabled)
     forAll { (friendNumber: Int, pcm: Array[Short], samplingRate: Int) =>
       val channels =
         pcm.length match {
@@ -82,6 +85,7 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("Call") {
+    assume(ToxAvTestBase.enabled)
     forAll { (friendNumber: Int, audioEnabled: Boolean, videoEnabled: Boolean) =>
       callbackTest(
         _.invokeCall(friendNumber, audioEnabled, videoEnabled),
@@ -91,6 +95,7 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("CallState") {
+    assume(ToxAvTestBase.enabled)
     forAll { (friendNumber: Int, callState: Set[ToxavFriendCallState]) =>
       callbackTest(
         _.invokeCallState(friendNumber, callState.asJavaCollection),
@@ -100,6 +105,7 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("VideoBitRateStatus") {
+    assume(ToxAvTestBase.enabled)
     forAll { (friendNumber: Int, stable: Boolean, bitRate: Int) =>
       callbackTest(
         _.invokeVideoBitRateStatus(friendNumber, stable, bitRate),
@@ -109,6 +115,7 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
   }
 
   test("VideoReceiveFrame") {
+    assume(ToxAvTestBase.enabled)
     forAll { (friendNumber: Int, width: SmallInt, height: SmallInt, yStride: SmallInt, uStride: SmallInt, vStride: SmallInt) =>
       whenever(width > 0 && height > 0) {
         val y = Array.ofDim[Byte]((width max yStride) * height)
@@ -129,12 +136,11 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
 
 object AvInvokeTest {
   sealed trait Event
-  // scalastyle:off line.size.limit
   final case class AudioBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
   final case class AudioReceiveFrame(friendNumber: Int, pcm: ShortArray, channels: Int, samplingRate: Int) extends Event
   final case class Call(friendNumber: Int, audioEnabled: Boolean, videoEnabled: Boolean) extends Event
   final case class CallState(friendNumber: Int, callState: Set[ToxavFriendCallState]) extends Event
   final case class VideoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
+  // scalastyle:ignore line.size.limit
   final case class VideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray, yStride: Int, uStride: Int, vStride: Int) extends Event
-  // scalastyle:on line.size.limit
 }
