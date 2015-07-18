@@ -14,7 +14,7 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
   jint instanceNumber)
 {
   return instances.with_instance_noerr (env, instanceNumber,
-    get_array<uint8_t, TOX_PUBLIC_KEY_SIZE, tox_self_get_public_key>, env);
+    get_vector<uint8_t, constant_size<TOX_PUBLIC_KEY_SIZE>, tox_self_get_public_key>, env);
 }
 
 /*
@@ -26,7 +26,7 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
   jint instanceNumber)
 {
   return instances.with_instance_noerr (env, instanceNumber,
-    get_array<uint8_t, TOX_SECRET_KEY_SIZE, tox_self_get_secret_key>, env);
+    get_vector<uint8_t, constant_size<TOX_SECRET_KEY_SIZE>, tox_self_get_secret_key>, env);
 }
 
 /*
@@ -38,7 +38,7 @@ TOX_METHOD (jbyteArray, SelfGetAddress,
   jint instanceNumber)
 {
   return instances.with_instance_noerr (env, instanceNumber,
-    get_array<uint8_t, TOX_ADDRESS_SIZE, tox_self_get_address>, env);
+    get_vector<uint8_t, constant_size<TOX_ADDRESS_SIZE>, tox_self_get_address>, env);
 }
 
 

@@ -28,8 +28,6 @@ namespace core
 #endif
 
 
-
-
 template<typename T, size_t get_size (Tox const *), void get_data (Tox const *, T *)>
 typename java_array_t<T>::array_type
 get_vector (Tox const *tox, JNIEnv *env)
@@ -41,12 +39,9 @@ get_vector (Tox const *tox, JNIEnv *env)
 }
 
 
-template<typename T, size_t size, void get_data (Tox const *, T *)>
-typename java_array_t<T>::array_type
-get_array (Tox const *tox, JNIEnv *env)
+template<std::size_t N>
+std::size_t
+constant_size (Tox const *)
 {
-  std::vector<T> name (size);
-  get_data (tox, name.data ());
-
-  return toJavaArray (env, name);
+  return N;
 }
