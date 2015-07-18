@@ -13,14 +13,8 @@ using namespace core;
 TOX_METHOD (jbyteArray, SelfGetPublicKey,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_array<uint8_t, TOX_PUBLIC_KEY_SIZE,
-          tox_self_get_public_key> (env, tox);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_array<uint8_t, TOX_PUBLIC_KEY_SIZE, tox_self_get_public_key>, env);
 }
 
 /*
@@ -31,14 +25,8 @@ TOX_METHOD (jbyteArray, SelfGetPublicKey,
 TOX_METHOD (jbyteArray, SelfGetSecretKey,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_array<uint8_t, TOX_SECRET_KEY_SIZE,
-          tox_self_get_secret_key> (env, tox);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_array<uint8_t, TOX_SECRET_KEY_SIZE, tox_self_get_secret_key>, env);
 }
 
 /*
@@ -49,14 +37,8 @@ TOX_METHOD (jbyteArray, SelfGetSecretKey,
 TOX_METHOD (jbyteArray, SelfGetAddress,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_array<uint8_t, TOX_ADDRESS_SIZE,
-          tox_self_get_address> (env, tox);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_array<uint8_t, TOX_ADDRESS_SIZE, tox_self_get_address>, env);
 }
 
 
@@ -81,14 +63,11 @@ TOX_METHOD (void, SelfSetName,
 TOX_METHOD (jbyteArray, SelfGetName,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_vector<uint8_t,
-          tox_self_get_name_size,
-          tox_self_get_name> (env, tox);
-      }
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_vector<uint8_t,
+      tox_self_get_name_size,
+      tox_self_get_name>,
+    env
   );
 }
 
@@ -113,14 +92,11 @@ TOX_METHOD (void, SelfSetStatusMessage,
 TOX_METHOD (jbyteArray, SelfGetStatusMessage,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_vector<uint8_t,
-          tox_self_get_status_message_size,
-          tox_self_get_status_message> (env, tox);
-      }
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_vector<uint8_t,
+      tox_self_get_status_message_size,
+      tox_self_get_status_message>,
+    env
   );
 }
 

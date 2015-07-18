@@ -93,14 +93,11 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
 TOX_METHOD (jintArray, SelfGetFriendList,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_vector<uint32_t,
-          tox_self_get_friend_list_size,
-          tox_self_get_friend_list> (env, tox);
-      }
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_vector<uint32_t,
+      tox_self_get_friend_list_size,
+      tox_self_get_friend_list>,
+    env
   );
 }
 

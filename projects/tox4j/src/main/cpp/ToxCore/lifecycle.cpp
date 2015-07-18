@@ -341,14 +341,11 @@ TOX_METHOD (void, Finalize,
 TOX_METHOD (jbyteArray, GetSavedata,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [=] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_vector<uint8_t,
-          tox_get_savedata_size,
-          tox_get_savedata> (env, tox);
-      }
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_vector<uint8_t,
+      tox_get_savedata_size,
+      tox_get_savedata>,
+    env
   );
 }
 
@@ -364,7 +361,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeSelfConnectio
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_self_connection_status_cb (tox, (TOX_CONNECTION) connection_status, events);
+        tox4j_self_connection_status_cb (tox, enum_value<TOX_CONNECTION> (env, connection_status), events);
       }
   );
 }
@@ -380,7 +377,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileRecvContr
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_file_recv_control_cb (tox, friend_number, file_number, (TOX_FILE_CONTROL) control, events);
+        tox4j_file_recv_control_cb (tox, friend_number, file_number, enum_value<TOX_FILE_CONTROL> (env, control), events);
       }
   );
 }
@@ -446,7 +443,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendConnect
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_friend_connection_status_cb (tox, friend_number, (TOX_CONNECTION) connection_status, events);
+        tox4j_friend_connection_status_cb (tox, friend_number, enum_value<TOX_CONNECTION> (env, connection_status), events);
       }
   );
 }
@@ -497,7 +494,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendMessage
     [=] (Tox *tox, Events &events)
       {
         ByteArray messageArray (env, message);
-        tox4j_friend_message_cb (tox, friend_number, (TOX_MESSAGE_TYPE) type, /*time_delta, */ messageArray.data (), messageArray.size (), events);
+        tox4j_friend_message_cb (tox, friend_number, enum_value<TOX_MESSAGE_TYPE> (env, type), /*time_delta, */ messageArray.data (), messageArray.size (), events);
       }
   );
 }
@@ -548,7 +545,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendStatus
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_friend_status_cb (tox, friend_number, (TOX_USER_STATUS) status, events);
+        tox4j_friend_status_cb (tox, friend_number, enum_value<TOX_USER_STATUS> (env, status), events);
       }
   );
 }

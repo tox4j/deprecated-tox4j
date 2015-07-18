@@ -7,6 +7,8 @@
 #include <iostream>
 #include <map>
 
+#include <jni.h>
+
 struct null_out_buf
   : std::streambuf
 {
@@ -114,6 +116,16 @@ print_arg (unsigned char const *data, std::size_t length)
 {
   if (data != nullptr)
     debug_out << "out data[" << length << "]";
+  else
+    debug_out << "<null>";
+}
+
+template<>
+void
+print_arg<JNIEnv *> (JNIEnv *data)
+{
+  if (data != nullptr)
+    debug_out << "<JNIEnv>";
   else
     debug_out << "<null>";
 }

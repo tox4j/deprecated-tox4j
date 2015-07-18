@@ -87,14 +87,8 @@ TOX_METHOD (jint, SelfGetTcpPort,
 TOX_METHOD (jbyteArray, SelfGetDhtId,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_array<uint8_t, TOX_PUBLIC_KEY_SIZE,
-          tox_self_get_dht_id> (env, tox);
-      }
-  );
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_array<uint8_t, TOX_PUBLIC_KEY_SIZE, tox_self_get_dht_id>, env);
 }
 
 /*
