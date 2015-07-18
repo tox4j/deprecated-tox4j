@@ -82,7 +82,7 @@ WartRemoverOverrides.moduleSettings
 
 // TODO(iphydf): Require less test coverage for now, until ToxAv is tested.
 Coverage.projectSettings
-coverageMinimum := 78
+coverageMinimum := 77
 
 // Tox4j-specific style checkers.
 addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")
