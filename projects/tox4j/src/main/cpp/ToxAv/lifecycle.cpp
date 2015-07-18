@@ -9,7 +9,8 @@ using namespace av;
 static void
 tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
   auto msg = events.add_call ();
   msg->set_friend_number (friend_number);
   msg->set_audio_enabled (audio_enabled);
@@ -20,7 +21,8 @@ tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video
 static void
 tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
   auto msg = events.add_call_state ();
   msg->set_friend_number (friend_number);
 
@@ -45,7 +47,8 @@ tox4j_audio_bit_rate_status_cb (ToxAV *av,
                                 uint32_t bit_rate,
                                 Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
   auto msg = events.add_audio_bit_rate_status ();
   msg->set_friend_number (friend_number);
   msg->set_stable (stable);
@@ -60,7 +63,8 @@ tox4j_video_bit_rate_status_cb (ToxAV *av,
                                 uint32_t bit_rate,
                                 Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
   auto msg = events.add_video_bit_rate_status ();
   msg->set_friend_number (friend_number);
   msg->set_stable (stable);
@@ -77,7 +81,8 @@ tox4j_audio_receive_frame_cb (ToxAV *av,
                               uint32_t sampling_rate,
                               Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
   auto msg = events.add_audio_receive_frame ();
   msg->set_friend_number (friend_number);
 
@@ -104,14 +109,18 @@ tox4j_video_receive_frame_cb (ToxAV *av,
                               int32_t ystride, int32_t ustride, int32_t vstride,
                               Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
+  assert (ystride < 0 == ustride < 0);
+  assert (ystride < 0 == vstride < 0);
+
   auto msg = events.add_video_receive_frame ();
   msg->set_friend_number (friend_number);
   msg->set_width (width);
   msg->set_height (height);
-  msg->set_y (y, width * height);
-  msg->set_u (u, width * height);
-  msg->set_v (v, width * height);
+  msg->set_y (y, std::max<std::size_t> (width    , std::abs (ystride)) * height);
+  msg->set_u (u, std::max<std::size_t> (width / 2, std::abs (ustride)) * (height / 2));
+  msg->set_v (v, std::max<std::size_t> (width / 2, std::abs (vstride)) * (height / 2));
   msg->set_y_stride (ystride);
   msg->set_u_stride (ustride);
   msg->set_v_stride (vstride);
@@ -287,9 +296,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeVideoReceiveFra
         ByteArray yData (env, y);
         ByteArray uData (env, u);
         ByteArray vData (env, v);
-        tox4j_assert ((jint)yData.size () == width * height);
-        tox4j_assert ((jint)uData.size () == width * height);
-        tox4j_assert ((jint)vData.size () == width * height);
+        tox4j_assert (yData.size () == std::max<std::size_t> (width    , std::abs (yStride)) * height);
+        tox4j_assert (uData.size () == std::max<std::size_t> (width / 2, std::abs (uStride)) * (height / 2));
+        tox4j_assert (vData.size () == std::max<std::size_t> (width / 2, std::abs (vStride)) * (height / 2));
         tox4j_video_receive_frame_cb (av, friendNumber, width, height, yData.data (), uData.data (), vData.data (), yStride, uStride, vStride, events);
       }
   );

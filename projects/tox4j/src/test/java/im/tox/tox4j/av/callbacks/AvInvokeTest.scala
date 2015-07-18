@@ -16,7 +16,7 @@ import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.Random
 
-class AvInvokeTest extends FunSuite with PropertyChecks {
+final class AvInvokeTest extends FunSuite with PropertyChecks {
 
   final class TestEventListener extends ToxAvEventListener[Event] {
     private def setEvent(event: Event)(state: Event): Event = {
@@ -56,7 +56,6 @@ class AvInvokeTest extends FunSuite with PropertyChecks {
     Arbitrary(Arbitrary.arbInt.arbitrary.map { i => ToxavFriendCallState.values()(Math.abs(i % ToxavFriendCallState.values().length)) })
   }
 
-  // scalastyle:off line.size.limit
   test("AudioBitRateStatus") {
     forAll { (friendNumber: Int, stable: Boolean, bitRate: Int) =>
       callbackTest(
@@ -112,9 +111,9 @@ class AvInvokeTest extends FunSuite with PropertyChecks {
   test("VideoReceiveFrame") {
     forAll { (friendNumber: Int, width: SmallInt, height: SmallInt, yStride: SmallInt, uStride: SmallInt, vStride: SmallInt) =>
       whenever(width > 0 && height > 0) {
-        val y = Array.ofDim[Byte](width * height)
-        val u = Array.ofDim[Byte](width * height)
-        val v = Array.ofDim[Byte](width * height)
+        val y = Array.ofDim[Byte]((width max yStride) * height)
+        val u = Array.ofDim[Byte](((width / 2) max Math.abs(uStride)) * (height / 2))
+        val v = Array.ofDim[Byte](((width / 2) max Math.abs(vStride)) * (height / 2))
         random.nextBytes(y)
         random.nextBytes(u)
         random.nextBytes(v)
@@ -125,7 +124,6 @@ class AvInvokeTest extends FunSuite with PropertyChecks {
       }
     }
   }
-  // scalastyle:on line.size.limit
 
 }
 
