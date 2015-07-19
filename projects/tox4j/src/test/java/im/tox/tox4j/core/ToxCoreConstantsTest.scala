@@ -36,7 +36,7 @@ final class ToxCoreConstantsTest extends FunSuite {
   }
 
   test("TOX_ADDRESS_SIZE") {
-    assert(ToxCoreConstants.TOX_ADDRESS_SIZE >= ToxCoreConstants.TOX_ADDRESS_SIZE)
+    assert(ToxCoreConstants.ADDRESS_SIZE >= ToxCoreConstants.ADDRESS_SIZE)
   }
 
   test("FILE_ID_LENGTH") {

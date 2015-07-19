@@ -66,6 +66,7 @@ object Ast {
 
   final case class Access(expr: Expr, name: String) extends Expr
   final case class LeftShift(lhs: Expr, rhs: Expr) extends Expr
+  final case class Equals(lhs: Expr, rhs: Expr) extends Expr
 
   /**
    * Declarations.

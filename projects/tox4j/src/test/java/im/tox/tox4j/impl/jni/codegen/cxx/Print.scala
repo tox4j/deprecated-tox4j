@@ -14,7 +14,7 @@ object Print {
     }
   }
 
-  private def printSeq[T](printT: T => Doc, nodes: Seq[T], sep: Doc = empty): Doc = {
+  private def printSeq[T](nodes: Seq[T], sep: Doc = empty)(printT: T => Doc): Doc = {
     flatten(nodes.map(printT), sep)
   }
 
@@ -48,7 +48,7 @@ object Print {
       case MacroFun(init, body) => printExpr(init) :|: printStmt(body)
       case ToxFun(returnType, name, params, body) =>
         "JAVA_METHOD" :+: nest(2)("(" :: printType(returnType) :: "," :+: name :: "," :|:
-          printSeq(printDecl, params, "," :: space) :: ")") :|:
+          printSeq(params, "," :: space)(printDecl) :: ")") :|:
           printStmt(body)
     }
   }
@@ -57,23 +57,24 @@ object Print {
    * Statements.
    */
   // scalastyle:ignore cyclomatic.complexity
-  def printStmt(stmt: Stmt): Doc = {
+  def printStmt(stmt: Stmt, spacing: Doc = line): Doc = {
     stmt match {
       case Switch(cond, CompoundStmt(cases)) =>
         "switch (" :: printExpr(cond) :: nest(2)(")" :|:
           "{" :|:
-          printSeq(printStmt, cases, line) :|:
+          printSeq(cases)(printStmt(_)) ::
           "}") ::
           line
-      case Switch(cond, body)  => sys.error("Invalid switch-body: " + body)
-      case Case(expr, body)    => "case" :+: printExpr(expr) :: ":" :+: printStmt(body)
-      case Default(body)       => "default:" :+: printStmt(body)
-      case Break               => "break;"
-      case Return(expr)        => "return" :: expr.fold(empty)(expr => space :: printExpr(expr)) :: ";"
-      case ExprStmt(expr)      => printExpr(expr) :: ";"
-      case CompoundStmt(stmts) => nest(2)("{" :|: printSeq(printStmt, stmts)) :|: "}"
-      case stmt: Oneliner      => printSeq(printStmt, stmt.stmts, space)
-      case pp: Preproc         => printPreproc(pp)
+      case Switch(cond, body)       => sys.error("Invalid switch-body: " + body)
+      case Case(expr, body)         => "case" :+: printExpr(expr) :: ":" :+: printStmt(body)
+      case Default(body)            => "default:" :+: printStmt(body)
+      case Break                    => "break;"
+      case Return(expr)             => "return" :: expr.fold(empty)(expr => space :: printExpr(expr)) :: ";" :: spacing
+      case ExprStmt(expr)           => printExpr(expr) :: ";" :: spacing
+      case CompoundStmt(Seq(stmt0)) => nest(2)("{" :|: printStmt(stmt0, empty)) :|: "}"
+      case CompoundStmt(stmts)      => nest(2)("{" :|: printSeq(stmts.slice(0, stmts.length - 1))(printStmt(_))) :: printStmt(stmts.last) :: "}"
+      case stmt: Oneliner           => group(printSeq(stmt.stmts)(printStmt(_, empty))) :: spacing
+      case pp: Preproc              => printPreproc(pp)
     }
   }
 
@@ -85,8 +86,9 @@ object Print {
       case Identifier(name)      => name
       case IntegerLiteral(value) => value
       case StringLiteral(value)  => "\"" :: StringEscapeUtils.escapeJava(value) :: "\""
-      case FunCall(callee, args) => printExpr(callee) :+: "(" :: printSeq(printExpr, args, "," :: space) :: ")"
+      case FunCall(callee, args) => printExpr(callee) :+: "(" :: printSeq(args, "," :: space)(printExpr) :: ")"
       case LeftShift(lhs, rhs)   => printExpr(lhs) :+: "<<" :+: printExpr(rhs)
+      case Equals(lhs, rhs)      => printExpr(lhs) :+: "==" :+: printExpr(rhs)
       case Access(lhs, name)     => printExpr(lhs) :: "." :: name
     }
   }
@@ -97,12 +99,12 @@ object Print {
   def printDecl(decl: Decl): Doc = {
     decl match {
       case Fun(ty, name, params, body) =>
-        printType(ty) :: name :: "(" :: printSeq(printDecl, params, "," :: space) :: ")" :: printStmt(body)
+        printType(ty) :|: name :+: "(" :: printSeq(params, "," :: space)(printDecl) :: ")" :|: printStmt(body)
 
       case TemplateFun(tparams, targs, Fun(ty, name, params, body)) =>
         "template<" :: flatten(tparams.map("typename" :+: _)) :: ">" :|:
           printType(ty) :|:
-          name :: "<" :: flatten(targs.map(printType(_))) :: "> (" :: printSeq(printDecl, params, "," :: space) :: ")" :|:
+          name :: "<" :: flatten(targs.map(printType(_))) :: "> (" :: printSeq(params, "," :: space)(printDecl) :: ")" :|:
           printStmt(body)
 
       case Param(ty, name) => printType(ty, space) :: name

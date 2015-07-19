@@ -177,7 +177,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    *
    * Note that it is not in a human-readable format. To display it to users, it needs to be formatted.
    *
-   * @return a byte array of size [[ToxCoreConstants.TOX_ADDRESS_SIZE]]
+   * @return a byte array of size [[ToxCoreConstants.ADDRESS_SIZE]]
    */
   @NotNull
   def getAddress: Array[Byte]
@@ -243,7 +243,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * If more than [[Integer.MAX_VALUE]] friends are added, this function throws
    * an exception.
    *
-   * @param address the address to add as a friend ([[ToxCoreConstants.TOX_ADDRESS_SIZE]] bytes).
+   * @param address the address to add as a friend ([[ToxCoreConstants.ADDRESS_SIZE]] bytes).
    *                This is the byte array the friend got from their own [[getAddress]].
    * @param message the message to send with the friend request (must not be empty).
    * @return the new friend's friend number.

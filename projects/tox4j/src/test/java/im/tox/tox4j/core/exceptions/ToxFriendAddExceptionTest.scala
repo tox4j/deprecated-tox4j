@@ -17,14 +17,14 @@ class ToxFriendAddExceptionTest extends ToxCoreTestBase {
   @Test(expected = classOf[IllegalArgumentException])
   def testInvalidAddress2(): Unit = {
     ToxCoreFactory.withTox(
-      _.addFriend(new Array[Byte](ToxCoreConstants.TOX_ADDRESS_SIZE - 1), new Array[Byte](1))
+      _.addFriend(new Array[Byte](ToxCoreConstants.ADDRESS_SIZE - 1), new Array[Byte](1))
     )
   }
 
   @Test(expected = classOf[IllegalArgumentException])
   def testInvalidAddress3(): Unit = {
     ToxCoreFactory.withTox(
-      _.addFriend(new Array[Byte](ToxCoreConstants.TOX_ADDRESS_SIZE + 1), new Array[Byte](1))
+      _.addFriend(new Array[Byte](ToxCoreConstants.ADDRESS_SIZE + 1), new Array[Byte](1))
     )
   }
 

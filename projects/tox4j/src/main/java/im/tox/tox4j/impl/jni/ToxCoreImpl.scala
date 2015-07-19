@@ -406,7 +406,7 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
 
   @throws[ToxFriendAddException]
   override def addFriend(address: Array[Byte], message: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.TOX_ADDRESS_SIZE)
+    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.ADDRESS_SIZE)
     ToxCoreJni.toxFriendAdd(instanceNumber, address, message)
   }
 

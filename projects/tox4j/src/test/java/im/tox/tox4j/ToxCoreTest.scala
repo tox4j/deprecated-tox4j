@@ -131,7 +131,7 @@ final class ToxCoreTest extends ToxCoreTestBase {
   def testGetAddress(): Unit = {
     withTox { tox =>
       assertArrayEquals(tox.getAddress, tox.getAddress)
-      assertEquals(ToxCoreConstants.TOX_ADDRESS_SIZE, tox.getAddress.length)
+      assertEquals(ToxCoreConstants.ADDRESS_SIZE, tox.getAddress.length)
     }
   }
 

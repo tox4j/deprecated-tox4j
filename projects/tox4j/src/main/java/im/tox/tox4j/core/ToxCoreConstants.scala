@@ -14,13 +14,13 @@ object ToxCoreConstants {
 
   /**
    * The size of a Tox address in bytes. Tox addresses are in the format
-   * [Public Key (TOX_PUBLIC_KEY_SIZE bytes)][nospam (4 bytes)][checksum (2 bytes)].
+   * [Public Key ([[PUBLIC_KEY_SIZE]] bytes)][nospam (4 bytes)][checksum (2 bytes)].
    *
    * The checksum is computed over the Public Key and the nospam value. The first
    * byte is an XOR of all the odd bytes, the second byte is an XOR of all the
    * even bytes of the Public Key and nospam.
    */
-  final val TOX_ADDRESS_SIZE = PUBLIC_KEY_SIZE + 4 + 2
+  final val ADDRESS_SIZE = PUBLIC_KEY_SIZE + 4 + 2
 
   /**
    * Maximum length of a nickname in bytes.
@@ -40,7 +40,7 @@ object ToxCoreConstants {
   /**
    * Maximum length of a single message after which it should be split.
    */
-  final val MAX_MESSAGE_LENGTH = 1368
+  final val MAX_MESSAGE_LENGTH = 1372
 
   /**
    * Maximum size of custom packets. TODO: should be LENGTH?
@@ -76,7 +76,7 @@ object ToxCoreConstants {
   /**
    * Default end port for Tox UDP sockets.
    */
-  final val DEFAULT_END_PORT = 33545
+  final val DEFAULT_END_PORT = DEFAULT_START_PORT + 100
 
   /**
    * Default port for Tox TCP relays. A value of 0 means disabled.
