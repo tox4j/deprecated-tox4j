@@ -8,5 +8,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface JavaOnly {
+  /**
+   * This is just here so the annotation is retained at runtime.
+   */
   String value() default "";
 }
