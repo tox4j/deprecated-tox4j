@@ -1,7 +1,6 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert.assertEquals
 
 final class StatusMessageEmptyTest extends AliceBobTest {
 
@@ -12,11 +11,11 @@ final class StatusMessageEmptyTest extends AliceBobTest {
 
     override def friendStatusMessage(friendNumber: Int, message: Array[Byte])(state: ChatState): ChatState = {
       debug(s"friend changed status message to: ${new String(message)}")
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
       state.get match {
         case 0 =>
           val nextState = state.set(1)
-          assertEquals("", new String(message))
+          assert(message.isEmpty)
           if (isAlice) {
             nextState.addTask { (tox, state) =>
               tox.setStatusMessage("One".getBytes)
@@ -29,13 +28,13 @@ final class StatusMessageEmptyTest extends AliceBobTest {
         case 1 =>
           val nextState = state.set(2)
           if (isAlice) {
-            assertEquals("Two", new String(message))
+            assert(new String(message) == "Two")
             nextState.addTask { (tox, state) =>
               tox.setStatusMessage(Array.ofDim[Byte](0))
               state
             }
           } else {
-            assertEquals("One", new String(message))
+            assert(new String(message) == "One")
             nextState.addTask { (tox, state) =>
               tox.setStatusMessage("Two".getBytes)
               state
@@ -44,7 +43,7 @@ final class StatusMessageEmptyTest extends AliceBobTest {
 
         case 2 =>
           val nextState = state.finish
-          assertEquals("", new String(message))
+          assert(message.isEmpty)
           if (isBob) {
             nextState.addTask { (tox, state) =>
               tox.setStatusMessage(Array.ofDim[Byte](0))

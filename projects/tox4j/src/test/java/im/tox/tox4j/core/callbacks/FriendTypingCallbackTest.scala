@@ -2,9 +2,8 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert.{ assertEquals, assertFalse }
 
-class FriendTypingCallbackTest extends AliceBobTest {
+final class FriendTypingCallbackTest extends AliceBobTest {
 
   override type State = Boolean
   override def initialState: State = true
@@ -29,7 +28,7 @@ class FriendTypingCallbackTest extends AliceBobTest {
 
     override def friendTyping(friendNumber: Int, isTyping: Boolean)(state: ChatState): ChatState = {
       if (state.get) {
-        assertFalse(isTyping)
+        assert(!isTyping)
         state.set(false)
       } else {
         if (isTyping) {
@@ -37,7 +36,7 @@ class FriendTypingCallbackTest extends AliceBobTest {
         } else {
           debug("friend stopped typing")
         }
-        assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+        assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
         if (isBob) {
           if (isTyping) {
             setTyping(state)(friendNumber, isTyping = true)

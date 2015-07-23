@@ -3,7 +3,6 @@ package im.tox.tox4j.core.callbacks
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert._
 
 final class FriendRequestCallbackTest extends AliceBobTest {
 
@@ -31,10 +30,10 @@ final class FriendRequestCallbackTest extends AliceBobTest {
 
     override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte])(state: ChatState): ChatState = {
       debug(s"got friend request: ${new String(message)}")
-      assertTrue("Alice shouldn't get a friend request", isBob)
-      assertArrayEquals(expectedFriendPublicKey, publicKey)
-      assertTrue(timeDelta >= 0)
-      assertEquals(s"Hey this is $expectedFriendName", new String(message))
+      assert(isBob, "Alice shouldn't get a friend request")
+      assert(publicKey sameElements expectedFriendPublicKey)
+      assert(timeDelta >= 0)
+      assert(new String(message) == s"Hey this is $expectedFriendName")
       state.addTask { (tox, state) =>
         tox.addFriendNorequest(publicKey)
         state

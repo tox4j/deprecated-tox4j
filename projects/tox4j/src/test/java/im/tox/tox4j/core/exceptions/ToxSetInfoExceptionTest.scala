@@ -2,12 +2,12 @@ package im.tox.tox4j.core.exceptions
 
 import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreConstants
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-final class ToxSetInfoExceptionTest extends ToxCoreTestBase {
+final class ToxSetInfoExceptionTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testSetNameTooLong(): Unit = {
+  test("SetNameTooLong") {
     val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH + 1)
 
     interceptWithTox(ToxSetInfoException.Code.TOO_LONG)(
@@ -15,8 +15,7 @@ final class ToxSetInfoExceptionTest extends ToxCoreTestBase {
     )
   }
 
-  @Test
-  def testSetStatusMessageTooLong(): Unit = {
+  test("SetStatusMessageTooLong") {
     val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH + 1)
 
     interceptWithTox(ToxSetInfoException.Code.TOO_LONG)(
@@ -24,15 +23,13 @@ final class ToxSetInfoExceptionTest extends ToxCoreTestBase {
     )
   }
 
-  @Test
-  def testSetStatusMessageNull(): Unit = {
+  test("SetStatusMessageNull") {
     interceptWithTox(ToxSetInfoException.Code.NULL)(
       _.setStatusMessage(null)
     )
   }
 
-  @Test
-  def testSetNameNull(): Unit = {
+  test("SetNameNull") {
     interceptWithTox(ToxSetInfoException.Code.NULL)(
       _.setName(null)
     )

@@ -1,9 +1,8 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert.assertEquals
 
-class NameEmptyTest extends AliceBobTest {
+final class NameEmptyTest extends AliceBobTest {
 
   override type State = Int
   override def initialState: State = 0
@@ -12,12 +11,12 @@ class NameEmptyTest extends AliceBobTest {
 
     override def friendName(friendNumber: Int, name: Array[Byte])(state: ChatState): ChatState = {
       debug("friend changed name to: " + new String(name))
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
 
       state.get match {
         case 0 =>
           // Initial empty name
-          assertEquals("", new String(name))
+          assert(name.isEmpty)
 
           state.addTask { (tox, state) =>
             tox.setName("One".getBytes)
@@ -25,7 +24,7 @@ class NameEmptyTest extends AliceBobTest {
           }.set(1)
 
         case 1 =>
-          assertEquals("One", new String(name))
+          assert(new String(name) == "One")
 
           state.addTask { (tox, state) =>
             tox.setName("".getBytes)
@@ -33,7 +32,7 @@ class NameEmptyTest extends AliceBobTest {
           }.set(2)
 
         case 2 =>
-          assertEquals("", new String(name))
+          assert(name.isEmpty)
           state.finish
       }
     }

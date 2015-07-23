@@ -136,11 +136,11 @@ final class AvInvokeTest extends FunSuite with PropertyChecks {
 
 object AvInvokeTest {
   sealed trait Event
-  final case class AudioBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
-  final case class AudioReceiveFrame(friendNumber: Int, pcm: ShortArray, channels: Int, samplingRate: Int) extends Event
-  final case class Call(friendNumber: Int, audioEnabled: Boolean, videoEnabled: Boolean) extends Event
-  final case class CallState(friendNumber: Int, callState: Set[ToxavFriendCallState]) extends Event
-  final case class VideoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
+  private final case class AudioBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
+  private final case class AudioReceiveFrame(friendNumber: Int, pcm: ShortArray, channels: Int, samplingRate: Int) extends Event
+  private final case class Call(friendNumber: Int, audioEnabled: Boolean, videoEnabled: Boolean) extends Event
+  private final case class CallState(friendNumber: Int, callState: Set[ToxavFriendCallState]) extends Event
+  private final case class VideoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
   // scalastyle:ignore line.size.limit
-  final case class VideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray, yStride: Int, uStride: Int, vStride: Int) extends Event
+  private final case class VideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray, yStride: Int, uStride: Int, vStride: Int) extends Event
 }

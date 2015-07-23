@@ -1,85 +1,74 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums._
-import org.junit.Test
-import org.scalatest.junit.JUnitSuite
+import im.tox.tox4j.core.proto.Core._
+import org.scalatest.FunSuite
 
-final class ToxEventAdapterTest extends JUnitSuite {
+final class ToxEventAdapterTest extends FunSuite {
 
   private val listener = new ToxEventAdapter[Unit]
 
-  @Test
-  def testSelfConnectionStatus(): Unit = {
+  def test[T](f: => Unit)(implicit evidence: Manifest[T]): Unit = {
+    test(evidence.runtimeClass.getSimpleName)(f)
+  }
+
+  test[SelfConnectionStatus] {
     listener.selfConnectionStatus(ToxConnection.NONE)(())
   }
 
-  @Test
-  def testFileRecvControl(): Unit = {
+  test[FileRecvControl] {
     listener.fileRecvControl(0, 0, ToxFileControl.RESUME)(())
   }
 
-  @Test
-  def testFileRecv(): Unit = {
+  test[FileRecv] {
     listener.fileRecv(0, 0, ToxFileKind.DATA, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFileRecvChunk(): Unit = {
+  test[FileRecvChunk] {
     listener.fileRecvChunk(0, 0, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFileChunkRequest(): Unit = {
+  test[FileChunkRequest] {
     listener.fileChunkRequest(0, 0, 0, 0)(())
   }
 
-  @Test
-  def testFriendConnected(): Unit = {
+  test[FriendConnectionStatus] {
     listener.friendConnectionStatus(0, ToxConnection.NONE)(())
   }
 
-  @Test
-  def testFriendMessage(): Unit = {
+  test[FriendMessage] {
     listener.friendMessage(0, ToxMessageType.NORMAL, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendName(): Unit = {
+  test[FriendName] {
     listener.friendName(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendRequest(): Unit = {
+  test[FriendRequest] {
     listener.friendRequest(null, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendStatus(): Unit = {
+  test[FriendStatus] {
     listener.friendStatus(0, ToxUserStatus.NONE)(())
   }
 
-  @Test
-  def testFriendStatusMessage(): Unit = {
+  test[FriendStatusMessage] {
     listener.friendStatusMessage(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendTyping(): Unit = {
+  test[FriendTyping] {
     listener.friendTyping(0, isTyping = false)(())
   }
 
-  @Test
-  def testFriendLosslessPacket(): Unit = {
+  test[FriendLosslessPacket] {
     listener.friendLosslessPacket(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendLossyPacket(): Unit = {
+  test[FriendLossyPacket] {
     listener.friendLossyPacket(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendReadReceipt(): Unit = {
+  test[FriendReadReceipt] {
     listener.friendReadReceipt(0, 0)(())
   }
 

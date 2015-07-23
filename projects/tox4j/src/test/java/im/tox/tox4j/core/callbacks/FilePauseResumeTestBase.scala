@@ -1,13 +1,11 @@
 package im.tox.tox4j.core.callbacks
 
-import java.util
 import java.util.Random
 
 import im.tox.tox4j.TestConstants
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxFileKind, ToxMessageType }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert._
 
 /**
  * This test intends to simulate the situation of file pause
@@ -46,7 +44,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
           debug(s"initiate file sending to friend $friendNumber")
-          assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+          assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
           state.addTask { (tox, state) =>
             aliceSentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
               Array.ofDim[Byte](0), ("file for " + expectedFriendName + ".png").getBytes)
@@ -59,18 +57,18 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
       } else {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
-          assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+          assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
         }
         state
       }
     }
 
     override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
-      assertTrue(isBob)
+      assert(isBob)
       debug(s"received file send request $fileNumber from friend number $friendNumber current offset $bobOffset")
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-      assertEquals(ToxFileKind.DATA, kind)
-      assertEquals(s"file for $name.png", new String(filename))
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(kind == ToxFileKind.DATA)
+      assert(new String(filename) == s"file for $name.png")
       bobSentFileNumber = fileNumber
       state.addTask { (tox, state) =>
         addFileRecvTask(friendNumber, fileNumber, bobSentFileNumber, bobOffset, tox)
@@ -79,9 +77,9 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
     }
 
     override def fileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int)(state: ChatState): ChatState = {
-      assertTrue(isAlice)
+      assert(isAlice)
       debug(s"got request for ${length}B from $friendNumber for file $fileNumber at $position")
-      assertTrue(length >= 0)
+      assert(length >= 0)
       if (length == 0) {
         aliceSentFileNumber = -1
         debug("finish transmission")
@@ -90,7 +88,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
         val nextState = state.addTask { (tox, state) =>
           debug(s"sending ${length}B to $friendNumber from position $position")
           tox.fileSendChunk(friendNumber, fileNumber, position,
-            util.Arrays.copyOfRange(fileData, position.toInt, Math.min(position.toInt + length, fileData.length)))
+            fileData.slice(position.toInt, Math.min(position.toInt + length, fileData.length)))
           state
         }
         aliceOffset += length
@@ -142,10 +140,10 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
     }
 
     override def fileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte])(state: ChatState): ChatState = {
-      assertTrue(isBob)
+      assert(isBob)
       debug(s"receive file chunk from position $position of length ${data.length} shouldPause $bobShouldPause")
       if (data.length == 0 && receivedData.length == bobOffset) {
-        assertArrayEquals(fileData, receivedData)
+        assert(receivedData sameElements fileData)
         debug("finish transmission")
         state.finish
       } else {
@@ -166,7 +164,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
 
     override def friendMessage(friendNumber: Int, newType: ToxMessageType, timeDelta: Int, message: Array[Byte])(state: ChatState): ChatState = {
       debug(s"received a message: ${new String(message)}")
-      assertEquals("Please resume the file transfer", new String(message))
+      assert(new String(message) == "Please resume the file transfer")
       state.addTask { (tox, state) =>
         addFriendMessageTask(friendNumber, bobSentFileNumber, fileId, tox)
         state

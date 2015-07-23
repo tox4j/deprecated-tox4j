@@ -225,19 +225,19 @@ final class CoreInvokeTest extends FunSuite with PropertyChecks {
 
 object CoreInvokeTest {
   sealed trait Event
-  final case class FriendTyping(friendNumber: Int, isTyping: Boolean) extends Event
-  final case class FriendStatusMessage(friendNumber: Int, message: ByteArray) extends Event
-  final case class FileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int) extends Event
-  final case class FileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: ByteArray) extends Event
-  final case class FriendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection) extends Event
-  final case class FriendRequest(publicKey: ByteArray, timeDelta: Int, message: ByteArray) extends Event
-  final case class FriendLossyPacket(friendNumber: Int, data: ByteArray) extends Event
-  final case class FriendStatus(friendNumber: Int, status: ToxUserStatus) extends Event
-  final case class SelfConnectionStatus(connectionStatus: ToxConnection) extends Event
-  final case class FriendReadReceipt(friendNumber: Int, messageId: Int) extends Event
-  final case class FriendName(friendNumber: Int, name: ByteArray) extends Event
-  final case class FriendLosslessPacket(friendNumber: Int, data: ByteArray) extends Event
-  final case class FriendMessage(friendNumber: Int, `type`: ToxMessageType, timeDelta: Int, message: ByteArray) extends Event
-  final case class FileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: ByteArray) extends Event
-  final case class FileRecvControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl) extends Event
+  private final case class FriendTyping(friendNumber: Int, isTyping: Boolean) extends Event
+  private final case class FriendStatusMessage(friendNumber: Int, message: ByteArray) extends Event
+  private final case class FileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int) extends Event
+  private final case class FileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: ByteArray) extends Event
+  private final case class FriendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection) extends Event
+  private final case class FriendRequest(publicKey: ByteArray, timeDelta: Int, message: ByteArray) extends Event
+  private final case class FriendLossyPacket(friendNumber: Int, data: ByteArray) extends Event
+  private final case class FriendStatus(friendNumber: Int, status: ToxUserStatus) extends Event
+  private final case class SelfConnectionStatus(connectionStatus: ToxConnection) extends Event
+  private final case class FriendReadReceipt(friendNumber: Int, messageId: Int) extends Event
+  private final case class FriendName(friendNumber: Int, name: ByteArray) extends Event
+  private final case class FriendLosslessPacket(friendNumber: Int, data: ByteArray) extends Event
+  private final case class FriendMessage(friendNumber: Int, `type`: ToxMessageType, timeDelta: Int, message: ByteArray) extends Event
+  private final case class FileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: ByteArray) extends Event
+  private final case class FileRecvControl(friendNumber: Int, fileNumber: Int, control: ToxFileControl) extends Event
 }

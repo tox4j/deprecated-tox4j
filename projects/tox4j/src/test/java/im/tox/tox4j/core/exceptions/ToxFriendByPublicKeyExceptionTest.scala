@@ -1,19 +1,17 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.ToxCoreTestBase
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-final class ToxFriendByPublicKeyExceptionTest extends ToxCoreTestBase {
+final class ToxFriendByPublicKeyExceptionTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testNull(): Unit = {
+  test("Null") {
     interceptWithTox(ToxFriendByPublicKeyException.Code.NULL)(
       _.friendByPublicKey(null)
     )
   }
 
-  @Test
-  def testNotFound(): Unit = {
+  test("NotFound") {
     interceptWithTox(ToxFriendByPublicKeyException.Code.NOT_FOUND) { tox =>
       tox.friendByPublicKey(tox.getPublicKey)
     }

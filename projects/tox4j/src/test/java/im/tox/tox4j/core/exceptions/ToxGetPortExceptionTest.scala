@@ -1,12 +1,11 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.ToxCoreTestBase
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-final class ToxGetPortExceptionTest extends ToxCoreTestBase {
+final class ToxGetPortExceptionTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testGetTcpPort_NotBound(): Unit = {
+  test("GetTcpPort_NotBound") {
     interceptWithTox(ToxGetPortException.Code.NOT_BOUND)(
       _.getTcpPort
     )

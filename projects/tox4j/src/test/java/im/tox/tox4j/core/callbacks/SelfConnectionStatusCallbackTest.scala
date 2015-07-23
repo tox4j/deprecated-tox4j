@@ -3,7 +3,7 @@ package im.tox.tox4j.core.callbacks
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.testing.autotest.AliceBobTest
 
-class SelfConnectionStatusCallbackTest extends AliceBobTest {
+final class SelfConnectionStatusCallbackTest extends AliceBobTest {
 
   override protected def enableUdp = true
   override protected def enableTcp = true

@@ -3,7 +3,7 @@ package im.tox.tox4j.core.callbacks
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.testing.autotest.AliceBobTest
 
-class FriendConnectionStatusCallbackTest extends AliceBobTest {
+final class FriendConnectionStatusCallbackTest extends AliceBobTest {
 
   override type State = Unit
   override def initialState: State = ()

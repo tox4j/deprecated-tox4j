@@ -2,7 +2,6 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert.assertEquals
 
 final class FriendLossyPacketCallbackTest extends AliceBobTest {
 
@@ -28,9 +27,9 @@ final class FriendLossyPacketCallbackTest extends AliceBobTest {
     override def friendLossyPacket(friendNumber: Int, packet: Array[Byte])(state: ChatState): ChatState = {
       val message = new String(packet, 1, packet.length - 1)
       debug(s"received a lossy packet[id=${packet(0)}]: $message")
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-      assertEquals(200.toByte, packet(0))
-      assertEquals("My name is " + expectedFriendName, message)
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(packet(0) == 200.toByte)
+      assert(message == s"My name is $expectedFriendName")
       state.finish
     }
 

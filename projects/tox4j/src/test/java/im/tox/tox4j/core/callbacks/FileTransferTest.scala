@@ -1,11 +1,9 @@
 package im.tox.tox4j.core.callbacks
 
-import java.util
 import java.util.Random
 
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxFileKind }
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert._
 
 final class FileTransferTest extends AliceBobTest {
 
@@ -87,8 +85,7 @@ final class FileTransferTest extends AliceBobTest {
             friendNumber,
             fileNumber,
             position,
-            util.Arrays.copyOfRange(
-              fileData,
+            fileData.slice(
               position.toInt,
               Math.min(position.toInt + length, fileData.length)
             )
@@ -107,7 +104,7 @@ final class FileTransferTest extends AliceBobTest {
       assert(data != null)
       if (state.get.position == state.get.receivedData.length) {
         assert(data.isEmpty)
-        assertArrayEquals(fileData, state.get.receivedData)
+        assert(state.get.receivedData sameElements fileData)
         state.finish
       } else {
         state.set(state.get.addData(position, data))

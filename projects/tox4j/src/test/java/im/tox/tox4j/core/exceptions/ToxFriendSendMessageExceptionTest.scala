@@ -1,34 +1,30 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.enums.ToxMessageType
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-final class ToxFriendSendMessageExceptionTest extends ToxCoreTestBase {
+final class ToxFriendSendMessageExceptionTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testSendMessageNotFound(): Unit = {
+  test("SendMessageNotFound") {
     interceptWithTox(ToxFriendSendMessageException.Code.FRIEND_NOT_FOUND)(
       _.friendSendMessage(1, ToxMessageType.NORMAL, 0, "hello".getBytes)
     )
   }
 
-  @Test
-  def testSendMessageNotConnected(): Unit = {
+  test("SendMessageNotConnected") {
     interceptWithTox(ToxFriendSendMessageException.Code.FRIEND_NOT_CONNECTED)(
       _.friendSendMessage(0, ToxMessageType.NORMAL, 0, "hello".getBytes)
     )
   }
 
-  @Test
-  def testSendMessageNull(): Unit = {
+  test("SendMessageNull") {
     interceptWithTox(ToxFriendSendMessageException.Code.NULL)(
       _.friendSendMessage(0, ToxMessageType.NORMAL, 0, null)
     )
   }
 
-  @Test
-  def testSendMessageEmpty(): Unit = {
+  test("SendMessageEmpty") {
     interceptWithTox(ToxFriendSendMessageException.Code.EMPTY)(
       _.friendSendMessage(0, ToxMessageType.NORMAL, 0, "".getBytes)
     )

@@ -9,11 +9,8 @@ import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCoreConstants, ToxCoreFactory }
 import org.junit.Assert._
 import org.junit.Test
-import org.slf4j.{ Logger, LoggerFactory }
 
 final class ToxCoreTest extends ToxCoreTestBase {
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   @Test
   def testToxNew(): Unit = {
@@ -394,17 +391,12 @@ final class ToxCoreTest extends ToxCoreTestBase {
     }
   }
 
-  // TODO: when TCP relay is supported, enable this test.
-  /*
   @Test
-  def testGetTcpPort_Bound(): Unit = {
-    withTox { tox =>
-      assertNotEquals(0, tox.getTcpPort)
-      assertTrue(tox.getTcpPort > 0)
-      assertTrue(tox.getTcpPort <= 65535)
+  def testGetTcpPort(): Unit = {
+    withTox(ToxOptions(tcpPort = 33444)) { tox =>
+      assert(tox.getTcpPort == 33444)
     }
   }
-  */
 
   @Test
   def testGetDhtId(): Unit = {

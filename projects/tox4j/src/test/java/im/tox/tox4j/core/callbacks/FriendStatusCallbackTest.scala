@@ -2,7 +2,6 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxUserStatus
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert.assertEquals
 
 final class FriendStatusCallbackTest extends AliceBobTest {
 
@@ -20,16 +19,16 @@ final class FriendStatusCallbackTest extends AliceBobTest {
 
     override def friendStatus(friendNumber: Int, status: ToxUserStatus)(state: ChatState): ChatState = {
       debug(s"friend changed status to: $status")
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
 
       state.get match {
         case ToxUserStatus.NONE =>
           if (isAlice) {
-            assertEquals(ToxUserStatus.NONE, status)
+            assert(status == ToxUserStatus.NONE)
             go(state)(ToxUserStatus.AWAY)
           } else {
             if (status != ToxUserStatus.NONE) {
-              assertEquals(ToxUserStatus.AWAY, status)
+              assert(status == ToxUserStatus.AWAY)
               go(state)(ToxUserStatus.BUSY)
             } else {
               state
@@ -38,11 +37,11 @@ final class FriendStatusCallbackTest extends AliceBobTest {
 
         case selfStatus =>
           if (isAlice && selfStatus == ToxUserStatus.AWAY) {
-            assertEquals(ToxUserStatus.BUSY, status)
+            assert(status == ToxUserStatus.BUSY)
             go(state)(ToxUserStatus.NONE)
               .finish
           } else if (isBob && selfStatus == ToxUserStatus.BUSY) {
-            assertEquals(ToxUserStatus.NONE, status)
+            assert(status == ToxUserStatus.NONE)
             state.finish
           } else {
             state

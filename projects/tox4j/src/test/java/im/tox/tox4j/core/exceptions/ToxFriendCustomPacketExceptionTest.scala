@@ -1,90 +1,78 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreConstants
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-final class ToxFriendCustomPacketExceptionTest extends ToxCoreTestBase {
+final class ToxFriendCustomPacketExceptionTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testSendLosslessPacketNotConnected(): Unit = {
+  test("SendLosslessPacketNotConnected") {
     interceptWithTox(ToxFriendCustomPacketException.Code.FRIEND_NOT_CONNECTED)(
       _.friendSendLosslessPacket(0, Array[Byte](160.toByte, 0, 1, 2, 3))
     )
   }
 
-  @Test
-  def testSendLossyPacketNotConnected(): Unit = {
+  test("SendLossyPacketNotConnected") {
     interceptWithTox(ToxFriendCustomPacketException.Code.FRIEND_NOT_CONNECTED)(
       _.friendSendLossyPacket(0, 200.toByte +: Array.ofDim[Byte](4))
     )
   }
 
-  @Test
-  def testSendLosslessPacketNotFound(): Unit = {
+  test("SendLosslessPacketNotFound") {
     interceptWithTox(ToxFriendCustomPacketException.Code.FRIEND_NOT_FOUND)(
       _.friendSendLosslessPacket(1, Array[Byte](160.toByte, 0, 1, 2, 3))
     )
   }
 
-  @Test
-  def testSendLossyPacketNotFound(): Unit = {
+  test("SendLossyPacketNotFound") {
     interceptWithTox(ToxFriendCustomPacketException.Code.FRIEND_NOT_FOUND)(
       _.friendSendLossyPacket(1, Array[Byte](200.toByte, 0, 1, 2, 3))
     )
   }
 
-  @Test
-  def testSendLosslessPacketInvalid(): Unit = {
+  test("SendLosslessPacketInvalid") {
     interceptWithTox(ToxFriendCustomPacketException.Code.INVALID)(
       _.friendSendLosslessPacket(0, Array[Byte](159.toByte))
     )
   }
 
-  @Test
-  def testSendLossyPacketInvalid(): Unit = {
+  test("SendLossyPacketInvalid") {
     interceptWithTox(ToxFriendCustomPacketException.Code.INVALID)(
       _.friendSendLossyPacket(0, Array[Byte](199.toByte))
     )
   }
 
-  @Test
-  def testSendLosslessPacketEmpty(): Unit = {
+  test("SendLosslessPacketEmpty") {
     interceptWithTox(ToxFriendCustomPacketException.Code.EMPTY)(
       _.friendSendLosslessPacket(1, Array[Byte]())
     )
   }
 
-  @Test
-  def testSendLossyPacketEmpty(): Unit = {
+  test("SendLossyPacketEmpty") {
     interceptWithTox(ToxFriendCustomPacketException.Code.EMPTY)(
       _.friendSendLossyPacket(1, Array[Byte]())
     )
   }
 
-  @Test
-  def testSendLosslessPacketNull(): Unit = {
+  test("SendLosslessPacketNull") {
     interceptWithTox(ToxFriendCustomPacketException.Code.NULL)(
       _.friendSendLosslessPacket(1, null)
     )
   }
 
-  @Test
-  def testSendLossyPacketNull(): Unit = {
+  test("SendLossyPacketNull") {
     interceptWithTox(ToxFriendCustomPacketException.Code.NULL)(
       _.friendSendLossyPacket(1, null)
     )
   }
 
-  @Test
-  def testSendLosslessPacketTooLong(): Unit = {
+  test("SendLosslessPacketTooLong") {
     interceptWithTox(ToxFriendCustomPacketException.Code.TOO_LONG)(
       _.friendSendLosslessPacket(0, 160.toByte +: Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE))
     )
   }
 
-  @Test
-  def testSendLossyPacketTooLong(): Unit = {
+  test("SendLossyPacketTooLong") {
     interceptWithTox(ToxFriendCustomPacketException.Code.TOO_LONG)(
       _.friendSendLossyPacket(0, 200.toByte +: Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE))
     )

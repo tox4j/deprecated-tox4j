@@ -2,7 +2,6 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
 import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
-import org.junit.Assert.assertEquals
 
 final class FriendNameCallbackTest extends AliceBobTest {
 
@@ -25,11 +24,11 @@ final class FriendNameCallbackTest extends AliceBobTest {
 
     override def friendName(friendNumber: Int, name: Array[Byte])(state: ChatState): ChatState = {
       debug(s"friend changed name to: ${new String(name)}")
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
 
       state.get match {
         case 0 =>
-          assert(new String(name) == "")
+          assert(name.isEmpty)
           state.set(1)
         case 1 =>
           assert(new String(name) == expectedFriendName)
