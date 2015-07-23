@@ -1,9 +1,9 @@
-package im.tox.tox4j.core;
+package im.tox.tox4j.impl.jni;
 
+import im.tox.tox4j.core.ToxCoreConstants;
 import im.tox.tox4j.core.options.ProxyOptions;
 import im.tox.tox4j.core.options.SaveDataOptions;
 import im.tox.tox4j.core.options.ToxOptions;
-import im.tox.tox4j.impl.jni.ToxCoreImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

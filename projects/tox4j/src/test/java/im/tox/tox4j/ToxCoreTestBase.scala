@@ -5,15 +5,10 @@ import java.io.IOException
 import java.net.{ InetAddress, Socket }
 import java.util.Random
 
-import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
-import im.tox.tox4j.testing.ToxTestMixin
 import org.jetbrains.annotations.NotNull
-import org.junit.{ After, Assume }
-import org.scalatest.junit.JUnitSuite
+import org.scalatest.Assertions
 
-object ToxCoreTestBase {
+object ToxCoreTestBase extends Assertions {
 
   private[tox4j] val nodeCandidates = Seq(
     new DhtNode("192.254.75.102", "2607:5600:284::2", 33445, "951C88B7E75C867418ACDB5D273821372BB5BD652740BCDF623A4FA293E75D2F"),
@@ -113,55 +108,11 @@ object ToxCoreTestBase {
   }
 
   protected[tox4j] def assumeIPv4(): Unit = {
-    Assume.assumeTrue(checkIPv4.isEmpty)
+    assume(checkIPv4.isEmpty)
   }
 
   protected[tox4j] def assumeIPv6(): Unit = {
-    Assume.assumeTrue(checkIPv6.isEmpty)
-  }
-
-}
-
-abstract class ToxCoreTestBase extends JUnitSuite with ToxTestMixin {
-
-  @After
-  final def tearDown(): Unit = {
-    ToxCoreFactory.destroyAll()
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(options: ToxOptions): ToxCore[Unit] = {
-    ToxCoreFactory(options)
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(): ToxCore[Unit] = {
-    newTox(new ToxOptions)
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(data: Array[Byte]): ToxCore[Unit] = {
-    newTox(new ToxOptions(saveData = SaveDataOptions.ToxSave(data)))
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean): ToxCore[Unit] = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled))
-  }
-
-  @NotNull
-  @throws[ToxNewException]
-  @deprecated("Use ToxCoreFactory.withTox instead", "0.0.0")
-  protected final def newTox(ipv6Enabled: Boolean, udpEnabled: Boolean, proxy: ProxyOptions): ToxCore[Unit] = {
-    newTox(new ToxOptions(ipv6Enabled, udpEnabled, proxy))
+    assume(checkIPv6.isEmpty)
   }
 
 }

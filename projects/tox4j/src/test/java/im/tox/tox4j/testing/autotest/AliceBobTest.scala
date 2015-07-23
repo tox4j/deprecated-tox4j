@@ -4,7 +4,6 @@ import im.tox.tox4j.TestConstants._
 import im.tox.tox4j.core.options.ProxyOptions
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.{ SocksServer, ToxCoreTestBase }
-import org.junit.Assert._
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.exceptions.TestFailedDueToTimeoutException
 import org.scalatest.time.SpanSugar._
@@ -49,7 +48,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
       proxy
     }
     if (!udpEnabled) {
-      assertEquals(2, proxy.getAccepted)
+      assert(proxy.getAccepted == 2)
     }
   }
 

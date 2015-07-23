@@ -6,11 +6,10 @@ import java.net.{ InetAddress, Socket }
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
-import org.junit.Assume.assumeNotNull
-import org.junit.AssumptionViolatedException
+import org.scalatest.Assertions
 import org.slf4j.LoggerFactory
 
-object DhtNodeSelector {
+object DhtNodeSelector extends Assertions {
 
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private var selectedNode: Option[DhtNode] = Some(ToxCoreTestBase.nodeCandidates(1))
@@ -19,7 +18,7 @@ object DhtNodeSelector {
     var socket: Socket = null
     try {
       socket = new Socket(InetAddress.getByName(node.ipv4), node.udpPort)
-      assumeNotNull(socket.getInputStream)
+      assume(socket.getInputStream != null)
       Some(node)
     } catch {
       case e: IOException =>
@@ -81,9 +80,8 @@ object DhtNodeSelector {
           } yield node).isDefined
         }
 
-        DhtNodeSelector.selectedNode.getOrElse(
-          throw new AssumptionViolatedException("No viable nodes for bootstrap found; cannot test")
-        )
+        assume(DhtNodeSelector.selectedNode.nonEmpty, "No viable nodes for bootstrap found; cannot test")
+        DhtNodeSelector.selectedNode.get
     }
   }
 

@@ -5,17 +5,17 @@ import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddExcepti
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.exceptions.ToxException
 import org.jetbrains.annotations.NotNull
-import org.junit.Assert._
+import org.scalatest.Assertions
 
-trait ToxTestMixin {
+trait ToxTestMixin extends Assertions {
 
   protected def intercept(code: Enum[_])(f: => Unit) = {
     try {
       f
-      fail("Expected exception with code " + code.name())
+      fail(s"Expected exception with code ${code.name()}")
     } catch {
       case e: ToxException[_] =>
-        assertEquals(code, e.code)
+        assert(e.code == code)
     }
   }
 

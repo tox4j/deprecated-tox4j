@@ -1,5 +1,6 @@
-package im.tox.tox4j.core
+package im.tox.tox4j.impl.jni
 
+import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.exceptions.ToxKilledException
 import org.scalatest.FunSuite
 import org.scalatest.prop.PropertyChecks
@@ -11,23 +12,27 @@ import org.scalatest.prop.PropertyChecks
 final class BadInstanceNumberTest extends FunSuite with PropertyChecks {
 
   private def callWithInstanceNumber(instanceNumber: Int): Unit = {
-    ToxCoreFactory.withTox { tox =>
-      val field = tox.getClass.getDeclaredField("instanceNumber")
-      field.setAccessible(true)
-      val oldInstanceNumber = field.get(tox).asInstanceOf[Int]
-      field.set(tox, instanceNumber)
-      val exception =
-        try {
-          tox.iterationInterval
-          null
-        } catch {
-          case e: Throwable => e
-        }
-      // Set it back to the good one, so close() works.
-      field.set(tox, oldInstanceNumber)
-      if (exception != null) {
-        throw exception
+    val tox = new ToxCoreImpl[Unit](ToxOptions())
+
+    val field = tox.getClass.getDeclaredField("instanceNumber")
+    field.setAccessible(true)
+    val oldInstanceNumber = field.get(tox).asInstanceOf[Int]
+    field.set(tox, instanceNumber)
+
+    val exception =
+      try {
+        tox.iterationInterval
+        null
+      } catch {
+        case e: Throwable => e
       }
+
+    // Set it back to the good one, so close() works.
+    field.set(tox, oldInstanceNumber)
+    tox.close()
+
+    if (exception != null) {
+      throw exception
     }
   }
 

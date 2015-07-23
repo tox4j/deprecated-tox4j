@@ -1,376 +1,337 @@
 package im.tox.tox4j
 
-import java.util.Arrays
-
 import im.tox.tox4j.TestConstants.ITERATIONS
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
 import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCoreConstants, ToxCoreFactory }
-import org.junit.Assert._
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-final class ToxCoreTest extends ToxCoreTestBase {
+final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testToxNew(): Unit = {
-    newTox(ToxOptions()).close
+  test("ToxNew") {
+    withTox(ToxOptions()) { _ => }
   }
 
-  @Test
-  def testToxNew00(): Unit = {
-    newTox(false, false).close
+  test("ToxNew00") {
+    withTox(ipv6Enabled = false, udpEnabled = false) { _ => }
   }
 
-  @Test
-  def testToxNew01(): Unit = {
-    newTox(false, true).close
+  test("ToxNew01") {
+    withTox(ipv6Enabled = false, udpEnabled = true) { _ => }
   }
 
-  @Test
-  def testToxNew10(): Unit = {
-    newTox(true, false).close
+  test("ToxNew10") {
+    withTox(ipv6Enabled = true, udpEnabled = false) { _ => }
   }
 
-  @Test
-  def testToxNew11(): Unit = {
-    newTox(true, true).close
+  test("ToxNew11") {
+    withTox(ipv6Enabled = true, udpEnabled = true) { _ => }
   }
 
-  @Test
-  def testToxNewProxyGood(): Unit = {
-    newTox(true, true, new ProxyOptions.Socks5("localhost", 1)).close
-    newTox(true, true, new ProxyOptions.Socks5("localhost", 0xffff)).close
+  test("ToxNewProxyGood") {
+    withTox(ipv6Enabled = true, udpEnabled = true, ProxyOptions.Socks5("localhost", 1)) { _ => }
+    withTox(ipv6Enabled = true, udpEnabled = true, ProxyOptions.Socks5("localhost", 0xffff)) { _ => }
   }
 
-  @Test
-  def testToxCreationAndImmediateDestruction(): Unit = {
+  test("ToxCreationAndImmediateDestruction") {
     (0 until ITERATIONS) foreach { _ => withTox { _ => } }
   }
 
-  @Test
-  def testToxCreationAndDelayedDestruction(): Unit = {
+  test("ToxCreationAndDelayedDestruction") {
     ToxCoreFactory.withToxes(30) { _ => }
   }
 
-  @Test
-  def testDoubleClose(): Unit = {
+  test("DoubleClose") {
     withTox(_.close())
   }
 
-  @Test
-  def testBootstrapBorderlinePort1(): Unit = {
+  test("BootstrapBorderlinePort1") {
     withTox { tox =>
       tox.bootstrap(DhtNodeSelector.node.ipv4, 1, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     }
   }
 
-  @Test
-  def testBootstrapBorderlinePort2(): Unit = {
+  test("BootstrapBorderlinePort2") {
     withTox { tox =>
       tox.bootstrap(DhtNodeSelector.node.ipv4, 65535, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     }
   }
 
-  @Test
-  def testIterationInterval(): Unit = {
+  test("IterationInterval") {
     withTox { tox =>
-      assertTrue(tox.iterationInterval > 0)
-      assertTrue(tox.iterationInterval <= 50)
+      assert(tox.iterationInterval > 0)
+      assert(tox.iterationInterval <= 50)
     }
   }
 
-  @Test
-  def testClose(): Unit = {
+  test("Close") {
     withTox { _ => }
   }
 
-  @Test
-  def testIteration(): Unit = {
+  test("Iteration") {
     withTox(_.iterate(()))
   }
 
-  @Test
-  def testGetPublicKey(): Unit = {
+  test("GetPublicKey") {
     withTox { tox =>
-      val id: Array[Byte] = tox.getPublicKey
-      assertEquals(ToxCoreConstants.PUBLIC_KEY_SIZE, id.length)
-      assertArrayEquals(id, tox.getPublicKey)
+      val id = tox.getPublicKey
+      assert(id.length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+      assert(tox.getPublicKey sameElements id)
     }
   }
 
-  @Test
-  def testGetSecretKey(): Unit = {
+  test("GetSecretKey") {
     withTox { tox =>
-      val key: Array[Byte] = tox.getSecretKey
-      assertEquals(ToxCoreConstants.SECRET_KEY_SIZE, key.length)
-      assertArrayEquals(key, tox.getSecretKey)
+      val key = tox.getSecretKey
+      assert(key.length == ToxCoreConstants.SECRET_KEY_SIZE)
+      assert(tox.getSecretKey sameElements key)
     }
   }
 
-  @Test
-  def testPublicKeyEntropy(): Unit = {
+  test("PublicKeyEntropy") {
     withTox { tox =>
       val entropy = ToxCoreTestBase.entropy(tox.getPublicKey)
-      assertTrue("Entropy of public key should be >= 0.5, but was " + entropy, entropy >= 0.5)
+      assert(entropy >= 0.5, s"Entropy of public key should be >= 0.5, but was $entropy")
     }
   }
 
-  @Test
-  def testSecretKeyEntropy(): Unit = {
+  test("SecretKeyEntropy") {
     withTox { tox =>
       val entropy = ToxCoreTestBase.entropy(tox.getSecretKey)
-      assertTrue("Entropy of secret key should be >= 0.5, but was " + entropy, entropy >= 0.5)
+      assert(entropy >= 0.5, s"Entropy of secret key should be >= 0.5, but was $entropy")
     }
   }
 
-  @Test
-  def testGetAddress(): Unit = {
+  test("GetAddress") {
     withTox { tox =>
-      assertArrayEquals(tox.getAddress, tox.getAddress)
-      assertEquals(ToxCoreConstants.ADDRESS_SIZE, tox.getAddress.length)
+      assert(tox.getAddress.length == ToxCoreConstants.ADDRESS_SIZE)
+      assert(tox.getAddress sameElements tox.getAddress)
     }
   }
 
-  @Test
-  def testNoSpam(): Unit = {
-    val tests: Array[Int] = Array(0x12345678, 0xffffffff, 0x00000000, 0x00000001, 0xfffffffe, 0x7fffffff)
+  test("NoSpam") {
+    val tests = Array(0x12345678, 0xffffffff, 0x00000000, 0x00000001, 0xfffffffe, 0x7fffffff)
     withTox { tox =>
-      assertEquals(tox.getNospam, tox.getNospam)
+      assert(tox.getNospam == tox.getNospam)
       for (test <- tests) {
         tox.setNospam(test)
-        assertEquals(test, tox.getNospam)
-        assertEquals(tox.getNospam, tox.getNospam)
-        val check: Array[Byte] = Array((test >> 8 * 0).toByte, (test >> 8 * 1).toByte, (test >> 8 * 2).toByte, (test >> 8 * 3).toByte)
-        val nospam: Array[Byte] = Arrays.copyOfRange(tox.getAddress, ToxCoreConstants.PUBLIC_KEY_SIZE, ToxCoreConstants.PUBLIC_KEY_SIZE + 4)
-        assertArrayEquals(check, nospam)
+        assert(tox.getNospam == test)
+        assert(tox.getNospam == tox.getNospam)
+        val check = Array(
+          (test >> 8 * 0).toByte,
+          (test >> 8 * 1).toByte,
+          (test >> 8 * 2).toByte,
+          (test >> 8 * 3).toByte
+        )
+        val nospam: Array[Byte] = tox.getAddress.slice(ToxCoreConstants.PUBLIC_KEY_SIZE, ToxCoreConstants.PUBLIC_KEY_SIZE + 4)
+        assert(nospam sameElements check)
       }
     }
   }
 
-  @Test
-  def testGetAndSetName(): Unit = {
+  test("GetAndSetName") {
     withTox { tox =>
-      assertArrayEquals("".getBytes, tox.getName)
+      assert(tox.getName.isEmpty)
       tox.setName("myname".getBytes)
-      assertArrayEquals("myname".getBytes, tox.getName)
+      assert(new String(tox.getName) == "myname")
     }
   }
 
-  @Test
-  def testSetNameMinSize(): Unit = {
+  test("SetNameMinSize") {
     withTox { tox =>
       val array = ToxCoreTestBase.randomBytes(1)
       tox.setName(array)
-      assertArrayEquals(array, tox.getName)
+      assert(tox.getName sameElements array)
     }
   }
 
-  @Test
-  def testSetNameMaxSize(): Unit = {
+  test("SetNameMaxSize") {
     withTox { tox =>
       val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH)
       tox.setName(array)
-      assertArrayEquals(array, tox.getName)
+      assert(tox.getName sameElements array)
     }
   }
 
-  @Test
-  def testSetNameExhaustive(): Unit = {
+  test("SetNameExhaustive") {
     withTox { tox =>
       (1 to ToxCoreConstants.MAX_NAME_LENGTH) foreach { i =>
-        val array: Array[Byte] = ToxCoreTestBase.randomBytes(i)
+        val array = ToxCoreTestBase.randomBytes(i)
         tox.setName(array)
-        assertArrayEquals(array, tox.getName)
+        assert(tox.getName sameElements array)
       }
     }
   }
 
-  @Test
-  def testUnsetName(): Unit = {
+  test("UnsetName") {
     withTox { tox =>
-      assertArrayEquals(new Array[Byte](0), tox.getName)
+      assert(tox.getName.isEmpty)
       tox.setName("myname".getBytes)
-      assertNotNull(tox.getName)
-      tox.setName(new Array[Byte](0))
-      assertArrayEquals(new Array[Byte](0), tox.getName)
+      assert(tox.getName.nonEmpty)
+      tox.setName(Array.empty)
+      assert(tox.getName.isEmpty)
     }
   }
 
-  @Test
-  def testGetAndSetStatusMessage(): Unit = {
+  test("GetAndSetStatusMessage") {
     withTox { tox =>
-      assertArrayEquals(new Array[Byte](0), tox.getStatusMessage)
+      assert(tox.getStatusMessage.isEmpty)
       tox.setStatusMessage("message".getBytes)
-      assertArrayEquals("message".getBytes, tox.getStatusMessage)
+      assert(new String(tox.getStatusMessage) == "message")
     }
   }
 
-  @Test
-  def testSetStatusMessageMinSize(): Unit = {
+  test("SetStatusMessageMinSize") {
     withTox { tox =>
-      val array: Array[Byte] = ToxCoreTestBase.randomBytes(1)
+      val array = ToxCoreTestBase.randomBytes(1)
       tox.setStatusMessage(array)
-      assertArrayEquals(array, tox.getStatusMessage)
+      assert(tox.getStatusMessage sameElements array)
     }
   }
 
-  @Test
-  def testSetStatusMessageMaxSize(): Unit = {
+  test("SetStatusMessageMaxSize") {
     withTox { tox =>
-      val array: Array[Byte] = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH)
+      val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH)
       tox.setStatusMessage(array)
-      assertArrayEquals(array, tox.getStatusMessage)
+      assert(tox.getStatusMessage sameElements array)
     }
   }
 
-  @Test
-  def testSetStatusMessageExhaustive(): Unit = {
+  test("SetStatusMessageExhaustive") {
     withTox { tox =>
       (1 to ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH) foreach { i =>
-        val array: Array[Byte] = ToxCoreTestBase.randomBytes(i)
+        val array = ToxCoreTestBase.randomBytes(i)
         tox.setStatusMessage(array)
-        assertArrayEquals(array, tox.getStatusMessage)
+        assert(tox.getStatusMessage sameElements array)
       }
     }
   }
 
-  @Test
-  def testUnsetStatusMessage(): Unit = {
+  test("UnsetStatusMessage") {
     withTox { tox =>
-      assertArrayEquals(new Array[Byte](0), tox.getStatusMessage)
+      assert(tox.getStatusMessage.isEmpty)
       tox.setStatusMessage("message".getBytes)
-      assertNotNull(tox.getStatusMessage)
-      tox.setStatusMessage(new Array[Byte](0))
-      assertArrayEquals(new Array[Byte](0), tox.getStatusMessage)
+      assert(tox.getStatusMessage.nonEmpty)
+      tox.setStatusMessage(Array.empty)
+      assert(tox.getStatusMessage.isEmpty)
     }
   }
 
-  @Test
-  def testGetAndSetStatus(): Unit = {
+  test("GetAndSetStatus") {
     withTox { tox =>
-      assertEquals(ToxUserStatus.NONE, tox.getStatus)
+      assert(tox.getStatus == ToxUserStatus.NONE)
       ToxUserStatus.values.foreach { status =>
         tox.setStatus(status)
-        assertEquals(status, tox.getStatus)
+        assert(tox.getStatus == status)
       }
     }
   }
 
-  @Test
-  def testAddFriend(): Unit = {
+  test("AddFriend") {
     withTox { tox =>
       (0 until ITERATIONS) foreach { i =>
         withTox { friend =>
           val friendNumber = tox.addFriend(friend.getAddress, "heyo".getBytes)
-          assertEquals(i, friendNumber)
+          assert(friendNumber == i)
         }
       }
-      assertEquals(ITERATIONS, tox.getFriendList.length)
+      assert(tox.getFriendList.length == ITERATIONS)
     }
   }
 
-  @Test
-  def testAddFriendNoRequest(): Unit = {
+  test("AddFriendNoRequest") {
     withTox { tox =>
       (0 until ITERATIONS) foreach { i =>
         withTox { friend =>
           val friendNumber = tox.addFriendNorequest(friend.getPublicKey)
-          assertEquals(i, friendNumber)
+          assert(friendNumber == i)
         }
       }
-      assertEquals(ITERATIONS, tox.getFriendList.length)
+      assert(tox.getFriendList.length == ITERATIONS)
     }
   }
 
-  @Test
-  def testFriendListSize(): Unit = {
+  test("FriendListSize") {
     withTox { tox =>
       addFriends(tox, ITERATIONS)
-      assertEquals(ITERATIONS, tox.getFriendList.length)
+      assert(tox.getFriendList.length == ITERATIONS)
     }
   }
 
-  @Test
-  def testFriendList(): Unit = {
+  test("FriendList") {
     withTox { tox =>
       addFriends(tox, 5)
-      assertArrayEquals(tox.getFriendList, Array[Int](0, 1, 2, 3, 4))
+      assert(tox.getFriendList sameElements Array(0, 1, 2, 3, 4))
     }
   }
 
-  @Test
-  def testFriendList_Empty(): Unit = {
+  test("FriendList_Empty") {
     withTox { tox =>
       assert(tox.getFriendList.isEmpty)
     }
   }
 
-  @Test
-  def testDeleteAndReAddFriend(): Unit = {
+  test("DeleteAndReAddFriend") {
     withTox { tox =>
       addFriends(tox, 5)
-      assertArrayEquals(tox.getFriendList, Array[Int](0, 1, 2, 3, 4))
+      assert(tox.getFriendList sameElements Array[Int](0, 1, 2, 3, 4))
       tox.deleteFriend(2)
-      assertArrayEquals(tox.getFriendList, Array[Int](0, 1, 3, 4))
+      assert(tox.getFriendList sameElements Array[Int](0, 1, 3, 4))
       tox.deleteFriend(3)
-      assertArrayEquals(tox.getFriendList, Array[Int](0, 1, 4))
+      assert(tox.getFriendList sameElements Array[Int](0, 1, 4))
       addFriends(tox, 1)
-      assertArrayEquals(tox.getFriendList, Array[Int](0, 1, 2, 4))
+      assert(tox.getFriendList sameElements Array[Int](0, 1, 2, 4))
       addFriends(tox, 1)
-      assertArrayEquals(tox.getFriendList, Array[Int](0, 1, 2, 3, 4))
+      assert(tox.getFriendList sameElements Array[Int](0, 1, 2, 3, 4))
     }
   }
 
-  @Test
-  def testFriendExists(): Unit = {
+  test("FriendExists") {
     withTox { tox =>
       addFriends(tox, 3)
-      assertTrue(tox.friendExists(0))
-      assertTrue(tox.friendExists(1))
-      assertTrue(tox.friendExists(2))
-      assertFalse(tox.friendExists(3))
-      assertFalse(tox.friendExists(4))
+      assert(tox.friendExists(0))
+      assert(tox.friendExists(1))
+      assert(tox.friendExists(2))
+      assert(!tox.friendExists(3))
+      assert(!tox.friendExists(4))
     }
   }
 
-  @Test
-  def testFriendExists2(): Unit = {
+  test("FriendExists2") {
     withTox { tox =>
       addFriends(tox, 3)
-      assertTrue(tox.friendExists(0))
-      assertTrue(tox.friendExists(1))
-      assertTrue(tox.friendExists(2))
+      assert(tox.friendExists(0))
+      assert(tox.friendExists(1))
+      assert(tox.friendExists(2))
       tox.deleteFriend(1)
-      assertTrue(tox.friendExists(0))
-      assertFalse(tox.friendExists(1))
-      assertTrue(tox.friendExists(2))
+      assert(tox.friendExists(0))
+      assert(!tox.friendExists(1))
+      assert(tox.friendExists(2))
     }
   }
 
-  @Test
-  def testGetFriendPublicKey(): Unit = {
+  test("GetFriendPublicKey") {
     withTox { tox =>
       addFriends(tox, 1)
-      assertEquals(ToxCoreConstants.PUBLIC_KEY_SIZE, tox.getFriendPublicKey(0).length)
-      assertArrayEquals(tox.getFriendPublicKey(0), tox.getFriendPublicKey(0))
-      val entropy: Double = ToxCoreTestBase.entropy(tox.getFriendPublicKey(0))
-      assertTrue("Entropy of friend's public key should be >= 0.5, but was " + entropy, entropy >= 0.5)
+      assert(tox.getFriendPublicKey(0).length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+      assert(tox.getFriendPublicKey(0) sameElements tox.getFriendPublicKey(0))
+      val entropy = ToxCoreTestBase.entropy(tox.getFriendPublicKey(0))
+      assert(entropy >= 0.5, s"Entropy of friend's public key should be >= 0.5, but was $entropy")
     }
   }
 
-  @Test
-  def testGetFriendByPublicKey(): Unit = {
+  test("GetFriendByPublicKey") {
     withTox { tox =>
       addFriends(tox, 10)
       (0 until 10) foreach { i =>
-        assertEquals(i, tox.friendByPublicKey(tox.getFriendPublicKey(i)))
+        assert(tox.friendByPublicKey(tox.getFriendPublicKey(i)) == i)
       }
     }
   }
 
-  @Test
-  def testSetTyping(): Unit = {
+  test("SetTyping") {
     withTox { tox =>
       addFriends(tox, 1)
       tox.setTyping(0, false)
@@ -382,36 +343,31 @@ final class ToxCoreTest extends ToxCoreTestBase {
     }
   }
 
-  @Test
-  def testGetUdpPort(): Unit = {
+  test("GetUdpPort") {
     withTox { tox =>
-      assertNotEquals(0, tox.getUdpPort)
-      assertTrue(tox.getUdpPort > 0)
-      assertTrue(tox.getUdpPort <= 65535)
+      assert(tox.getUdpPort > 0)
+      assert(tox.getUdpPort <= 65535)
     }
   }
 
-  @Test
-  def testGetTcpPort(): Unit = {
+  test("GetTcpPort") {
     withTox(ToxOptions(tcpPort = 33444)) { tox =>
       assert(tox.getTcpPort == 33444)
     }
   }
 
-  @Test
-  def testGetDhtId(): Unit = {
+  test("GetDhtId") {
     withTox { tox =>
-      val key: Array[Byte] = tox.getDhtId
-      assertEquals(ToxCoreConstants.PUBLIC_KEY_SIZE, key.length)
-      assertArrayEquals(key, tox.getDhtId)
+      val key = tox.getDhtId
+      assert(key.length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+      assert(tox.getDhtId sameElements key)
     }
   }
 
-  @Test
-  def testDhtIdEntropy(): Unit = {
+  test("DhtIdEntropy") {
     withTox { tox =>
       val entropy = ToxCoreTestBase.entropy(tox.getDhtId)
-      assertTrue("Entropy of public key should be >= 0.5, but was " + entropy, entropy >= 0.5)
+      assert(entropy >= 0.5, s"Entropy of public key should be >= 0.5, but was $entropy")
     }
   }
 
