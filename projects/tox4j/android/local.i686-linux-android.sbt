@@ -1,1 +1,2 @@
-sbt.tox4j.logic.jni.Platform.Android("i686-linux-android")
+import sbt.tox4j.logic.jni.Platform._
+jniSettings(Android("i686-linux-android"))

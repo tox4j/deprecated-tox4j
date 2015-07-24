@@ -13,8 +13,7 @@ cache:
 env:
   matrix:
     - TOX4J_TARGET=arm-linux-androideabi
-    #- TOX4J_TARGET=i686-linux-androideabi
-    #- TOX4J_TARGET=x86_64-linux-androideabi
+    - TOX4J_TARGET=i686-linux-android
     - TOX4J_TARGET=host REPO=mannol BRANCH=new_api
     - TOX4J_TARGET=host TEST_GOAL=coverage
     - TOX4J_TARGET=host TEST_GOAL=performance

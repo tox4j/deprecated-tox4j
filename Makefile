@@ -1,5 +1,6 @@
 PREFIX		?= $(HOME)
 GOAL		?= coverage
+TOX4J_TARGET	?= arm-linux-androideabi
 
 ifeq ($(TOXCORE_REPO),)
 TOXCORE_REPO	:= irungentoo
@@ -52,8 +53,8 @@ setup-host: setup ;
 
 setup-%: setup
 	tools/ndk-install $(PREFIX)
-	projects/tox4j/android/build-deps.sh
-	cp projects/tox4j/android/local.$*.sbt projects/tox4j/android/local.sbt
+	projects/tox4j/android/build-deps.sh $(TOX4J_TARGET)
+	cp projects/tox4j/android/local.$*.sbt projects/tox4j/local.sbt
 
 clean:
 	rm -rf projects/*/project/project
