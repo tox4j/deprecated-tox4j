@@ -20,10 +20,6 @@ import scala.runtime.BoxedUnit;
  * <p/>
  * Thus: This test will cause exceptions talking about a 'serious problem in native code'.
  * This is expected behaviour. It is not actually a serious problem.
- *
- * <p/>
- * This test abuses the fact that scalac incorrectly emits public finalizers. If that is fixed,
- * this test needs to move to {@link im.tox.tox4j.impl.jni}.
  */
 public class FinalizerDoubleTest extends JUnitSuite {
 
