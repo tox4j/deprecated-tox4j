@@ -1,11 +1,10 @@
 package sbt.tox4j
 
-import java.io.{ File, PrintWriter }
+import java.io.File
 
-import org.apache.commons.io.FilenameUtils
 import sbt.Keys._
 import sbt._
-import sbt.tox4j.logic.CMakeGenerator
+import sbt.tox4j.logic.jni.{ BuildTool, CMakeGenerator, Configure }
 import sbt.tox4j.util.NativeFinder
 
 import scala.language.postfixOps
@@ -13,16 +12,9 @@ import scala.language.postfixOps
 // scalastyle:off
 object Jni extends OptionalPlugin {
 
-  private val DEBUG = false
   private val coverageEnabled = true
 
   val Native = config("native")
-
-  object BuildTool {
-    sealed trait T { def name: String; def command: String }
-    case object Ninja extends T { def name = "Ninja"; def command = "ninja" }
-    case object Make extends T { def name = "Unix Makefiles"; def command = "make" }
-  }
 
   object Keys {
 
@@ -50,7 +42,7 @@ object Jni extends OptionalPlugin {
 
     val coverageFlags = settingKey[Seq[String]]("Flags to be passed to the native compiler to enable coverage recording")
 
-    val buildTool = settingKey[BuildTool.T]("Build tool to use [make, ninja]")
+    val buildTool = settingKey[BuildTool]("Build tool to use [make, ninja]")
     val buildFlags = settingKey[Seq[String]]("Flags to be passed to the build tool")
 
     val jniClasses = taskKey[Map[String, Seq[String]]]("Classes with native methods")
@@ -70,6 +62,7 @@ object Jni extends OptionalPlugin {
     val cmakeDependenciesFile = taskKey[File]("Generates Dependencies.cmake containing C++ dependency information")
     val cmakeMainFile = taskKey[File]("Generates Main.cmake containing instructions for the main module")
     val cmakeTestFile = taskKey[Option[File]]("Generates Test.cmake containing instructions for the test module")
+    val cmakeToolchainFile = taskKey[Option[File]]("Optionally generates Toolchain.cmake and returns the required cmake flags")
     val cmakeToolchainFlags = taskKey[Seq[String]]("Optionally generates Toolchain.cmake and returns the required cmake flags")
     val runCMake = taskKey[File]("Configures the build with CMake")
 
@@ -81,34 +74,6 @@ object Jni extends OptionalPlugin {
   }
 
   import PrivateKeys._
-
-  private object nullLog extends AnyRef with ProcessLogger {
-    def buffer[T](f: => T): T = f
-    def error(s: => String) = {}
-    def info(s: => String) = {}
-  }
-
-  private object stdoutLog extends AnyRef with ProcessLogger {
-    def buffer[T](f: => T): T = f
-    def error(s: => String) = { println(s) }
-    def info(s: => String) = { println(s) }
-  }
-
-  val debugLog =
-    if (DEBUG) {
-      stdoutLog
-    } else {
-      nullLog
-    }
-
-  /**
-   * Extensions of source files.
-   */
-  private val cppExtensions = Seq(".cpp", ".cc", ".cxx", ".c")
-
-  private def isNativeSource(file: File): Boolean = {
-    file.isFile && cppExtensions.exists(file.getName.toLowerCase.endsWith)
-  }
 
   private val jdkHome = {
     val home = file(sys.props("java.home"))
@@ -131,104 +96,6 @@ object Jni extends OptionalPlugin {
     }
   }
 
-  private def findCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
-    val sourceFile = File.createTempFile("configtest", cppExtensions.head)
-    val targetFile = File.createTempFile("configtest", ".out")
-
-    try {
-      val out = new PrintWriter(sourceFile)
-      try {
-        out.println(code)
-        out.println("int main () { return 0; }")
-      } finally {
-        out.close()
-      }
-
-      val found =
-        flags find { flags =>
-          Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< debugLog match {
-            case 0 => true
-            case _ => false
-          }
-        }
-
-      if (found.isEmpty && required) {
-        sys.error(s"No valid flags found with compiler $compiler; tried [${flags.map(_.mkString).mkString("; ")}]")
-      }
-
-      found
-    } finally {
-      targetFile.delete()
-      sourceFile.delete()
-      file(FilenameUtils.removeExtension(sourceFile.getName) + ".gcno").delete()
-    }
-  }
-
-  private def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) =
-    findCcOptions(compiler, required, code)(flags: _*) match {
-      case None        => Nil
-      case Some(flags) => flags
-    }
-
-  private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
-    toolchainPath match {
-      case Some(toolchainPath) =>
-        val triple = toolchainPath.getName
-        (tools map { tool => (toolchainPath / "bin" / s"$triple-$tool").getPath }) ++ tools
-      case None =>
-        tools
-    }
-  }
-
-  private def findTool(toolName: String, toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: Seq[String]) = {
-    mkToolchain(toolchainPath, candidates) find { cc =>
-      try {
-        val flagsOpt = Seq[String]() +: flags
-        debugLog.info(s"Trying $cc")
-        Seq(cc, "--version") !< debugLog == 0 && findCcOptions(cc, required = false, code)(flagsOpt: _*).isDefined
-      } catch {
-        case _: java.io.IOException => false
-      }
-    } getOrElse {
-      sys.error(s"Could not find a working $toolName; tried: " + candidates)
-    }
-  }
-
-  private def findCc(toolchainPath: Option[File]) = findTool(
-    "C89 compiler",
-    toolchainPath,
-    """
-    int foo(void);
-    """
-  )(
-      Seq("-std=c89")
-    )(sys.env.get("CC").toSeq ++ Seq("clang-3.6", "clang-3.5", "clang35", "gcc-4.9", "clang", "gcc", "cc"))
-
-  private def findCxx(toolchainPath: Option[File]) = findTool(
-    "C++14 compiler",
-    toolchainPath,
-    """
-    auto f = [](auto i) mutable { return i; };
-
-    template<typename... Args>
-    int bar (Args ...args) { return sizeof... (Args); }
-
-    template<typename T>
-    extern char const *x;
-
-    template<>
-    char const *x<int> = "int";
-
-    template<typename... Args>
-    auto foo (Args ...args) {
-      return [&] { return bar (args...); };
-    }
-    """
-  )(
-      Seq("-std=c++14"),
-      Seq("-std=c++1y")
-    )(sys.env.get("CXX").toSeq ++ Seq("clang++-3.6", "clang++-3.5", "clang35++", "g++-4.9", "clang++", "g++", "c++"))
-
   private def checkExitCode(command: ProcessBuilder, log: Logger) = {
     command ! log match {
       case 0 =>
@@ -250,70 +117,6 @@ object Jni extends OptionalPlugin {
           Nil
       }
     } ++ pkgConfigPath
-  }
-
-  object Platform {
-    sealed trait T
-    case class Android(platform: String) extends T
-    case object Host extends T
-
-    // Android build:
-    private def androidSettings(platform: String) = Seq(
-      toolchainPath := {
-        val candidates = Seq(
-          baseDirectory.value / "android" / platform,
-          baseDirectory.value.getParentFile / "android" / platform
-        )
-        // Try $TOOLCHAIN first, then try some other possible candidate paths.
-        sys.env.get("TOOLCHAIN").map(file).orElse(candidates.find(_.exists))
-      },
-      pkgConfigPath := toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").toSeq,
-      cppFlags := Nil,
-      ldFlags := Nil,
-
-      jniSourceFiles in Compile += {
-        def ifExists(file: File): Option[File] = {
-          Option(file).filter(_.exists)
-        }
-
-        val home = file(sys.env("HOME"))
-
-        val candidates = Seq(
-          sys.env.get("ANDROID_NDK_HOME").map(file).flatMap(ifExists),
-          ifExists(home / "usr/android-ndk"),
-          ifExists(home / "android-ndk")
-        )
-
-        candidates.find(_.nonEmpty).flatten match {
-          case Some(ndkHome) =>
-            val cpufeatures = ndkHome / "sources/android/cpufeatures/cpu-features.c"
-            if (!cpufeatures.exists) {
-              sys.error("Could not find cpu-features.c required for the Android build")
-            }
-            cpufeatures
-          case None =>
-            sys.error("Could not find Android NDK (you may need to set the ANDROID_NDK_HOME env var)")
-        }
-      }
-    )
-
-    private def jniSettings(target: T) =
-      target match {
-        case Android(platform) => androidSettings(platform)
-        case Host              => Nil
-      }
-
-    private val platform =
-      sys.env.get("TOX4J_TARGET") match {
-        case Some("host") | None => Host
-        case Some(target) =>
-          if (target.contains("android"))
-            Android(target)
-          else
-            sys.error("Unknown target: " + target)
-      }
-
-    val settings = jniSettings(platform)
   }
 
   override val moduleSettings = Seq(
@@ -365,8 +168,8 @@ object Jni extends OptionalPlugin {
       toolchainPath := None,
 
       // Default native C++ compiler to Clang.
-      nativeCC := findCc(toolchainPath.value),
-      nativeCXX := findCxx(toolchainPath.value),
+      nativeCC := Configure.findCc(toolchainPath.value),
+      nativeCXX := Configure.findCxx(toolchainPath.value),
 
       // Defaults from the environment.
       cppFlags := sys.env.get("CPPFLAGS").toSeq,
@@ -375,63 +178,48 @@ object Jni extends OptionalPlugin {
       ldFlags := sys.env.get("LDFLAGS").toSeq,
 
       // Build with parallel tasks by default.
-      buildTool := {
-        import BuildTool._
-
-        Seq(Ninja, Make).foldLeft[Option[T]](None) { (found, next) =>
-          found match {
-            case Some(_) => found
-            case None =>
-              try {
-                Seq(next.command, "--version") !< nullLog
-                Some(next)
-              } catch {
-                case _: java.io.IOException => None
-              }
-          }
-        } getOrElse Make
-      },
+      buildTool := BuildTool.tool,
       buildFlags := Seq("-j" + java.lang.Runtime.getRuntime.availableProcessors),
 
       // C++14 flags.
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(
         Seq("-std=c++14"),
         Seq("-std=c++1y")
       ),
 
       // Debug flags.
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(
         Seq("-ggdb3"),
         Seq("-g3"),
         Seq("-g")
       ),
 
       // Warning flags.
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wall")),
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wextra")),
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-pedantic")),
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fcolor-diagnostics")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-Wall")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-Wextra")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-pedantic")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-fcolor-diagnostics")),
 
       // Use libc++ if available.
-      //ccOptions ++= checkCcOptions(nativeCXX.value)(Seq("-stdlib=libc++")),
+      //ccOptions ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-stdlib=libc++")),
 
       // No RTTI and no exceptions.
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fno-exceptions")),
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-fno-rtti")),
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
-      cxxFlags ++= checkCcOptions(nativeCXX.value)(Seq("-DGTEST_HAS_RTTI=0")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-fno-exceptions")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-fno-rtti")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-DGOOGLE_PROTOBUF_NO_RTTI")),
+      cxxFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-DGTEST_HAS_RTTI=0")),
 
       // Error on undefined references in shared object.
-      ldFlags ++= checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
+      ldFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
 
       // Enable test coverage collection.
-      coverageFlags := checkCcOptions(nativeCXX.value)(
+      coverageFlags := Configure.checkCcOptions(nativeCXX.value)(
         Seq("--coverage"),
         Seq("-fprofile-arcs", "-ftest-coverage")
       ),
 
-      jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(isNativeSource).get,
-      jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(isNativeSource).get,
+      jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(Configure.isNativeSource).get,
+      jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(Configure.isNativeSource).get,
 
       cleanFiles ++= Seq(
         binPath.value,
@@ -447,8 +235,6 @@ object Jni extends OptionalPlugin {
       // Required in order to have a separate JVM to set Java options.
       fork := true
     ),
-
-    Platform.settings,
 
     inConfig(Native)(Seq[Setting[_]](
       javah := Def.task {
@@ -477,26 +263,22 @@ object Jni extends OptionalPlugin {
         .value,
 
       cmakeDependenciesFile := {
-        val action = CMakeGenerator.dependenciesFile(
+        CMakeGenerator.dependenciesFile(
           includes.value,
           packageDependencies.value,
           (nativeSource in Compile).value,
           nativeTarget.value,
           managedNativeSource.value
         )
-
-        action()
       },
 
       cmakeMainFile := {
-        val action = CMakeGenerator.mainFile(
+        CMakeGenerator.mainFile(
           binPath.value,
           libraryName.value,
           nativeTarget.value,
           (jniSourceFiles in Compile).value
         )
-
-        action()
       },
 
       gtestPath := {
@@ -534,73 +316,45 @@ object Jni extends OptionalPlugin {
       },
 
       cmakeTestFile := {
-        gtestPath.value.map { gtestDir =>
-          val fileName = nativeTarget.value / "Test.cmake"
-          val out = new PrintWriter(fileName)
-          try {
-            out.println(s"add_library(gtest STATIC $gtestDir/src/gtest-all.cc)")
-            out.println(s"include_directories($gtestDir $gtestDir/include)")
+        gtestPath.value.map(CMakeGenerator.testFile).map(_(
+          libraryName.value,
+          nativeTarget.value,
+          (jniSourceFiles in Test).value
+        ))
+      },
 
-            out.println("link_libraries(gtest)")
-
-            val testSources = (jniSourceFiles in Test).value
-
-            out.println(s"add_executable(${libraryName.value}_test ${testSources.mkString(" ")})")
-            out.println(s"#add_test(${libraryName.value}_test ${libraryName.value}_test)")
-
-            testSources.foreach { source =>
-              if (source.getName != "main.cpp" && source.getName != "mock_jni.cpp") {
-                val testName = FilenameUtils.removeExtension(source.getName)
-                out.println(s"add_executable($testName main.cpp mock_jni.cpp $source)")
-                out.println(s"add_test($testName $testName)")
-              }
-            }
-          } finally {
-            out.close()
-          }
-
-          fileName
-        }
+      cmakeToolchainFile := {
+        toolchainPath.value.map(CMakeGenerator.toolchainFile).map(_(
+          nativeTarget.value,
+          nativeCC.value,
+          nativeCXX.value
+        ))
       },
 
       cmakeToolchainFlags := {
-        toolchainPath.value match {
-          case None =>
-            Nil
+        val flags = for {
+          toolchainPath <- toolchainPath.value
+          cmakeToolchainFile <- cmakeToolchainFile.value
+        } yield {
+          val jniPath = toolchainPath / "sysroot" / "usr" / "include"
+          if (!(jniPath / "jni.h").exists) {
+            sys.error("JNI path does not contain jni.h: " + jniPath)
+          }
 
-          case Some(toolchainPath) =>
-            val toolchainFile = nativeTarget.value / "Toolchain.cmake"
-            val out = new PrintWriter(toolchainFile)
-            try {
-              out.println(s"""
-SET(CMAKE_SYSTEM_NAME Linux)
-SET(CMAKE_C_COMPILER ${nativeCC.value})
-SET(CMAKE_CXX_COMPILER ${nativeCXX.value})
-SET(CMAKE_FIND_ROOT_PATH ${toolchainPath / "sysroot"})
-SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)""")
-            } finally {
-              out.close()
-            }
+          val needJniMd =
+            if ((jniPath / "jni_md.h").exists)
+              "y"
+            else
+              "n"
 
-            val jniPath = toolchainPath / "sysroot" / "usr" / "include"
-            if (!(jniPath / "jni.h").exists) {
-              sys.error("JNI path does not contain jni.h: " + jniPath)
-            }
-
-            val needJniMd =
-              if ((jniPath / "jni_md.h").exists)
-                "y"
-              else
-                "n"
-
-            Seq(
-              "-DCMAKE_TOOLCHAIN_FILE=" + toolchainFile,
-              "-DJNI_H=" + jniPath,
-              "-DNEED_JNI_MD=" + needJniMd
-            )
+          Seq(
+            "-DCMAKE_TOOLCHAIN_FILE=" + cmakeToolchainFile,
+            "-DJNI_H=" + jniPath,
+            "-DNEED_JNI_MD=" + needJniMd
+          )
         }
+
+        flags getOrElse Nil
       },
 
       runCMake := Def.task {

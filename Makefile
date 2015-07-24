@@ -48,11 +48,12 @@ setup:
 	tools/git-install $(PREFIX)/.usr https://github.com/$(TOXCORE_REPO) toxcore	$(TOXCORE_BRANCH)
 	tools/git-install $(PREFIX)/.usr https://github.com/google          protobuf	master
 
-setup-host: setup
+setup-host: setup ;
 
-setup-arm-linux-androideabi: setup
+setup-%: setup
 	tools/ndk-install $(PREFIX)
 	projects/tox4j/android/build-deps.sh
+	cp projects/tox4j/android/local.$*.sbt projects/tox4j/android/local.sbt
 
 clean:
 	rm -rf projects/*/project/project

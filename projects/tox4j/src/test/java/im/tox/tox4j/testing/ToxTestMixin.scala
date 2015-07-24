@@ -9,17 +9,17 @@ import org.scalatest.Assertions
 
 trait ToxTestMixin extends Assertions {
 
-  protected def intercept(code: Enum[_])(f: => Unit) = {
+  protected def intercept[E <: Enum[E]](code: E)(f: => Unit) = {
     try {
       f
-      fail(s"Expected exception with code ${code.name()}")
+      fail(s"Expected exception with code ${code.name}")
     } catch {
       case e: ToxException[_] =>
-        assert(e.code == code)
+        assert(e.code eq code)
     }
   }
 
-  protected def interceptWithTox(code: Enum[_])(f: ToxCore[Unit] => Unit) = {
+  protected def interceptWithTox[E <: Enum[E]](code: E)(f: ToxCore[Unit] => Unit) = {
     intercept(code) {
       ToxCoreFactory.withTox { tox =>
         addFriends(tox, 1)
@@ -43,7 +43,7 @@ trait ToxTestMixin extends Assertions {
   }
 
   @throws[ToxBootstrapException]
-  private[tox4j] def bootstrap[ToxCoreState](useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore[ToxCoreState]): ToxCore[ToxCoreState] = {
+  def bootstrap[ToxCoreState](useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore[ToxCoreState]): ToxCore[ToxCoreState] = {
     if (!udpEnabled) {
       tox.addTcpRelay(node.ipv4, node.tcpPort, node.dhtId)
     }

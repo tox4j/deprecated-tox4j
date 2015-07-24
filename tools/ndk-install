@@ -36,7 +36,10 @@ NDK_PACKAGE=android-ndk-$NDK_VERSION-linux-x86_64.bin
 mkdir -p $PREFIX
 cd $PREFIX
 
-wget http://dl.google.com/android/ndk/$NDK_PACKAGE
+if [ ! -f $NDK_PACKAGE ]; then
+  wget http://dl.google.com/android/ndk/$NDK_PACKAGE
+fi
+rm -rf android-ndk
 7z x $NDK_PACKAGE `echo "$NDK_EXCLUDES" | sed 's/^/ -xr!/g'` | awk '/^Extracting/ { i++; if (i > 50) {print; i = 0}}'
 
 mv android-ndk-$NDK_VERSION android-ndk
