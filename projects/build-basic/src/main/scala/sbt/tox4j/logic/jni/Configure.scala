@@ -29,8 +29,9 @@ object Configure {
   }
 
   private def findCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
-    val sourceFile = File.createTempFile("configtest", cppExtensions.head)
-    val targetFile = File.createTempFile("configtest", ".out")
+    val sourceFile = File.createTempFile("configtest", cppExtensions.head); sourceFile.deleteOnExit()
+    val targetFile = File.createTempFile("configtest", ".out"); targetFile.deleteOnExit()
+    val gcnoFile = file(FilenameUtils.removeExtension(sourceFile.getName) + ".gcno"); gcnoFile.deleteOnExit()
 
     try {
       val out = new PrintWriter(sourceFile)
@@ -57,24 +58,19 @@ object Configure {
     } finally {
       targetFile.delete()
       sourceFile.delete()
-      file(FilenameUtils.removeExtension(sourceFile.getName) + ".gcno").delete()
+      gcnoFile.delete()
     }
   }
 
   def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
-    findCcOptions(compiler, required, code)(flags: _*) match {
-      case None        => Nil
-      case Some(flags) => flags
-    }
+    findCcOptions(compiler, required, code)(flags: _*).getOrElse(Nil)
   }
 
   private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
-    toolchainPath match {
-      case Some(toolchainPath) =>
+    toolchainPath.fold(tools) {
+      toolchainPath =>
         val triple = toolchainPath.getName
         (tools map { tool => (toolchainPath / "bin" / s"$triple-$tool").getPath }) ++ tools
-      case None =>
-        tools
     }
   }
 
@@ -96,9 +92,7 @@ object Configure {
     findTool(
       "C89 compiler",
       toolchainPath,
-      """
-    int foo(void);
-    """
+      ""
     )(
         Seq("-std=c89")
       )(
@@ -111,22 +105,22 @@ object Configure {
       "C++14 compiler",
       toolchainPath,
       """
-    auto f = [](auto i) mutable { return i; };
-
-    template<typename... Args>
-    int bar (Args ...args) { return sizeof... (Args); }
-
-    template<typename T>
-    extern char const *x;
-
-    template<>
-    char const *x<int> = "int";
-
-    template<typename... Args>
-    auto foo (Args ...args) {
-      return [&] { return bar (args...); };
-    }
-    """
+      |auto f = [](auto i) mutable { return i; };
+      |
+      |template<typename... Args>
+      |int bar (Args ...args) { return sizeof... (Args); }
+      |
+      |template<typename T>
+      |extern char const *x;
+      |
+      |template<>
+      |char const *x<int> = "int";
+      |
+      |template<typename... Args>
+      |auto foo (Args ...args) {
+      |  return [&] { return bar (args...); };
+      |}
+      |""".stripMargin
     )(
         Seq("-std=c++14"),
         Seq("-std=c++1y")
