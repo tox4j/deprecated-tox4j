@@ -21,5 +21,7 @@ extern "C" void __gcov_flush ();
 void
 JNI_OnUnload (JavaVM, void *)
 {
+#ifndef __ANDROID__
   __gcov_flush ();
+#endif
 }

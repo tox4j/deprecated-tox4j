@@ -34,7 +34,6 @@ trait ToxTestMixin extends Assertions {
     if (count < 1) {
       throw new IllegalArgumentException("Cannot add less than 1 friend: " + count)
     }
-    val message = "heyo".getBytes
     (0 until count).map { (i: Int) =>
       ToxCoreFactory.withTox { friend =>
         tox.addFriendNorequest(friend.getPublicKey)
