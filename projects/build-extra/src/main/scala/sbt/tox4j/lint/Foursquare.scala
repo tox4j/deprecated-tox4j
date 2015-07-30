@@ -10,8 +10,11 @@ object Foursquare extends OptionalPlugin {
 
   // Enable foursquare linter.
   override val moduleSettings = Seq(
-    resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases",
-    addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT"),
+    resolvers ++= Seq(
+      "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases",
+      Resolver.sonatypeRepo("snapshots")
+    ),
+    addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1-SNAPSHOT"),
     scalacOptions in Test += "-P:linter:disable:IdenticalStatements+VariableAssignedUnusedValue"
   )
 

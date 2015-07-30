@@ -47,9 +47,9 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
    * Helper methods to run with tupled generators. Tupled [[Gen]]s run with a cross product of their arguments, so use
    * these with care. You can easily run into combinatorial explosion.
    */
-  def using[A, B](a: Gen[A], b: Gen[B]): Using[(A, B)] = using(Gen.tupled(a, b))
-  def using[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C)] = using(Gen.tupled(a, b, c))
-  def using[A, B, C, D](a: Gen[A], b: Gen[B], c: Gen[C], d: Gen[D]): Using[(A, B, C, D)] = using(Gen.tupled(a, b, c, d))
+  def using[A, B](a: Gen[A], b: Gen[B]): Using[(A, B)] = using(Gen.crossProduct(a, b))
+  def using[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C)] = using(Gen.crossProduct(a, b, c))
+  def using[A, B, C, D](a: Gen[A], b: Gen[B], c: Gen[C], d: Gen[D]): Using[(A, B, C, D)] = using(Gen.crossProduct(a, b, c, d))
 
   /**
    * The same as the above, but adding [[toxInstance]] as last element of the tuple.
