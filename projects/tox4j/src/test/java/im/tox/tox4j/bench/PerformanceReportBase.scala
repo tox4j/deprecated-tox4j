@@ -3,6 +3,7 @@ package im.tox.tox4j.bench
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.picklers.Implicits._
+import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
 import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
@@ -73,10 +74,11 @@ object PerformanceReportBase {
    * We keep a private PRNG for various generators.
    */
   private val random = new Random
+
   /**
    * Set [[ToxOptions.startPort]] to a lower number so we have more ports to choose from. This reduces the chance of a
-   * [[im.tox.tox4j.core.exceptions.ToxNewException.Code.PORT_ALLOC]] error occurring before all old [[ToxCore]]
-   * instances have been garbage collected.
+   * [[ToxNewException.Code.PORT_ALLOC]] error occurring before all old [[ToxCore]] instances have been garbage
+   * collected.
    */
   private val toxOptions = ToxOptions(startPort = 30000)
 
@@ -88,7 +90,9 @@ object PerformanceReportBase {
    * @return A [[Seq]] of Tox Addresses in [[Byte]] arrays.
    */
   def friendAddresses(sz: Int): Seq[Array[Byte]] = {
-    (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
+    for (_ <- 0 until sz) yield {
+      ToxCoreFactory.withTox(_.getAddress)
+    }
   }
 
   /**
@@ -99,7 +103,7 @@ object PerformanceReportBase {
    * @return A [[Seq]] containing public keys in [[Byte]] arrays.
    */
   def friendKeys(sz: Int): Seq[Array[Byte]] = {
-    (0 until sz) map { i =>
+    for (_ <- 0 until sz) yield {
       val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
       // noinspection SideEffectsInMonadicTransformation
       random.nextBytes(key)
@@ -215,7 +219,6 @@ object PerformanceReportBase {
 
   val toxWithFriends1k = friends1k map toxWithFriends
   val toxWithFriends10k = friends10k map toxWithFriends
-  //  val toxWithFriends10k = (friends10k map makeToxWithFriends).cached
 
   /**
    * Extract a random friend list from a Tox instance. If limit is 0 or omitted, extract the entire friend list. If
@@ -248,15 +251,19 @@ object PerformanceReportBase {
    */
   def toxAndFriendKeys(limit: Int)(tox: ToxCore[Unit]): (Seq[Array[Byte]], ToxCore[Unit]) = {
     toxAndFriendNumbers(limit)(tox) match {
-      case (friendList, `tox`) => (friendList map tox.getFriendPublicKey, tox)
+      case (friendList, _) => (friendList map tox.getFriendPublicKey, tox)
     }
   }
 
   /**
    * Produces [[instances]] valid Tox save data arrays as produced by [[ToxCore.getSavedata]].
    */
-  val toxSaves = instances.map { sz =>
-    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSavedata)))
+  val toxSaves = {
+    for (sz <- instances) yield {
+      for (_ <- 0 until sz) yield {
+        ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSavedata))
+      }
+    }
   }
 
   val names = nameLengths.map(Array.ofDim[Byte])
