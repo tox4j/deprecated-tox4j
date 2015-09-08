@@ -15,7 +15,8 @@ import im.tox.tox4j.impl.jni.ToxAvImpl.{ convert, logger }
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 
-import scalaz.Scalaz._
+import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 private object ToxAvImpl {
 
@@ -139,15 +140,35 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
     shortArray
   }
 
+  @tailrec
   private def dispatchAudioReceiveFrame(audioReceiveFrame: Seq[AudioReceiveFrame])(state: ToxCoreState): ToxCoreState = {
-    audioReceiveFrame.foldLeft(state) {
-      case (state, AudioReceiveFrame(friendNumber, pcm, channels, samplingRate)) =>
-        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.audioReceiveFrame(
-          friendNumber,
-          toShortArray(pcm),
-          channels,
-          samplingRate
-        ))
+    if (audioReceiveFrame.isEmpty) {
+      state
+    } else {
+      val thisFrame = audioReceiveFrame.head
+      val nextState =
+        if (!tox.options.fatalErrors) {
+          try {
+            eventListener.audioReceiveFrame(
+              thisFrame.friendNumber,
+              toShortArray(thisFrame.pcm),
+              thisFrame.channels,
+              thisFrame.samplingRate
+            )(state)
+          } catch {
+            case NonFatal(e) =>
+              logger.warn("Exception caught while executing audioReceiveFrame", e)
+              state
+          }
+        } else {
+          eventListener.audioReceiveFrame(
+            thisFrame.friendNumber,
+            toShortArray(thisFrame.pcm),
+            thisFrame.channels,
+            thisFrame.samplingRate
+          )(state)
+        }
+      dispatchAudioReceiveFrame(audioReceiveFrame.tail)(nextState)
     }
   }
 
@@ -170,19 +191,30 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   }
 
   private def dispatchEvents(state: ToxCoreState, events: AvEvents): ToxCoreState = {
-    (state
-      |> dispatchCall(events.call)
-      |> dispatchCallState(events.callState)
-      |> dispatchAudioBitRateStatus(events.audioBitRateStatus)
-      |> dispatchVideoBitRateStatus(events.videoBitRateStatus)
-      |> dispatchAudioReceiveFrame(events.audioReceiveFrame)
-      |> dispatchVideoReceiveFrame(events.videoReceiveFrame))
+    dispatchCall(events.call)(
+      dispatchCallState(events.callState)(
+        dispatchAudioBitRateStatus(events.audioBitRateStatus)(
+          dispatchVideoBitRateStatus(events.videoBitRateStatus)(
+            dispatchAudioReceiveFrame(events.audioReceiveFrame)(
+              dispatchVideoReceiveFrame(events.videoReceiveFrame)(
+                state
+              )
+            )
+          )
+        )
+      )
+    )
   }
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
   override def iterate(state: ToxCoreState): ToxCoreState = {
-    Option(ToxAvJni.toxavIterate(instanceNumber))
-      .map(AvEvents.parseFrom)
-      .foldLeft(state)(dispatchEvents)
+    val eventData = ToxAvJni.toxavIterate(instanceNumber)
+    if (eventData != null) {
+      val events = AvEvents.parseFrom(eventData)
+      dispatchEvents(state, events)
+    } else {
+      state
+    }
   }
 
   override def iterationInterval: Int =

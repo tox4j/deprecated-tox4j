@@ -90,3 +90,5 @@ addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")
 // Override Scalastyle configuration for test.
 scalastyleConfigUrl in Test := None
 scalastyleConfig in Test := (scalaSource in Test).value / "scalastyle-config.xml"
+
+scalacOptions ++= Seq("-optimise", "-Yinline-warnings")

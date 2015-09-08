@@ -19,6 +19,7 @@ object ToxImplBase {
    * @tparam T The type of the callback object.
    */
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Throw"))
+  @inline
   def tryAndLog[ToxCoreState, T](fatal: Boolean, state: ToxCoreState, eventHandler: T)(callback: T => ToxCoreState => ToxCoreState): ToxCoreState = {
     if (!fatal) {
       try {
