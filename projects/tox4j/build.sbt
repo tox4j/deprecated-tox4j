@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "com.google.guava" % "guava" % "18.0",
   "com.intellij" % "forms_rt" % "7.0.3",
-  "com.storm-enroute" %% "scalameter" % "0.7-SNAPSHOT",
+  "com.storm-enroute" %% "scalameter" % "0.8-SNAPSHOT",
   "junit" % "junit" % "4.12",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
   "org.scalatest" %% "scalatest" % "2.2.4",
