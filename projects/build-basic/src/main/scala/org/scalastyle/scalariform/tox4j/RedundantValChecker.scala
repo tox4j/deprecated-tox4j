@@ -6,6 +6,11 @@ import org.scalastyle.scalariform.{ AstChecker, VisitorHelper }
 import _root_.scalariform.lexer.{ Token, TokenType }
 import _root_.scalariform.parser._
 
+/**
+ * Checks that case classes don't use the "val" keyword redundantly in their member declarator list.
+ *
+ * E.g. case class Foo(val i: Int) is the same as case class Foo(i: Int). We prefer the latter.
+ */
 final class RedundantValChecker extends AstChecker("redundant.val") {
 
   override def verify(ast: CompilationUnit, lines: Lines): List[ScalastyleError] = {
