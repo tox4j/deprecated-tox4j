@@ -209,7 +209,7 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
   override def iterate(state: ToxCoreState): ToxCoreState = {
     val eventData = ToxAvJni.toxavIterate(instanceNumber)
-    if (eventData != null) {
+    if (eventData != null) { // scalastyle:ignore null
       val events = AvEvents.parseFrom(eventData)
       dispatchEvents(state, events)
     } else {

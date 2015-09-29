@@ -222,6 +222,7 @@
   <check level="error" class="org.scalastyle.scalariform.ReturnChecker" enabled="true"/>
 
   Checks that the ScalaDoc on documentable members is well-formed
+  XXX: Disabled due to https://github.com/scalastyle/scalastyle/issues/160
   <check level="error" class="org.scalastyle.scalariform.ScalaDocChecker" enabled="false"/>
 
   Boolean expression can be simplified
