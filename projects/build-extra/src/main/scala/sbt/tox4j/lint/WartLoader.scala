@@ -56,7 +56,7 @@ object WartLoader extends AutoPlugin {
   private def ignoredCompile = Seq(
     // This is too useful to disallow.
     Wart.DefaultArguments,
-    // https://github.com/puffnfresh/wartremover/issues/179
+    // https://github.com/puffnfresh/wartremover/issues/192
     Wart.NoNeedForMonad,
     // Scala typechecker deficiencies cause Nothing to be inferred in
     // polymorphic functions.
