@@ -44,7 +44,7 @@ setup:
 	# Install external packages from git.
 	tools/git-install $(PREFIX)/.usr https://github.com/yasm            yasm	master
 	tools/git-install $(PREFIX)/.usr https://git.chromium.org/webm      libvpx	master    --enable-pic --enable-shared
-	tools/git-install $(PREFIX)/.usr git://git.opus-codec.org           opus	master
+	tools/git-install $(PREFIX)/.usr git://git.xiph.org                 opus	master
 	tools/git-install $(PREFIX)/.usr https://github.com/jedisct1        libsodium	master
 	tools/git-install $(PREFIX)/.usr https://github.com/$(TOXCORE_REPO) toxcore	$(TOXCORE_BRANCH)
 	tools/git-install $(PREFIX)/.usr https://github.com/google          protobuf	master

@@ -101,7 +101,7 @@ INSTALL() {
 )
 # opus
 (
-  CLONE git://git.opus-codec.org opus --depth=1
+  CLONE git://git.xiph.org opus --depth=1
   INSTALL opus
 )
 # toxcore
