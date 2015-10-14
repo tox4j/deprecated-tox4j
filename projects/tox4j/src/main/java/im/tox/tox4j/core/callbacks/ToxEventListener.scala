@@ -1,0 +1,18 @@
+package im.tox.tox4j.core.callbacks
+
+trait ToxEventListener[ToxCoreState]
+  extends SelfConnectionStatusCallback[ToxCoreState]
+  with FileRecvControlCallback[ToxCoreState]
+  with FileRecvCallback[ToxCoreState]
+  with FileRecvChunkCallback[ToxCoreState]
+  with FileChunkRequestCallback[ToxCoreState]
+  with FriendConnectionStatusCallback[ToxCoreState]
+  with FriendMessageCallback[ToxCoreState]
+  with FriendNameCallback[ToxCoreState]
+  with FriendRequestCallback[ToxCoreState]
+  with FriendStatusCallback[ToxCoreState]
+  with FriendStatusMessageCallback[ToxCoreState]
+  with FriendTypingCallback[ToxCoreState]
+  with FriendLosslessPacketCallback[ToxCoreState]
+  with FriendLossyPacketCallback[ToxCoreState]
+  with FriendReadReceiptCallback[ToxCoreState]

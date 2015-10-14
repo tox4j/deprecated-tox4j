@@ -1,5 +1,13 @@
-PREFIX	?= $(HOME)
-GOAL	?= coverage
+PREFIX		?= $(HOME)
+GOAL		?= coverage
+TOX4J_TARGET	?= arm-linux-androideabi
+
+ifeq ($(TOXCORE_REPO),)
+TOXCORE_REPO	:= irungentoo
+endif
+ifeq ($(TOXCORE_BRANCH),)
+TOXCORE_BRANCH	:= master
+endif
 
 export PATH		:= $(PREFIX)/.usr/bin:$(PATH)
 export PKG_CONFIG_PATH	:= $(PREFIX)/.usr/lib/pkgconfig:$(PKG_CONFIG_PATH)
@@ -12,10 +20,12 @@ COMMANDS :=		\
 	test:scalastyle	\
 	checkstyle	\
 	test:checkstyle	\
-	publishLocal
+	publishLocal	\
+	publishM2	\
+	makeScripts
 
 ifeq ($(GOAL),coverage)
-COMMANDS += coverage test
+COMMANDS += clean coverage test
 endif
 
 ifeq ($(GOAL),performance)
@@ -23,26 +33,28 @@ COMMANDS += "testOnly *TravisBenchSuite"
 endif
 
 install:
-	cd projects/build-basic  && sbt -batch publishLocal coverage test
+	cd projects/build-basic  && sbt -batch publishLocal publishM2 coverage test
 	cd projects/build-extra  && sbt -batch $(COMMANDS)
 	cd projects/linters      && sbt -batch $(COMMANDS)
 	cd projects/tox4j        && sbt -batch $(COMMANDS)
+	cd projects/tox4j        && for i in bin/Jni*; do $$i; done
 	git diff --exit-code
 
 setup:
 	# Install external packages from git.
-	tools/git-install $(PREFIX)/.usr https://github.com/yasm       yasm
-	tools/git-install $(PREFIX)/.usr https://git.chromium.org/webm libvpx    --enable-pic --enable-shared
-	tools/git-install $(PREFIX)/.usr git://git.opus-codec.org      opus
-	tools/git-install $(PREFIX)/.usr https://github.com/jedisct1   libsodium
-	tools/git-install $(PREFIX)/.usr https://github.com/irungentoo toxcore
-	tools/git-install $(PREFIX)/.usr https://github.com/google     protobuf
+	tools/git-install $(PREFIX)/.usr https://github.com/yasm            yasm	master
+	tools/git-install $(PREFIX)/.usr https://git.chromium.org/webm      libvpx	master    --enable-pic --enable-shared
+	tools/git-install $(PREFIX)/.usr git://git.xiph.org                 opus	master
+	tools/git-install $(PREFIX)/.usr https://github.com/jedisct1        libsodium	master
+	tools/git-install $(PREFIX)/.usr https://github.com/$(TOXCORE_REPO) toxcore	$(TOXCORE_BRANCH)
+	tools/git-install $(PREFIX)/.usr https://github.com/google          protobuf	master
 
-setup-host: setup
+setup-host: setup ;
 
-setup-arm-linux-androideabi: setup
+setup-%: setup
 	tools/ndk-install $(PREFIX)
-	projects/tox4j/android/build-deps.sh
+	projects/tox4j/android/build-deps.sh $(TOX4J_TARGET)
+	cp projects/tox4j/android/local.$*.sbt projects/tox4j/local.sbt
 
 clean:
 	rm -rf projects/*/project/project

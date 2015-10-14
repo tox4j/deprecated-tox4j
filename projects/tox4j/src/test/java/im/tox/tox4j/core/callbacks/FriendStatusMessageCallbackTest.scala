@@ -1,33 +1,38 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-import org.junit.Assert.assertEquals
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 
-class FriendStatusMessageCallbackTest extends AliceBobTest {
+final class FriendStatusMessageCallbackTest extends AliceBobTest {
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = Int
+  override def initialState: State = 0
 
-    private var state: Int = 0
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
-      if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
-        addTask { tox =>
-          tox.setStatusMessage(("I like " + expectedFriendName).getBytes)
+    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
+      super.friendConnectionStatus(friendNumber, connectionStatus)(state)
+      if (connectionStatus != ToxConnection.NONE) {
+        state.addTask { (tox, state) =>
+          tox.setStatusMessage(s"I like $expectedFriendName".getBytes)
+          state
         }
+      } else {
+        state
       }
     }
 
-    override def friendStatusMessage(friendNumber: Int, message: Array[Byte]): Unit = {
-      debug("friend changed status message to: " + new String(message))
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-      if (state == 0) {
-        state = 1
-        assertEquals("", new String(message))
-      } else {
-        assertEquals("I like " + selfName, new String(message))
-        finish()
+    override def friendStatusMessage(friendNumber: Int, message: Array[Byte])(state: ChatState): ChatState = {
+      debug(s"friend changed status message to: ${new String(message)}")
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+
+      state.get match {
+        case 0 =>
+          assert(message.isEmpty)
+          state.set(1)
+        case 1 =>
+          assert(new String(message) == s"I like $selfName")
+          state.finish
       }
     }
   }

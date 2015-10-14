@@ -7,10 +7,10 @@ import sbt.tox4j.OptionalPlugin
 object Scalastyle extends OptionalPlugin {
   object Keys
 
-  private val config = Some(getClass.getResource("scalastyle-config.xml"))
+  private def config(suffix: String) = Some(getClass.getResource(s"scalastyle$suffix-config.xml"))
 
   override val moduleSettings = Seq(
-    scalastyleConfigUrl := config,
-    scalastyleConfigUrl in Test := config
+    scalastyleConfigUrl := config(""),
+    scalastyleConfigUrl in Test := config("-test")
   )
 }

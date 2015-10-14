@@ -16,6 +16,7 @@
 #define PREFIX    tox
 #endif
 
+#ifdef TOX_VERSION_MAJOR
 namespace core
 {
   namespace proto = im::tox::tox4j::core::proto;
@@ -24,13 +25,12 @@ namespace core
 
   extern ToxInstances<tox::core_ptr, std::unique_ptr<Events>> instances;
 }
-
-
+#endif
 
 
 template<typename T, size_t get_size (Tox const *), void get_data (Tox const *, T *)>
 typename java_array_t<T>::array_type
-get_vector (JNIEnv *env, Tox const *tox)
+get_vector (Tox const *tox, JNIEnv *env)
 {
   std::vector<T> name (get_size (tox));
   get_data (tox, name.data ());
@@ -39,12 +39,9 @@ get_vector (JNIEnv *env, Tox const *tox)
 }
 
 
-template<typename T, size_t size, void get_data (Tox const *, T *)>
-typename java_array_t<T>::array_type
-get_array (JNIEnv *env, Tox const *tox)
+template<std::size_t N>
+std::size_t
+constant_size (Tox const *)
 {
-  std::vector<T> name (size);
-  get_data (tox, name.data ());
-
-  return toJavaArray (env, name);
+  return N;
 }

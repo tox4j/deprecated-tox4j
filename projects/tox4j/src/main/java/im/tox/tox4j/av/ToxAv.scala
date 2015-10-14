@@ -2,11 +2,11 @@ package im.tox.tox4j.av
 
 import java.io.Closeable
 
-import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.ToxCallControl
+import im.tox.tox4j.av.enums.ToxavCallControl
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.ToxCore
+import org.jetbrains.annotations.NotNull
 
 /**
  * Public audio/video API for Tox clients.
@@ -27,7 +27,7 @@ import im.tox.tox4j.core.ToxCore
  * closing of ToxAv instance, all active calls will be forcibly terminated without
  * notifying peers.
  */
-trait ToxAv extends Closeable {
+trait ToxAv[ToxCoreState] extends Closeable {
 
   /**
    * Start new A/V session. There can only be only one session per Tox instance.
@@ -35,8 +35,8 @@ trait ToxAv extends Closeable {
    * @param tox A compatible ToxCore implementation.
    * @return the new A/V session.
    */
-  @throws[ToxAvNewException]
-  def create(tox: ToxCore): ToxAv
+  @throws[ToxavNewException]
+  def create(tox: ToxCore[ToxCoreState]): ToxAv[ToxCoreState]
 
   /**
    * Releases all resources associated with the A/V session.
@@ -45,7 +45,7 @@ trait ToxAv extends Closeable {
    * notifying peers. After calling this function, no other functions may be
    * called and the av pointer becomes invalid.
    */
-  def close(): Unit
+  override def close(): Unit
 
   /**
    * Returns the interval in milliseconds when the next [[iterate]] call should be.
@@ -57,7 +57,7 @@ trait ToxAv extends Closeable {
    * [[iterationInterval]] milliseconds. It is best called in the separate
    * thread from [[ToxCore.iterate]].
    */
-  def iterate(): Unit
+  def iterate(state: ToxCoreState): ToxCoreState
 
   /**
    * Call a friend. This will start ringing the friend.
@@ -70,7 +70,7 @@ trait ToxAv extends Closeable {
    * @param audioBitRate Audio bit rate in Kb/sec. Set this to 0 to disable audio sending.
    * @param videoBitRate Video bit rate in Kb/sec. Set this to 0 to disable video sending.
    */
-  @throws[ToxAvCallException]
+  @throws[ToxavCallException]
   def call(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit
 
   /**
@@ -83,7 +83,7 @@ trait ToxAv extends Closeable {
    * @param audioBitRate Audio bit rate in Kb/sec. Set this to 0 to disable audio sending.
    * @param videoBitRate Video bit rate in Kb/sec. Set this to 0 to disable video sending.
    */
-  @throws[ToxAvAnswerException]
+  @throws[ToxavAnswerException]
   def answer(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit
 
   /**
@@ -92,8 +92,8 @@ trait ToxAv extends Closeable {
    * @param friendNumber The friend number of the friend to send the call control to.
    * @param control The control command to send.
    */
-  @throws[ToxAvCallControlException]
-  def callControl(friendNumber: Int, @NotNull control: ToxCallControl): Unit
+  @throws[ToxavCallControlException]
+  def callControl(friendNumber: Int, @NotNull control: ToxavCallControl): Unit
 
   /**
    * Set the audio bit rate to be used in subsequent audio frames.
@@ -108,8 +108,8 @@ trait ToxAv extends Closeable {
    * @param bitRate The new audio bit rate in Kb/sec. Set to 0 to disable audio sending.
    * @param force True if the bit rate change is forceful.
    */
-  @throws[ToxAvSetBitRateException]
-  def audioBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit
+  @throws[ToxavSetBitRateException]
+  def setAudioBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit
 
   /**
    * Set the video bit rate to be used in subsequent audio frames.
@@ -124,8 +124,8 @@ trait ToxAv extends Closeable {
    * @param bitRate The new video bit rate in Kb/sec. Set to 0 to disable video sending.
    * @param force True if the bit rate change is forceful.
    */
-  @throws[ToxAvSetBitRateException]
-  def videoBitRateSet(friendNumber: Int, bitRate: Int, force: Boolean): Unit
+  @throws[ToxavSetBitRateException]
+  def setVideoBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit
 
   /**
    * Send an audio frame to a friend.
@@ -145,7 +145,7 @@ trait ToxAv extends Closeable {
    * @param samplingRate Audio sampling rate used in this frame. Valid sampling
    * rates are 8000, 12000, 16000, 24000, or 48000.
    */
-  @throws[ToxAvSendFrameException]
+  @throws[ToxavSendFrameException]
   def audioSendFrame(friendNumber: Int, @NotNull pcm: Array[Short], sampleCount: Int, channels: Int, samplingRate: Int): Unit
 
   /**
@@ -161,33 +161,19 @@ trait ToxAv extends Closeable {
    * @param y Y (Luminance) plane data.
    * @param u U (Chroma) plane data.
    * @param v V (Chroma) plane data.
-   * @param a A (Alpha) plane data.
    */
-  @throws[ToxAvSendFrameException]
+  @throws[ToxavSendFrameException]
   def videoSendFrame(
     friendNumber: Int,
     width: Int, height: Int,
-    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte], @Nullable a: Array[Byte]
+    @NotNull y: Array[Byte], @NotNull u: Array[Byte], @NotNull v: Array[Byte]
   ): Unit
 
-  def callbackCall(@NotNull callback: CallCallback): Unit
-  def callbackCallState(@NotNull callback: CallStateCallback): Unit
-  def callbackAudioBitRateStatus(@NotNull callback: AudioBitRateStatusCallback): Unit
-  def callbackVideoBitRateStatus(@NotNull callback: VideoBitRateStatusCallback): Unit
-  def callbackAudioReceiveFrame(@NotNull callback: AudioReceiveFrameCallback): Unit
-  def callbackVideoReceiveFrame(@NotNull callback: VideoReceiveFrameCallback): Unit
-
   /**
-   * Convenience method to set all event handlers at once.
+   * Set the A/V event handler.
    *
-   * @param handler An event handler capable of handling all Tox AV events.
+   * @param handler An event handler capable of handling all Tox A/V events.
    */
-  def callback(@NotNull handler: ToxAvEventListener): Unit = {
-    callbackCall(handler)
-    callbackCallState(handler)
-    callbackAudioBitRateStatus(handler)
-    callbackVideoBitRateStatus(handler)
-    callbackAudioReceiveFrame(handler)
-    callbackVideoReceiveFrame(handler)
-  }
+  def callback(@NotNull handler: ToxAvEventListener[ToxCoreState]): Unit
+
 }

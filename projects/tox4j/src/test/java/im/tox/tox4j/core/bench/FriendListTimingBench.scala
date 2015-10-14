@@ -11,7 +11,7 @@ final class FriendListTimingBench extends TimingReport {
   /**
    * Deletes all but 1 friends.
    */
-  private def clearFriendList(pair: (Seq[Array[Byte]], ToxCore)): Unit = {
+  private def clearFriendList(pair: (Seq[Array[Byte]], ToxCore[Unit])): Unit = {
     val tox = pair._2
     tox.getFriendList.tail foreach tox.deleteFriend
   }
@@ -19,14 +19,14 @@ final class FriendListTimingBench extends TimingReport {
   /**
    * Fills the friend list back up with the expected number of friends.
    */
-  private def refillFriendList(pair: (Seq[Int], ToxCore)): Unit = {
+  private def refillFriendList(pair: (Seq[Int], ToxCore[Unit])): Unit = {
     val (friendList, tox) = pair
     val missing = friendList.length - tox.getFriendList.length
     assert(missing >= 0)
-    friendKeys(missing) foreach tox.addFriendNoRequest
+    friendKeys(missing) foreach tox.addFriendNorequest
   }
 
-  timing of classOf[ToxCore] in {
+  timing of classOf[ToxCore[Unit]] in {
 
     measure method "addFriend" in {
       using(friends(100) map friendAddresses, toxInstance.cached) tearDown clearFriendList in {
@@ -38,7 +38,7 @@ final class FriendListTimingBench extends TimingReport {
     measure method "addFriendNoRequest" in {
       using(friends(100) map friendKeys, toxInstance.cached) tearDown clearFriendList in {
         case (friendList, tox) =>
-          friendList foreach tox.addFriendNoRequest
+          friendList foreach tox.addFriendNorequest
       }
     }
 
@@ -87,7 +87,7 @@ final class FriendListTimingBench extends TimingReport {
       using(toxWithFriends1k map toxAndFriendKeys(limit = 100), Gen.single("iterations")(100)) in {
         case ((friendList, tox), iterations) =>
           (0 until iterations) foreach { _ =>
-            friendList foreach (key => tox.getFriendByPublicKey(key))
+            friendList foreach (key => tox.friendByPublicKey(key))
           }
       }
     }

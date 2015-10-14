@@ -1,86 +1,75 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.enums._
-import org.junit.Test
-import org.scalatest.junit.JUnitSuite
+import im.tox.tox4j.core.proto.Core._
+import org.scalatest.FunSuite
 
-final class ToxEventAdapterTest extends JUnitSuite {
+final class ToxEventAdapterTest extends FunSuite {
 
-  private val listener = new ToxEventAdapter
+  private val listener = new ToxEventAdapter[Unit]
 
-  @Test
-  def testSelfConnectionStatus(): Unit = {
-    listener.selfConnectionStatus(ToxConnection.NONE)
+  def test[T](f: => Unit)(implicit evidence: Manifest[T]): Unit = {
+    test(evidence.runtimeClass.getSimpleName)(f)
   }
 
-  @Test
-  def testFileRecvControl(): Unit = {
-    listener.fileRecvControl(0, 0, ToxFileControl.RESUME)
+  test[SelfConnectionStatus] {
+    listener.selfConnectionStatus(ToxConnection.NONE)(())
   }
 
-  @Test
-  def testFileRecv(): Unit = {
-    listener.fileRecv(0, 0, ToxFileKind.DATA, 0, Array.ofDim[Byte](0))
+  test[FileRecvControl] {
+    listener.fileRecvControl(0, 0, ToxFileControl.RESUME)(())
   }
 
-  @Test
-  def testFileRecvChunk(): Unit = {
-    listener.fileRecvChunk(0, 0, 0, Array.ofDim[Byte](0))
+  test[FileRecv] {
+    listener.fileRecv(0, 0, ToxFileKind.DATA, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFileChunkRequest(): Unit = {
-    listener.fileChunkRequest(0, 0, 0, 0)
+  test[FileRecvChunk] {
+    listener.fileRecvChunk(0, 0, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendConnected(): Unit = {
-    listener.friendConnectionStatus(0, ToxConnection.NONE)
+  test[FileChunkRequest] {
+    listener.fileChunkRequest(0, 0, 0, 0)(())
   }
 
-  @Test
-  def testFriendMessage(): Unit = {
-    listener.friendMessage(0, ToxMessageType.NORMAL, 0, Array.ofDim[Byte](0))
+  test[FriendConnectionStatus] {
+    listener.friendConnectionStatus(0, ToxConnection.NONE)(())
   }
 
-  @Test
-  def testFriendName(): Unit = {
-    listener.friendName(0, Array.ofDim[Byte](0))
+  test[FriendMessage] {
+    listener.friendMessage(0, ToxMessageType.NORMAL, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendRequest(): Unit = {
-    listener.friendRequest(null, 0, Array.ofDim[Byte](0))
+  test[FriendName] {
+    listener.friendName(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendStatus(): Unit = {
-    listener.friendStatus(0, ToxUserStatus.NONE)
+  test[FriendRequest] {
+    listener.friendRequest(null, 0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendStatusMessage(): Unit = {
-    listener.friendStatusMessage(0, Array.ofDim[Byte](0))
+  test[FriendStatus] {
+    listener.friendStatus(0, ToxUserStatus.NONE)(())
   }
 
-  @Test
-  def testFriendTyping(): Unit = {
-    listener.friendTyping(0, false)
+  test[FriendStatusMessage] {
+    listener.friendStatusMessage(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendLosslessPacket(): Unit = {
-    listener.friendLosslessPacket(0, Array.ofDim[Byte](0))
+  test[FriendTyping] {
+    listener.friendTyping(0, isTyping = false)(())
   }
 
-  @Test
-  def testFriendLossyPacket(): Unit = {
-    listener.friendLossyPacket(0, Array.ofDim[Byte](0))
+  test[FriendLosslessPacket] {
+    listener.friendLosslessPacket(0, Array.ofDim[Byte](0))(())
   }
 
-  @Test
-  def testFriendReadReceipt(): Unit = {
-    listener.friendReadReceipt(0, 0)
+  test[FriendLossyPacket] {
+    listener.friendLossyPacket(0, Array.ofDim[Byte](0))(())
+  }
+
+  test[FriendReadReceipt] {
+    listener.friendReadReceipt(0, 0)(())
   }
 
 }

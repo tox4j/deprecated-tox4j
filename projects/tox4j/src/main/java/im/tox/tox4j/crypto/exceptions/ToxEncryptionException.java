@@ -1,7 +1,7 @@
 package im.tox.tox4j.crypto.exceptions;
 
-import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
+import org.jetbrains.annotations.NotNull;
 
 public final class ToxEncryptionException extends ToxException<ToxEncryptionException.Code> {
 
@@ -10,6 +10,12 @@ public final class ToxEncryptionException extends ToxException<ToxEncryptionExce
      * The encryption itself failed.
      */
     FAILED,
+    /**
+     * The crypto lib was unable to derive a key from the given passphrase,
+     * which is usually a lack of memory issue. The functions accepting keys
+     * do not produce this error.
+     */
+    KEY_DERIVATION_FAILED,
     /**
      * The key or input data was null or empty.
      */

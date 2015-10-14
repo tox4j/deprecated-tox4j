@@ -2,6 +2,9 @@
 
 #include "util/instance_manager.h"
 #include "util/pp_cat.h"
+#include "util/debug_log.h"
+
+#include <iostream>
 
 /*****************************************************************************
  * Identity and unused-value function.
@@ -186,6 +189,7 @@ struct ToxInstances
                        ToxFunc tox_func,
                        Args ...args)
   {
+    debug_log (tox_func, args...);
     return ::with_error_handling<Object> (env, success_func, tox_func, args...);
   }
 
@@ -202,7 +206,8 @@ struct ToxInstances
       [=] (Object *tox, Events &events)
         {
           unused (events);
-          return with_error_handling (env, success_func, tox_func, tox, args...);
+          debug_log (instanceNumber, tox_func, tox, args...);
+          return ::with_error_handling<Object> (env, success_func, tox_func, tox, args...);
         }
     );
   }
@@ -234,6 +239,7 @@ struct ToxInstances
       [&] (Object *tox, Events &events)
         {
           unused (events);
+          debug_log (instanceNumber, tox_func, tox, args...);
           return tox_func (tox, args...);
         }
     );

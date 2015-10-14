@@ -5,8 +5,8 @@ import java.net.{ InetAddress, ServerSocket, Socket }
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.SocksServer.{ FIRST_PORT, LAST_PORT, logger }
-import im.tox.tox4j.annotations.NotNull
-import org.junit.Assert.assertEquals
+import org.jetbrains.annotations.NotNull
+import org.scalatest.Assertions
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -43,7 +43,7 @@ object SocksServer {
  * Create a simple SOCKS5 server on a port between [[FIRST_PORT]] and [[LAST_PORT]].
  */
 @throws[IOException]("If no port could be bound")
-final class SocksServer extends Closeable with Runnable {
+final class SocksServer extends Closeable with Runnable with Assertions {
   private val server = connectAvailablePort()
   private val threads = new ArrayBuffer[Thread]
   private val sockets = new ArrayBuffer[Socket]
@@ -121,7 +121,7 @@ final class SocksServer extends Closeable with Runnable {
   }
 
   private def greeting(input: InputStream, output: OutputStream): Unit = {
-    assertEquals(0x05, input.read)
+    assert(input.read == 0x05)
     val numAuthenticationMethods = input.read
     val authenticationMethods = new Array[Int](numAuthenticationMethods)
     for (i <- 0 until numAuthenticationMethods) {
@@ -138,30 +138,30 @@ final class SocksServer extends Closeable with Runnable {
   }
 
   private def connection(@NotNull input: InputStream, @NotNull output: OutputStream): Unit = {
-    assertEquals(0x05, input.read)
+    assert(input.read == 0x05)
     val command = input.read
-    assertEquals(0x00, input.read)
+    assert(input.read == 0x00)
 
     val address =
       input.read match {
         case 0x01 =>
           val address4 = new Array[Byte](4)
-          assertEquals(address4.length, input.read(address4))
+          assert(input.read(address4) == address4.length)
           InetAddress.getByAddress(address4)
         case 0x03 =>
           val domain = new Array[Byte](input.read)
-          assertEquals(domain.length, input.read(domain))
+          assert(input.read(domain) == domain.length)
           InetAddress.getByName(new String(domain))
         case 0x04 =>
           val address6 = new Array[Byte](16)
-          assertEquals(address6.length, input.read(address6))
+          assert(input.read(address6) == address6.length)
           InetAddress.getByAddress(address6)
         case _ =>
           throw new IOException("Unsupported address type")
       }
 
     val portBytes = new Array[Byte](2)
-    assertEquals(2, input.read(portBytes))
+    assert(input.read(portBytes) == 2)
     val port = ((portBytes(0) & 0xff) << 8) | (portBytes(1) & 0xff)
 
     command match {
@@ -192,7 +192,7 @@ final class SocksServer extends Closeable with Runnable {
     if (addressBytes.length == 4) {
       output.write(0x01)
     } else {
-      assertEquals(16, addressBytes.length)
+      assert(addressBytes.length == 16)
       output.write(0x04)
     }
 

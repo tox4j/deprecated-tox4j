@@ -1,46 +1,48 @@
 package im.tox.tox4j.testing
 
 import im.tox.tox4j.DhtNodeSelector._
-import im.tox.tox4j.annotations.NotNull
 import im.tox.tox4j.core.exceptions.{ ToxBootstrapException, ToxFriendAddException, ToxNewException }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
 import im.tox.tox4j.exceptions.ToxException
-import org.junit.Assert._
+import org.jetbrains.annotations.NotNull
+import org.scalatest.Assertions
 
-trait ToxTestMixin {
+trait ToxTestMixin extends Assertions {
 
-  protected def intercept(code: Enum[_])(f: => Unit) = {
+  protected def intercept[E <: Enum[E]](code: E)(f: => Unit) = {
     try {
       f
-      fail("Expected exception with code " + code.name())
+      fail(s"Expected exception with code ${code.name}")
     } catch {
       case e: ToxException[_] =>
-        assertEquals(code, e.code)
+        assert(e.code eq code)
     }
   }
 
-  protected def interceptWithTox(code: Enum[_])(f: ToxCore => Unit) = {
+  protected def interceptWithTox[E <: Enum[E]](code: E)(f: ToxCore[Unit] => Unit) = {
     intercept(code) {
-      ToxCoreFactory.withTox(f)
+      ToxCoreFactory.withTox { tox =>
+        addFriends(tox, 1)
+        f(tox)
+      }
     }
   }
 
   @throws[ToxNewException]
   @throws[ToxFriendAddException]
-  protected def addFriends(@NotNull tox: ToxCore, count: Int): Int = {
+  protected def addFriends[ToxCoreState](@NotNull tox: ToxCore[ToxCoreState], count: Int): Int = {
     if (count < 1) {
       throw new IllegalArgumentException("Cannot add less than 1 friend: " + count)
     }
-    val message = "heyo".getBytes
     (0 until count).map { (i: Int) =>
       ToxCoreFactory.withTox { friend =>
-        tox.addFriendNoRequest(friend.getPublicKey)
+        tox.addFriendNorequest(friend.getPublicKey)
       }
     }.last
   }
 
   @throws[ToxBootstrapException]
-  private[tox4j] def bootstrap(useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore): ToxCore = {
+  def bootstrap[ToxCoreState](useIPv6: Boolean, udpEnabled: Boolean, @NotNull tox: ToxCore[ToxCoreState]): ToxCore[ToxCoreState] = {
     if (!udpEnabled) {
       tox.addTcpRelay(node.ipv4, node.tcpPort, node.dhtId)
     }

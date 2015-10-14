@@ -1,7 +1,7 @@
 package org.scalastyle.scalariform.tox4j
 
 import org.scalastyle._
-import org.scalastyle.scalariform.VisitorHelper
+import org.scalastyle.scalariform.{ AstChecker, VisitorHelper }
 
 import _root_.scalariform.lexer.{ Token, Tokens }
 import _root_.scalariform.parser.{ CompilationUnit, ForExpr }
@@ -27,4 +27,5 @@ final class ForBraceChecker extends AstChecker("for.brace") {
   private def getLine(t: Token, lines: Lines): Int = {
     lines.toLineColumn(t.offset).map(_.line).getOrElse(0)
   }
+
 }

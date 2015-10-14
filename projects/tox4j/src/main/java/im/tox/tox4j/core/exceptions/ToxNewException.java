@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.exceptions;
 
-import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
+import org.jetbrains.annotations.NotNull;
 
 public final class ToxNewException extends ToxException<ToxNewException.Code> {
 
@@ -14,10 +14,6 @@ public final class ToxNewException extends ToxException<ToxNewException.Code> {
      * causes this error.
      */
     LOAD_BAD_FORMAT,
-    /**
-     * An encrypted save format was found, but the key was wrong or the data was corrupt.
-     */
-    LOAD_DECRYPTION_FAILED,
     /**
      * The byte array to be loaded contained an encrypted save.
      */

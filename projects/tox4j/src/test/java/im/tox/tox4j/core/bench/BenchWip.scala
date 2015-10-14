@@ -11,12 +11,12 @@ final class BenchWip extends TimingReport {
 
   protected override def confidence = Confidence.normal
 
-  timing of classOf[ToxCore] in {
+  timing of classOf[ToxCore[Unit]] in {
 
     measure method "iterate+friends" in {
       using(iterations1k, toxWithFriends1k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.iterate())
+          (0 until sz) foreach (_ => tox.iterate(()))
       }
     }
 

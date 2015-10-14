@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -85,31 +87,18 @@ TOX_METHOD (jbyteArray, FriendGetPublicKey,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxFriendExists
- * Signature: (II)Z
- */
-TOX_METHOD (jboolean, FriendExists,
-  jint instanceNumber, jint friendNumber)
-{
-  return instances.with_instance_noerr (env, instanceNumber,
-    tox_friend_exists, friendNumber);
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
  * Method:    toxSelfGetFriendList
  * Signature: (I)[I
  */
 TOX_METHOD (jintArray, SelfGetFriendList,
   jint instanceNumber)
 {
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_vector<uint32_t,
-          tox_self_get_friend_list_size,
-          tox_self_get_friend_list> (env, tox);
-      }
+  return instances.with_instance_noerr (env, instanceNumber,
+    get_vector<uint32_t,
+      tox_self_get_friend_list_size,
+      tox_self_get_friend_list>,
+    env
   );
 }
+
+#endif

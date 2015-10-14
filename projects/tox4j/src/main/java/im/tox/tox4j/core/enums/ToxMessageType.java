@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.enums;
 
 /**
- * Represents message types for {@link im.tox.tox4j.core.ToxCore#sendMessage} and group chat
+ * Represents message types for {@link im.tox.tox4j.core.ToxCore#friendSendMessage} and group chat
  * messages.
  */
 public enum ToxMessageType {

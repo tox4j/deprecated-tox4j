@@ -123,6 +123,13 @@ private:
         return false;
       }
 
+    // An instance should never be on this list twice.
+    if (std::find (freelist.begin (), freelist.end (), instanceNumber) != freelist.end ())
+      {
+        throw_illegal_state_exception (env, instanceNumber, "accessed instance thought to be garbage collected");
+        return false;
+      }
+
     return true;
   }
 
@@ -226,13 +233,6 @@ public:
     if (!check_instance_number (env, instanceNumber, true))
       return;
 
-    // An instance should never be on this list twice.
-    if (std::find (freelist.begin (), freelist.end (), instanceNumber) != freelist.end ())
-      {
-        throw_illegal_state_exception (env, instanceNumber, "instance already on free list");
-        return;
-      }
-
     // The C++ side should already have been killed.
     if (instances[instanceNumber - 1])
       {
@@ -278,7 +278,8 @@ public:
 
     if (!instance)
       {
-        throw_tox_killed_exception (env, instanceNumber, "function invoked on killed instance");
+        if (!env->ExceptionCheck ())
+          throw_tox_killed_exception (env, instanceNumber, "function called on killed tox instance");
         return return_type ();
       }
 

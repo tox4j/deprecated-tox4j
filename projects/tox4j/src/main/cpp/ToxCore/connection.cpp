@@ -1,5 +1,7 @@
 #include "ToxCore.h"
 
+#ifdef TOX_VERSION_MAJOR
+
 using namespace core;
 
 
@@ -51,10 +53,10 @@ TOX_METHOD (void, AddTcpRelay,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxGetUdpPort
+ * Method:    toxSelfGetUdpPort
  * Signature: (I)I
  */
-TOX_METHOD (jint, GetUdpPort,
+TOX_METHOD (jint, SelfGetUdpPort,
   jint instanceNumber)
 {
   return instances.with_instance_err (env, instanceNumber,
@@ -65,10 +67,10 @@ TOX_METHOD (jint, GetUdpPort,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxGetTcpPort
+ * Method:    toxSelfGetTcpPort
  * Signature: (I)I
  */
-TOX_METHOD (jint, GetTcpPort,
+TOX_METHOD (jint, SelfGetTcpPort,
   jint instanceNumber)
 {
   return instances.with_instance_err (env, instanceNumber,
@@ -79,32 +81,14 @@ TOX_METHOD (jint, GetTcpPort,
 
 /*
  * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxGetDhtId
+ * Method:    toxSelfGetDhtId
  * Signature: (I)[B
  */
-TOX_METHOD (jbyteArray, GetDhtId,
-  jint instanceNumber)
-{
-  return instances.with_instance (env, instanceNumber,
-    [env] (Tox const *tox, Events &events)
-      {
-        unused (events);
-        return get_array<uint8_t, TOX_PUBLIC_KEY_SIZE,
-          tox_self_get_dht_id> (env, tox);
-      }
-  );
-}
-
-/*
- * Class:     im_tox_tox4j_impl_ToxCoreJni
- * Method:    toxIterationInterval
- * Signature: (I)I
- */
-TOX_METHOD (jint, IterationInterval,
+TOX_METHOD (jbyteArray, SelfGetDhtId,
   jint instanceNumber)
 {
   return instances.with_instance_noerr (env, instanceNumber,
-    tox_iteration_interval);
+    get_vector<uint8_t, constant_size<TOX_PUBLIC_KEY_SIZE>, tox_self_get_dht_id>, env);
 }
 
 /*
@@ -118,6 +102,7 @@ TOX_METHOD (jbyteArray, Iterate,
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events) -> jbyteArray
       {
+        debug_log (instanceNumber, tox_iterate, tox);
         tox_iterate (tox);
         if (events.ByteSize () == 0)
           return nullptr;
@@ -130,3 +115,5 @@ TOX_METHOD (jbyteArray, Iterate,
       }
   );
 }
+
+#endif

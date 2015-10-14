@@ -37,7 +37,7 @@
    Checks that a regular expression cannot be matched, if found reports this
    <check level="error" class="org.scalastyle.file.RegexChecker" enabled="true">
       <parameters>
-         <parameter name="regex"><![CDATA[println]]></parameter>
+         <parameter name="regex"><![CDATA[ println]]></parameter>
       </parameters>
    </check>
 
@@ -116,7 +116,7 @@
    Check that a class does not import certain classes
    <check level="error" class="org.scalastyle.scalariform.IllegalImportsChecker" enabled="true">
       <parameters>
-         <parameter name="illegalImports">android._,sun._,java.awt._</parameter>
+         <parameter name="illegalImports">android._,sun._</parameter>
       </parameters>
    </check>
 
@@ -124,7 +124,7 @@
    <check level="error" class="org.scalastyle.scalariform.ImportGroupingChecker" enabled="false"/>
 
    Checks that a case statement pattern match is not lower case, as this can cause confusion
-   <check level="error" class="org.scalastyle.scalariform.LowercasePatternMatchChecker" enabled="true"/>
+   <check level="error" class="org.scalastyle.scalariform.LowercasePatternMatchChecker" enabled="false"/>
 
    Checks for use of magic numbers
    <check level="error" class="org.scalastyle.scalariform.MagicNumberChecker" enabled="false">
@@ -202,7 +202,7 @@
    Maximum number of parameters for a method
    <check level="error" class="org.scalastyle.scalariform.ParameterNumberChecker" enabled="true">
       <parameters>
-         <parameter name="maxParameters">8</parameter>
+         <parameter name="maxParameters">10</parameter>
       </parameters>
    </check>
 

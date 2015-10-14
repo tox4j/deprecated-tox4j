@@ -1,7 +1,7 @@
 package im.tox.tox4j.crypto.exceptions;
 
-import im.tox.tox4j.annotations.NotNull;
 import im.tox.tox4j.exceptions.ToxException;
+import org.jetbrains.annotations.NotNull;
 
 public final class ToxDecryptionException extends ToxException<ToxDecryptionException.Code> {
 
@@ -20,6 +20,12 @@ public final class ToxDecryptionException extends ToxException<ToxDecryptionExce
      * The input data was shorter than {@link ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH} bytes.
      */
     INVALID_LENGTH,
+    /**
+     * The crypto lib was unable to derive a key from the given passphrase,
+     * which is usually a lack of memory issue. The functions accepting keys
+     * do not produce this error.
+     */
+    KEY_DERIVATION_FAILED,
     /**
      * The key or input data was null or empty.
      */

@@ -7,62 +7,20 @@ import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 import im.tox.tox4j.exceptions.ToxException
 import org.slf4j.LoggerFactory
 
-import scala.collection.mutable.ArrayBuffer
+import scala.annotation.tailrec
 
-class ChatClient(val selfName: String, val expectedFriendName: String) extends ToxEventAdapter {
-
-  val logger = Logger(LoggerFactory.getLogger(getOuterClass(getClass)))
-
-  private def getOuterClass(clazz: Class[_]): Class[_] = {
-    Option(clazz.getEnclosingClass) match {
-      case None            => clazz
-      case Some(enclosing) => enclosing
-    }
-  }
-
-  private val tasks = new ArrayBuffer[(ToxCore => Any, Array[StackTraceElement])]
-
-  protected def addTask(task: ToxCore => Any): Unit = {
-    val creationTrace = Thread.currentThread.getStackTrace.tail
-    tasks += ((task, creationTrace))
-  }
-
-  private var isDone: Boolean = false
-  private var chatting: Boolean = true
-
-  def isChatting: Boolean = chatting
-  def finish(): Unit = chatting = false
-
-  var expectedFriendAddress: Array[Byte] = null
-  def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PUBLIC_KEY_SIZE)
-
-  protected def isAlice = selfName == "Alice"
-  protected def isBob = selfName == "Bob"
-
-  def isRunning: Boolean = !isDone
-
-  def exit(): Unit = this.isDone = true
-
-  def setup(tox: ToxCore): Unit = {}
-
-  protected def debug(message: String): Unit = {
-    logger.info(s"[${Thread.currentThread.getId}] $selfName: $message")
-  }
-
-  override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
-    if (connectionStatus != ToxConnection.NONE) {
-      debug("is now connected to the network")
-    } else {
-      debug("is now disconnected from the network")
-    }
-  }
+final case class ChatStateT[T](
+    state: T,
+    tasks: Seq[((ToxCore[ChatStateT[T]], ChatStateT[T]) => ChatStateT[T], Array[StackTraceElement])] = Nil,
+    chatting: Boolean = true
+) {
 
   private def assembleStackTrace(e: ToxException[_], creationTrace: Array[StackTraceElement]): ToxException[_] = {
     // The stack until the performTasks method call.
     val untilPerformTasks = e.getStackTrace
       .reverse
       .dropWhile { callSite =>
-        !((callSite.getClassName == classOf[ChatClient].getName) &&
+        !((callSite.getClassName == classOf[ChatClientT[_]].getName) &&
           (callSite.getMethodName == "performTasks"))
       }
       .reverse
@@ -76,17 +34,76 @@ class ChatClient(val selfName: String, val expectedFriendName: String) extends T
     e
   }
 
-  def performTasks(tox: ToxCore): Unit = {
-    val iterationTasks = tasks.clone()
-    tasks.clear()
-    for (task <- iterationTasks) {
-      try {
-        task._1.apply(tox)
-      } catch {
-        case e: ToxException[_] =>
-          throw assembleStackTrace(e, task._2)
-      }
+  private[autotest] def runTasks(tox: ToxCore[ChatStateT[T]]): ChatStateT[T] = {
+    tasks.reverse.foldLeft(copy[T](tasks = Nil)) {
+      case (nextState, (task, stacktrace)) =>
+        try {
+          task(tox, nextState)
+        } catch {
+          case e: ToxException[_] =>
+            throw assembleStackTrace(e, stacktrace)
+        }
     }
+  }
+
+  def addTask(task: (ToxCore[ChatStateT[T]], ChatStateT[T]) => ChatStateT[T]): ChatStateT[T] = {
+    val creationTrace = Thread.currentThread.getStackTrace
+    copy[T](tasks = (task, creationTrace.slice(2, creationTrace.length)) +: tasks)
+  }
+
+  def finish: ChatStateT[T] = {
+    copy[T](chatting = false)
+  }
+
+  def get: T = state
+
+  def set(value: T): ChatStateT[T] = {
+    copy[T](state = value)
+  }
+
+}
+
+class ChatClientT[T](val selfName: String, val expectedFriendName: String) extends ToxEventAdapter[ChatStateT[T]] {
+
+  private val logger = Logger(LoggerFactory.getLogger(getOuterClass(getClass)))
+
+  @tailrec
+  private def getOuterClass(clazz: Class[_]): Class[_] = {
+    Option(clazz.getEnclosingClass) match {
+      case None            => clazz
+      case Some(enclosing) => getOuterClass(enclosing)
+    }
+  }
+
+  protected def debug(message: String): Unit = {
+    logger.info(s"[${Thread.currentThread.getId}] $selfName: $message")
+  }
+
+  var expectedFriendAddress: Array[Byte] = null
+  protected def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PUBLIC_KEY_SIZE)
+
+  protected def isAlice = selfName == "Alice"
+  protected def isBob = selfName == "Bob"
+
+  def setup(tox: ToxCore[ChatStateT[T]])(state: ChatStateT[T]): ChatStateT[T] = state
+
+  override def selfConnectionStatus(connectionStatus: ToxConnection)(state: ChatStateT[T]): ChatStateT[T] = {
+    if (connectionStatus != ToxConnection.NONE) {
+      debug("is now connected to the network with " + connectionStatus)
+    } else {
+      debug("is now disconnected from the network")
+    }
+    state
+  }
+
+  override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection)(state: ChatStateT[T]): ChatStateT[T] = {
+    assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+    if (connection != ToxConnection.NONE) {
+      debug(s"is now connected to friend $friendNumber with " + connection)
+    } else {
+      debug(s"is now disconnected from friend $friendNumber")
+    }
+    state
   }
 
 }

@@ -2,6 +2,8 @@
 
 set -ex
 
+TOX4J_TARGET=${1-arm-linux-androideabi}
+
 COMPILER=clang3.6
 
 unset CPPFLAGS
@@ -11,10 +13,6 @@ cd `dirname $0`
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
   export ANDROID_NDK_HOME=$HOME/android-ndk
-fi
-
-if [ -z "$TOX4J_TARGET" ]; then
-   TOX4J_TARGET=arm-linux-androideabi
 fi
 
 PLATFORM=$TOX4J_TARGET
@@ -82,6 +80,9 @@ INSTALL() {
   CLONE https://git.chromium.org/webm libvpx
   patch -p1 < ../libvpx.patch
 
+  export AR="$TOOLCHAIN/bin/$TOX4J_TARGET-ar"
+  export CC="$TOOLCHAIN/bin/$TOX4J_TARGET-gcc"
+  export CXX="$TOOLCHAIN/bin/$TOX4J_TARGET-g++"
   mkdir build-android && cd build-android
   ../configure                          \
     --target=$PLATFORM_VPX              \
@@ -89,7 +90,7 @@ INSTALL() {
     --disable-examples                  \
     --disable-unit-tests                \
     --disable-vp9                       \
-    --sdk-path=$ANDROID_NDK_HOME
+    --sdk-path=$ANDROID_NDK_HOME || (cat config.log && false)
   make -j8
   make install
 )
@@ -100,7 +101,7 @@ INSTALL() {
 )
 # opus
 (
-  CLONE git://git.opus-codec.org opus --depth=1
+  CLONE git://git.xiph.org opus --depth=1
   INSTALL opus
 )
 # toxcore

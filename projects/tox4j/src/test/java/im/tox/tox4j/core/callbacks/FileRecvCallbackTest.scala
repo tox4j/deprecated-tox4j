@@ -1,50 +1,53 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCore }
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileKind }
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-import org.junit.Assert.{ assertEquals, assertNotNull }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 
 final class FileRecvCallbackTest extends AliceBobTest {
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = Seq[Byte]
+  override def initialState: State = Nil
 
-    private var fileData: Array[Byte] = Array.ofDim[Byte](0)
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
-    override def setup(tox: ToxCore): Unit = {
+    override def setup(tox: ToxCore[ChatState])(state: ChatState): ChatState = {
       if (isAlice) {
-        fileData = "This is a file for Bob".getBytes
+        state.set("This is a file for Bob".getBytes)
       } else {
-        fileData = "This is a file for Alice".getBytes
+        state.set("This is a file for Alice".getBytes)
       }
     }
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
-      if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
-        assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-        addTask { tox =>
-          tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length, Array.ofDim[Byte](0), ("file for " + expectedFriendName + ".png").getBytes)
+    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
+      super.friendConnectionStatus(friendNumber, connectionStatus)(state)
+      if (connectionStatus != ToxConnection.NONE) {
+        assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+        state.addTask { (tox, state) =>
+          tox.fileSend(friendNumber, ToxFileKind.DATA, state.get.length, Array.ofDim[Byte](0), s"file for $expectedFriendName.png".getBytes)
+          state
         }
+      } else {
+        state
       }
     }
 
-    override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte]): Unit = {
+    override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
       debug("received file send request " + fileNumber + " from friend number " + friendNumber)
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-      assertEquals(0 | 0x10000, fileNumber)
-      assertEquals(ToxFileKind.DATA, kind)
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(fileNumber == (0 | 0x10000))
+      assert(kind == ToxFileKind.DATA)
       if (isAlice) {
-        assertEquals("This is a file for Alice".length, fileSize)
+        assert(fileSize == "This is a file for Alice".length)
       } else {
-        assertEquals("This is a file for Bob".length, fileSize)
+        assert(fileSize == "This is a file for Bob".length)
       }
-      assertEquals("file for " + selfName + ".png", new String(filename))
-      addTask { tox =>
-        val fileId = tox.fileGetFileId(friendNumber, fileNumber)
-        assertNotNull(fileId)
-        assertEquals(ToxCoreConstants.FILE_ID_LENGTH, fileId.length)
-        finish()
+      assert(new String(filename) == s"file for $selfName.png")
+      state.addTask { (tox, state) =>
+        val fileId = tox.getFileFileId(friendNumber, fileNumber)
+        assert(fileId != null)
+        assert(fileId.length == ToxCoreConstants.FILE_ID_LENGTH)
+        state.finish
       }
     }
   }

@@ -2,16 +2,18 @@ package im.tox.tox4j.impl.jni
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
-import im.tox.tox4j.annotations.{ NotNull, Nullable }
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
 import im.tox.tox4j.core.exceptions._
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.proto.Core._
-import im.tox.tox4j.core.{ AbstractToxCore, ToxCoreConstants }
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
 import im.tox.tox4j.impl.jni.ToxCoreImpl.{ convert, logger }
 import im.tox.tox4j.impl.jni.internal.Event
+import org.jetbrains.annotations.{ NotNull, Nullable }
 import org.slf4j.LoggerFactory
+
+import scalaz.Scalaz._
 
 // scalastyle:off null
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
@@ -93,31 +95,17 @@ private object ToxCoreImpl {
 }
 
 /**
- * Initialises the new Tox instance with an optional save-data received from [[getSaveData]].
+ * Initialises the new Tox instance with an optional save-data received from [[getSavedata]].
  *
  * @param options Connection options object with optional save-data.
  */
-// scalastyle:off var.field no.finalize number.of.methods
+// scalastyle:off no.finalize number.of.methods
 @throws[ToxNewException]("If an error was detected in the configuration or a runtime error occurred.")
-final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
+final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends ToxCore[ToxCoreState] {
 
   private val onCloseCallbacks = new Event
 
-  private var selfConnectionStatusCallback = SelfConnectionStatusCallback.IGNORE
-  private var friendNameCallback = FriendNameCallback.IGNORE
-  private var friendStatusMessageCallback = FriendStatusMessageCallback.IGNORE
-  private var friendStatusCallback = FriendStatusCallback.IGNORE
-  private var friendConnectionStatusCallback = FriendConnectionStatusCallback.IGNORE
-  private var friendTypingCallback = FriendTypingCallback.IGNORE
-  private var friendReadReceiptCallback = FriendReadReceiptCallback.IGNORE
-  private var friendRequestCallback = FriendRequestCallback.IGNORE
-  private var friendMessageCallback = FriendMessageCallback.IGNORE
-  private var fileRecvControlCallback = FileRecvControlCallback.IGNORE
-  private var fileChunkRequestCallback = FileChunkRequestCallback.IGNORE
-  private var fileRecvCallback = FileRecvCallback.IGNORE
-  private var fileRecvChunkCallback = FileRecvChunkCallback.IGNORE
-  private var friendLossyPacketCallback = FriendLossyPacketCallback.IGNORE
-  private var friendLosslessPacketCallback = FriendLosslessPacketCallback.IGNORE
+  private var eventListener: ToxEventListener[ToxCoreState] = new ToxEventAdapter // scalastyle:ignore var.field
 
   /**
    * This field has package visibility for [[ToxAvImpl]].
@@ -145,8 +133,8 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
   def removeOnCloseCallback(id: Event.Id): Unit =
     onCloseCallbacks -= id
 
-  override def load(options: ToxOptions): ToxCoreImpl =
-    new ToxCoreImpl(options)
+  override def load(options: ToxOptions): ToxCoreImpl[ToxCoreState] =
+    new ToxCoreImpl[ToxCoreState](options)
 
   override def close(): Unit = {
     onCloseCallbacks()
@@ -176,159 +164,206 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxAddTcpRelay(instanceNumber, address, port, publicKey)
   }
 
-  override def getSaveData: Array[Byte] =
+  override def getSavedata: Array[Byte] =
     ToxCoreJni.toxGetSavedata(instanceNumber)
 
   @throws[ToxGetPortException]
   override def getUdpPort: Int =
-    ToxCoreJni.toxGetUdpPort(instanceNumber)
+    ToxCoreJni.toxSelfGetUdpPort(instanceNumber)
 
   @throws[ToxGetPortException]
   override def getTcpPort: Int =
-    ToxCoreJni.toxGetTcpPort(instanceNumber)
+    ToxCoreJni.toxSelfGetTcpPort(instanceNumber)
 
   override def getDhtId: Array[Byte] =
-    ToxCoreJni.toxGetDhtId(instanceNumber)
+    ToxCoreJni.toxSelfGetDhtId(instanceNumber)
 
   override def iterationInterval: Int =
     ToxCoreJni.toxIterationInterval(instanceNumber)
 
-  // scalastyle:ignore cyclomatic.complexity method.length
-  override def iterate(): Unit = {
-    Option(ToxCoreJni.toxIterate(instanceNumber)).map(CoreEvents.parseFrom) match {
-      case None =>
-      case Some(CoreEvents(
-        selfConnectionStatus,
-        friendName,
-        friendStatusMessage,
-        friendStatus,
-        friendConnectionStatus,
-        friendTyping,
-        friendReadReceipt,
-        friendRequest,
-        friendMessage,
-        fileRecvControl,
-        fileChunkRequest,
-        fileRecv,
-        fileRecvChunk,
-        friendLossyPacket,
-        friendLosslessPacket)) =>
-        selfConnectionStatus.foreach {
-          case SelfConnectionStatus(status) =>
-            tryAndLog(selfConnectionStatusCallback)(_.selfConnectionStatus(
-              convert(status)
-            ))
-        }
-        friendName.foreach {
-          case FriendName(friendNumber, name) =>
-            tryAndLog(friendNameCallback)(_.friendName(
-              friendNumber,
-              name.toByteArray
-            ))
-        }
-        friendStatusMessage.foreach {
-          case FriendStatusMessage(friendNumber, message) =>
-            tryAndLog(friendStatusMessageCallback)(_.friendStatusMessage(
-              friendNumber,
-              message.toByteArray
-            ))
-        }
-        friendStatus.foreach {
-          case FriendStatus(friendNumber, status) =>
-            tryAndLog(friendStatusCallback)(_.friendStatus(
-              friendNumber,
-              convert(status)
-            ))
-        }
-        friendConnectionStatus.foreach {
-          case FriendConnectionStatus(friendNumber, status) =>
-            tryAndLog(friendConnectionStatusCallback)(_.friendConnectionStatus(
-              friendNumber,
-              convert(status)
-            ))
-        }
-        friendTyping.foreach {
-          case FriendTyping(friendNumber, isTyping) =>
-            tryAndLog(friendTypingCallback)(_.friendTyping(
-              friendNumber,
-              isTyping
-            ))
-        }
-        friendReadReceipt.foreach {
-          case FriendReadReceipt(friendNumber, messageId) =>
-            tryAndLog(friendReadReceiptCallback)(_.friendReadReceipt(
-              friendNumber,
-              messageId
-            ))
-        }
-        friendRequest.foreach {
-          case FriendRequest(publicKey, timeDelta, message) =>
-            tryAndLog(friendRequestCallback)(_.friendRequest(
-              publicKey.toByteArray,
-              timeDelta,
-              message.toByteArray
-            ))
-        }
-        friendMessage.foreach {
-          case FriendMessage(friendNumber, messageType, timeDelta, message) =>
-            tryAndLog(friendMessageCallback)(_.friendMessage(
-              friendNumber,
-              convert(messageType),
-              timeDelta,
-              message.toByteArray
-            ))
-        }
-        fileRecvControl.foreach {
-          case FileRecvControl(friendNumber, fileNumber, control) =>
-            tryAndLog(fileRecvControlCallback)(_.fileRecvControl(
-              friendNumber,
-              fileNumber,
-              convert(control)
-            ))
-        }
-        fileChunkRequest.foreach {
-          case FileChunkRequest(friendNumber, fileNumber, position, length) =>
-            tryAndLog(fileChunkRequestCallback)(_.fileChunkRequest(
-              friendNumber,
-              fileNumber,
-              position,
-              length
-            ))
-        }
-        fileRecv.foreach {
-          case FileRecv(friendNumber, fileNumber, kind, fileSize, filename) =>
-            tryAndLog(fileRecvCallback)(_.fileRecv(
-              friendNumber,
-              fileNumber,
-              kind,
-              fileSize,
-              filename.toByteArray
-            ))
-        }
-        fileRecvChunk.foreach {
-          case FileRecvChunk(friendNumber, fileNumber, position, data) =>
-            tryAndLog(fileRecvChunkCallback)(_.fileRecvChunk(
-              friendNumber,
-              fileNumber,
-              position,
-              data.toByteArray
-            ))
-        }
-        friendLossyPacket.foreach {
-          case FriendLossyPacket(friendNumber, data) =>
-            tryAndLog(friendLossyPacketCallback)(_.friendLossyPacket(
-              friendNumber,
-              data.toByteArray
-            ))
-        }
-        friendLosslessPacket.foreach {
-          case FriendLosslessPacket(friendNumber, data) =>
-            tryAndLog(friendLosslessPacketCallback)(_.friendLosslessPacket(
-              friendNumber,
-              data.toByteArray
-            ))
-        }
+  private def dispatchSelfConnectionStatus(selfConnectionStatus: Seq[SelfConnectionStatus])(state: ToxCoreState): ToxCoreState = {
+    selfConnectionStatus.foldLeft(state) {
+      case (state, SelfConnectionStatus(status)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.selfConnectionStatus(
+          convert(status)
+        ))
     }
+  }
+
+  private def dispatchFriendName(friendName: Seq[FriendName])(state: ToxCoreState): ToxCoreState = {
+    friendName.foldLeft(state) {
+      case (state, FriendName(friendNumber, name)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendName(
+          friendNumber,
+          name.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendStatusMessage(friendStatusMessage: Seq[FriendStatusMessage])(state: ToxCoreState): ToxCoreState = {
+    friendStatusMessage.foldLeft(state) {
+      case (state, FriendStatusMessage(friendNumber, message)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendStatusMessage(
+          friendNumber,
+          message.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendStatus(friendStatus: Seq[FriendStatus])(state: ToxCoreState): ToxCoreState = {
+    friendStatus.foldLeft(state) {
+      case (state, FriendStatus(friendNumber, status)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendStatus(
+          friendNumber,
+          convert(status)
+        ))
+    }
+  }
+
+  private def dispatchFriendConnectionStatus(friendConnectionStatus: Seq[FriendConnectionStatus])(state: ToxCoreState): ToxCoreState = {
+    friendConnectionStatus.foldLeft(state) {
+      case (state, FriendConnectionStatus(friendNumber, status)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendConnectionStatus(
+          friendNumber,
+          convert(status)
+        ))
+    }
+  }
+
+  private def dispatchFriendTyping(friendTyping: Seq[FriendTyping])(state: ToxCoreState): ToxCoreState = {
+    friendTyping.foldLeft(state) {
+      case (state, FriendTyping(friendNumber, isTyping)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendTyping(
+          friendNumber,
+          isTyping
+        ))
+    }
+  }
+
+  private def dispatchFriendReadReceipt(friendReadReceipt: Seq[FriendReadReceipt])(state: ToxCoreState): ToxCoreState = {
+    friendReadReceipt.foldLeft(state) {
+      case (state, FriendReadReceipt(friendNumber, messageId)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendReadReceipt(
+          friendNumber,
+          messageId
+        ))
+    }
+  }
+
+  private def dispatchFriendRequest(friendRequest: Seq[FriendRequest])(state: ToxCoreState): ToxCoreState = {
+    friendRequest.foldLeft(state) {
+      case (state, FriendRequest(publicKey, timeDelta, message)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendRequest(
+          publicKey.toByteArray,
+          timeDelta,
+          message.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendMessage(friendMessage: Seq[FriendMessage])(state: ToxCoreState): ToxCoreState = {
+    friendMessage.foldLeft(state) {
+      case (state, FriendMessage(friendNumber, messageType, timeDelta, message)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendMessage(
+          friendNumber,
+          convert(messageType),
+          timeDelta,
+          message.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFileRecvControl(fileRecvControl: Seq[FileRecvControl])(state: ToxCoreState): ToxCoreState = {
+    fileRecvControl.foldLeft(state) {
+      case (state, FileRecvControl(friendNumber, fileNumber, control)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.fileRecvControl(
+          friendNumber,
+          fileNumber,
+          convert(control)
+        ))
+    }
+  }
+
+  private def dispatchFileChunkRequest(fileChunkRequest: Seq[FileChunkRequest])(state: ToxCoreState): ToxCoreState = {
+    fileChunkRequest.foldLeft(state) {
+      case (state, FileChunkRequest(friendNumber, fileNumber, position, length)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.fileChunkRequest(
+          friendNumber,
+          fileNumber,
+          position,
+          length
+        ))
+    }
+  }
+
+  private def dispatchFileRecv(fileRecv: Seq[FileRecv])(state: ToxCoreState): ToxCoreState = {
+    fileRecv.foldLeft(state) {
+      case (state, FileRecv(friendNumber, fileNumber, kind, fileSize, filename)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.fileRecv(
+          friendNumber,
+          fileNumber,
+          kind,
+          fileSize,
+          filename.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFileRecvChunk(fileRecvChunk: Seq[FileRecvChunk])(state: ToxCoreState): ToxCoreState = {
+    fileRecvChunk.foldLeft(state) {
+      case (state, FileRecvChunk(friendNumber, fileNumber, position, data)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.fileRecvChunk(
+          friendNumber,
+          fileNumber,
+          position,
+          data.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendLossyPacket(friendLossyPacket: Seq[FriendLossyPacket])(state: ToxCoreState): ToxCoreState = {
+    friendLossyPacket.foldLeft(state) {
+      case (state, FriendLossyPacket(friendNumber, data)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendLossyPacket(
+          friendNumber,
+          data.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchFriendLosslessPacket(friendLosslessPacket: Seq[FriendLosslessPacket])(state: ToxCoreState): ToxCoreState = {
+    friendLosslessPacket.foldLeft(state) {
+      case (state, FriendLosslessPacket(friendNumber, data)) =>
+        tryAndLog(options.fatalErrors, state, eventListener)(_.friendLosslessPacket(
+          friendNumber,
+          data.toByteArray
+        ))
+    }
+  }
+
+  private def dispatchEvents(state: ToxCoreState, events: CoreEvents): ToxCoreState = {
+    (state
+      |> dispatchSelfConnectionStatus(events.selfConnectionStatus)
+      |> dispatchFriendName(events.friendName)
+      |> dispatchFriendStatusMessage(events.friendStatusMessage)
+      |> dispatchFriendStatus(events.friendStatus)
+      |> dispatchFriendConnectionStatus(events.friendConnectionStatus)
+      |> dispatchFriendTyping(events.friendTyping)
+      |> dispatchFriendReadReceipt(events.friendReadReceipt)
+      |> dispatchFriendRequest(events.friendRequest)
+      |> dispatchFriendMessage(events.friendMessage)
+      |> dispatchFileRecvControl(events.fileRecvControl)
+      |> dispatchFileChunkRequest(events.fileChunkRequest)
+      |> dispatchFileRecv(events.fileRecv)
+      |> dispatchFileRecvChunk(events.fileRecvChunk)
+      |> dispatchFriendLossyPacket(events.friendLossyPacket)
+      |> dispatchFriendLosslessPacket(events.friendLosslessPacket))
+  }
+
+  override def iterate(state: ToxCoreState): ToxCoreState = {
+    Option(ToxCoreJni.toxIterate(instanceNumber))
+      .map(CoreEvents.parseFrom)
+      .foldLeft(state)(dispatchEvents)
   }
 
   override def getPublicKey: Array[Byte] =
@@ -337,10 +372,10 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
   override def getSecretKey: Array[Byte] =
     ToxCoreJni.toxSelfGetSecretKey(instanceNumber)
 
-  override def setNoSpam(nospam: Int): Unit =
+  override def setNospam(nospam: Int): Unit =
     ToxCoreJni.toxSelfSetNospam(instanceNumber, nospam)
 
-  override def getNoSpam: Int =
+  override def getNospam: Int =
     ToxCoreJni.toxSelfGetNospam(instanceNumber)
 
   override def getAddress: Array[Byte] =
@@ -371,12 +406,12 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
 
   @throws[ToxFriendAddException]
   override def addFriend(address: Array[Byte], message: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.TOX_ADDRESS_SIZE)
+    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.ADDRESS_SIZE)
     ToxCoreJni.toxFriendAdd(instanceNumber, address, message)
   }
 
   @throws[ToxFriendAddException]
-  override def addFriendNoRequest(publicKey: Array[Byte]): Int = {
+  override def addFriendNorequest(publicKey: Array[Byte]): Int = {
     ToxCoreImpl.checkLength("Public Key", publicKey, ToxCoreConstants.PUBLIC_KEY_SIZE)
     ToxCoreJni.toxFriendAddNorequest(instanceNumber, publicKey)
   }
@@ -386,7 +421,7 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxFriendDelete(instanceNumber, friendNumber)
 
   @throws[ToxFriendByPublicKeyException]
-  override def getFriendByPublicKey(publicKey: Array[Byte]): Int =
+  override def friendByPublicKey(publicKey: Array[Byte]): Int =
     ToxCoreJni.toxFriendByPublicKey(instanceNumber, publicKey)
 
   @throws[ToxFriendGetPublicKeyException]
@@ -404,7 +439,7 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxSelfSetTyping(instanceNumber, friendNumber, typing)
 
   @throws[ToxFriendSendMessageException]
-  override def sendMessage(friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]): Int =
+  override def friendSendMessage(friendNumber: Int, messageType: ToxMessageType, timeDelta: Int, message: Array[Byte]): Int =
     ToxCoreJni.toxFriendSendMessage(instanceNumber, friendNumber, messageType.ordinal, timeDelta, message)
 
   @throws[ToxFileControlException]
@@ -424,32 +459,20 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.toxFileSendChunk(instanceNumber, friendNumber, fileNumber, position, data)
 
   @throws[ToxFileGetException]
-  override def fileGetFileId(friendNumber: Int, fileNumber: Int): Array[Byte] =
+  override def getFileFileId(friendNumber: Int, fileNumber: Int): Array[Byte] =
     ToxCoreJni.toxFileGetFileId(instanceNumber, friendNumber, fileNumber)
 
   @throws[ToxFriendCustomPacketException]
-  override def sendLossyPacket(friendNumber: Int, data: Array[Byte]): Unit =
-    ToxCoreJni.toxSendLossyPacket(instanceNumber, friendNumber, data)
+  override def friendSendLossyPacket(friendNumber: Int, data: Array[Byte]): Unit =
+    ToxCoreJni.toxFriendSendLossyPacket(instanceNumber, friendNumber, data)
 
   @throws[ToxFriendCustomPacketException]
-  override def sendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
-    ToxCoreJni.toxSendLosslessPacket(instanceNumber, friendNumber, data)
+  override def friendSendLosslessPacket(friendNumber: Int, data: Array[Byte]): Unit =
+    ToxCoreJni.toxFriendSendLosslessPacket(instanceNumber, friendNumber, data)
 
-  override def callbackFriendName(callback: FriendNameCallback): Unit = this.friendNameCallback = callback
-  override def callbackFriendStatusMessage(callback: FriendStatusMessageCallback): Unit = this.friendStatusMessageCallback = callback
-  override def callbackFriendStatus(callback: FriendStatusCallback): Unit = this.friendStatusCallback = callback
-  override def callbackFriendConnectionStatus(callback: FriendConnectionStatusCallback): Unit = this.friendConnectionStatusCallback = callback
-  override def callbackFriendTyping(callback: FriendTypingCallback): Unit = this.friendTypingCallback = callback
-  override def callbackFriendReadReceipt(callback: FriendReadReceiptCallback): Unit = this.friendReadReceiptCallback = callback
-  override def callbackFriendRequest(callback: FriendRequestCallback): Unit = this.friendRequestCallback = callback
-  override def callbackFriendMessage(callback: FriendMessageCallback): Unit = this.friendMessageCallback = callback
-  override def callbackFileChunkRequest(callback: FileChunkRequestCallback): Unit = this.fileChunkRequestCallback = callback
-  override def callbackFileRecv(callback: FileRecvCallback): Unit = this.fileRecvCallback = callback
-  override def callbackFileRecvChunk(callback: FileRecvChunkCallback): Unit = this.fileRecvChunkCallback = callback
-  override def callbackFileRecvControl(callback: FileRecvControlCallback): Unit = this.fileRecvControlCallback = callback
-  override def callbackFriendLossyPacket(callback: FriendLossyPacketCallback): Unit = this.friendLossyPacketCallback = callback
-  override def callbackFriendLosslessPacket(callback: FriendLosslessPacketCallback): Unit = this.friendLosslessPacketCallback = callback
-  override def callbackSelfConnectionStatus(callback: SelfConnectionStatusCallback): Unit = this.selfConnectionStatusCallback = callback
+  override def callback(handler: ToxEventListener[ToxCoreState]): Unit = {
+    this.eventListener = handler
+  }
 
   def invokeFriendName(friendNumber: Int, @NotNull name: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendName(instanceNumber, friendNumber, name)
@@ -465,8 +488,8 @@ final class ToxCoreImpl(@NotNull options: ToxOptions) extends AbstractToxCore {
     ToxCoreJni.invokeFriendReadReceipt(instanceNumber, friendNumber, messageId)
   def invokeFriendRequest(@NotNull publicKey: Array[Byte], timeDelta: Int, @NotNull message: Array[Byte]): Unit =
     ToxCoreJni.invokeFriendRequest(instanceNumber, publicKey, timeDelta, message)
-  def invokeFriendMessage(friendNumber: Int, @NotNull `type`: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit =
-    ToxCoreJni.invokeFriendMessage(instanceNumber, friendNumber, `type`.ordinal(), timeDelta, message)
+  def invokeFriendMessage(friendNumber: Int, @NotNull messageType: ToxMessageType, timeDelta: Int, @NotNull message: Array[Byte]): Unit =
+    ToxCoreJni.invokeFriendMessage(instanceNumber, friendNumber, messageType.ordinal(), timeDelta, message)
   def invokeFileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int): Unit =
     ToxCoreJni.invokeFileChunkRequest(instanceNumber, friendNumber, fileNumber, position, length)
   def invokeFileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, @NotNull filename: Array[Byte]): Unit =

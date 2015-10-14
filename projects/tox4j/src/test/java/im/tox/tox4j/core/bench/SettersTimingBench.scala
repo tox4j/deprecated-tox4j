@@ -7,12 +7,12 @@ import im.tox.tox4j.core.enums.ToxUserStatus
 
 final class SettersTimingBench extends TimingReport {
 
-  timing of classOf[ToxCore] in {
+  timing of classOf[ToxCore[Unit]] in {
 
     measure method "setNoSpam" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (i => tox.setNoSpam(i))
+          (0 until sz) foreach (i => tox.setNospam(i))
       }
     }
 

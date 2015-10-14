@@ -8,7 +8,7 @@ import org.scalameter.api._
  */
 abstract class MemoryReport extends PerformanceReportBase {
 
-  override def measurer: Measurer = new Executor.Measurer.MemoryFootprint
+  override def measurer: Measurer[Double] = new Executor.Measurer.MemoryFootprint
 
   // scalastyle:ignore
   object memory {

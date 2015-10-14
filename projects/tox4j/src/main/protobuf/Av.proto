@@ -6,9 +6,9 @@ option optimize_for = LITE_RUNTIME;
 
 
 message Call {
-  required int32  friendNumber     = 1;
-  required bool   audioEnabled     = 2;
-  required bool   videoEnabled     = 3;
+  required int32  friend_number     = 1;
+  required bool   audio_enabled     = 2;
+  required bool   video_enabled     = 3;
 }
 
 message CallState {
@@ -17,53 +17,51 @@ message CallState {
     FINISHED     = 1;
     SENDING_A    = 2;
     SENDING_V    = 3;
-    RECEIVING_A  = 4;
-    RECEIVING_V  = 5;
+    ACCEPTING_A  = 4;
+    ACCEPTING_V  = 5;
   }
 
-  required uint32  friendNumber     = 1;
-  repeated Kind    state            = 2;
+  required uint32  friend_number    = 1;
+  repeated Kind    call_state       = 2;
 }
 
 message AudioBitRateStatus {
-  required uint32  friendNumber     = 1;
+  required uint32  friend_number    = 1;
   required bool    stable           = 2;
-  required uint32  bitRate          = 3;
+  required uint32  bit_rate         = 3;
 }
 
 message VideoBitRateStatus {
-  required uint32  friendNumber     = 1;
+  required uint32  friend_number    = 1;
   required bool    stable           = 2;
-  required uint32  bitRate          = 3;
+  required uint32  bit_rate         = 3;
 }
 
 message AudioReceiveFrame {
-  required uint32  friendNumber     = 1;
-  repeated int32   pcm              = 2 [packed = true];
+  required uint32  friend_number    = 1;
+  required bytes   pcm              = 2;
   required uint32  channels         = 3;
-  required uint32  samplingRate     = 4;
+  required uint32  sampling_rate    = 4;
 }
 
 message VideoReceiveFrame {
-  required uint32  friendNumber     =  1;
-  required uint32  width            =  2;
-  required uint32  height           =  3;
-  required bytes   y                =  4;
-  required bytes   u                =  5;
-  required bytes   v                =  6;
-  optional bytes   a                =  7;
-  required int32   yStride          =  8;
-  required int32   uStride          =  9;
-  required int32   vStride          = 10;
-  required int32   aStride          = 11;
+  required uint32  friend_number    = 1;
+  required uint32  width            = 2;
+  required uint32  height           = 3;
+  required bytes   y                = 4;
+  required bytes   u                = 5;
+  required bytes   v                = 6;
+  required int32   y_stride         = 7;
+  required int32   u_stride         = 8;
+  required int32   v_stride         = 9;
 }
 
 
 message AvEvents {
-  repeated Call                   call                = 1;
-  repeated CallState              callState           = 2;
-  repeated AudioBitRateStatus     audioBitRateStatus  = 3;
-  repeated VideoBitRateStatus     videoBitRateStatus  = 4;
-  repeated AudioReceiveFrame      audioReceiveFrame   = 5;
-  repeated VideoReceiveFrame      videoReceiveFrame   = 6;
+  repeated Call                   call                  = 1;
+  repeated CallState              call_state            = 2;
+  repeated AudioBitRateStatus     audio_bit_rate_status = 3;
+  repeated VideoBitRateStatus     video_bit_rate_status = 4;
+  repeated AudioReceiveFrame      audio_receive_frame   = 5;
+  repeated VideoReceiveFrame      video_receive_frame   = 6;
 }

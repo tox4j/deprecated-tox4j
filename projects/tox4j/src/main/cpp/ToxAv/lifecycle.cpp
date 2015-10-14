@@ -9,31 +9,33 @@ using namespace av;
 static void
 tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, Events &events)
 {
-  unused (av);
+  assert (av != nullptr);
+
   auto msg = events.add_call ();
-  msg->set_friendnumber (friend_number);
-  msg->set_audioenabled (audio_enabled);
-  msg->set_videoenabled (video_enabled);
+  msg->set_friend_number (friend_number);
+  msg->set_audio_enabled (audio_enabled);
+  msg->set_video_enabled (video_enabled);
 }
 
 
 static void
 tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &events)
 {
-  unused (av);
-  auto msg = events.add_callstate ();
-  msg->set_friendnumber (friend_number);
+  assert (av != nullptr);
+
+  auto msg = events.add_call_state ();
+  msg->set_friend_number (friend_number);
 
   using proto::CallState;
-#define call_state_case(STATE)          \
-  if (state & TOXAV_CALL_STATE_##STATE) \
-    msg->add_state (CallState::STATE)
+#define call_state_case(STATE)                  \
+  if (state & TOXAV_FRIEND_CALL_STATE_##STATE)  \
+    msg->add_call_state (CallState::STATE)
   call_state_case (ERROR);
   call_state_case (FINISHED);
   call_state_case (SENDING_A);
   call_state_case (SENDING_V);
-  call_state_case (RECEIVING_A);
-  call_state_case (RECEIVING_V);
+  call_state_case (ACCEPTING_A);
+  call_state_case (ACCEPTING_V);
 #undef call_state_case
 }
 
@@ -45,11 +47,12 @@ tox4j_audio_bit_rate_status_cb (ToxAV *av,
                                 uint32_t bit_rate,
                                 Events &events)
 {
-  unused (av);
-  auto msg = events.add_audiobitratestatus ();
-  msg->set_friendnumber (friend_number);
+  assert (av != nullptr);
+
+  auto msg = events.add_audio_bit_rate_status ();
+  msg->set_friend_number (friend_number);
   msg->set_stable (stable);
-  msg->set_bitrate (bit_rate);
+  msg->set_bit_rate (bit_rate);
 }
 
 
@@ -60,11 +63,12 @@ tox4j_video_bit_rate_status_cb (ToxAV *av,
                                 uint32_t bit_rate,
                                 Events &events)
 {
-  unused (av);
-  auto msg = events.add_videobitratestatus ();
-  msg->set_friendnumber (friend_number);
+  assert (av != nullptr);
+
+  auto msg = events.add_video_bit_rate_status ();
+  msg->set_friend_number (friend_number);
   msg->set_stable (stable);
-  msg->set_bitrate (bit_rate);
+  msg->set_bit_rate (bit_rate);
 }
 
 
@@ -77,15 +81,23 @@ tox4j_audio_receive_frame_cb (ToxAV *av,
                               uint32_t sampling_rate,
                               Events &events)
 {
-  unused (av);
-  auto msg = events.add_audioreceiveframe ();
-  msg->set_friendnumber (friend_number);
+  assert (av != nullptr);
 
+  auto msg = events.add_audio_receive_frame ();
+  msg->set_friend_number (friend_number);
+
+  std::vector<uint8_t> pcm_bytes;
+  pcm_bytes.reserve (sample_count * channels * 2);
   for (size_t i = 0; i < sample_count * channels; i++)
-    msg->add_pcm (pcm[i]);
+    {
+      uint16_t sample = pcm[i];
+      pcm_bytes.push_back (sample >> 8);
+      pcm_bytes.push_back (sample & 0xff);
+    }
+  msg->set_pcm (pcm_bytes.data (), pcm_bytes.size ());
 
   msg->set_channels (channels);
-  msg->set_samplingrate (sampling_rate);
+  msg->set_sampling_rate (sampling_rate);
 }
 
 
@@ -93,24 +105,25 @@ static void
 tox4j_video_receive_frame_cb (ToxAV *av,
                               uint32_t friend_number,
                               uint16_t width, uint16_t height,
-                              uint8_t const *y, uint8_t const *u, uint8_t const *v, uint8_t const *a,
-                              int32_t ystride, int32_t ustride, int32_t vstride, int32_t astride,
+                              uint8_t const *y, uint8_t const *u, uint8_t const *v,
+                              int32_t ystride, int32_t ustride, int32_t vstride,
                               Events &events)
 {
-  unused (av);
-  auto msg = events.add_videoreceiveframe ();
-  msg->set_friendnumber (friend_number);
+  assert (av != nullptr);
+
+  assert (ystride < 0 == ustride < 0);
+  assert (ystride < 0 == vstride < 0);
+
+  auto msg = events.add_video_receive_frame ();
+  msg->set_friend_number (friend_number);
   msg->set_width (width);
   msg->set_height (height);
-  msg->set_y (y, width * height);
-  msg->set_u (u, width * height);
-  msg->set_v (v, width * height);
-  if (a != nullptr)
-    msg->set_a (a, width * height);
-  msg->set_ystride (ystride);
-  msg->set_ustride (ustride);
-  msg->set_vstride (vstride);
-  msg->set_astride (astride);
+  msg->set_y (y, std::max<std::size_t> (width    , std::abs (ystride)) * height);
+  msg->set_u (u, std::max<std::size_t> (width / 2, std::abs (ustride)) * (height / 2));
+  msg->set_v (v, std::max<std::size_t> (width / 2, std::abs (vstride)) * (height / 2));
+  msg->set_y_stride (ystride);
+  msg->set_u_stride (ustride);
+  msg->set_v_stride (vstride);
 }
 
 
@@ -129,6 +142,13 @@ toxav_new_unique (Tox *tox, TOXAV_ERR_NEW *error)
 TOX_METHOD (jint, New,
   jint toxInstanceNumber)
 {
+  register_funcs (
+#define CALLBACK(NAME)   register_func (tox4j_##NAME##_cb),
+#include "tox/generated/av.h"
+#undef CALLBACK
+    register_func (toxav_new_unique)
+  );
+
   return core::instances.with_instance (env, toxInstanceNumber,
     [=] (Tox *tox, core::Events &)
       {
@@ -139,12 +159,9 @@ TOX_METHOD (jint, New,
 
               // Create the master events object and set up our callbacks.
               auto events = tox::callbacks<ToxAV> (std::unique_ptr<Events> (new Events))
-                .set<tox::callback_call                 , tox4j_call_cb                 > ()
-                .set<tox::callback_call_state           , tox4j_call_state_cb           > ()
-                .set<tox::callback_audio_bit_rate_status, tox4j_audio_bit_rate_status_cb> ()
-                .set<tox::callback_video_bit_rate_status, tox4j_video_bit_rate_status_cb> ()
-                .set<tox::callback_audio_receive_frame  , tox4j_audio_receive_frame_cb  > ()
-                .set<tox::callback_video_receive_frame  , tox4j_video_receive_frame_cb  > ()
+#define CALLBACK(NAME)   .set<tox::callback_##NAME, tox4j_##NAME##_cb> ()
+#include "tox/generated/av.h"
+#undef CALLBACK
                 .set (toxav.get ());
 
               // We can create the new instance outside instance_manager's critical section.
@@ -182,4 +199,109 @@ TOX_METHOD (void, Finalize,
 {
   instances.finalize (env, instanceNumber);
 }
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxAvJni
+ * Method:    invokeAudioBitRateStatus
+ * Signature: (IIZI)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeAudioBitRateStatus
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean stable, jint bitRate)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events)
+      {
+        tox4j_audio_bit_rate_status_cb (av, friendNumber, stable, bitRate, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxAvJni
+ * Method:    invokeAudioReceiveFrame
+ * Signature: (II[SII)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeAudioReceiveFrame
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jshortArray pcm, jint channels, jint samplingRate)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events)
+      {
+        ShortArray pcmData (env, pcm);
+        tox4j_assert (pcmData.size () % channels == 0);
+        tox4j_audio_receive_frame_cb (av, friendNumber, pcmData.data (), pcmData.size () / channels, channels, samplingRate, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxAvJni
+ * Method:    invokeCall
+ * Signature: (IIZZ)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeCall
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean audioEnabled, jboolean videoEnabled)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events)
+      {
+        tox4j_call_cb (av, friendNumber, audioEnabled, videoEnabled, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxAvJni
+ * Method:    invokeCallState
+ * Signature: (IILjava/util/Collection;)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeCallState
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint callState)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events)
+      {
+        tox4j_call_state_cb (av, friendNumber, callState, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxAvJni
+ * Method:    invokeVideoBitRateStatus
+ * Signature: (IIZI)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeVideoBitRateStatus
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean stable, jint bitRate)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events)
+      {
+        tox4j_video_bit_rate_status_cb (av, friendNumber, stable, bitRate, events);
+      }
+  );
+}
+
+/*
+ * Class:     im_tox_tox4j_impl_jni_ToxAvJni
+ * Method:    invokeVideoReceiveFrame
+ * Signature: (IIII[B[B[B[BIIII)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeVideoReceiveFrame
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jint yStride, jint uStride, jint vStride)
+{
+  return instances.with_instance (env, instanceNumber,
+    [=] (ToxAV *av, Events &events)
+      {
+        ByteArray yData (env, y);
+        ByteArray uData (env, u);
+        ByteArray vData (env, v);
+        tox4j_assert (yData.size () == std::max<std::size_t> (width    , std::abs (yStride)) * height);
+        tox4j_assert (uData.size () == std::max<std::size_t> (width / 2, std::abs (uStride)) * (height / 2));
+        tox4j_assert (vData.size () == std::max<std::size_t> (width / 2, std::abs (vStride)) * (height / 2));
+        tox4j_video_receive_frame_cb (av, friendNumber, width, height, yData.data (), uData.data (), vData.data (), yStride, uStride, vStride, events);
+      }
+  );
+}
+
 #endif

@@ -2,35 +2,41 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-import org.junit.Assert._
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 
 final class FriendRequestCallbackTest extends AliceBobTest {
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = Unit
+  override def initialState: State = ()
 
-    override def setup(tox: ToxCore): Unit = {
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+
+    override def setup(tox: ToxCore[ChatState])(state: ChatState): ChatState = {
       tox.deleteFriend(AliceBobTestBase.FRIEND_NUMBER)
       if (isAlice) {
-        tox.addFriend(expectedFriendAddress, ("Hey this is " + selfName).getBytes)
+        tox.addFriend(expectedFriendAddress, s"Hey this is $selfName".getBytes)
+      }
+      state
+    }
+
+    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
+      super.friendConnectionStatus(friendNumber, connectionStatus)(state)
+      if (connectionStatus != ToxConnection.NONE) {
+        state.finish
+      } else {
+        state
       }
     }
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
-      if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
-        finish()
-      }
-    }
-
-    override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte]): Unit = {
-      debug("got friend request: " + new String(message))
-      assertTrue("Alice shouldn't get a friend request", isBob)
-      assertArrayEquals(expectedFriendPublicKey, publicKey)
-      assertTrue(timeDelta >= 0)
-      assertEquals("Hey this is " + expectedFriendName, new String(message))
-      addTask { tox =>
-        tox.addFriendNoRequest(publicKey)
+    override def friendRequest(publicKey: Array[Byte], timeDelta: Int, message: Array[Byte])(state: ChatState): ChatState = {
+      debug(s"got friend request: ${new String(message)}")
+      assert(isBob, "Alice shouldn't get a friend request")
+      assert(publicKey sameElements expectedFriendPublicKey)
+      assert(timeDelta >= 0)
+      assert(new String(message) == s"Hey this is $expectedFriendName")
+      state.addTask { (tox, state) =>
+        tox.addFriendNorequest(publicKey)
+        state
       }
     }
 

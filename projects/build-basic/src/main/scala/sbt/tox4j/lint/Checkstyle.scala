@@ -4,8 +4,8 @@ import com.etsy.sbt.Checkstyle.CheckstyleTasks._
 import com.etsy.sbt.Checkstyle.checkstyleSettings
 import com.etsy.sbt.{ NoExitException, NoExitSecurityManager }
 import com.puppycrawl.tools.checkstyle.Main.{ main => CheckstyleMain }
-import sbt.Keys._
 import sbt.Def.Initialize
+import sbt.Keys._
 import sbt._
 import sbt.tox4j.OptionalPlugin
 

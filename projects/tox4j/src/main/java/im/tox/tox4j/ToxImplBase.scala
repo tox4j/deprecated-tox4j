@@ -12,17 +12,25 @@ object ToxImplBase {
   /**
    * Calls a callback and catches any [[NonFatal]] exceptions it throws and logs them.
    *
-   * @param callback The callback object.
-   * @param method The method to call on the callback object.
+   * @param fatal If this is false, exceptions thrown by callbacks are caught and logged.
+   * @param state State to pass through the callback.
+   * @param eventHandler The callback object.
+   * @param callback The method to call on the callback object.
    * @tparam T The type of the callback object.
    */
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Throw"))
-  def tryAndLog[T](callback: T)(method: T => Unit): Unit = {
-    try {
-      method(callback)
-    } catch {
-      case NonFatal(e) =>
-        logger.warn("Exception caught while executing " + callback.getClass.getName, e)
+  @inline
+  def tryAndLog[ToxCoreState, T](fatal: Boolean, state: ToxCoreState, eventHandler: T)(callback: T => ToxCoreState => ToxCoreState): ToxCoreState = {
+    if (!fatal) {
+      try {
+        callback(eventHandler)(state)
+      } catch {
+        case NonFatal(e) =>
+          logger.warn("Exception caught while executing " + eventHandler.getClass.getName, e)
+          state
+      }
+    } else {
+      callback(eventHandler)(state)
     }
   }
 

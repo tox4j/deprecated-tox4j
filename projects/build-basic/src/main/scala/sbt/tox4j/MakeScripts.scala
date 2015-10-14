@@ -22,12 +22,23 @@ object MakeScripts extends AutoPlugin {
     }
   }
 
-  private def mkrunTask(base: File, opts: Seq[String], cp: Classpath, mains: Seq[String]) = {
-    val template = """#!/usr/bin/env perl
-exec "java", "%s", "-classpath", "%s", "%s", @ARGV
-                   """
+  private def makeScriptsTask(base: File, opts: Seq[String], cp: Classpath, mains: Seq[String]) = {
+    val template =
+      """#!/usr/bin/env perl
+        |my @CLASSPATH = (
+        |  "%s"
+        |);
+        |exec "java",
+        |  "%s",
+        |  "-classpath", (join ":", @CLASSPATH),
+        |  "%s", @ARGV
+        |""".stripMargin
     for (main <- mains) {
-      val contents = template.format(opts.mkString("\", \""), cp.files.absString, main)
+      val contents = template.format(
+        cp.files.get.mkString("\",\n  \""),
+        opts.mkString("\",\n  \""),
+        main
+      )
       val out = base / "bin" / classBaseName(main)
       IO.write(out, contents)
       out.setExecutable(true)
@@ -40,7 +51,7 @@ exec "java", "%s", "-classpath", "%s", "%s", @ARGV
       javaOptions in Test,
       fullClasspath in Test,
       discoveredMainClasses in Test
-    ) map mkrunTask
+    ) map makeScriptsTask
   }
 
 }

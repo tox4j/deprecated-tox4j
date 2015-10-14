@@ -2,52 +2,46 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.TestConstants.ITERATIONS
 import im.tox.tox4j.core.enums.{ ToxConnection, ToxMessageType }
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-import org.junit.Assert._
-
-import scala.collection.mutable
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 
 final class FriendReadReceiptCallbackTest extends AliceBobTest {
 
   protected override def ignoreTimeout = true
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = Set[Int]
+  override def initialState: State = Set.empty[Int]
 
-    private val pendingIds = Array.ofDim[Int](ITERATIONS)
-    private val receipts = new mutable.HashMap[Int, Int]
-    private var pendingCount = ITERATIONS
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
-      if (connection != ToxConnection.NONE) {
-        debug(s"is now connected to friend $friendNumber")
-        addTask { tox =>
+    override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
+      super.friendConnectionStatus(friendNumber, connectionStatus)(state)
+      if (connectionStatus != ToxConnection.NONE) {
+        state.addTask { (tox, state) =>
           debug(s"Sending $ITERATIONS messages")
-          for (i <- 0 until ITERATIONS) {
-            pendingIds(i) = -1
-            val receipt = tox.sendMessage(friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes)
-            // debug("next receipt: " + receipt);
-            assertEquals(None, receipts.get(receipt))
-            receipts.put(receipt, i)
+          assert(state.get.isEmpty)
+          val pendingIds = (0 until ITERATIONS).foldLeft(state.get) {
+            case (receipts, i) =>
+              val receipt = tox.friendSendMessage(friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes)
+              assert(!receipts.contains(receipt))
+              receipts + receipt
           }
+          assert(pendingIds.size == ITERATIONS)
+          state.set(pendingIds)
         }
+      } else {
+        state
       }
     }
 
-    override def friendReadReceipt(friendNumber: Int, messageId: Int): Unit = {
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-      val messageIndex = receipts.get(messageId)
-      assertNotEquals(None, messageIndex)
-      messageIndex.foreach { index =>
-        pendingIds(index) = -1
-        pendingCount -= 1
-        if (pendingCount == 0) {
-          val expected = new Array[Int](ITERATIONS)
-          for (i <- 0 until ITERATIONS) {
-            expected(i) = -1
-          }
-          assertArrayEquals(expected, pendingIds)
-          finish()
-        }
+    override def friendReadReceipt(friendNumber: Int, messageId: Int)(state: ChatState): ChatState = {
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+
+      assert(state.get.contains(messageId))
+      val pendingIds = state.get - messageId
+      if (pendingIds.isEmpty) {
+        state.finish
+      } else {
+        state.set(pendingIds)
       }
     }
 

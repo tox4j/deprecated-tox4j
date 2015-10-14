@@ -10,12 +10,12 @@ final class IterateTimingBench extends TimingReport {
 
   protected override def confidence = Seq[KeyValue](exec.benchRuns -> 100)
 
-  timing of classOf[ToxCore] in {
+  timing of classOf[ToxCore[Unit]] in {
 
     measure method "iterate" in {
       usingTox(iterations10k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.iterate())
+          (0 until sz) foreach (_ => tox.iterate(()))
       }
     }
 
@@ -29,7 +29,7 @@ final class IterateTimingBench extends TimingReport {
     measure method "iterate+friends" in {
       using(iterations1k, toxWithFriends1k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.iterate())
+          (0 until sz) foreach (_ => tox.iterate(()))
       }
     }
 

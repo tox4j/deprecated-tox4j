@@ -1,6 +1,6 @@
 package im.tox.tox4j.exceptions;
 
-import im.tox.tox4j.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Exception to be thrown when a method is invoked on a tox instance that has been closed.

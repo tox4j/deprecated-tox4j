@@ -6,11 +6,10 @@ import java.net.{ InetAddress, Socket }
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
-import org.junit.Assume.assumeNotNull
-import org.junit.AssumptionViolatedException
+import org.scalatest.Assertions
 import org.slf4j.LoggerFactory
 
-object DhtNodeSelector {
+object DhtNodeSelector extends Assertions {
 
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private var selectedNode: Option[DhtNode] = Some(ToxCoreTestBase.nodeCandidates(1))
@@ -19,7 +18,7 @@ object DhtNodeSelector {
     var socket: Socket = null
     try {
       socket = new Socket(InetAddress.getByName(node.ipv4), node.udpPort)
-      assumeNotNull(socket.getInputStream)
+      assume(socket.getInputStream != null)
       Some(node)
     } catch {
       case e: IOException =>
@@ -32,7 +31,7 @@ object DhtNodeSelector {
     }
   }
 
-  private def tryBootstrap(factory: (Boolean, Boolean) => ToxCore, node: DhtNode, udpEnabled: Boolean) = {
+  private def tryBootstrap(factory: (Boolean, Boolean) => ToxCore[Unit], node: DhtNode, udpEnabled: Boolean) = {
     val protocol = if (udpEnabled) "UDP" else "TCP"
     val port = if (udpEnabled) node.udpPort else node.tcpPort
     logger.info(s"Trying to bootstrap with ${node.ipv4}:$port using $protocol")
@@ -41,7 +40,7 @@ object DhtNodeSelector {
 
     try {
       val status = new ConnectedListener
-      tox.callbackSelfConnectionStatus(status)
+      tox.callback(status)
       if (!udpEnabled) {
         tox.addTcpRelay(node.ipv4, port, node.dhtId)
       }
@@ -49,7 +48,7 @@ object DhtNodeSelector {
 
       // Try bootstrapping for 10 seconds.
       (0 to 10000 / tox.iterationInterval) find { _ =>
-        tox.iterate()
+        tox.iterate(())
         Thread.sleep(tox.iterationInterval)
         status.isConnected
       } match {
@@ -65,7 +64,7 @@ object DhtNodeSelector {
     }
   }
 
-  private def findNode(factory: (Boolean, Boolean) => ToxCore): DhtNode = {
+  private def findNode(factory: (Boolean, Boolean) => ToxCore[Unit]): DhtNode = {
     DhtNodeSelector.selectedNode match {
       case Some(node) => node
       case None =>
@@ -81,9 +80,8 @@ object DhtNodeSelector {
           } yield node).isDefined
         }
 
-        DhtNodeSelector.selectedNode.getOrElse(
-          throw new AssumptionViolatedException("No viable nodes for bootstrap found; cannot test")
-        )
+        assume(DhtNodeSelector.selectedNode.nonEmpty, "No viable nodes for bootstrap found; cannot test")
+        DhtNodeSelector.selectedNode.get
     }
   }
 

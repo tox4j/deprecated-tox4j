@@ -1,21 +1,22 @@
 package im.tox.tox4j.crypto.exceptions;
 
-import im.tox.tox4j.annotations.NotNull;
+import im.tox.tox4j.exceptions.JavaOnly;
 import im.tox.tox4j.exceptions.ToxException;
+import org.jetbrains.annotations.NotNull;
 
 public final class ToxKeyDerivationException extends ToxException<ToxKeyDerivationException.Code> {
 
   public enum Code {
+    /**
+     * The salt was of incorrect length.
+     */
+    @JavaOnly INVALID_LENGTH,
     /**
      * The crypto lib was unable to derive a key from the given passphrase,
      * which is usually a lack of memory issue. The functions accepting keys
      * do not produce this error.
      */
     FAILED,
-    /**
-     * The salt was of incorrect length.
-     */
-    INVALID_LENGTH,
     /**
      * The passphrase was null or empty.
      */

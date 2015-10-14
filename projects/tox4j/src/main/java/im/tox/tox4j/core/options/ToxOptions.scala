@@ -31,20 +31,22 @@ import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
  * @param endPort The end port of the inclusive port range to attempt to use.
  * @param tcpPort The port to use for the TCP server. If 0, the tcp server is disabled.
  * @param saveData Optional serialised instance data from [[ToxCore.load]] or secret key from [[ToxCore.getSecretKey]].
+ * @param fatalErrors Whether exceptions in [[ToxCore.iterate]] should abort the iteration.
  */
 final case class ToxOptions(
     ipv6Enabled: Boolean = true,
     udpEnabled: Boolean = true,
-    proxy: ProxyOptions.Type = ProxyOptions.None,
+    proxy: ProxyOptions = ProxyOptions.None,
     startPort: Int = ToxCoreConstants.DEFAULT_START_PORT,
     endPort: Int = ToxCoreConstants.DEFAULT_END_PORT,
     tcpPort: Int = ToxCoreConstants.DEFAULT_TCP_PORT,
-    saveData: SaveDataOptions.Type = SaveDataOptions.None
+    saveData: SaveDataOptions = SaveDataOptions.None,
+    fatalErrors: Boolean = true
 ) {
   private def requireValidPort(name: String, port: Int): Unit = {
     require(port >= 0 && port <= 65535, s"$name port should be a valid 16 bit positive integer")
   }
-  require(startPort <= endPort)
+  require(startPort <= endPort, s"startPort ($startPort) should not be greater than endPort ($endPort)")
   requireValidPort("Start", startPort)
   requireValidPort("End", endPort)
   requireValidPort("TCP", tcpPort)

@@ -74,21 +74,8 @@ TOX_METHOD (void, Answer,
 TOX_METHOD (void, CallControl,
   jint instanceNumber, jint friendNumber, jint control)
 {
-  TOXAV_CALL_CONTROL call_control = [=] {
-    switch (control)
-      {
-      case 0: return TOXAV_CALL_CONTROL_RESUME;
-      case 1: return TOXAV_CALL_CONTROL_PAUSE;
-      case 2: return TOXAV_CALL_CONTROL_CANCEL;
-      case 3: return TOXAV_CALL_CONTROL_MUTE_AUDIO;
-      case 4: return TOXAV_CALL_CONTROL_UNMUTE_AUDIO;
-      case 5: return TOXAV_CALL_CONTROL_HIDE_VIDEO;
-      case 6: return TOXAV_CALL_CONTROL_SHOW_VIDEO;
-      }
-    tox4j_fatal ("Invalid call control from Java");
-  } ();
   return instances.with_instance_ign (env, instanceNumber,
-    toxav_call_control, friendNumber, call_control
+    toxav_call_control, friendNumber, enum_value<TOXAV_CALL_CONTROL> (env, control)
   );
 }
 
@@ -146,22 +133,21 @@ TOX_METHOD (void, AudioSendFrame,
  * Signature: (IIII[B[B[B[B)V
  */
 TOX_METHOD (void, VideoSendFrame,
-  jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v, jbyteArray a)
+  jint instanceNumber, jint friendNumber, jint width, jint height, jbyteArray y, jbyteArray u, jbyteArray v)
 {
   size_t pixel_count = width * height;
 
   ByteArray yData (env, y);
   ByteArray uData (env, u);
   ByteArray vData (env, v);
-  ByteArray aData (env, a);
   if (yData.size () != pixel_count ||
       uData.size () != pixel_count ||
-      vData.size () != pixel_count ||
-      (!aData.empty () && aData.size () != pixel_count))
+      vData.size () != pixel_count)
     return throw_tox_exception<ToxAV> (env, TOXAV_ERR_SEND_FRAME_INVALID);
 
   return instances.with_instance_ign (env, instanceNumber,
-    toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data (), aData.data ()
+    toxav_video_send_frame, friendNumber, width, height, yData.data (), uData.data (), vData.data ()
   );
 }
+
 #endif

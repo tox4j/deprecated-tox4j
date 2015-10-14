@@ -6,10 +6,15 @@
       "which is usually a lack of memory issue. The functions accepting keys",
       "do not produce this error."
     ],
-    "INVALID_LENGTH": ["The salt was of incorrect length."]
+    "@JavaOnly INVALID_LENGTH": ["The salt was of incorrect length."]
   },
   "Encryption": {
     "NULL": ["The key or input data was null or empty."],
+    "KEY_DERIVATION_FAILED": [
+      "The crypto lib was unable to derive a key from the given passphrase,",
+      "which is usually a lack of memory issue. The functions accepting keys",
+      "do not produce this error."
+    ],
     "FAILED": ["The encryption itself failed."]
   },
   "Decryption": {
@@ -20,6 +25,11 @@
     "BAD_FORMAT": [
       "The input data is missing the magic number (i.e. wasn't created by this",
       "module, or is corrupted)"
+    ],
+    "KEY_DERIVATION_FAILED": [
+      "The crypto lib was unable to derive a key from the given passphrase,",
+      "which is usually a lack of memory issue. The functions accepting keys",
+      "do not produce this error."
     ],
     "FAILED": [
       "The encrypted byte array could not be decrypted. Either the data was",

@@ -1,62 +1,54 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreConstants
-import org.junit.Test
+import im.tox.tox4j.testing.ToxTestMixin
+import org.scalatest.FunSuite
 
-class ToxBootstrapExceptionTest extends ToxCoreTestBase {
+final class ToxBootstrapExceptionTest extends FunSuite with ToxTestMixin {
 
-  @Test
-  def testBootstrapBadPort1(): Unit = {
+  test("BootstrapBadPort1") {
     interceptWithTox(ToxBootstrapException.Code.BAD_PORT)(
       _.bootstrap("192.254.75.98", 0, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     )
   }
 
-  @Test
-  def testBootstrapBadPort2(): Unit = {
+  test("BootstrapBadPort2") {
     interceptWithTox(ToxBootstrapException.Code.BAD_PORT)(
       _.bootstrap("192.254.75.98", -10, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     )
   }
 
-  @Test
-  def testBootstrapBadPort3(): Unit = {
+  test("BootstrapBadPort3") {
     interceptWithTox(ToxBootstrapException.Code.BAD_PORT)(
       _.bootstrap("192.254.75.98", 65536, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     )
   }
 
-  @Test
-  def testBootstrapBadHost(): Unit = {
+  test("BootstrapBadHost") {
     interceptWithTox(ToxBootstrapException.Code.BAD_HOST)(
       _.bootstrap(".", 33445, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     )
   }
 
-  @Test
-  def testBootstrapNullHost(): Unit = {
+  test("BootstrapNullHost") {
     interceptWithTox(ToxBootstrapException.Code.NULL)(
       _.bootstrap(null, 33445, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
     )
   }
 
-  @Test
-  def testBootstrapNullKey(): Unit = {
+  test("BootstrapNullKey") {
     interceptWithTox(ToxBootstrapException.Code.NULL)(
       _.bootstrap("localhost", 33445, null)
     )
   }
 
-  @Test
-  def testBootstrapKeyTooShort(): Unit = {
+  test("BootstrapKeyTooShort") {
     interceptWithTox(ToxBootstrapException.Code.BAD_KEY)(
       _.bootstrap("localhost", 33445, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE - 1))
     )
   }
 
-  @Test
-  def testBootstrapKeyTooLong(): Unit = {
+  test("BootstrapKeyTooLong") {
     interceptWithTox(ToxBootstrapException.Code.BAD_KEY)(
       _.bootstrap("localhost", 33445, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE + 1))
     )

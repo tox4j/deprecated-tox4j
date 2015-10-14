@@ -6,7 +6,7 @@ import im.tox.tox4j.core.ToxCore
 
 final class GettersTimingBench extends TimingReport {
 
-  timing of classOf[ToxCore] in {
+  timing of classOf[ToxCore[Unit]] in {
 
     measure method "getAddress" in {
       usingTox(iterations100k) in {
@@ -25,7 +25,7 @@ final class GettersTimingBench extends TimingReport {
     measure method "getNoSpam" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.getNoSpam)
+          (0 until sz) foreach (_ => tox.getNospam)
       }
     }
 
@@ -74,7 +74,7 @@ final class GettersTimingBench extends TimingReport {
     measure method "getNoSpam" in {
       usingTox(iterations100k) in {
         case (sz, tox) =>
-          (0 until sz) foreach (_ => tox.getNoSpam)
+          (0 until sz) foreach (_ => tox.getNospam)
       }
     }
 

@@ -1,15 +1,17 @@
 // General settings.
 organization  := "im.tox"
 name          := "tox4j"
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.11.7"
 
 // Enable the plugins we want.
+import ScoverageSbtPlugin.ScoverageKeys._
 import sbt.tox4j._
 import sbt.tox4j.lint._
 
 // Build plugins.
 Assembly.moduleSettings
-Benchmarking.moduleSettings
+Benchmarking.projectSettings
+CodeFormat.projectSettings
 Jni.moduleSettings
 ProtobufJni.moduleSettings
 
@@ -22,13 +24,17 @@ resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repos
 
 // Build dependencies.
 libraryDependencies ++= Seq(
+  "com.intellij" % "annotations" % "12.0",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
-  "org.json" % "json" % "20131018"
+  "org.json" % "json" % "20131018",
+  "org.scalaz" %% "scalaz-core" % "7.2.0-M1"
 )
 
 // Test dependencies.
 libraryDependencies ++= Seq(
-  "com.storm-enroute" %% "scalameter" % "0.7-SNAPSHOT",
+  "com.google.guava" % "guava" % "18.0",
+  "com.intellij" % "forms_rt" % "7.0.3",
+  "com.storm-enroute" %% "scalameter" % "0.8-SNAPSHOT",
   "junit" % "junit" % "4.12",
   "org.scalacheck" %% "scalacheck" % "1.12.2",
   "org.scalatest" %% "scalatest" % "2.2.4",
@@ -75,7 +81,8 @@ Scalastyle.moduleSettings
 WartRemoverOverrides.moduleSettings
 
 // TODO(iphydf): Require less test coverage for now, until ToxAv is tested.
-ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 78
+Coverage.projectSettings
+coverageMinimum := 77
 
 // Tox4j-specific style checkers.
 addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")
@@ -84,13 +91,4 @@ addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")
 scalastyleConfigUrl in Test := None
 scalastyleConfig in Test := (scalaSource in Test).value / "scalastyle-config.xml"
 
-// Current VM version.
-val javaVersion = sys.props("java.specification.version")
-
-// Java 1.6 for production code.
-javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
-scalacOptions in Compile += "-target:jvm-" + "1.6"
-
-// Latest Java for test code.
-javacOptions in Test ++= Seq("-source", javaVersion, "-target", javaVersion)
-scalacOptions in Test += "-target:jvm-" + javaVersion
+scalacOptions ++= Seq("-optimise", "-Yinline-warnings")

@@ -1,8 +1,32 @@
 package im.tox.tox4j.core.options
 
-import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.core.ToxCore
+import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
+
+/**
+ * Base type for all proxy kinds.
+ */
+sealed trait ProxyOptions {
+  /**
+   * Low level enumeration value to pass to [[ToxCore.load]].
+   */
+  def proxyType: ToxProxyType
+
+  /**
+   * The IP address or DNS name of the proxy to be used.
+   *
+   * If used, this must be a valid DNS name. The name must not exceed [[ToxCoreConstants.MAX_HOSTNAME_LENGTH]] characters.
+   * This member is ignored (it can be anything) if [[proxyType]] is [[ToxProxyType.NONE]].
+   */
+  def proxyAddress: String
+
+  /**
+   * The port to use to connect to the proxy server.
+   *
+   * Ports must be in the range (1, 65535). The value is ignored if [[proxyType]] is [[ToxProxyType.NONE]].
+   */
+  def proxyPort: Int
+}
 
 /**
  * Proxy options for [[ToxCore.load]]
@@ -14,34 +38,9 @@ object ProxyOptions {
   }
 
   /**
-   * Base type for all proxy kinds.
-   */
-  sealed trait Type {
-    /**
-     * Low level enumeration value to pass to [[ToxCore.load]].
-     */
-    def proxyType: ToxProxyType
-
-    /**
-     * The IP address or DNS name of the proxy to be used.
-     *
-     * If used, this must be a valid DNS name. The name must not exceed [[ToxCoreConstants.MAX_HOSTNAME_LENGTH]] characters.
-     * This member is ignored (it can be anything) if [[proxyType]] is [[ToxProxyType.NONE]].
-     */
-    def proxyAddress: String
-
-    /**
-     * The port to use to connect to the proxy server.
-     *
-     * Ports must be in the range (1, 65535). The value is ignored if [[proxyType]] is [[ToxProxyType.NONE]].
-     */
-    def proxyPort: Int
-  }
-
-  /**
    * Don't use a proxy. Attempt to directly connect to other nodes.
    */
-  case object None extends Type {
+  case object None extends ProxyOptions {
     override def proxyType: ToxProxyType = ToxProxyType.NONE
     override def proxyAddress: String = ""
     override def proxyPort: Int = 0
@@ -50,7 +49,7 @@ object ProxyOptions {
   /**
    * Tunnel Tox TCP traffic over an HTTP proxy. The proxy must support CONNECT.
    */
-  final case class Http(proxyAddress: String, proxyPort: Int) extends Type {
+  final case class Http(proxyAddress: String, proxyPort: Int) extends ProxyOptions {
     requireValidUInt16(proxyPort)
     override def proxyType: ToxProxyType = ToxProxyType.HTTP
   }
@@ -60,7 +59,7 @@ object ProxyOptions {
    * support UDP sockets, the main use case (Tor) does not, and Tox will not
    * use the proxy for UDP connections.
    */
-  final case class Socks5(proxyAddress: String, proxyPort: Int) extends Type {
+  final case class Socks5(proxyAddress: String, proxyPort: Int) extends ProxyOptions {
     requireValidUInt16(proxyPort)
     override def proxyType: ToxProxyType = ToxProxyType.SOCKS5
   }

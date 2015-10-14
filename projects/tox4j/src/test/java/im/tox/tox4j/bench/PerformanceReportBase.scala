@@ -1,12 +1,13 @@
 package im.tox.tox4j.bench
 
-import im.tox.tox4j.bench.PerformanceReportBase.toxInstance
+import im.tox.tox4j.av.ToxAv
+import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.picklers.Implicits._
+import im.tox.tox4j.core.exceptions.ToxNewException
 import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
 import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
-import im.tox.tox4j.impl.jni.ToxCoreImpl
+import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
 import org.scalameter.api._
-import org.scalameter.{ Gen, KeyValue, api }
 
 import scala.collection.immutable
 import scala.util.Random
@@ -35,10 +36,10 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
 
   protected def confidence = Confidence.normal
 
-  final override def defaultConfig: Context = Context.empty ++ Seq[KeyValue](
+  final override def defaultConfig: Context = Context.empty ++ Context(
     verbose -> false,
     reports.resultDir -> "target/benchmarks",
-    exec.jvmflags -> ("-Djava.library.path=" + sys.props("java.library.path")),
+    exec.jvmflags -> List("-Djava.library.path=" + sys.props("java.library.path")),
     exec.reinstantiation.frequency -> 1000,
     exec.reinstantiation.fullGC -> true
   ) ++ confidence
@@ -47,16 +48,23 @@ abstract class PerformanceReportBase extends PerformanceTest.OfflineRegressionRe
    * Helper methods to run with tupled generators. Tupled [[Gen]]s run with a cross product of their arguments, so use
    * these with care. You can easily run into combinatorial explosion.
    */
-  def using[A, B](a: Gen[A], b: Gen[B]): Using[(A, B)] = using(Gen.tupled(a, b))
-  def using[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C)] = using(Gen.tupled(a, b, c))
-  def using[A, B, C, D](a: Gen[A], b: Gen[B], c: Gen[C], d: Gen[D]): Using[(A, B, C, D)] = using(Gen.tupled(a, b, c, d))
+  def using[A, B](a: Gen[A], b: Gen[B]): Using[(A, B)] = using(Gen.crossProduct(a, b))
+  def using[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C)] = using(Gen.crossProduct(a, b, c))
+  def using[A, B, C, D](a: Gen[A], b: Gen[B], c: Gen[C], d: Gen[D]): Using[(A, B, C, D)] = using(Gen.crossProduct(a, b, c, d))
 
   /**
    * The same as the above, but adding [[toxInstance]] as last element of the tuple.
    */
-  def usingTox[A](a: Gen[A]): Using[(A, ToxCore)] = using(a, toxInstance)
-  def usingTox[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxCore)] = using(a, b, toxInstance)
-  def usingTox[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxCore)] = using(a, b, c, toxInstance)
+  def usingTox[A](a: Gen[A]): Using[(A, ToxCore[Unit])] = using(a, toxInstance)
+  def usingTox[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxCore[Unit])] = using(a, b, toxInstance)
+  def usingTox[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxCore[Unit])] = using(a, b, c, toxInstance)
+
+  /**
+   * The same as the above, but adding [[toxAvInstance]] as last element of the tuple.
+   */
+  def usingToxAv[A](a: Gen[A]): Using[(A, ToxAv[Unit])] = using(a, toxAvInstance)
+  def usingToxAv[A, B](a: Gen[A], b: Gen[B]): Using[(A, B, ToxAv[Unit])] = using(a, b, toxAvInstance)
+  def usingToxAv[A, B, C](a: Gen[A], b: Gen[B], c: Gen[C]): Using[(A, B, C, ToxAv[Unit])] = using(a, b, c, toxAvInstance)
 
 }
 
@@ -66,10 +74,11 @@ object PerformanceReportBase {
    * We keep a private PRNG for various generators.
    */
   private val random = new Random
+
   /**
    * Set [[ToxOptions.startPort]] to a lower number so we have more ports to choose from. This reduces the chance of a
-   * [[im.tox.tox4j.core.exceptions.ToxNewException.Code.PORT_ALLOC]] error occurring before all old [[ToxCore]]
-   * instances have been garbage collected.
+   * [[ToxNewException.Code.PORT_ALLOC]] error occurring before all old [[ToxCore]] instances have been garbage
+   * collected.
    */
   private val toxOptions = ToxOptions(startPort = 30000)
 
@@ -81,7 +90,9 @@ object PerformanceReportBase {
    * @return A [[Seq]] of Tox Addresses in [[Byte]] arrays.
    */
   def friendAddresses(sz: Int): Seq[Array[Byte]] = {
-    (0 until sz) map { i => ToxCoreFactory.withTox(_.getAddress) }
+    for (_ <- 0 until sz) yield {
+      ToxCoreFactory.withTox(_.getAddress)
+    }
   }
 
   /**
@@ -92,7 +103,7 @@ object PerformanceReportBase {
    * @return A [[Seq]] containing public keys in [[Byte]] arrays.
    */
   def friendKeys(sz: Int): Seq[Array[Byte]] = {
-    (0 until sz) map { i =>
+    for (_ <- 0 until sz) yield {
       val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
       // noinspection SideEffectsInMonadicTransformation
       random.nextBytes(key)
@@ -109,11 +120,11 @@ object PerformanceReportBase {
    * @param friendCount The number of friends to add.
    * @return A new [[ToxCore]] instance with a name, status message, and friendCount friends.
    */
-  def makeToxWithFriends(friendCount: Int): ToxCore = {
-    val tox = ToxCoreFactory.make(toxOptions)
+  def makeToxWithFriends(friendCount: Int): ToxCore[Unit] = {
+    val tox = ToxCoreFactory.make[Unit](toxOptions)
     tox.setName(Array.ofDim(ToxCoreConstants.MAX_NAME_LENGTH))
     tox.setStatusMessage(Array.ofDim(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH))
-    friendKeys(friendCount) foreach tox.addFriendNoRequest
+    friendKeys(friendCount) foreach tox.addFriendNorequest
     tox
   }
 
@@ -125,7 +136,7 @@ object PerformanceReportBase {
    *
    * @return A new [[ToxCore]] instance with a name, status message, and 1 friend.
    */
-  def makeTox(): ToxCore = {
+  def makeTox(): ToxCore[Unit] = {
     makeToxWithFriends(1)
   }
 
@@ -136,7 +147,12 @@ object PerformanceReportBase {
    * should not mutate it. If it does, it needs to ensure that it returns to an equivalent state as before the test
    * began. In particular, if you add friends, you need to ensure that you remove all but 1 friends on tearDown.
    */
-  val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl]).map(_ => makeTox())
+  val toxInstance = Gen.single("tox")(classOf[ToxCoreImpl[Unit]]).map(_ => makeTox()).cached
+
+  /**
+   * Generator for a [[ToxAv]] instance.
+   */
+  val toxAvInstance = toxInstance.map(tox => new ToxAvImpl[Unit](tox.asInstanceOf[ToxCoreImpl[Unit]]): ToxAv[Unit]).cached
 
   /**
    * Helper function to create a range axis evenly divided into 10 samples. The range starts with `upto / 10` and ends
@@ -149,7 +165,7 @@ object PerformanceReportBase {
    * @param upto The highest value this generator will produce.
    * @return A generator from `upto / 10` to `upto`.
    */
-  private def range(axisName: String)(upto: Int) = {
+  def range(axisName: String)(upto: Int): Gen[Int] = {
     require(upto % 10 == 0)
     Gen.range(axisName)(upto / 10, upto, upto / 10)
   }
@@ -157,11 +173,11 @@ object PerformanceReportBase {
   val nodes = range("nodes")(100)
   val instances = range("instances")(100)
 
-  def friends: Int => api.Gen[Int] = range("friends")
+  def friends: Int => Gen[Int] = range("friends")
   val friends1k = friends(1000)
   val friends10k = friends(10000)
 
-  def iterations: Int => api.Gen[Int] = range("iterations")
+  def iterations: Int => Gen[Int] = range("iterations")
   val iterations1k = iterations(1000)
   val iterations10k = iterations(10000)
   val iterations100k = iterations(100000)
@@ -177,19 +193,19 @@ object PerformanceReportBase {
    * each friend count, there is exactly one instance with that number of friends.
    *
    * Experiments have shown that this custom caching takes 2.3GB for a 10-step range of 1000-10000 friends instead of
-   * 2.7GB when using [[Gen.cached]]. It is also about 15% faster.
+   * 2.7GB when using [[org.scalameter.Gen.cached]]. It is also about 15% faster.
    *
    * Do not mutate objects returned by this function.
    */
-  object toxWithFriends extends (Int => ToxCore) with Serializable {
+  object toxWithFriends extends (Int => ToxCore[Unit]) with Serializable {
     /**
      * [[immutable.HashMap]] was chosen here for its semantics, not efficiency. A [[Vector]][([[Int]], [[ToxCore]])] or
      * an [[Array]] would possibly be faster, but the map is easier to use.
      */
     @transient
-    private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore]
+    private var toxesWithFriends = immutable.HashMap.empty[Int, ToxCore[Unit]]
 
-    override def apply(sz: Int): ToxCore = {
+    override def apply(sz: Int): ToxCore[Unit] = {
       toxesWithFriends.get(sz) match {
         case Some(tox) =>
           tox
@@ -203,7 +219,6 @@ object PerformanceReportBase {
 
   val toxWithFriends1k = friends1k map toxWithFriends
   val toxWithFriends10k = friends10k map toxWithFriends
-  //  val toxWithFriends10k = (friends10k map makeToxWithFriends).cached
 
   /**
    * Extract a random friend list from a Tox instance. If limit is 0 or omitted, extract the entire friend list. If
@@ -217,7 +232,7 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore): (Seq[Int], ToxCore) = {
+  def toxAndFriendNumbers(limit: Int = 0)(tox: ToxCore[Unit]): (Seq[Int], ToxCore[Unit]) = {
     val friendList = random.shuffle(tox.getFriendList.toSeq)
     if (limit != 0) {
       (friendList.slice(0, limit), tox)
@@ -234,17 +249,21 @@ object PerformanceReportBase {
    * @param tox The Tox instance to extract the friends from.
    * @return A pair containing the passed Tox instance and a random slice of the friend list.
    */
-  def toxAndFriendKeys(limit: Int)(tox: ToxCore): (Seq[Array[Byte]], ToxCore) = {
+  def toxAndFriendKeys(limit: Int)(tox: ToxCore[Unit]): (Seq[Array[Byte]], ToxCore[Unit]) = {
     toxAndFriendNumbers(limit)(tox) match {
-      case (friendList, `tox`) => (friendList map tox.getFriendPublicKey, tox)
+      case (friendList, _) => (friendList map tox.getFriendPublicKey, tox)
     }
   }
 
   /**
-   * Produces [[instances]] valid Tox save data arrays as produced by [[ToxCore.getSaveData]].
+   * Produces [[instances]] valid Tox save data arrays as produced by [[ToxCore.getSavedata]].
    */
-  val toxSaves = instances.map { sz =>
-    (0 until sz) map (_ => ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSaveData)))
+  val toxSaves = {
+    for (sz <- instances) yield {
+      for (_ <- 0 until sz) yield {
+        ToxOptions(saveData = SaveDataOptions.ToxSave(makeTox().getSavedata))
+      }
+    }
   }
 
   val names = nameLengths.map(Array.ofDim[Byte])

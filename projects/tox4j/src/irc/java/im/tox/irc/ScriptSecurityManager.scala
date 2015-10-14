@@ -3,9 +3,9 @@
  */
 package im.tox.irc
 
-import java.io.{ File, FilePermission }
-import java.net.{ NetPermission, SocketPermission }
-import java.security.{ Permission, SecurityPermission }
+import java.io.{File, FilePermission}
+import java.net.{NetPermission, SocketPermission}
+import java.security.{Permission, SecurityPermission}
 import java.util.PropertyPermission
 
 object ScriptSecurityManager extends SecurityManager {

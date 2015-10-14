@@ -141,4 +141,11 @@ toJavaArray (JNIEnv *env, T const (&data)[N])
 }
 
 
+template<typename T>
+jint enum_ordinal (JNIEnv *env, T value);
+
+template<typename T>
+T enum_value (JNIEnv *env, jint ordinal);
+
+
 #endif /* JNIUTIL_H */

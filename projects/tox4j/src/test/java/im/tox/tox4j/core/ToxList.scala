@@ -1,20 +1,36 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.core.callbacks.SelfConnectionStatusCallback
+import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.ToxConnection
+import im.tox.tox4j.core.exceptions.ToxNewException
 
-final class ToxList(newTox: () => ToxCore, count: Int) {
+import scala.collection.mutable.ArrayBuffer
 
-  private case class Instance(tox: ToxCore, var connected: ToxConnection)
+final class ToxList[ToxCoreState](newTox: () => ToxCore[ToxCoreState], count: Int) {
 
-  private val toxes = (0 until count) map { i =>
-    val instance = Instance(newTox(), ToxConnection.NONE)
-    instance.tox.callbackSelfConnectionStatus(new SelfConnectionStatusCallback {
-      override def selfConnectionStatus(connectionStatus: ToxConnection): Unit = {
-        instance.connected = connectionStatus
+  private case class Instance(tox: ToxCore[ToxCoreState], var connected: ToxConnection)
+
+  private val toxes = {
+    val temporary = new ArrayBuffer[ToxCore[ToxCoreState]]
+    val instances = try {
+      (0 until count) map { i =>
+        val instance = Instance(newTox(), ToxConnection.NONE)
+        temporary += instance.tox
+        instance.tox.callback(new ToxEventListener[ToxCoreState] {
+          override def selfConnectionStatus(connectionStatus: ToxConnection)(state: ToxCoreState): ToxCoreState = {
+            instance.connected = connectionStatus
+            state
+          }
+        })
+        instance
       }
-    })
-    instance
+    } catch {
+      case e: ToxNewException =>
+        temporary.foreach(_.close())
+        throw e
+    }
+
+    instances
   }
 
   def close(): Unit = toxes.foreach(_.tox.close())
@@ -22,11 +38,11 @@ final class ToxList(newTox: () => ToxCore, count: Int) {
   def isAllConnected: Boolean = toxes.forall(_.connected != ToxConnection.NONE)
   def isAnyConnected: Boolean = toxes.exists(_.connected != ToxConnection.NONE)
 
-  def iteration(): Unit = toxes.foreach(_.tox.iterate())
+  def iterate(state: ToxCoreState): Unit = toxes.foreach(_.tox.iterate(state))
 
   def iterationInterval: Int = toxes.map(_.tox.iterationInterval).max
 
-  def get(index: Int): ToxCore = toxes(index).tox
+  def get(index: Int): ToxCore[ToxCoreState] = toxes(index).tox
   def size: Int = toxes.length
 
 }

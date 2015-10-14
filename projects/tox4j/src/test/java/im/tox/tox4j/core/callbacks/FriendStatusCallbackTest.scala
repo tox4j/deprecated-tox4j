@@ -1,53 +1,51 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxUserStatus }
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase, ChatClient }
-import org.junit.Assert.assertEquals
+import im.tox.tox4j.core.enums.ToxUserStatus
+import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
 
 final class FriendStatusCallbackTest extends AliceBobTest {
 
-  protected override def newAlice(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
+  override type State = ToxUserStatus
+  override def initialState: State = ToxUserStatus.NONE
 
-    private var selfStatus = ToxUserStatus.NONE
-    //    private var isInitialized = false
+  protected override def newChatClient(name: String, expectedFriendName: String) = new ChatClient(name, expectedFriendName) {
 
-    override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection): Unit = {
-      if (connection != ToxConnection.NONE) {
-        debug("is now connected to friend " + friendNumber)
+    private def go(state: ChatState)(status: ToxUserStatus): ChatState = {
+      state.addTask { (tox, state) =>
+        tox.setStatus(status)
+        state.set(status)
       }
     }
 
-    private def go(status: ToxUserStatus): Unit = {
-      addTask { tox =>
-        selfStatus = status
-        tox.setStatus(selfStatus)
-      }
-    }
+    override def friendStatus(friendNumber: Int, status: ToxUserStatus)(state: ChatState): ChatState = {
+      debug(s"friend changed status to: $status")
+      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
 
-    override def friendStatus(friendNumber: Int, status: ToxUserStatus): Unit = {
-      debug("friend changed status to: " + status)
-      assertEquals(AliceBobTestBase.FRIEND_NUMBER, friendNumber)
-      if (selfStatus == ToxUserStatus.NONE) {
-        if (isAlice) {
-          assertEquals(ToxUserStatus.NONE, status)
-          go(ToxUserStatus.AWAY)
-        }
-        if (isBob) {
-          if (status != ToxUserStatus.NONE) {
-            assertEquals(ToxUserStatus.AWAY, status)
-            go(ToxUserStatus.BUSY)
+      state.get match {
+        case ToxUserStatus.NONE =>
+          if (isAlice) {
+            assert(status == ToxUserStatus.NONE)
+            go(state)(ToxUserStatus.AWAY)
+          } else {
+            if (status != ToxUserStatus.NONE) {
+              assert(status == ToxUserStatus.AWAY)
+              go(state)(ToxUserStatus.BUSY)
+            } else {
+              state
+            }
           }
-        }
-      } else {
-        if (isAlice && selfStatus == ToxUserStatus.AWAY) {
-          assertEquals(ToxUserStatus.BUSY, status)
-          go(ToxUserStatus.NONE)
-          finish()
-        }
-        if (isBob && selfStatus == ToxUserStatus.BUSY) {
-          assertEquals(ToxUserStatus.NONE, status)
-          finish()
-        }
+
+        case selfStatus =>
+          if (isAlice && selfStatus == ToxUserStatus.AWAY) {
+            assert(status == ToxUserStatus.BUSY)
+            go(state)(ToxUserStatus.NONE)
+              .finish
+          } else if (isBob && selfStatus == ToxUserStatus.BUSY) {
+            assert(status == ToxUserStatus.NONE)
+            state.finish
+          } else {
+            state
+          }
       }
     }
 

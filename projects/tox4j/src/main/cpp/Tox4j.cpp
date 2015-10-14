@@ -15,3 +15,13 @@ JNI_OnLoad (JavaVM *, void *)
     return -1;
   return JNI_VERSION_1_4;
 }
+
+extern "C" void __gcov_flush ();
+
+void
+JNI_OnUnload (JavaVM, void *)
+{
+#ifndef __ANDROID__
+  __gcov_flush ();
+#endif
+}

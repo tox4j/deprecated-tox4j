@@ -1,46 +1,42 @@
 package im.tox.tox4j.core
 
-import java.util.{ ArrayList, Arrays }
-
 import im.tox.tox4j.ToxCoreTestBase
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
-import im.tox.tox4j.core.options.{ ToxOptions, SaveDataOptions }
-import im.tox.tox4j.exceptions.ToxException
-import org.junit.Assert._
-import org.junit.Test
+import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
+import org.scalatest.FunSuite
 
-final class LoadSaveTest extends ToxCoreTestBase {
+import scala.annotation.tailrec
+
+final class LoadSaveTest extends FunSuite {
 
   private trait Check {
-    @throws(classOf[ToxException[_]])
-    def change(tox: ToxCore): Boolean
-    def check(tox: ToxCore): Unit
+    def change(tox: ToxCore[Unit]): Boolean
+    def check(tox: ToxCore[Unit]): Unit
   }
 
+  @tailrec
   private def testLoadSave(check: Check): Unit = {
-    var moreTests = true
-    var data: Seq[Byte] = Nil
-    while (moreTests) {
-      withTox { tox =>
-        moreTests = check.change(tox)
-        data = tox.getSaveData
-      }
+    val (continue, data) = withTox { tox =>
+      (check.change(tox), tox.getSavedata)
+    }
 
-      withTox(SaveDataOptions.ToxSave(data)) { tox =>
-        check.check(tox)
-      }
+    withTox(SaveDataOptions.ToxSave(data)) { tox =>
+      check.check(tox)
+    }
+
+    if (continue) {
+      testLoadSave(check)
     }
   }
 
-  @Test def testName(): Unit = {
+  test("Name") {
     testLoadSave(new Check() {
       private var expected: Array[Byte] = null
 
-      @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         if (expected == null) {
-          expected = Array[Byte]()
+          expected = Array.empty
         } else {
           expected = ToxCoreTestBase.randomBytes(expected.length + 1)
         }
@@ -48,20 +44,19 @@ final class LoadSaveTest extends ToxCoreTestBase {
         expected.length < ToxCoreConstants.MAX_NAME_LENGTH
       }
 
-      override def check(tox: ToxCore): Unit = {
-        assertArrayEquals(expected, tox.getName)
+      override def check(tox: ToxCore[Unit]): Unit = {
+        assert(tox.getName sameElements expected)
       }
     })
   }
 
-  @Test def testStatusMessage(): Unit = {
+  test("StatusMessage") {
     testLoadSave(new Check() {
       private var expected: Array[Byte] = null
 
-      @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         if (expected == null) {
-          expected = Array[Byte]()
+          expected = Array.empty
         } else {
           expected = ToxCoreTestBase.randomBytes(expected.length + 1)
         }
@@ -69,128 +64,123 @@ final class LoadSaveTest extends ToxCoreTestBase {
         expected.length < ToxCoreConstants.MAX_NAME_LENGTH
       }
 
-      override def check(tox: ToxCore): Unit = {
-        assertArrayEquals(expected, tox.getStatusMessage)
+      override def check(tox: ToxCore[Unit]): Unit = {
+        assert(tox.getStatusMessage sameElements expected)
       }
     })
   }
 
-  @Test def testStatus(): Unit = {
+  test("Status") {
     testLoadSave(new Check() {
+      private var expected = ToxUserStatus.values()
 
-      private val expected = new ArrayList(Arrays.asList(ToxUserStatus.values(): _*))
-
-      @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
-        tox.setStatus(expected.get(expected.size() - 1))
-        expected.size() > 1
+      override def change(tox: ToxCore[Unit]): Boolean = {
+        tox.setStatus(expected.head)
+        expected.length > 1
       }
 
-      override def check(tox: ToxCore): Unit = {
-        assertEquals(expected.remove(expected.size() - 1), tox.getStatus)
+      override def check(tox: ToxCore[Unit]): Unit = {
+        assert(tox.getStatus == expected.head)
+        expected = expected.tail
       }
     })
   }
 
-  @Test def testNoSpam(): Unit = {
+  test("NoSpam") {
     testLoadSave(new Check() {
       private var expected = -1
 
-      @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         expected += 1
-        tox.setNoSpam(expected)
+        tox.setNospam(expected)
         expected < 100
       }
 
-      override def check(tox: ToxCore): Unit = {
-        assertEquals(expected, tox.getNoSpam)
+      override def check(tox: ToxCore[Unit]): Unit = {
+        assert(tox.getNospam == expected)
       }
     })
   }
 
-  @Test def testFriend(): Unit = {
+  test("Friend") {
     testLoadSave(new Check() {
       private var expected: Int = 1
 
-      @throws(classOf[ToxException[_]])
-      override def change(tox: ToxCore): Boolean = {
+      override def change(tox: ToxCore[Unit]): Boolean = {
         withTox { toxFriend =>
           expected = tox.addFriend(toxFriend.getAddress, "hello".getBytes)
         }
         false
       }
 
-      override def check(tox: ToxCore): Unit = {
-        assertEquals(1, tox.getFriendList.length)
-        assertEquals(expected, tox.getFriendList(0))
+      override def check(tox: ToxCore[Unit]): Unit = {
+        assert(tox.getFriendList.length == 1)
+        assert(tox.getFriendList(0) == expected)
       }
     })
   }
 
-  @Test def testSaveNotEmpty(): Unit = {
+  test("SaveNotEmpty") {
     withTox { tox =>
-      var data = tox.getSaveData
-      assertNotNull(data)
-      assertNotEquals(0, data.length)
+      val data = tox.getSavedata
+      assert(data != null)
+      assert(data.nonEmpty)
     }
   }
 
-  @Test def testSaveRepeatable(): Unit = {
+  test("SaveRepeatable") {
     withTox { tox =>
-      assertArrayEquals(tox.getSaveData, tox.getSaveData)
+      assert(tox.getSavedata sameElements tox.getSavedata)
     }
   }
 
-  @Test def testLoadSave1(): Unit = {
+  test("LoadSave1") {
     withTox { tox =>
-      var data = tox.getSaveData
-      var data1: Array[Byte] = new Array[Byte](0)
-      var data2: Array[Byte] = new Array[Byte](0)
+      val data = tox.getSavedata
+      val data1 = withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
+        tox1.getSavedata
+      }
+      val data2 = withTox(SaveDataOptions.ToxSave(data)) { tox2 =>
+        tox2.getSavedata
+      }
+      assert(data1 sameElements data2)
+    }
+  }
+
+  test("LoadSave2") {
+    withTox { tox =>
+      val data = tox.getSavedata
       withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
-        data1 = tox1.getSaveData
+        assert(tox1.getSavedata.length == data.length)
       }
-      withTox(SaveDataOptions.ToxSave(data)) { tox2 =>
-        data2 = tox2.getSaveData
-      }
-      assertArrayEquals(data1, data2)
     }
   }
 
-  @Test def testLoadSave2(): Unit = {
+  test("LoadSave3") {
     withTox { tox =>
-      var data = tox.getSaveData
+      val data = tox.getSavedata
       withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
-        assertEquals(data.length, tox1.getSaveData.length)
+        assert(tox1.getSavedata sameElements data)
       }
     }
   }
 
-  @Test def testLoadSave3(): Unit = {
-    withTox { tox =>
-      var data = tox.getSaveData
-      withTox(SaveDataOptions.ToxSave(data)) { tox1 =>
-        assertArrayEquals(data, tox1.getSaveData)
-      }
-    }
-  }
-
-  @Test def testLoadSave4(): Unit = {
+  test("LoadSave4") {
     withTox { tox1 =>
-      var data = tox1.getSecretKey
+      val data = tox1.getSecretKey
       withTox(SaveDataOptions.SecretKey(data)) { tox2 =>
-        assertArrayEquals(tox1.getSecretKey, tox2.getSecretKey)
-        assertArrayEquals(tox1.getPublicKey, tox2.getPublicKey)
+        assert(tox1.getSecretKey sameElements tox2.getSecretKey)
+        assert(tox1.getPublicKey sameElements tox2.getPublicKey)
       }
     }
   }
 
-  @Test def testLoadSave5(): Unit = {
+  test("LoadSave5") {
     withTox { tox1 =>
-      var data = tox1.getSecretKey
+      val data = tox1.getSecretKey
       withTox(tox1.load(ToxOptions(saveData = SaveDataOptions.SecretKey(data)))) { tox2 =>
-        assertArrayEquals(tox1.getSecretKey, tox2.getSecretKey)
-        assertArrayEquals(tox1.getPublicKey, tox2.getPublicKey)
+        assert(tox1.getSecretKey sameElements tox2.getSecretKey)
+        assert(tox1.getPublicKey sameElements tox2.getPublicKey)
       }
     }
   }
