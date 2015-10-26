@@ -77,7 +77,7 @@ INSTALL() {
 }
 # libvpx
 (
-  CLONE https://git.chromium.org/webm libvpx
+  CLONE https://chromium.googlesource.com/webm libvpx
   patch -p1 < ../libvpx.patch
 
   export AR="$TOOLCHAIN/bin/$TOX4J_TARGET-ar"
