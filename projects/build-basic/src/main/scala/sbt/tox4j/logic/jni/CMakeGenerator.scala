@@ -1,6 +1,6 @@
 package sbt.tox4j.logic.jni
 
-import java.io.{ File, PrintWriter }
+import java.io.{File, PrintWriter}
 
 import org.apache.commons.io.FilenameUtils
 import sbt._

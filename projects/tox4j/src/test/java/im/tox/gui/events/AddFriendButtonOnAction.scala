@@ -1,6 +1,6 @@
 package im.tox.gui.events
 
-import java.awt.event.{ ActionEvent, ActionListener }
+import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing._
 
 import im.tox.gui.MainView

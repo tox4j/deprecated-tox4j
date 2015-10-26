@@ -7,11 +7,11 @@ import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
+import im.tox.tox4j.av.enums.{ToxavCallControl, ToxavFriendCallState}
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.impl.jni.ToxAvImpl.{ convert, logger }
+import im.tox.tox4j.impl.jni.ToxAvImpl.{convert, logger}
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 
@@ -262,8 +262,7 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
     ToxAvJni.invokeCallState(instanceNumber, friendNumber, convert(callState))
   def invokeVideoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int): Unit =
     ToxAvJni.invokeVideoBitRateStatus(instanceNumber, friendNumber, stable, bitRate)
-  // scalastyle:ignore line.size.limit
-  def invokeVideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], yStride: Int, uStride: Int, vStride: Int): Unit =
+  def invokeVideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], yStride: Int, uStride: Int, vStride: Int): Unit = // scalastyle:ignore line.size.limit
     ToxAvJni.invokeVideoReceiveFrame(instanceNumber, friendNumber, width, height, y, u, v, yStride, uStride, vStride)
 
 }

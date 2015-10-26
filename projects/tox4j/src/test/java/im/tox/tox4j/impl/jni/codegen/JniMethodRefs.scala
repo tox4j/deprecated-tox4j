@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier
 
 import im.tox.tox4j.impl.jni.codegen.NameConversions.cxxVarName
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
-import im.tox.tox4j.impl.jni.{ ToxAvJni, ToxCoreJni }
+import im.tox.tox4j.impl.jni.{ToxAvJni, ToxCoreJni}
 
 object JniMethodRefs extends CodeGenerator {
 

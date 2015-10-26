@@ -1,10 +1,10 @@
 package org.scalastyle.scalariform.tox4j
 
 import org.scalastyle._
-import org.scalastyle.scalariform.{ AstChecker, VisitorHelper }
+import org.scalastyle.scalariform.{AstChecker, VisitorHelper}
 
-import _root_.scalariform.lexer.{ Token, Tokens }
-import _root_.scalariform.parser.{ CompilationUnit, ForExpr }
+import _root_.scalariform.lexer.{Token, Tokens}
+import _root_.scalariform.parser.{CompilationUnit, ForExpr}
 
 final class ForBraceChecker extends AstChecker("for.brace") {
 

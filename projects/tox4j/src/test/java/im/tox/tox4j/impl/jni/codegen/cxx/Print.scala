@@ -56,8 +56,7 @@ object Print {
   /**
    * Statements.
    */
-  // scalastyle:ignore cyclomatic.complexity
-  def printStmt(stmt: Stmt, spacing: Doc = line): Doc = {
+  def printStmt(stmt: Stmt, spacing: Doc = line): Doc = { // scalastyle:ignore cyclomatic.complexity
     stmt match {
       case Switch(cond, CompoundStmt(cases)) =>
         "switch (" :: printExpr(cond) :: nest(2)(")" :|:

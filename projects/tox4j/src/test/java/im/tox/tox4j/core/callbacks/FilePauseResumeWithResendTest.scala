@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.core.enums.{ ToxFileControl, ToxFileKind }
+import im.tox.tox4j.core.enums.{ToxFileControl, ToxFileKind}
 
 final class FilePauseResumeWithResendTest extends FilePauseResumeTestBase {
 

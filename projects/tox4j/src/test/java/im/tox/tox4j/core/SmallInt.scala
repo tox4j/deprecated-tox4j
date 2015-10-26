@@ -1,6 +1,6 @@
 package im.tox.tox4j.core
 
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.{Arbitrary, Gen}
 
 import scala.language.implicitConversions
 import scala.runtime.IntegralProxy

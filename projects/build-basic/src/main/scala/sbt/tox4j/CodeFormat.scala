@@ -1,7 +1,7 @@
 package sbt.tox4j
 
-import com.typesafe.sbt.SbtScalariform.{ ScalariformKeys, scalariformSettings }
-import sbt.{ AutoPlugin, PluginTrigger }
+import com.typesafe.sbt.SbtScalariform.{ScalariformKeys, scalariformSettings}
+import sbt.{AutoPlugin, PluginTrigger}
 
 import scalariform.formatter.preferences._
 

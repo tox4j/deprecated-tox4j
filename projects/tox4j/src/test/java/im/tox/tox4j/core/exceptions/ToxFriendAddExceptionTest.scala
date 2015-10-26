@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCoreFactory }
+import im.tox.tox4j.core.{ToxCoreConstants, ToxCoreFactory}
 import im.tox.tox4j.testing.ToxTestMixin
 import org.scalatest.FunSuite
 

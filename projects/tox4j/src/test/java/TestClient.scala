@@ -1,7 +1,7 @@
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
+import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus}
 import im.tox.tox4j.core.options.ToxOptions
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 import org.slf4j.LoggerFactory

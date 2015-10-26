@@ -3,9 +3,9 @@ package im.tox.tox4j.core.callbacks
 import java.util.Random
 
 import im.tox.tox4j.TestConstants
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxFileKind, ToxMessageType }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
+import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxFileKind, ToxMessageType}
+import im.tox.tox4j.core.{ToxCore, ToxCoreConstants}
+import im.tox.tox4j.testing.autotest.{AliceBobTest, AliceBobTestBase}
 
 /**
  * This test intends to simulate the situation of file pause

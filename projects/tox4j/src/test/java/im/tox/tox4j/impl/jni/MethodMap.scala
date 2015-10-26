@@ -1,6 +1,6 @@
 package im.tox.tox4j.impl.jni
 
-import java.lang.reflect.{ Method, Modifier }
+import java.lang.reflect.{Method, Modifier}
 
 import im.tox.tox4j.impl.jni.codegen.NameConversions
 

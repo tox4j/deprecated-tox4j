@@ -4,7 +4,7 @@ import javax.swing._
 
 import im.tox.tox4j.ToxCoreTestBase.readablePublicKey
 import im.tox.tox4j.core.callbacks.ToxEventListener
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus }
+import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus}
 import org.jetbrains.annotations.NotNull
 
 final class GuiToxEventListener(toxGui: MainView) extends ToxEventListener[Unit] {

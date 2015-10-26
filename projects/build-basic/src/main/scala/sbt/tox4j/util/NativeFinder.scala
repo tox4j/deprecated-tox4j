@@ -5,7 +5,7 @@ package sbt.tox4j.util
 
 import java.io.FileInputStream
 import java.lang.reflect.Method
-import javassist.util.proxy.{ MethodFilter, MethodHandler, ProxyFactory }
+import javassist.util.proxy.{MethodFilter, MethodHandler, ProxyFactory}
 
 import org.objectweb.asm._
 import sbt._

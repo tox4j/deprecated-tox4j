@@ -3,7 +3,7 @@ package im.tox.tox4j.testing.autotest
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.callbacks.ToxEventAdapter
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
+import im.tox.tox4j.core.{ToxCore, ToxCoreConstants}
 import im.tox.tox4j.exceptions.ToxException
 import org.slf4j.LoggerFactory
 

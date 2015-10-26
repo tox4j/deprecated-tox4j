@@ -2,7 +2,7 @@
 package im.tox.tox4j
 
 import java.io.IOException
-import java.net.{ InetAddress, Socket }
+import java.net.{InetAddress, Socket}
 import java.util.Random
 
 import org.jetbrains.annotations.NotNull

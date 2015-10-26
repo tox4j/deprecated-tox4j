@@ -1,6 +1,6 @@
 package im.tox.tox4j.crypto
 
-import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
+import im.tox.tox4j.crypto.exceptions.{ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException}
 import org.jetbrains.annotations.NotNull
 
 /**

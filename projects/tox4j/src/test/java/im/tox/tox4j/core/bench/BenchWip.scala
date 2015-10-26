@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.bench
 
 import im.tox.tox4j.bench.PerformanceReportBase._
-import im.tox.tox4j.bench.{ Confidence, TimingReport }
+import im.tox.tox4j.bench.{Confidence, TimingReport}
 import im.tox.tox4j.core.ToxCore
 
 /**

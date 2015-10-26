@@ -1,11 +1,11 @@
 package im.tox.tox4j.crypto
 
 import im.tox.tox4j.ToxCoreTestBase
-import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
+import im.tox.tox4j.crypto.exceptions.{ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException}
 import im.tox.tox4j.testing.WrappedByteArray.Conversions._
-import im.tox.tox4j.testing.{ NonEmptyByteArray, ToxTestMixin, WrappedByteArray }
+import im.tox.tox4j.testing.{NonEmptyByteArray, ToxTestMixin, WrappedByteArray}
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.WordSpec
 import org.scalatest.prop.PropertyChecks
 

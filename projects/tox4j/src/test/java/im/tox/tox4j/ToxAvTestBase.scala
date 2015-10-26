@@ -1,7 +1,7 @@
 package im.tox.tox4j
 
 import im.tox.tox4j.core.ToxCoreFactory
-import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
+import im.tox.tox4j.impl.jni.{ToxAvImpl, ToxCoreImpl}
 
 object ToxAvTestBase {
 

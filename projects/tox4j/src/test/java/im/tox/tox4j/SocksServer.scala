@@ -1,10 +1,10 @@
 package im.tox.tox4j
 
-import java.io.{ Closeable, IOException, InputStream, OutputStream }
-import java.net.{ InetAddress, ServerSocket, Socket }
+import java.io.{Closeable, IOException, InputStream, OutputStream}
+import java.net.{InetAddress, ServerSocket, Socket}
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.SocksServer.{ FIRST_PORT, LAST_PORT, logger }
+import im.tox.tox4j.SocksServer.{FIRST_PORT, LAST_PORT, logger}
 import org.jetbrains.annotations.NotNull
 import org.scalatest.Assertions
 import org.slf4j.LoggerFactory

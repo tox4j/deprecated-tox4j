@@ -1,7 +1,7 @@
 package im.tox.tox4j.core
 
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions, ToxOptions }
+import im.tox.tox4j.core.options.{ProxyOptions, SaveDataOptions, ToxOptions}
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 
 import scala.collection.mutable.ArrayBuffer

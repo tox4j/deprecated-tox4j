@@ -4,9 +4,9 @@ import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.bench.PerformanceReportBase._
 import im.tox.tox4j.bench.picklers.Implicits._
 import im.tox.tox4j.core.exceptions.ToxNewException
-import im.tox.tox4j.core.options.{ SaveDataOptions, ToxOptions }
-import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants, ToxCoreFactory }
-import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
+import im.tox.tox4j.core.options.{SaveDataOptions, ToxOptions}
+import im.tox.tox4j.core.{ToxCore, ToxCoreConstants, ToxCoreFactory}
+import im.tox.tox4j.impl.jni.{ToxAvImpl, ToxCoreImpl}
 import org.scalameter.api._
 
 import scala.collection.immutable

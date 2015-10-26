@@ -76,8 +76,7 @@ object CompactRenderer extends (Doc => SimpleDoc) {
     scan(0, List(doc))
   }
 
-  // scalastyle:ignore cyclomatic.complexity
-  private def scan(column: Int, docs: List[Doc]): SimpleDoc = docs match {
+  private def scan(column: Int, docs: List[Doc]): SimpleDoc = docs match { // scalastyle:ignore cyclomatic.complexity
     case Nil => SEmpty
     case doc :: docs =>
       doc match {

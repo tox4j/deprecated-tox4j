@@ -1,6 +1,6 @@
 package im.tox.tox4j.lint
 
-import org.brianmckenna.wartremover.{ WartTraverser, WartUniverse }
+import org.brianmckenna.wartremover.{WartTraverser, WartUniverse}
 
 import scala.annotation.tailrec
 

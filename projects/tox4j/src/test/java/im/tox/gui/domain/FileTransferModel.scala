@@ -1,6 +1,6 @@
 package im.tox.gui.domain
 
-import java.io.{ File, IOException }
+import java.io.{File, IOException}
 import java.util.NoSuchElementException
 import javax.swing.AbstractListModel
 

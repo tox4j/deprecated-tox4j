@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.exceptions
 
-import im.tox.tox4j.core.ToxCoreFactory.{ withTox, withToxes }
-import im.tox.tox4j.core.options.{ ProxyOptions, SaveDataOptions }
+import im.tox.tox4j.core.ToxCoreFactory.{withTox, withToxes}
+import im.tox.tox4j.core.options.{ProxyOptions, SaveDataOptions}
 import im.tox.tox4j.testing.ToxTestMixin
 import org.scalatest.FunSuite
 
@@ -39,8 +39,8 @@ final class ToxNewExceptionTest extends FunSuite with ToxTestMixin {
 
   test("ToxNewProxyBadAddress1") {
     intercept(ToxNewException.Code.PROXY_BAD_HOST) {
-      // scalastyle:ignore non.ascii.character.disallowed
-      withTox(ipv6Enabled = true, udpEnabled = true, new ProxyOptions.Socks5("\u2639", 1)) { _ => }
+      val host = "\u2639" // scalastyle:ignore non.ascii.character.disallowed
+      withTox(ipv6Enabled = true, udpEnabled = true, new ProxyOptions.Socks5(host, 1)) { _ => }
     }
   }
 

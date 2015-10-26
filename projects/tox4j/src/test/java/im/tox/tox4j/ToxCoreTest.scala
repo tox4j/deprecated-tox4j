@@ -3,8 +3,8 @@ package im.tox.tox4j
 import im.tox.tox4j.TestConstants.ITERATIONS
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
-import im.tox.tox4j.core.options.{ ProxyOptions, ToxOptions }
-import im.tox.tox4j.core.{ ToxCoreConstants, ToxCoreFactory }
+import im.tox.tox4j.core.options.{ProxyOptions, ToxOptions}
+import im.tox.tox4j.core.{ToxCoreConstants, ToxCoreFactory}
 import im.tox.tox4j.testing.ToxTestMixin
 import org.scalatest.FunSuite
 

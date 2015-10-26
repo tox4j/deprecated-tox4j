@@ -1,11 +1,11 @@
 package im.tox.tox4j
 
 import java.io.IOException
-import java.net.{ InetAddress, Socket }
+import java.net.{InetAddress, Socket}
 
 import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
+import im.tox.tox4j.core.{ToxCore, ToxCoreFactory}
 import org.scalatest.Assertions
 import org.slf4j.LoggerFactory
 

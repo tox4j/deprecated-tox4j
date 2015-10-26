@@ -6,9 +6,9 @@ import im.tox.tox4j.ToxAvTestBase
 import im.tox.tox4j.av.callbacks.AvInvokeTest._
 import im.tox.tox4j.av.enums.ToxavFriendCallState
 import im.tox.tox4j.core.SmallInt
-import im.tox.tox4j.core.callbacks.InvokeTest.{ ByteArray, ShortArray }
+import im.tox.tox4j.core.callbacks.InvokeTest.{ByteArray, ShortArray}
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
+import im.tox.tox4j.impl.jni.{ToxAvImpl, ToxCoreImpl}
 import org.scalacheck.Arbitrary
 import org.scalatest.FunSuite
 import org.scalatest.prop.PropertyChecks
@@ -141,6 +141,5 @@ object AvInvokeTest {
   private final case class Call(friendNumber: Int, audioEnabled: Boolean, videoEnabled: Boolean) extends Event
   private final case class CallState(friendNumber: Int, callState: Set[ToxavFriendCallState]) extends Event
   private final case class VideoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int) extends Event
-  // scalastyle:ignore line.size.limit
-  private final case class VideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray, yStride: Int, uStride: Int, vStride: Int) extends Event
+  private final case class VideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray, yStride: Int, uStride: Int, vStride: Int) extends Event // scalastyle:ignore line.size.limit
 }

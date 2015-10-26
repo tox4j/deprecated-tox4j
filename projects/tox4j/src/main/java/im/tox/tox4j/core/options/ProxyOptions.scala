@@ -1,7 +1,7 @@
 package im.tox.tox4j.core.options
 
 import im.tox.tox4j.core.enums.ToxProxyType
-import im.tox.tox4j.core.{ ToxCore, ToxCoreConstants }
+import im.tox.tox4j.core.{ToxCore, ToxCoreConstants}
 
 /**
  * Base type for all proxy kinds.
