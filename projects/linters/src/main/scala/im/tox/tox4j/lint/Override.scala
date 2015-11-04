@@ -55,8 +55,6 @@ object Override extends WartTraverser {
    */
   @tailrec
   private def recursiveBaseClasses(u: WartUniverse)(types: Set[u.universe.Type]): Set[u.universe.Type] = {
-    import u.universe._
-
     val baseTypes = types.flatMap(tpe => tpe.baseClasses.map(base => tpe.baseType(base)))
     if (baseTypes.subsetOf(types)) {
       // No more types to find.

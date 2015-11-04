@@ -1,5 +1,6 @@
 package im.tox.tox4j
 
+import im.tox.core.random.RandomCore
 import im.tox.tox4j.TestConstants.ITERATIONS
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
@@ -92,14 +93,14 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("PublicKeyEntropy") {
     withTox { tox =>
-      val entropy = ToxCoreTestBase.entropy(tox.getPublicKey)
+      val entropy = RandomCore.entropy(tox.getPublicKey)
       assert(entropy >= 0.5, s"Entropy of public key should be >= 0.5, but was $entropy")
     }
   }
 
   test("SecretKeyEntropy") {
     withTox { tox =>
-      val entropy = ToxCoreTestBase.entropy(tox.getSecretKey)
+      val entropy = RandomCore.entropy(tox.getSecretKey)
       assert(entropy >= 0.5, s"Entropy of secret key should be >= 0.5, but was $entropy")
     }
   }
@@ -317,7 +318,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
       addFriends(tox, 1)
       assert(tox.getFriendPublicKey(0).length == ToxCoreConstants.PUBLIC_KEY_SIZE)
       assert(tox.getFriendPublicKey(0) sameElements tox.getFriendPublicKey(0))
-      val entropy = ToxCoreTestBase.entropy(tox.getFriendPublicKey(0))
+      val entropy = RandomCore.entropy(tox.getFriendPublicKey(0))
       assert(entropy >= 0.5, s"Entropy of friend's public key should be >= 0.5, but was $entropy")
     }
   }
@@ -366,7 +367,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("DhtIdEntropy") {
     withTox { tox =>
-      val entropy = ToxCoreTestBase.entropy(tox.getDhtId)
+      val entropy = RandomCore.entropy(tox.getDhtId)
       assert(entropy >= 0.5, s"Entropy of public key should be >= 0.5, but was $entropy")
     }
   }

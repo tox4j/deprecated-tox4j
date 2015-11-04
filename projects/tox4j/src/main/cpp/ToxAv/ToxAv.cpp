@@ -5,7 +5,7 @@
 using namespace av;
 
 void
-reference_symbols_toxav ()
+reference_symbols_av ()
 {
   int toxav_finalize; // For Java only.
 #include "generated/natives.h"

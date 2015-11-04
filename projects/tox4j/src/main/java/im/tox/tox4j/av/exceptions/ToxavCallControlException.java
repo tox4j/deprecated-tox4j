@@ -20,6 +20,10 @@ public final class ToxavCallControlException extends ToxException<ToxavCallContr
      * resume a call that is not paused.
      */
     INVALID_TRANSITION,
+    /**
+     * Synchronization error occurred.
+     */
+    SYNC,
   }
 
   public ToxavCallControlException(@NotNull Code code) {

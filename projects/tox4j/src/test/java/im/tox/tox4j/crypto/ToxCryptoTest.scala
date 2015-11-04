@@ -1,6 +1,6 @@
 package im.tox.tox4j.crypto
 
-import im.tox.tox4j.ToxCoreTestBase
+import im.tox.core.random.RandomCore
 import im.tox.tox4j.crypto.exceptions.{ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException}
 import im.tox.tox4j.testing.WrappedByteArray.Conversions._
 import im.tox.tox4j.testing.{NonEmptyByteArray, ToxTestMixin, WrappedByteArray}
@@ -46,7 +46,7 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
     "produce high entropy results (> 0.7)" in {
       val passKey = toxCrypto.deriveKeyFromPass(Array.ofDim(0))
       forAll { (data: NonEmptyByteArray) =>
-        assert(ToxCoreTestBase.entropy(toxCrypto.encrypt(data, passKey)) > 0.7)
+        assert(RandomCore.entropy(toxCrypto.encrypt(data, passKey)) > 0.7)
       }
     }
 
@@ -221,7 +221,7 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
 
     "produce high entropy results (> 0.5)" in {
       forAll { (data: Array[Byte]) =>
-        assert(ToxCoreTestBase.entropy(toxCrypto.hash(data)) > 0.5)
+        assert(RandomCore.entropy(toxCrypto.hash(data)) > 0.5)
       }
     }
   }

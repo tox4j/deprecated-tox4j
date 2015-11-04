@@ -1,8 +1,8 @@
 package im.tox.tox4j.impl.jni.codegen.cxx
 
+import gnieh.pp._
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 import org.apache.commons.lang3.StringEscapeUtils
-import gnieh.pp._
 
 object Print {
 

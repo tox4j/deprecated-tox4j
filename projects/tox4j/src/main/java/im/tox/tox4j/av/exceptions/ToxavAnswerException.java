@@ -23,6 +23,10 @@ public final class ToxavAnswerException extends ToxException<ToxavAnswerExceptio
      * Audio or video bit rate is invalid.
      */
     INVALID_BIT_RATE,
+    /**
+     * Synchronization error occurred.
+     */
+    SYNC,
   }
 
   public ToxavAnswerException(@NotNull Code code) {

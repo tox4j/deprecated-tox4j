@@ -2,7 +2,7 @@
 #include "tox4j/Tox4j.h"
 
 // JNI declarations from javah.
-#include "im_tox_tox4j_impl_jni_ToxCryptoImpl__.h"
+#include "im_tox_tox4j_impl_jni_ToxCryptoJni.h"
 
 // Header from toxcore.
 #include <tox/toxencryptsave.h>

@@ -51,11 +51,11 @@ object JniErrorCodes extends CodeGenerator {
       "TOXAV_VERSION_MAJOR",
       Seq(
         generateErrorCode(ToxavAnswerException.Code.values),
+        generateErrorCode(ToxavBitRateSetException.Code.values),
         generateErrorCode(ToxavCallControlException.Code.values),
         generateErrorCode(ToxavCallException.Code.values),
         generateErrorCode(ToxavNewException.Code.values),
-        generateErrorCode(ToxavSendFrameException.Code.values),
-        generateErrorCode(ToxavSetBitRateException.Code.values)
+        generateErrorCode(ToxavSendFrameException.Code.values)
       )
     )
   }

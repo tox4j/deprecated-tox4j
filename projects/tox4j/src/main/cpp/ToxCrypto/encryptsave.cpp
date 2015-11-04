@@ -47,12 +47,12 @@ pass_key_from_java (JNIEnv *env, jbyteArray passKeyArray)
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
  * Method:    getSalt
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_getSalt
-  (JNIEnv *env, jobject, jbyteArray dataArray)
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxGetSalt
+  (JNIEnv *env, jclass, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);
   uint8_t salt[TOX_PASS_SALT_LENGTH];
@@ -65,12 +65,12 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_getS
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
  * Method:    isDataEncrypted
  * Signature: ([B)Z
  */
-JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_isDataEncrypted
-  (JNIEnv *env, jobject, jbyteArray dataArray)
+JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxIsDataEncrypted
+  (JNIEnv *env, jclass, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);
   if (data.size () < TOX_PASS_ENCRYPTION_EXTRA_LENGTH)
@@ -80,12 +80,12 @@ JNIEXPORT jboolean JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_isData
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
  * Method:    deriveKeyWithSalt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deriveKeyWithSalt
-  (JNIEnv *env, jobject, jbyteArray passphraseArray, jbyteArray saltArray)
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxDeriveKeyWithSalt
+  (JNIEnv *env, jclass, jbyteArray passphraseArray, jbyteArray saltArray)
 {
   ByteArray passphrase (env, passphraseArray);
   ByteArray salt (env, saltArray);
@@ -111,12 +111,12 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deri
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
  * Method:    deriveKeyFromPass
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deriveKeyFromPass
-  (JNIEnv *env, jobject, jbyteArray passphraseArray)
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxDeriveKeyFromPass
+  (JNIEnv *env, jclass, jbyteArray passphraseArray)
 {
   ByteArray passphrase (env, passphraseArray);
   TOX_PASS_KEY out_key;
@@ -134,12 +134,12 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_deri
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
  * Method:    decrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_decrypt
-  (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passKeyArray)
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxPassKeyDecrypt
+  (JNIEnv *env, jclass, jbyteArray dataArray, jbyteArray passKeyArray)
 {
   ByteArray data (env, dataArray);
   std::vector<uint8_t> out (
@@ -167,12 +167,12 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_decr
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
  * Method:    encrypt
  * Signature: ([B[B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_encrypt
-  (JNIEnv *env, jobject, jbyteArray dataArray, jbyteArray passKeyArray)
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxPassKeyEncrypt
+  (JNIEnv *env, jclass, jbyteArray dataArray, jbyteArray passKeyArray)
 {
   ByteArray data (env, dataArray);
   std::vector<uint8_t> out (data.size () + TOX_PASS_ENCRYPTION_EXTRA_LENGTH);

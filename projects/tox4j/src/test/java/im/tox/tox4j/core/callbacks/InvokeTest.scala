@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.testing.{WrappedShortArray, WrappedByteArray}
+import im.tox.tox4j.testing.{WrappedByteArray, WrappedShortArray}
 
 import scala.language.implicitConversions
 

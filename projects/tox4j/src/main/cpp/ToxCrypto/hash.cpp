@@ -4,12 +4,12 @@
 
 
 /*
- * Class:     im_tox_tox4j_impl_jni_ToxCryptoImpl__
- * Method:    hash
+ * Class:     im_tox_tox4j_impl_jni_ToxCryptoJni
+ * Method:    toxHash
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoImpl_00024_hash
-  (JNIEnv *env, jobject, jbyteArray dataArray)
+JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxHash
+  (JNIEnv *env, jclass, jbyteArray dataArray)
 {
   ByteArray data (env, dataArray);
   std::vector<uint8_t> hash (TOX_HASH_LENGTH);

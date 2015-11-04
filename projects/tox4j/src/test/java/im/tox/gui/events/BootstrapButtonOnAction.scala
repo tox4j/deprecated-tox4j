@@ -1,11 +1,11 @@
 package im.tox.gui.events
 
-import im.tox.gui.MainView
-import im.tox.tox4j.core.exceptions.ToxBootstrapException
+import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing._
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
+
+import im.tox.gui.MainView
 import im.tox.tox4j.ToxCoreTestBase.parsePublicKey
+import im.tox.tox4j.core.exceptions.ToxBootstrapException
 
 final class BootstrapButtonOnAction(toxGui: MainView) extends ActionListener {
 

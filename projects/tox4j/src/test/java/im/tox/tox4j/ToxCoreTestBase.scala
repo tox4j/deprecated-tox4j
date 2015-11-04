@@ -31,21 +31,6 @@ object ToxCoreTestBase extends Assertions {
     new DhtNode("80.232.246.79", null, 33445, "0B8DCEAA7BDDC44BB11173F987CAE3566A2D7057D8DD3CC642BD472B9391002A")
   )
 
-  private[tox4j] def entropy(@NotNull data: Array[Byte]): Double = {
-    val frequencies = new Array[Int](256)
-    for (b <- data) {
-      frequencies(127 - b) += 1
-    }
-    var entropy = 0.0
-    for (frequency <- frequencies) {
-      if (frequency != 0) {
-        val probability = frequency.toDouble / data.length
-        entropy -= probability * (Math.log(probability) / Math.log(256))
-      }
-    }
-    entropy
-  }
-
   @NotNull def randomBytes(length: Int): Array[Byte] = {
     val array = new Array[Byte](length)
     new Random().nextBytes(array)

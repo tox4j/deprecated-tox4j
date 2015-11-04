@@ -17,4 +17,10 @@ object ToxCryptoConstants {
    */
   final val HASH_LENGTH = 32
 
+  final val PUBLICKEY_BYTES = 32
+  final val SECRETKEY_BYTES = 32
+  final val NONCE_BYTES = 24
+  final val ZERO_BYTES = 32
+  final val BOXZERO_BYTES = 16
+
 }

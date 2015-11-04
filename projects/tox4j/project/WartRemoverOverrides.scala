@@ -18,14 +18,13 @@ object WartRemoverOverrides extends OptionalPlugin {
 
       // TODO: infer these
       val avProtos = Seq(
-        "AudioBitRateStatus",
         "AudioReceiveFrame",
         "AvEvents",
+        "BitRateStatus",
         "Call",
         "CallControl",
         "CallState",
         "InternalFields_avProto",
-        "VideoBitRateStatus",
         "VideoReceiveFrame"
       ).map(_ + ".scala").map(proto / "av" / "proto" / "Av" / _)
 

@@ -41,34 +41,18 @@ tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &
 
 
 static void
-tox4j_audio_bit_rate_status_cb (ToxAV *av,
-                                uint32_t friend_number,
-                                bool stable,
-                                uint32_t bit_rate,
-                                Events &events)
+tox4j_bit_rate_status_cb (ToxAV *av,
+                          uint32_t friend_number,
+                          uint32_t audio_bit_rate,
+                          uint32_t video_bit_rate,
+                          Events &events)
 {
   assert (av != nullptr);
 
-  auto msg = events.add_audio_bit_rate_status ();
+  auto msg = events.add_bit_rate_status ();
   msg->set_friend_number (friend_number);
-  msg->set_stable (stable);
-  msg->set_bit_rate (bit_rate);
-}
-
-
-static void
-tox4j_video_bit_rate_status_cb (ToxAV *av,
-                                uint32_t friend_number,
-                                bool stable,
-                                uint32_t bit_rate,
-                                Events &events)
-{
-  assert (av != nullptr);
-
-  auto msg = events.add_video_bit_rate_status ();
-  msg->set_friend_number (friend_number);
-  msg->set_stable (stable);
-  msg->set_bit_rate (bit_rate);
+  msg->set_audio_bit_rate (audio_bit_rate);
+  msg->set_video_bit_rate (video_bit_rate);
 }
 
 
@@ -203,15 +187,15 @@ TOX_METHOD (void, Finalize,
 /*
  * Class:     im_tox_tox4j_impl_jni_ToxAvJni
  * Method:    invokeAudioBitRateStatus
- * Signature: (IIZI)V
+ * Signature: (IIII)V
  */
 JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeAudioBitRateStatus
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean stable, jint bitRate)
+  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
 {
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
       {
-        tox4j_audio_bit_rate_status_cb (av, friendNumber, stable, bitRate, events);
+        tox4j_bit_rate_status_cb (av, friendNumber, audioBitRate, videoBitRate, events);
       }
   );
 }
@@ -262,22 +246,6 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeCallState
     [=] (ToxAV *av, Events &events)
       {
         tox4j_call_state_cb (av, friendNumber, callState, events);
-      }
-  );
-}
-
-/*
- * Class:     im_tox_tox4j_impl_jni_ToxAvJni
- * Method:    invokeVideoBitRateStatus
- * Signature: (IIZI)V
- */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeVideoBitRateStatus
-  (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jboolean stable, jint bitRate)
-{
-  return instances.with_instance (env, instanceNumber,
-    [=] (ToxAV *av, Events &events)
-      {
-        tox4j_video_bit_rate_status_cb (av, friendNumber, stable, bitRate, events);
       }
   );
 }

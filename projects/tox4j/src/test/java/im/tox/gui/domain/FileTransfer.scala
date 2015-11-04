@@ -1,9 +1,6 @@
 package im.tox.gui.domain
 
-import java.io.Closeable
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.IOException
+import java.io.{Closeable, File, FileNotFoundException, IOException}
 
 abstract class FileTransfer(val file: File) extends Closeable {
   @throws[FileNotFoundException]
