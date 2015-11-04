@@ -1,5 +1,6 @@
 package im.tox.tox4j.impl.jni;
 
+@SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
 public final class ToxCryptoJni {
 
   static {
