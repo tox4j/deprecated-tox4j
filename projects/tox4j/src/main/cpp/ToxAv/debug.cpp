@@ -7,7 +7,7 @@
 
 template<>
 void
-print_arg<ToxAV *> (ToxAV *tox)
+print_arg<ToxAV *> (protolog::Value &value, ToxAV *tox)
 {
   static std::vector<ToxAV *> ids;
   auto found = std::find (ids.begin (), ids.end (), tox);
@@ -16,17 +16,27 @@ print_arg<ToxAV *> (ToxAV *tox)
       ids.push_back (tox);
       found = ids.end () - 1;
     }
-  debug_out << "@" << (found - ids.begin () + 1);
+  value.set_string ("@" + std::to_string (found - ids.begin () + 1));
 }
 
 template<>
 void
-print_arg<int16_t const *> (int16_t const *data)
+print_arg<int16_t const *> (protolog::Value &value, int16_t const *data)
 {
   if (data != nullptr)
-    debug_out << "out audio samples";
+    value.set_string ("out audio samples");
   else
-    debug_out << "<null>";
+    value.set_string ("<null>");
+}
+
+template<>
+void
+print_arg<av::Events *> (protolog::Value &value, av::Events *events)
+{
+  if (events != nullptr)
+    value.set_string ("<av::Events[" + std::to_string (events->ByteSize ()) + "]>");
+  else
+    value.set_string ("<null>");
 }
 
 #endif

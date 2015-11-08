@@ -3,7 +3,6 @@ package im.tox.tox4j.impl.jni;
 import im.tox.tox4j.av.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import scala.MatchError;
 
 @SuppressWarnings({"checkstyle:emptylineseparator", "checkstyle:linelength"})
 public final class ToxAvJni {
@@ -49,9 +48,5 @@ public final class ToxAvJni {
       @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v,
       int yStride, int uStride, int vStride
   );
-
-  static <T> T conversionError(@NotNull String className, @NotNull String name) {
-    throw new MatchError("ToxAv: Could not convert " + className + "." + name);
-  }
 
 }
