@@ -36,6 +36,7 @@ install:
 	cd projects/build-basic  && sbt -batch publishLocal publishM2 coverage test
 	cd projects/build-extra  && sbt -batch $(COMMANDS)
 	cd projects/linters	 && sbt -batch $(COMMANDS)
+	cd projects/macros	 && sbt -batch $(COMMANDS)
 	cd projects/tox4j	 && sbt -batch $(COMMANDS)
 	cd projects/tox4j	 && for i in bin/Jni*; do $$i; done
 	git diff --exit-code

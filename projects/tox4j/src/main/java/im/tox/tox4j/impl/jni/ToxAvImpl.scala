@@ -179,18 +179,14 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
     }
   }
 
+  @im.tox.tox4j.Optimised
   private def dispatchEvents(state: ToxCoreState, events: AvEvents): ToxCoreState = {
-    dispatchCall(events.call)(
-      dispatchCallState(events.callState)(
-        dispatchBitRateStatus(events.bitRateStatus)(
-          dispatchAudioReceiveFrame(events.audioReceiveFrame)(
-            dispatchVideoReceiveFrame(events.videoReceiveFrame)(
-              state
-            )
-          )
-        )
-      )
-    )
+    (state
+      |> dispatchCall(events.call)
+      |> dispatchCallState(events.callState)
+      |> dispatchBitRateStatus(events.bitRateStatus)
+      |> dispatchAudioReceiveFrame(events.audioReceiveFrame)
+      |> dispatchVideoReceiveFrame(events.videoReceiveFrame))
   }
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))

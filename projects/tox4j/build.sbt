@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
   "com.github.nscala-time" %% "nscala-time" % "2.4.0",
   "com.intellij" % "annotations" % "12.0",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+  "im.tox" %% "macros" % version.value,
   "org.json" % "json" % "20131018",
   "org.scalaz" %% "scalaz-core" % "7.2.0-M1"
 )
@@ -41,6 +42,9 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4",
   "org.slf4j" % "slf4j-log4j12" % "1.7.12"
 ) map (_ % Test)
+
+// Scala macros.
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full)
 
 // Add ScalaMeter as test framework.
 testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")

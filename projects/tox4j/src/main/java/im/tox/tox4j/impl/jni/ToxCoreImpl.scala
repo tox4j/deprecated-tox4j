@@ -341,6 +341,7 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
     }
   }
 
+  @im.tox.tox4j.Optimised
   private def dispatchEvents(state: ToxCoreState, events: CoreEvents): ToxCoreState = {
     (state
       |> dispatchSelfConnectionStatus(events.selfConnectionStatus)
