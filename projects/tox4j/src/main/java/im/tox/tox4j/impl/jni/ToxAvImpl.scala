@@ -4,6 +4,7 @@ import java.util
 
 import com.google.protobuf.ByteString
 import com.typesafe.scalalogging.Logger
+import im.tox.tox4j.OptimisedIdOps._
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
@@ -180,17 +181,12 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   }
 
   private def dispatchEvents(state: ToxCoreState, events: AvEvents): ToxCoreState = {
-    dispatchCall(events.call)(
-      dispatchCallState(events.callState)(
-        dispatchBitRateStatus(events.bitRateStatus)(
-          dispatchAudioReceiveFrame(events.audioReceiveFrame)(
-            dispatchVideoReceiveFrame(events.videoReceiveFrame)(
-              state
-            )
-          )
-        )
-      )
-    )
+    (state
+      |> dispatchCall(events.call)
+      |> dispatchCallState(events.callState)
+      |> dispatchBitRateStatus(events.bitRateStatus)
+      |> dispatchAudioReceiveFrame(events.audioReceiveFrame)
+      |> dispatchVideoReceiveFrame(events.videoReceiveFrame))
   }
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
