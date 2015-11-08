@@ -11,7 +11,7 @@ final class NameEmptyTest extends AliceBobTest {
 
     override def friendName(friendNumber: Int, name: Array[Byte])(state: ChatState): ChatState = {
       debug("friend changed name to: " + new String(name))
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
 
       state.get match {
         case 0 =>

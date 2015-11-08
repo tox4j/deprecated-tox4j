@@ -4,8 +4,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 private[jni] object Event {
-  private val INVALID_INDEX = -1
-  private val EMPTY_CALLBACK = () => ()
+  private val InvalidIndex = -1
+  private val EmptyCallback = () => ()
 
   trait Id {
     /**
@@ -21,7 +21,7 @@ private[jni] object Event {
 
   private final class IdImpl(private var index: Int) extends Id {
     override def value: Int = index
-    override def reset(): Unit = index = INVALID_INDEX
+    override def reset(): Unit = index = InvalidIndex
   }
 }
 
@@ -60,16 +60,16 @@ private[jni] final class Event extends (() => Unit) {
    */
   def -=(id: Event.Id): Unit = {
     val index = id.value
-    if (index != Event.INVALID_INDEX) {
+    if (index != Event.InvalidIndex) {
       id.reset()
-      callbacks(index) = Event.EMPTY_CALLBACK
+      callbacks(index) = Event.EmptyCallback
       pruneCallbacks()
     }
   }
 
   @tailrec
   private def pruneCallbacks(): Unit = {
-    if (callbacks.nonEmpty && callbacks.last == Event.EMPTY_CALLBACK) {
+    if (callbacks.nonEmpty && callbacks.last == Event.EmptyCallback) {
       callbacks.remove(callbacks.size - 1)
       pruneCallbacks()
     }

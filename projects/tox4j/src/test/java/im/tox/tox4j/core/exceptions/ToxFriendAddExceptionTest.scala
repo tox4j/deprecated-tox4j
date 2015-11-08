@@ -18,7 +18,7 @@ final class ToxFriendAddExceptionTest extends FunSuite with ToxTestMixin {
   test("InvalidAddress2") {
     intercept[IllegalArgumentException] {
       ToxCoreFactory.withTox(
-        _.addFriend(new Array[Byte](ToxCoreConstants.ADDRESS_SIZE - 1), new Array[Byte](1))
+        _.addFriend(new Array[Byte](ToxCoreConstants.AddressSize - 1), new Array[Byte](1))
       )
     }
   }
@@ -26,7 +26,7 @@ final class ToxFriendAddExceptionTest extends FunSuite with ToxTestMixin {
   test("InvalidAddress3") {
     intercept[IllegalArgumentException] {
       ToxCoreFactory.withTox(
-        _.addFriend(new Array[Byte](ToxCoreConstants.ADDRESS_SIZE + 1), new Array[Byte](1))
+        _.addFriend(new Array[Byte](ToxCoreConstants.AddressSize + 1), new Array[Byte](1))
       )
     }
   }
@@ -45,19 +45,19 @@ final class ToxFriendAddExceptionTest extends FunSuite with ToxTestMixin {
 
   test("Not_TooLong1") {
     ToxCoreFactory.withTox(
-      _.addFriend(validAddress, new Array[Byte](ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH - 1))
+      _.addFriend(validAddress, new Array[Byte](ToxCoreConstants.MaxFriendRequestLength - 1))
     )
   }
 
   test("Not_TooLong2") {
     ToxCoreFactory.withTox(
-      _.addFriend(validAddress, new Array[Byte](ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH))
+      _.addFriend(validAddress, new Array[Byte](ToxCoreConstants.MaxFriendRequestLength))
     )
   }
 
   test("TooLong") {
     interceptWithTox(ToxFriendAddException.Code.TOO_LONG)(
-      _.addFriend(validAddress, new Array[Byte](ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH + 1))
+      _.addFriend(validAddress, new Array[Byte](ToxCoreConstants.MaxFriendRequestLength + 1))
     )
   }
 

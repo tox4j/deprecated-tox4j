@@ -1,7 +1,7 @@
 package im.tox.tox4j
 
 import im.tox.core.random.RandomCore
-import im.tox.tox4j.TestConstants.ITERATIONS
+import im.tox.tox4j.TestConstants.Iterations
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.enums.ToxUserStatus
 import im.tox.tox4j.core.options.{ProxyOptions, ToxOptions}
@@ -37,7 +37,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
   }
 
   test("ToxCreationAndImmediateDestruction") {
-    (0 until ITERATIONS) foreach { _ => withTox { _ => } }
+    (0 until Iterations) foreach { _ => withTox { _ => } }
   }
 
   test("ToxCreationAndDelayedDestruction") {
@@ -50,13 +50,13 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("BootstrapBorderlinePort1") {
     withTox { tox =>
-      tox.bootstrap(DhtNodeSelector.node.ipv4, 1, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
+      tox.bootstrap(DhtNodeSelector.node.ipv4, 1, new Array[Byte](ToxCoreConstants.PublicKeySize))
     }
   }
 
   test("BootstrapBorderlinePort2") {
     withTox { tox =>
-      tox.bootstrap(DhtNodeSelector.node.ipv4, 65535, new Array[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE))
+      tox.bootstrap(DhtNodeSelector.node.ipv4, 65535, new Array[Byte](ToxCoreConstants.PublicKeySize))
     }
   }
 
@@ -78,7 +78,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
   test("GetPublicKey") {
     withTox { tox =>
       val id = tox.getPublicKey
-      assert(id.length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+      assert(id.length == ToxCoreConstants.PublicKeySize)
       assert(tox.getPublicKey sameElements id)
     }
   }
@@ -86,7 +86,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
   test("GetSecretKey") {
     withTox { tox =>
       val key = tox.getSecretKey
-      assert(key.length == ToxCoreConstants.SECRET_KEY_SIZE)
+      assert(key.length == ToxCoreConstants.SecretKeySize)
       assert(tox.getSecretKey sameElements key)
     }
   }
@@ -107,7 +107,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("GetAddress") {
     withTox { tox =>
-      assert(tox.getAddress.length == ToxCoreConstants.ADDRESS_SIZE)
+      assert(tox.getAddress.length == ToxCoreConstants.AddressSize)
       assert(tox.getAddress sameElements tox.getAddress)
     }
   }
@@ -126,7 +126,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
           (test >> 8 * 2).toByte,
           (test >> 8 * 3).toByte
         )
-        val nospam: Array[Byte] = tox.getAddress.slice(ToxCoreConstants.PUBLIC_KEY_SIZE, ToxCoreConstants.PUBLIC_KEY_SIZE + 4)
+        val nospam: Array[Byte] = tox.getAddress.slice(ToxCoreConstants.PublicKeySize, ToxCoreConstants.PublicKeySize + 4)
         assert(nospam sameElements check)
       }
     }
@@ -150,7 +150,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("SetNameMaxSize") {
     withTox { tox =>
-      val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH)
+      val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MaxNameLength)
       tox.setName(array)
       assert(tox.getName sameElements array)
     }
@@ -158,7 +158,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("SetNameExhaustive") {
     withTox { tox =>
-      (1 to ToxCoreConstants.MAX_NAME_LENGTH) foreach { i =>
+      (1 to ToxCoreConstants.MaxNameLength) foreach { i =>
         val array = ToxCoreTestBase.randomBytes(i)
         tox.setName(array)
         assert(tox.getName sameElements array)
@@ -194,7 +194,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("SetStatusMessageMaxSize") {
     withTox { tox =>
-      val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH)
+      val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MaxStatusMessageLength)
       tox.setStatusMessage(array)
       assert(tox.getStatusMessage sameElements array)
     }
@@ -202,7 +202,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("SetStatusMessageExhaustive") {
     withTox { tox =>
-      (1 to ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH) foreach { i =>
+      (1 to ToxCoreConstants.MaxStatusMessageLength) foreach { i =>
         val array = ToxCoreTestBase.randomBytes(i)
         tox.setStatusMessage(array)
         assert(tox.getStatusMessage sameElements array)
@@ -232,32 +232,32 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
 
   test("AddFriend") {
     withTox { tox =>
-      (0 until ITERATIONS) foreach { i =>
+      (0 until Iterations) foreach { i =>
         withTox { friend =>
           val friendNumber = tox.addFriend(friend.getAddress, "heyo".getBytes)
           assert(friendNumber == i)
         }
       }
-      assert(tox.getFriendList.length == ITERATIONS)
+      assert(tox.getFriendList.length == Iterations)
     }
   }
 
   test("AddFriendNoRequest") {
     withTox { tox =>
-      (0 until ITERATIONS) foreach { i =>
+      (0 until Iterations) foreach { i =>
         withTox { friend =>
           val friendNumber = tox.addFriendNorequest(friend.getPublicKey)
           assert(friendNumber == i)
         }
       }
-      assert(tox.getFriendList.length == ITERATIONS)
+      assert(tox.getFriendList.length == Iterations)
     }
   }
 
   test("FriendListSize") {
     withTox { tox =>
-      addFriends(tox, ITERATIONS)
-      assert(tox.getFriendList.length == ITERATIONS)
+      addFriends(tox, Iterations)
+      assert(tox.getFriendList.length == Iterations)
     }
   }
 
@@ -316,7 +316,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
   test("GetFriendPublicKey") {
     withTox { tox =>
       addFriends(tox, 1)
-      assert(tox.getFriendPublicKey(0).length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+      assert(tox.getFriendPublicKey(0).length == ToxCoreConstants.PublicKeySize)
       assert(tox.getFriendPublicKey(0) sameElements tox.getFriendPublicKey(0))
       val entropy = RandomCore.entropy(tox.getFriendPublicKey(0))
       assert(entropy >= 0.5, s"Entropy of friend's public key should be >= 0.5, but was $entropy")
@@ -360,7 +360,7 @@ final class ToxCoreTest extends FunSuite with ToxTestMixin {
   test("GetDhtId") {
     withTox { tox =>
       val key = tox.getDhtId
-      assert(key.length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+      assert(key.length == ToxCoreConstants.PublicKeySize)
       assert(tox.getDhtId sameElements key)
     }
   }

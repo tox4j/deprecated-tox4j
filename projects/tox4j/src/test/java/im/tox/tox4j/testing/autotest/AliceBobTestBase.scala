@@ -11,7 +11,7 @@ import scala.annotation.tailrec
 import scalaz.Scalaz._
 
 object AliceBobTestBase {
-  val FRIEND_NUMBER = 10
+  val FriendNumber = 10
 
   final case class Chatter[T](
     tox: ToxCore[ChatStateT[T]],
@@ -65,8 +65,8 @@ abstract class AliceBobTestBase extends FunSuite with ToxTestMixin {
       withTox { bob =>
         assert(alice ne bob)
 
-        addFriends(alice, AliceBobTestBase.FRIEND_NUMBER)
-        addFriends(bob, AliceBobTestBase.FRIEND_NUMBER)
+        addFriends(alice, AliceBobTestBase.FriendNumber)
+        addFriends(bob, AliceBobTestBase.FriendNumber)
 
         alice.addFriendNorequest(bob.getPublicKey)
         bob.addFriendNorequest(alice.getPublicKey)

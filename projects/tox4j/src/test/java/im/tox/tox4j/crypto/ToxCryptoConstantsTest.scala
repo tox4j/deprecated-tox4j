@@ -4,16 +4,16 @@ import org.scalatest.FunSuite
 
 final class ToxCryptoConstantsTest extends FunSuite {
 
-  test("HASH_LENGTH") {
-    assert(ToxCryptoConstants.HASH_LENGTH >= 32)
+  test("HashLength") {
+    assert(ToxCryptoConstants.HashLength >= 32)
   }
 
-  test("ENCRYPTION_EXTRA_LENGTH contains at least a hash") {
-    assert(ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH >= ToxCryptoConstants.HASH_LENGTH)
+  test("EncryptionExtraLength contains at least a hash") {
+    assert(ToxCryptoConstants.EncryptionExtraLength >= ToxCryptoConstants.HashLength)
   }
 
-  test("SALT_LENGTH") {
-    assert(ToxCryptoConstants.SALT_LENGTH >= 32)
+  test("SaltLength") {
+    assert(ToxCryptoConstants.SaltLength >= 32)
   }
 
 }

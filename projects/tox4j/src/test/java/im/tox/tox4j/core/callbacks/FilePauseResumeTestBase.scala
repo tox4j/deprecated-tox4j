@@ -23,7 +23,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
   final override type State = Unit
   final override def initialState: State = ()
 
-  protected val fileData = new Array[Byte](TestConstants.ITERATIONS * ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+  protected val fileData = new Array[Byte](TestConstants.Iterations * ToxCoreConstants.MaxCustomPacketSize)
   new Random().nextBytes(fileData)
   protected var aliceSentFileNumber = -1
   private var aliceOffset = 0L
@@ -44,7 +44,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
           debug(s"initiate file sending to friend $friendNumber")
-          assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+          assert(friendNumber == AliceBobTestBase.FriendNumber)
           state.addTask { (tox, state) =>
             aliceSentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
               Array.ofDim[Byte](0), ("file for " + expectedFriendName + ".png").getBytes)
@@ -57,7 +57,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
       } else {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
-          assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+          assert(friendNumber == AliceBobTestBase.FriendNumber)
         }
         state
       }
@@ -66,7 +66,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
     override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
       assert(isBob)
       debug(s"received file send request $fileNumber from friend number $friendNumber current offset $bobOffset")
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(kind == ToxFileKind.DATA)
       assert(new String(filename) == s"file for $name.png")
       bobSentFileNumber = fileNumber

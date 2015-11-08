@@ -15,9 +15,11 @@ import org.jetbrains.annotations.Nullable
 import org.slf4j.{Logger, LoggerFactory}
 
 object MainView {
-  private val logger: Logger = LoggerFactory.getLogger(classOf[MainView])
-  private val MAX_MESSAGES: Int = 1000
-  private val DATE_FORMAT: SimpleDateFormat = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]")
+
+  private val logger = LoggerFactory.getLogger(classOf[MainView])
+
+  private val MaxMessages = 1000
+  private val DateFormat = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]")
 
   private final case class SaveData(
     toxSave: Array[Byte],
@@ -53,16 +55,16 @@ final class MainView extends MainViewBase {
       str.append(String.valueOf(arg))
     }
 
-    if (messageModel.size > MainView.MAX_MESSAGES) {
+    if (messageModel.size > MainView.MaxMessages) {
       val newModel = new DefaultListModel[String]
-      for (i <- 0 until messageModel.size - MainView.MAX_MESSAGES / 10) {
-        newModel.addElement(messageModel.get(i + MainView.MAX_MESSAGES / 10))
+      for (i <- 0 until messageModel.size - MainView.MaxMessages / 10) {
+        newModel.addElement(messageModel.get(i + MainView.MaxMessages / 10))
       }
       messageModel = newModel
       messages.setModel(messageModel)
     }
 
-    val message = MainView.DATE_FORMAT.format(new Date) + ' ' + str
+    val message = MainView.DateFormat.format(new Date) + ' ' + str
     messageModel.addElement(message)
 
     MainView.logger.info(message)

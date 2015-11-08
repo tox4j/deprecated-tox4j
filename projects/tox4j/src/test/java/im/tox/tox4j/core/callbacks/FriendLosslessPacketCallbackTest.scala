@@ -27,7 +27,7 @@ final class FriendLosslessPacketCallbackTest extends AliceBobTest {
     override def friendLosslessPacket(friendNumber: Int, packet: Array[Byte])(state: ChatState): ChatState = {
       val message = new String(packet, 1, packet.length - 1)
       debug(s"received a lossless packet[id=${packet(0)}]: $message")
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(packet(0) == 160.toByte)
       assert(message == s"My name is $expectedFriendName")
       state.finish

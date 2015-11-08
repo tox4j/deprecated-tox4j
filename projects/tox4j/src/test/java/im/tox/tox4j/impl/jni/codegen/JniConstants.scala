@@ -2,6 +2,7 @@ package im.tox.tox4j.impl.jni.codegen
 
 import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.crypto.ToxCryptoConstants
+import im.tox.tox4j.impl.jni.codegen.NameConversions.cxxTypeName
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 
 object JniConstants extends CodeGenerator {
@@ -19,7 +20,7 @@ object JniConstants extends CodeGenerator {
         .map { method =>
           val value = method.invoke(constants).asInstanceOf[Int]
           ExprStmt(FunCall(Identifier("static_assert"), Seq(
-            Equals(Identifier(prefix + method.getName), IntegerLiteral(value)),
+            Equals(Identifier(prefix + cxxTypeName(method.getName)), IntegerLiteral(value)),
             StringLiteral("Java constant out of sync with C")
           )))
         }.toSeq

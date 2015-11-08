@@ -1,7 +1,7 @@
 package im.tox.tox4j.core
 
 import im.tox.tox4j.DhtNodeSelector.node
-import im.tox.tox4j.TestConstants.TIMEOUT
+import im.tox.tox4j.TestConstants.Timeout
 import im.tox.tox4j._
 import im.tox.tox4j.core.NetworkTest.logger
 import im.tox.tox4j.core.ToxCoreFactory.{withTox, withToxes}
@@ -13,8 +13,8 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.language.postfixOps
 
 object NetworkTest {
-  private val logger: Logger = LoggerFactory.getLogger(classOf[NetworkTest])
-  private val TOX_COUNT: Int = 10
+  private val logger = LoggerFactory.getLogger(classOf[NetworkTest])
+  private val ToxCount = 10
 }
 
 final class NetworkTest extends FlatSpec with Timeouts {
@@ -46,35 +46,35 @@ final class NetworkTest extends FlatSpec with Timeouts {
 
   "bootstrap" should "connect with UDP4" in {
     assume(ToxCoreTestBase.checkIPv4.isEmpty)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       testBootstrap(ipv6Enabled = false, udpEnabled = true, node.ipv4, node.udpPort, node.dhtId)
     }
   }
 
   it should "connect with UDP6" in {
     assume(ToxCoreTestBase.checkIPv6.isEmpty)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       testBootstrap(ipv6Enabled = true, udpEnabled = true, node.ipv6, node.udpPort, node.dhtId)
     }
   }
 
   it should "connect with TCP4" in {
     assume(ToxCoreTestBase.checkIPv4.isEmpty)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       testBootstrap(ipv6Enabled = false, udpEnabled = false, node.ipv4, node.tcpPort, node.dhtId)
     }
   }
 
   it should "connect with TCP6" in {
     assume(ToxCoreTestBase.checkIPv6.isEmpty)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       testBootstrap(ipv6Enabled = true, udpEnabled = false, node.ipv6, node.tcpPort, node.dhtId)
     }
   }
 
   "LAN discovery" should "connect all nodes" in {
-    failAfter(TIMEOUT millis) {
-      withToxes(NetworkTest.TOX_COUNT) { toxes =>
+    failAfter(Timeout millis) {
+      withToxes(NetworkTest.ToxCount) { toxes =>
         val action = s"Connecting all of ${toxes.size} toxes with LAN discovery"
         logger.info(action)
 
@@ -93,8 +93,8 @@ final class NetworkTest extends FlatSpec with Timeouts {
   }
 
   it should "connect at least one instance" in {
-    failAfter(TIMEOUT millis) {
-      withToxes(NetworkTest.TOX_COUNT) { toxes =>
+    failAfter(Timeout millis) {
+      withToxes(NetworkTest.ToxCount) { toxes =>
         val action = s"Connecting one of ${toxes.size} toxes with LAN discovery"
         logger.info(action)
 

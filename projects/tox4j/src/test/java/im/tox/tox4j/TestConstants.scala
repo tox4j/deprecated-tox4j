@@ -1,6 +1,6 @@
 package im.tox.tox4j
 
 object TestConstants {
-  final val TIMEOUT = 60000L
-  final val ITERATIONS = 100
+  final val Timeout = 60000L
+  final val Iterations = 100
 }

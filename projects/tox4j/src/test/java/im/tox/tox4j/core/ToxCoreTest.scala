@@ -12,7 +12,7 @@ final class ToxCoreTest extends FlatSpec with PropertyChecks {
 
   "addFriend" should "return increasing friend numbers and increment the friend list size" in {
     forAll { (count: SmallNat, message: Array[Byte]) =>
-      whenever(message.length >= 1 && message.length <= ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH) {
+      whenever(message.length >= 1 && message.length <= ToxCoreConstants.MaxFriendRequestLength) {
         withTox { tox =>
           (0 until count) foreach { i =>
             withTox { friend =>

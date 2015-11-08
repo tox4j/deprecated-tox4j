@@ -1,6 +1,6 @@
 package im.tox.tox4j.core.callbacks
 
-import im.tox.tox4j.TestConstants.ITERATIONS
+import im.tox.tox4j.TestConstants.Iterations
 import im.tox.tox4j.core.enums.{ToxConnection, ToxMessageType}
 import im.tox.tox4j.testing.autotest.{AliceBobTest, AliceBobTestBase}
 
@@ -17,15 +17,15 @@ final class FriendReadReceiptCallbackTest extends AliceBobTest {
       super.friendConnectionStatus(friendNumber, connectionStatus)(state)
       if (connectionStatus != ToxConnection.NONE) {
         state.addTask { (tox, state) =>
-          debug(s"Sending $ITERATIONS messages")
+          debug(s"Sending $Iterations messages")
           assert(state.get.isEmpty)
-          val pendingIds = (0 until ITERATIONS).foldLeft(state.get) {
+          val pendingIds = (0 until Iterations).foldLeft(state.get) {
             case (receipts, i) =>
               val receipt = tox.friendSendMessage(friendNumber, ToxMessageType.NORMAL, 0, String.valueOf(i).getBytes)
               assert(!receipts.contains(receipt))
               receipts + receipt
           }
-          assert(pendingIds.size == ITERATIONS)
+          assert(pendingIds.size == Iterations)
           state.set(pendingIds)
         }
       } else {
@@ -34,7 +34,7 @@ final class FriendReadReceiptCallbackTest extends AliceBobTest {
     }
 
     override def friendReadReceipt(friendNumber: Int, messageId: Int)(state: ChatState): ChatState = {
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
 
       assert(state.get.contains(messageId))
       val pendingIds = state.get - messageId

@@ -29,10 +29,10 @@ private object ToxCoreImpl {
       throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_PORT, "Port cannot exceed 65535")
     }
     if (publicKey ne null) {
-      if (publicKey.length < ToxCoreConstants.PUBLIC_KEY_SIZE) {
+      if (publicKey.length < ToxCoreConstants.PublicKeySize) {
         throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_KEY, "Key too short")
       }
-      if (publicKey.length > ToxCoreConstants.PUBLIC_KEY_SIZE) {
+      if (publicKey.length > ToxCoreConstants.PublicKeySize) {
         throw new ToxBootstrapException(ToxBootstrapException.Code.BAD_KEY, "Key too long")
       }
     }
@@ -405,13 +405,13 @@ final class ToxCoreImpl[ToxCoreState](@NotNull val options: ToxOptions) extends 
 
   @throws[ToxFriendAddException]
   override def addFriend(address: Array[Byte], message: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.ADDRESS_SIZE)
+    ToxCoreImpl.checkLength("Friend Address", address, ToxCoreConstants.AddressSize)
     ToxCoreJni.toxFriendAdd(instanceNumber, address, message)
   }
 
   @throws[ToxFriendAddException]
   override def addFriendNorequest(publicKey: Array[Byte]): Int = {
-    ToxCoreImpl.checkLength("Public Key", publicKey, ToxCoreConstants.PUBLIC_KEY_SIZE)
+    ToxCoreImpl.checkLength("Public Key", publicKey, ToxCoreConstants.PublicKeySize)
     ToxCoreJni.toxFriendAddNorequest(instanceNumber, publicKey)
   }
 

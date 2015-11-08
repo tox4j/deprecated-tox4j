@@ -11,17 +11,18 @@ import scala.collection.mutable
 
 object EvalBot extends PircBot {
 
-  private val BOT_NAME = "tox4j"
-  private val BOT_MSG = BOT_NAME + ":"
-  private val MAX_LINES = 10
-  private val ADMINS = Seq("sonOfRa")
-  private val CHANNELS = Map("irc.freenode.net" -> Seq("#tox4j"))
-  private val lastCode = new mutable.HashMap[String, String]
+  private val BotName = "tox4j"
+  private val BotMessage = BotName + ":"
+  private val MaxLines = 10
+  private val Admins = Seq("sonOfRa")
+  private val Channels = Map("irc.freenode.net" -> Seq("#tox4j"))
+
+  private var lastCode = Map.empty[String, String]
 
   private var running = true
 
   def main(args: Array[String]) {
-    setName(BOT_NAME)
+    setName(BotName)
     setVerbose(true)
     setEncoding("UTF-8")
     tryConnect()
@@ -41,7 +42,7 @@ object EvalBot extends PircBot {
     }
 
   private def connect(): Unit =
-    CHANNELS foreach {
+    Channels foreach {
       case (server, channels) =>
         connect(server)
         channels foreach joinChannel
@@ -146,7 +147,7 @@ object EvalBot extends PircBot {
 
   override def onMessage(channel: String, sender: String, login: String, hostname: String, message: String) {
     message match {
-      case Cmd(BOT_MSG :: m :: Nil) if ADMINS contains sender =>
+      case Cmd(BotMessage :: m :: Nil) if Admins contains sender =>
         m match {
           case "quit" =>
             running = false
@@ -233,7 +234,7 @@ object EvalBot extends PircBot {
       .newBuilder()
       .expireAfterAccess(1, TimeUnit.HOURS)
       .softValues()
-      .maximumSize(CHANNELS.size + 5)
+      .maximumSize(Channels.size + 5)
       .removalListener(new RemovalListener[K, V] {
         override def onRemoval(notification: RemovalNotification[K, V]) {
           println(s"expired $notification")
@@ -242,7 +243,7 @@ object EvalBot extends PircBot {
 
   private def sendLines(channel: String, message: String) = {
     val lines = message.take(10 * 1024).split("\n").filter(!_.isEmpty)
-    val output = lines.take(MAX_LINES)
+    val output = lines.take(MaxLines)
     print(lines.take(100).mkString("\n"))
 
     output foreach { m =>
