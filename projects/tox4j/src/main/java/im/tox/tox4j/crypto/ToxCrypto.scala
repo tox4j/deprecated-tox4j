@@ -31,6 +31,20 @@ trait ToxCrypto {
   def passKeyEquals(@NotNull a: PassKey, @NotNull b: PassKey): Boolean
 
   /**
+   * Serialise the [[PassKey]] to a byte sequence.
+   *
+   * @return A sequence of bytes making up a [[PassKey]].
+   */
+  def passKeyToBytes(@NotNull passKey: PassKey): Seq[Byte]
+
+  /**
+   * Deserialise a [[PassKey]] from a byte sequence.
+   *
+   * @return [[Some]]([[PassKey]]) if the key was valid, [[None]] otherwise.
+   */
+  def passKeyFromBytes(@NotNull bytes: Seq[Byte]): Option[PassKey]
+
+  /**
    * Generates a secret symmetric key from the given passphrase.
    *
    * Be sure to not compromise the key! Only keep it in memory, do not write to disk.
