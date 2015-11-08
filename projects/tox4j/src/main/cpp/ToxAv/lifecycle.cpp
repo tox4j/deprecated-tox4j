@@ -186,10 +186,10 @@ TOX_METHOD (void, Finalize,
 
 /*
  * Class:     im_tox_tox4j_impl_jni_ToxAvJni
- * Method:    invokeAudioBitRateStatus
+ * Method:    invokeBitRateStatus
  * Signature: (IIII)V
  */
-JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeAudioBitRateStatus
+JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeBitRateStatus
   (JNIEnv *env, jclass, jint instanceNumber, jint friendNumber, jint audioBitRate, jint videoBitRate)
 {
   return instances.with_instance (env, instanceNumber,
