@@ -10,7 +10,12 @@ void
 reference_symbols_core ()
 {
   int tox_finalize; // For Java only.
+
+#define JAVA_METHOD_REF(NAME)  unused (JAVA_METHOD_NAME (NAME));
+#define CXX_FUNCTION_REF(NAME) unused (NAME);
 #include "generated/natives.h"
+#undef CXX_FUNCTION_REF
+#undef JAVA_METHOD_REF
 }
 
 #define TOX_MAX_HOSTNAME_LENGTH 255

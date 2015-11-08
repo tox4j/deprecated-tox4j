@@ -50,8 +50,4 @@ public final class ToxAvJni {
       int yStride, int uStride, int vStride
   );
 
-  static <T> T conversionError(@NotNull String className, @NotNull String name) {
-    throw new MatchError("ToxAv: Could not convert " + className + "." + name);
-  }
-
 }

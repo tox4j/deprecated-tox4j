@@ -2,13 +2,15 @@ package im.tox.tox4j.av.callbacks
 
 import java.util
 
+import com.google.protobuf.TextFormat
 import im.tox.tox4j.ToxAvTestBase
 import im.tox.tox4j.av.callbacks.AvInvokeTest._
 import im.tox.tox4j.av.enums.ToxavFriendCallState
 import im.tox.tox4j.core.SmallNat
 import im.tox.tox4j.core.callbacks.InvokeTest.{ByteArray, ShortArray}
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.impl.jni.{ToxAvImpl, ToxCoreImpl}
+import im.tox.tox4j.impl.jni.ProtoLog.JniLog
+import im.tox.tox4j.impl.jni.{ToxJniLog, ToxAvImpl, ToxCoreImpl}
 import org.scalacheck.Arbitrary
 import org.scalatest.FunSuite
 import org.scalatest.prop.PropertyChecks

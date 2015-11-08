@@ -45,10 +45,13 @@ object JniEnums extends CodeGenerator {
     )
   }
 
-  def debugOut(exprs: Expr*): Stmt = {
-    ExprStmt(exprs.foldLeft(Identifier("debug_out"): Expr) { (stream, arg) =>
-      LeftShift(stream, arg)
-    })
+  def debugOut(expr: Expr): Stmt = {
+    ExprStmt(
+      FunCall(
+        Access(Identifier("value"), "set_string"),
+        Seq(expr)
+      )
+    )
   }
 
   def printArg[E <: Enum[E]](values: Seq[E], cxxEnum: String): Decl = {
@@ -59,10 +62,11 @@ object JniEnums extends CodeGenerator {
         returnType = Type.void,
         name = "print_arg",
         params = Seq(
-          Param(Typename(cxxEnum), "value")
+          Param(Reference(Typename("protolog::Value")), "value"),
+          Param(Typename(cxxEnum), "arg")
         ),
         body = CompoundStmt(
-          Switch(Identifier("value"), CompoundStmt(values.flatMap { value =>
+          Switch(Identifier("arg"), CompoundStmt(values.flatMap { value =>
             Seq(Oneliner(
               Case(
                 Identifier(cxxEnum + "_" + value.name),
@@ -71,7 +75,11 @@ object JniEnums extends CodeGenerator {
               Return()
             ))
           })),
-          debugOut(StringLiteral(s"($cxxEnum)"), Identifier("value"))
+          debugOut(BinaryOperator(
+            "+",
+            StringLiteral(s"($cxxEnum)"),
+            Identifier("std::to_string (arg)")
+          ))
         )
       )
     )

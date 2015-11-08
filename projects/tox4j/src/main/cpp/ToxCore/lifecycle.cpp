@@ -25,36 +25,32 @@ set_connection_status (Message &msg, TOX_CONNECTION connection_status)
 }
 
 static void
-tox4j_self_connection_status_cb (Tox *tox, TOX_CONNECTION connection_status, Events &events)
+tox4j_self_connection_status_cb (TOX_CONNECTION connection_status, Events *events)
 {
-  debug_log (tox4j_self_connection_status_cb, tox, connection_status);
-  auto msg = events.add_self_connection_status ();
+  auto msg = events->add_self_connection_status ();
   set_connection_status (msg, connection_status);
 }
 
 static void
-tox4j_friend_name_cb (Tox *tox, uint32_t friend_number, uint8_t const *name, size_t length, Events &events)
+tox4j_friend_name_cb (uint32_t friend_number, uint8_t const *name, size_t length, Events *events)
 {
-  debug_log (tox4j_friend_name_cb, tox, friend_number, name, length);
-  auto msg = events.add_friend_name ();
+  auto msg = events->add_friend_name ();
   msg->set_friend_number (friend_number);
   msg->set_name (name, length);
 }
 
 static void
-tox4j_friend_status_message_cb (Tox *tox, uint32_t friend_number, uint8_t const *message, size_t length, Events &events)
+tox4j_friend_status_message_cb (uint32_t friend_number, uint8_t const *message, size_t length, Events *events)
 {
-  debug_log (tox4j_friend_status_message_cb, tox, friend_number, message, length);
-  auto msg = events.add_friend_status_message ();
+  auto msg = events->add_friend_status_message ();
   msg->set_friend_number (friend_number);
   msg->set_message (message, length);
 }
 
 static void
-tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_USER_STATUS status, Events &events)
+tox4j_friend_status_cb (uint32_t friend_number, TOX_USER_STATUS status, Events *events)
 {
-  debug_log (tox4j_friend_status_cb, tox, friend_number, status);
-  auto msg = events.add_friend_status ();
+  auto msg = events->add_friend_status ();
   msg->set_friend_number (friend_number);
 
   using proto::UserStatus;
@@ -73,47 +69,42 @@ tox4j_friend_status_cb (Tox *tox, uint32_t friend_number, TOX_USER_STATUS status
 }
 
 static void
-tox4j_friend_connection_status_cb (Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status, Events &events)
+tox4j_friend_connection_status_cb (uint32_t friend_number, TOX_CONNECTION connection_status, Events *events)
 {
-  debug_log (tox4j_friend_connection_status_cb, tox, friend_number, connection_status);
-  auto msg = events.add_friend_connection_status ();
+  auto msg = events->add_friend_connection_status ();
   msg->set_friend_number (friend_number);
   set_connection_status (msg, connection_status);
 }
 
 static void
-tox4j_friend_typing_cb (Tox *tox, uint32_t friend_number, bool is_typing, Events &events)
+tox4j_friend_typing_cb (uint32_t friend_number, bool is_typing, Events *events)
 {
-  debug_log (tox4j_friend_typing_cb, tox, friend_number, is_typing);
-  auto msg = events.add_friend_typing ();
+  auto msg = events->add_friend_typing ();
   msg->set_friend_number (friend_number);
   msg->set_is_typing (is_typing);
 }
 
 static void
-tox4j_friend_read_receipt_cb (Tox *tox, uint32_t friend_number, uint32_t message_id, Events &events)
+tox4j_friend_read_receipt_cb (uint32_t friend_number, uint32_t message_id, Events *events)
 {
-  debug_log (tox4j_friend_read_receipt_cb, tox, friend_number, message_id);
-  auto msg = events.add_friend_read_receipt ();
+  auto msg = events->add_friend_read_receipt ();
   msg->set_friend_number (friend_number);
   msg->set_message_id (message_id);
 }
 
 static void
-tox4j_friend_request_cb (Tox *tox, uint8_t const *public_key, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events &events)
+tox4j_friend_request_cb (uint8_t const *public_key, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events *events)
 {
-  debug_log (tox4j_friend_request_cb, tox, public_key, message, length);
-  auto msg = events.add_friend_request ();
+  auto msg = events->add_friend_request ();
   msg->set_public_key (public_key, TOX_PUBLIC_KEY_SIZE);
   msg->set_time_delta (0);
   msg->set_message (message, length);
 }
 
 static void
-tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events &events)
+tox4j_friend_message_cb (uint32_t friend_number, TOX_MESSAGE_TYPE type, /*uint32_t time_delta, */ uint8_t const *message, size_t length, Events *events)
 {
-  debug_log (tox4j_friend_message_cb, tox, friend_number, message, length);
-  auto msg = events.add_friend_message ();
+  auto msg = events->add_friend_message ();
   msg->set_friend_number (friend_number);
 
   using proto::MessageType;
@@ -132,10 +123,9 @@ tox4j_friend_message_cb (Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type
 }
 
 static void
-tox4j_file_recv_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, Events &events)
+tox4j_file_recv_control_cb (uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, Events *events)
 {
-  debug_log (tox4j_file_recv_control_cb, tox, friend_number, file_number, control);
-  auto msg = events.add_file_recv_control ();
+  auto msg = events->add_file_recv_control ();
   msg->set_friend_number (friend_number);
   msg->set_file_number (file_number);
 
@@ -155,10 +145,9 @@ tox4j_file_recv_control_cb (Tox *tox, uint32_t friend_number, uint32_t file_numb
 }
 
 static void
-tox4j_file_chunk_request_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, Events &events)
+tox4j_file_chunk_request_cb (uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, Events *events)
 {
-  debug_log (tox4j_file_chunk_request_cb, tox, friend_number, file_number, position, length);
-  auto msg = events.add_file_chunk_request ();
+  auto msg = events->add_file_chunk_request ();
   msg->set_friend_number (friend_number);
   msg->set_file_number (file_number);
   msg->set_position (position);
@@ -166,10 +155,9 @@ tox4j_file_chunk_request_cb (Tox *tox, uint32_t friend_number, uint32_t file_num
 }
 
 static void
-tox4j_file_recv_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events &events)
+tox4j_file_recv_cb (uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, uint8_t const *filename, size_t filename_length, Events *events)
 {
-  debug_log (tox4j_file_recv_cb, tox, friend_number, file_number, kind, file_size, filename, filename_length);
-  auto msg = events.add_file_recv ();
+  auto msg = events->add_file_recv ();
   msg->set_friend_number (friend_number);
   msg->set_file_number (file_number);
   msg->set_kind (kind);
@@ -178,10 +166,9 @@ tox4j_file_recv_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint
 }
 
 static void
-tox4j_file_recv_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, Events &events)
+tox4j_file_recv_chunk_cb (uint32_t friend_number, uint32_t file_number, uint64_t position, uint8_t const *data, size_t length, Events *events)
 {
-  debug_log (tox4j_file_recv_chunk_cb, tox, friend_number, file_number, position, data, length);
-  auto msg = events.add_file_recv_chunk ();
+  auto msg = events->add_file_recv_chunk ();
   msg->set_friend_number (friend_number);
   msg->set_file_number (file_number);
   msg->set_position (position);
@@ -189,19 +176,17 @@ tox4j_file_recv_chunk_cb (Tox *tox, uint32_t friend_number, uint32_t file_number
 }
 
 static void
-tox4j_friend_lossy_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, Events &events)
+tox4j_friend_lossy_packet_cb (uint32_t friend_number, uint8_t const *data, size_t length, Events *events)
 {
-  debug_log (tox4j_friend_lossy_packet_cb, tox, friend_number, data, length);
-  auto msg = events.add_friend_lossy_packet ();
+  auto msg = events->add_friend_lossy_packet ();
   msg->set_friend_number (friend_number);
   msg->set_data (data, length);
 }
 
 static void
-tox4j_friend_lossless_packet_cb (Tox *tox, uint32_t friend_number, uint8_t const *data, size_t length, Events &events)
+tox4j_friend_lossless_packet_cb (uint32_t friend_number, uint8_t const *data, size_t length, Events *events)
 {
-  debug_log (tox4j_friend_lossless_packet_cb, tox, friend_number, data, length);
-  auto msg = events.add_friend_lossless_packet ();
+  auto msg = events->add_friend_lossless_packet ();
   msg->set_friend_number (friend_number);
   msg->set_data (data, length);
 }
@@ -227,6 +212,28 @@ tox_new_unique (Tox_Options const *options, TOX_ERR_NEW *error)
 {
   return tox::core_ptr (tox_new (options, error));
 }
+
+
+static void
+tox_finalize ()
+{
+  assert (!"This function is only here for register_funcs and should never be called.");
+}
+
+
+register_funcs (
+#define JAVA_METHOD_REF(x)
+#define CXX_FUNCTION_REF(func) register_func (func),
+#include "generated/natives.h"
+#undef CXX_FUNCTION_REF
+#undef JAVA_METHOD_REF
+
+#define CALLBACK(NAME)   register_func (tox4j_##NAME##_cb),
+#include "tox/generated/core.h"
+#undef CALLBACK
+
+  register_func (tox_new_unique)
+);
 
 
 /*
@@ -279,13 +286,6 @@ TOX_METHOD (jint, New,
   opts->savedata_type = enum_value<TOX_SAVEDATA_TYPE> (env, saveDataType);
   opts->savedata_data   = save_data.data ();
   opts->savedata_length = save_data.size ();
-
-  register_funcs (
-#define CALLBACK(NAME)   register_func (tox4j_##NAME##_cb),
-#include "tox/generated/core.h"
-#undef CALLBACK
-    register_func (tox_new_unique)
-  );
 
   return instances.with_error_handling (env,
     [env] (tox::core_ptr tox)
@@ -361,7 +361,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeSelfConnectio
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_self_connection_status_cb (tox, enum_value<TOX_CONNECTION> (env, connection_status), events);
+        assert (tox != nullptr);
+        tox4j_self_connection_status_cb (enum_value<TOX_CONNECTION> (env, connection_status), &events);
       }
   );
 }
@@ -377,7 +378,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileRecvContr
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_file_recv_control_cb (tox, friend_number, file_number, enum_value<TOX_FILE_CONTROL> (env, control), events);
+        assert (tox != nullptr);
+        tox4j_file_recv_control_cb (friend_number, file_number, enum_value<TOX_FILE_CONTROL> (env, control), &events);
       }
   );
 }
@@ -393,8 +395,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileRecv
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray filenameArray (env, filename);
-        tox4j_file_recv_cb (tox, friend_number, file_number, kind, file_size, filenameArray.data (), filenameArray.size (), events);
+        tox4j_file_recv_cb (friend_number, file_number, kind, file_size, filenameArray.data (), filenameArray.size (), &events);
       }
   );
 }
@@ -410,8 +413,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileRecvChunk
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray dataArray (env, data);
-        tox4j_file_recv_chunk_cb (tox, friend_number, file_number, position, dataArray.data (), dataArray.size (), events);
+        tox4j_file_recv_chunk_cb (friend_number, file_number, position, dataArray.data (), dataArray.size (), &events);
       }
   );
 }
@@ -427,7 +431,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFileChunkRequ
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_file_chunk_request_cb (tox, friend_number, file_number, position, length, events);
+        assert (tox != nullptr);
+        tox4j_file_chunk_request_cb (friend_number, file_number, position, length, &events);
       }
   );
 }
@@ -443,7 +448,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendConnect
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_friend_connection_status_cb (tox, friend_number, enum_value<TOX_CONNECTION> (env, connection_status), events);
+        assert (tox != nullptr);
+        tox4j_friend_connection_status_cb (friend_number, enum_value<TOX_CONNECTION> (env, connection_status), &events);
       }
   );
 }
@@ -459,8 +465,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendLossles
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray dataArray (env, data);
-        tox4j_friend_lossless_packet_cb (tox, friend_number, dataArray.data (), dataArray.size (), events);
+        tox4j_friend_lossless_packet_cb (friend_number, dataArray.data (), dataArray.size (), &events);
       }
   );
 }
@@ -476,8 +483,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendLossyPa
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray dataArray (env, data);
-        tox4j_friend_lossy_packet_cb (tox, friend_number, dataArray.data (), dataArray.size (), events);
+        tox4j_friend_lossy_packet_cb (friend_number, dataArray.data (), dataArray.size (), &events);
       }
   );
 }
@@ -493,8 +501,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendMessage
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray messageArray (env, message);
-        tox4j_friend_message_cb (tox, friend_number, enum_value<TOX_MESSAGE_TYPE> (env, type), /*time_delta, */ messageArray.data (), messageArray.size (), events);
+        tox4j_friend_message_cb (friend_number, enum_value<TOX_MESSAGE_TYPE> (env, type), /*time_delta, */ messageArray.data (), messageArray.size (), &events);
       }
   );
 }
@@ -510,8 +519,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendName
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray nameArray (env, name);
-        tox4j_friend_name_cb (tox, friend_number, nameArray.data (), nameArray.size (), events);
+        tox4j_friend_name_cb (friend_number, nameArray.data (), nameArray.size (), &events);
       }
   );
 }
@@ -527,9 +537,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendRequest
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray public_keyArray (env, public_key);
         ByteArray messageArray (env, message);
-        tox4j_friend_request_cb (tox, public_keyArray.data (), /*time_delta, */ messageArray.data (), messageArray.size (), events);
+        tox4j_friend_request_cb (public_keyArray.data (), /*time_delta, */ messageArray.data (), messageArray.size (), &events);
       }
   );
 }
@@ -545,7 +556,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendStatus
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_friend_status_cb (tox, friend_number, enum_value<TOX_USER_STATUS> (env, status), events);
+        assert (tox != nullptr);
+        tox4j_friend_status_cb (friend_number, enum_value<TOX_USER_STATUS> (env, status), &events);
       }
   );
 }
@@ -561,8 +573,9 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendStatusM
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
+        assert (tox != nullptr);
         ByteArray messageArray (env, message);
-        tox4j_friend_status_message_cb (tox, friend_number, messageArray.data (), messageArray.size (), events);
+        tox4j_friend_status_message_cb (friend_number, messageArray.data (), messageArray.size (), &events);
       }
   );
 }
@@ -578,7 +591,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendTyping
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_friend_typing_cb (tox, friend_number, is_typing, events);
+        assert (tox != nullptr);
+        tox4j_friend_typing_cb (friend_number, is_typing, &events);
       }
   );
 }
@@ -594,7 +608,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCoreJni_invokeFriendReadRec
   return instances.with_instance (env, instanceNumber,
     [=] (Tox *tox, Events &events)
       {
-        tox4j_friend_read_receipt_cb (tox, friend_number, message_id, events);
+        assert (tox != nullptr);
+        tox4j_friend_read_receipt_cb (friend_number, message_id, &events);
       }
   );
 }

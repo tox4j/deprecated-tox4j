@@ -21,10 +21,3 @@ extern "C" JNIEXPORT TYPE JNICALL NAME \
 
 #define TOX_METHOD(TYPE, NAME, ...) \
   JNI_METHOD(TYPE, TOX_METHOD_NAME(NAME), __VA_ARGS__)
-
-
-#define JAVA_METHOD_REF(NAME) \
-  unused (JAVA_METHOD_NAME (NAME));
-
-#define CXX_FUNCTION_REF(NAME) \
-  unused (NAME);

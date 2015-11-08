@@ -16,7 +16,7 @@ object WartRemoverOverrides extends OptionalPlugin {
     wartremoverExcluded := {
       val proto = (sourceManaged in Compile).value / "compiled_protobuf" / "im" / "tox" / "tox4j"
 
-      // TODO: infer these
+      // TODO(iphydf): infer these
       val avProtos = Seq(
         "AudioReceiveFrame",
         "AvEvents",
@@ -52,7 +52,15 @@ object WartRemoverOverrides extends OptionalPlugin {
         "UserStatus"
       ).map(_ + ".scala").map(proto / "core" / "proto" / "Core" / _)
 
-      avProtos ++ coreProtos
+      val protoLogProtos = Seq(
+        "JniLogEntry",
+        "JniLog",
+        "Member",
+        "Value",
+        "InternalFields_ProtoLogProto"
+      ).map(_ + ".scala").map(proto / "impl" / "jni" / "proto" / "ProtoLog" / _)
+
+      avProtos ++ coreProtos ++ protoLogProtos
     }
   )
 

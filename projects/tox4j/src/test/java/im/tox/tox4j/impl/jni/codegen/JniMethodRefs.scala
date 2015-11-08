@@ -12,7 +12,7 @@ object JniMethodRefs extends CodeGenerator {
     clazz.getDeclaredMethods
       .filter { method =>
         Modifier.isNative(method.getModifiers) &&
-          !method.getName.startsWith("invoke")
+          !Seq("invoke", "tox4j").exists(method.getName.startsWith)
       }
       .sortBy(method => method.getName)
       .flatMap { method =>

@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+package im.tox.tox4j.impl.jni.proto;
+
+
+message Member {
+  required string name = 1;
+  required Value value = 2;
+}
+
+
+message Value {
+  optional uint32 uint32 = 1;
+  optional string string = 2;
+  optional bytes bytes = 3;
+  repeated Member object = 4;
+}
+
+
+message JniLogEntry {
+  // The called function name or address.
+  required string name = 1;
+
+  // Instance number for the Tox or ToxAV instance.
+  optional uint32 instance_number = 2;
+
+  // All the arguments to the function in order. These may contain out
+  // parameters, in which case the result will not be logged.
+  // TODO(iphydf): Infer out parameters from constness and log them anyway.
+  repeated Value arguments = 3;
+
+  required Value result = 4;
+
+  // Time spent inside the actual native function in microseconds.
+  required uint32 elapsed_time = 5;
+}
+
+
+message JniLog {
+  repeated JniLogEntry entries = 1;
+}

@@ -6,14 +6,6 @@
 
 #include <iostream>
 
-/*****************************************************************************
- * Identity and unused-value function.
- */
-
-static auto const identity = [](auto v) { return v; };
-
-template<typename T> static inline void unused (T const &) { }
-
 
 /*****************************************************************************
  * Error handling code.
@@ -74,10 +66,6 @@ struct error_type_of<Result (*) (ErrorCode *)>
 {
   typedef ErrorCode type;
 };
-
-
-template<typename FuncT>
-using tox_error_t = typename error_type_of<FuncT>::type;
 
 
 
@@ -141,12 +129,15 @@ throw_tox_exception (JNIEnv *env, ErrorType error)
 
 template<typename Object, typename SuccessFunc, typename ToxFunc, typename ...Args>
 auto
-with_error_handling (JNIEnv *env,
+with_error_handling (LogEntry &log_entry,
+                     JNIEnv *env,
                      SuccessFunc success_func,
                      ToxFunc tox_func,
                      Args ...args)
 {
-  using error_type = tox_error_t<ToxFunc>;
+  using namespace std::placeholders;
+
+  using error_type = typename error_type_of<ToxFunc>::type;
 
   using result_type =
     typename std::result_of<
@@ -157,7 +148,7 @@ with_error_handling (JNIEnv *env,
       )>::type;
 
   error_type error;
-  auto value = tox_func (args..., &error);
+  auto value = log_entry.print_result (tox_func, args..., &error);
   ErrorHandling result = handle_error_enum<error_type> (error);
   switch (result.result)
     {
@@ -189,8 +180,8 @@ struct ToxInstances
                        ToxFunc tox_func,
                        Args ...args)
   {
-    debug_log (tox_func, args...);
-    return ::with_error_handling<Object> (env, success_func, tox_func, args...);
+    LogEntry log_entry (tox_func, args...);
+    return ::with_error_handling<Object> (log_entry, env, success_func, tox_func, args...);
   }
 
 
@@ -206,8 +197,8 @@ struct ToxInstances
       [=] (Object *tox, Events &events)
         {
           unused (events);
-          debug_log (instanceNumber, tox_func, tox, args...);
-          return ::with_error_handling<Object> (env, success_func, tox_func, tox, args...);
+          LogEntry log_entry (instanceNumber, tox_func, tox, args...);
+          return ::with_error_handling<Object> (log_entry, env, success_func, tox_func, tox, args...);
         }
     );
   }
@@ -239,8 +230,8 @@ struct ToxInstances
       [&] (Object *tox, Events &events)
         {
           unused (events);
-          debug_log (instanceNumber, tox_func, tox, args...);
-          return tox_func (tox, args...);
+          LogEntry log_entry (instanceNumber, tox_func, tox, args...);
+          return log_entry.print_result (tox_func, tox, args...);
         }
     );
   }

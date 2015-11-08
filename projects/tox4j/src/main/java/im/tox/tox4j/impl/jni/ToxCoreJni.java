@@ -95,8 +95,7 @@ public final class ToxCoreJni {
   static native void invokeFriendTyping(int instanceNumber, int friendNumber, boolean isTyping);
   static native void invokeFriendReadReceipt(int instanceNumber, int friendNumber, int messageId);
 
-  static <T> T conversionError(@NotNull String className, @NotNull String name) {
-    throw new MatchError("ToxCore: Could not convert " + className + '.' + name);
-  }
+  static native byte[] tox4jLastLog();
+  static native void tox4jSetLogging(boolean enabled);
 
 }
