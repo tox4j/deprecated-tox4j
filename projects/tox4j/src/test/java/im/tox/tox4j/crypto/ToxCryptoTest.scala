@@ -40,6 +40,39 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
   private implicit val arbPassKey: Arbitrary[toxCrypto.PassKey] =
     Arbitrary(arbitrary[Array[Byte]].map(x => toxCrypto.deriveKeyFromPass(x)))
 
+  "PassKey serialisation" should {
+    "produce a byte sequence of the right length" in {
+      forAll { (passKey: toxCrypto.PassKey) =>
+        val serialised = toxCrypto.passKeyToBytes(passKey)
+        assert(serialised.length == ToxCryptoConstants.KEY_LENGTH + ToxCryptoConstants.SALT_LENGTH)
+      }
+    }
+
+    "produce the same PassKey after deserialisation" in {
+      forAll { (passKey: toxCrypto.PassKey) =>
+        val serialised = toxCrypto.passKeyToBytes(passKey)
+        assert(toxCrypto.passKeyFromBytes(serialised).contains(passKey))
+      }
+    }
+  }
+
+  "PassKey deserialisation" should {
+    "fail for byte sequences of the wrong length" in {
+      forAll { (serialised: Seq[Byte]) =>
+        whenever(serialised.length != ToxCryptoConstants.KEY_LENGTH + ToxCryptoConstants.SALT_LENGTH) {
+          assert(toxCrypto.passKeyFromBytes(serialised).isEmpty)
+        }
+      }
+    }
+
+    "produce the same PassKey after deserialisation" in {
+      forAll { (passKey: toxCrypto.PassKey) =>
+        val serialised = toxCrypto.passKeyToBytes(passKey)
+        assert(toxCrypto.passKeyFromBytes(serialised).contains(passKey))
+      }
+    }
+  }
+
   "encryption with a PassKey" should {
     import ToxEncryptionException.Code._
 
