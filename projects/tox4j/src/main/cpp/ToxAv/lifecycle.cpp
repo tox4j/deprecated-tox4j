@@ -7,11 +7,9 @@ using namespace av;
 
 
 static void
-tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video_enabled, Events &events)
+tox4j_call_cb (uint32_t friend_number, bool audio_enabled, bool video_enabled, Events *events)
 {
-  assert (av != nullptr);
-
-  auto msg = events.add_call ();
+  auto msg = events->add_call ();
   msg->set_friend_number (friend_number);
   msg->set_audio_enabled (audio_enabled);
   msg->set_video_enabled (video_enabled);
@@ -19,11 +17,9 @@ tox4j_call_cb (ToxAV *av, uint32_t friend_number, bool audio_enabled, bool video
 
 
 static void
-tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &events)
+tox4j_call_state_cb (uint32_t friend_number, uint32_t state, Events *events)
 {
-  assert (av != nullptr);
-
-  auto msg = events.add_call_state ();
+  auto msg = events->add_call_state ();
   msg->set_friend_number (friend_number);
 
   using proto::CallState;
@@ -41,15 +37,12 @@ tox4j_call_state_cb (ToxAV *av, uint32_t friend_number, uint32_t state, Events &
 
 
 static void
-tox4j_bit_rate_status_cb (ToxAV *av,
-                          uint32_t friend_number,
+tox4j_bit_rate_status_cb (uint32_t friend_number,
                           uint32_t audio_bit_rate,
                           uint32_t video_bit_rate,
-                          Events &events)
+                          Events *events)
 {
-  assert (av != nullptr);
-
-  auto msg = events.add_bit_rate_status ();
+  auto msg = events->add_bit_rate_status ();
   msg->set_friend_number (friend_number);
   msg->set_audio_bit_rate (audio_bit_rate);
   msg->set_video_bit_rate (video_bit_rate);
@@ -57,17 +50,14 @@ tox4j_bit_rate_status_cb (ToxAV *av,
 
 
 static void
-tox4j_audio_receive_frame_cb (ToxAV *av,
-                              uint32_t friend_number,
+tox4j_audio_receive_frame_cb (uint32_t friend_number,
                               int16_t const *pcm,
                               size_t sample_count,
                               uint8_t channels,
                               uint32_t sampling_rate,
-                              Events &events)
+                              Events *events)
 {
-  assert (av != nullptr);
-
-  auto msg = events.add_audio_receive_frame ();
+  auto msg = events->add_audio_receive_frame ();
   msg->set_friend_number (friend_number);
 
   std::vector<uint8_t> pcm_bytes;
@@ -86,19 +76,16 @@ tox4j_audio_receive_frame_cb (ToxAV *av,
 
 
 static void
-tox4j_video_receive_frame_cb (ToxAV *av,
-                              uint32_t friend_number,
+tox4j_video_receive_frame_cb (uint32_t friend_number,
                               uint16_t width, uint16_t height,
                               uint8_t const *y, uint8_t const *u, uint8_t const *v,
                               int32_t ystride, int32_t ustride, int32_t vstride,
-                              Events &events)
+                              Events *events)
 {
-  assert (av != nullptr);
-
   assert (ystride < 0 == ustride < 0);
   assert (ystride < 0 == vstride < 0);
 
-  auto msg = events.add_video_receive_frame ();
+  auto msg = events->add_video_receive_frame ();
   msg->set_friend_number (friend_number);
   msg->set_width (width);
   msg->set_height (height);
@@ -118,6 +105,28 @@ toxav_new_unique (Tox *tox, TOXAV_ERR_NEW *error)
 }
 
 
+static void
+toxav_finalize ()
+{
+  assert (!"This function is only here for register_funcs and should never be called.");
+}
+
+
+REGISTER_FUNCS (
+#define JAVA_METHOD_REF(x)
+#define CXX_FUNCTION_REF(func)  REGISTER_FUNC (func),
+#include "generated/natives.h"
+#undef CXX_FUNCTION_REF
+#undef JAVA_METHOD_REF
+
+#define CALLBACK(NAME)          REGISTER_FUNC (tox4j_##NAME##_cb),
+#include "tox/generated/av.h"
+#undef CALLBACK
+
+  REGISTER_FUNC (toxav_new_unique)
+);
+
+
 /*
  * Class:     im_tox_tox4j_impl_ToxAvJni
  * Method:    toxavNew
@@ -126,13 +135,6 @@ toxav_new_unique (Tox *tox, TOXAV_ERR_NEW *error)
 TOX_METHOD (jint, New,
   jint toxInstanceNumber)
 {
-  register_funcs (
-#define CALLBACK(NAME)   register_func (tox4j_##NAME##_cb),
-#include "tox/generated/av.h"
-#undef CALLBACK
-    register_func (toxav_new_unique)
-  );
-
   return core::instances.with_instance (env, toxInstanceNumber,
     [=] (Tox *tox, core::Events &)
       {
@@ -195,7 +197,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeBitRateStatus
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
       {
-        tox4j_bit_rate_status_cb (av, friendNumber, audioBitRate, videoBitRate, events);
+        assert (av != nullptr);
+        tox4j_bit_rate_status_cb (friendNumber, audioBitRate, videoBitRate, &events);
       }
   );
 }
@@ -211,9 +214,10 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeAudioReceiveFra
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
       {
+        assert (av != nullptr);
         ShortArray pcmData (env, pcm);
         tox4j_assert (pcmData.size () % channels == 0);
-        tox4j_audio_receive_frame_cb (av, friendNumber, pcmData.data (), pcmData.size () / channels, channels, samplingRate, events);
+        tox4j_audio_receive_frame_cb (friendNumber, pcmData.data (), pcmData.size () / channels, channels, samplingRate, &events);
       }
   );
 }
@@ -229,7 +233,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeCall
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
       {
-        tox4j_call_cb (av, friendNumber, audioEnabled, videoEnabled, events);
+        assert (av != nullptr);
+        tox4j_call_cb (friendNumber, audioEnabled, videoEnabled, &events);
       }
   );
 }
@@ -245,7 +250,8 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeCallState
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
       {
-        tox4j_call_state_cb (av, friendNumber, callState, events);
+        assert (av != nullptr);
+        tox4j_call_state_cb (friendNumber, callState, &events);
       }
   );
 }
@@ -261,13 +267,14 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxAvJni_invokeVideoReceiveFra
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events)
       {
+        assert (av != nullptr);
         ByteArray yData (env, y);
         ByteArray uData (env, u);
         ByteArray vData (env, v);
         tox4j_assert (yData.size () == std::max<std::size_t> (width    , std::abs (yStride)) * height);
         tox4j_assert (uData.size () == std::max<std::size_t> (width / 2, std::abs (uStride)) * (height / 2));
         tox4j_assert (vData.size () == std::max<std::size_t> (width / 2, std::abs (vStride)) * (height / 2));
-        tox4j_video_receive_frame_cb (av, friendNumber, width, height, yData.data (), uData.data (), vData.data (), yStride, uStride, vStride, events);
+        tox4j_video_receive_frame_cb (friendNumber, width, height, yData.data (), uData.data (), vData.data (), yStride, uStride, vStride, &events);
       }
   );
 }

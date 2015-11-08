@@ -2,8 +2,6 @@ syntax = "proto2";
 
 package im.tox.tox4j.core.proto;
 
-option optimize_for = LITE_RUNTIME;
-
 
 message Connection {
   enum Type {

@@ -54,7 +54,7 @@ struct formatter
   { }
 
   explicit formatter (std::vector<char> &&text)
-    : text_ (text)
+    : text_ (std::move (text))
   { }
 
   friend std::ostream &operator << (std::ostream &os, formatter const &fmt);

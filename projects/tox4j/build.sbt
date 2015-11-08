@@ -49,7 +49,7 @@ testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 import sbt.tox4j.Jni.Keys._
 
 packageDependencies ++= Seq(
-  "protobuf-lite",
+  "protobuf",
   "libtoxcore",
   "libtoxav",
   // Required, since toxav's pkg-config files are incomplete:
@@ -60,7 +60,8 @@ packageDependencies ++= Seq(
 // TODO: infer this (easy).
 jniSourceFiles in Compile ++= Seq(
   managedNativeSource.value / "Av.pb.cc",
-  managedNativeSource.value / "Core.pb.cc"
+  managedNativeSource.value / "Core.pb.cc",
+  managedNativeSource.value / "ProtoLog.pb.cc"
 )
 
 /******************************************************************************

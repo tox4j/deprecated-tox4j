@@ -97,7 +97,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxDeriveKe
       return nullptr;
     }
 
-  return with_error_handling<ToxCrypto> (env,
+  LogEntry log_entry (tox_derive_key_with_salt);
+  return with_error_handling<ToxCrypto> (log_entry, env,
     [env, &out_key] (bool)
       {
         return pass_key_to_java (env, out_key);
@@ -121,7 +122,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxDeriveKe
   ByteArray passphrase (env, passphraseArray);
   TOX_PASS_KEY out_key;
 
-  return with_error_handling<ToxCrypto> (env,
+  LogEntry log_entry (tox_derive_key_from_pass);
+  return with_error_handling<ToxCrypto> (log_entry, env,
     [env, &out_key] (bool)
       {
         return pass_key_to_java (env, out_key);
@@ -153,7 +155,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxPassKeyD
 
   TOX_PASS_KEY const pass_key = pass_key_from_java (env, passKeyArray);
 
-  return with_error_handling<ToxCrypto> (env,
+  LogEntry log_entry (tox_pass_key_decrypt);
+  return with_error_handling<ToxCrypto> (log_entry, env,
     [env, &out] (bool)
       {
         return toJavaArray (env, out);
@@ -179,7 +182,8 @@ JNIEXPORT jbyteArray JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_toxPassKeyE
 
   TOX_PASS_KEY const pass_key = pass_key_from_java (env, passKeyArray);
 
-  return with_error_handling<ToxCrypto> (env,
+  LogEntry log_entry (tox_pass_key_encrypt);
+  return with_error_handling<ToxCrypto> (log_entry, env,
     [env, &out] (bool)
       {
         return toJavaArray (env, out);

@@ -9,41 +9,114 @@
 
 #include <jni.h>
 
-struct null_out_buf
-  : std::streambuf
+
+/****************************************************************************
+ *
+ * :: Log and log entry.
+ *
+ ****************************************************************************/
+
+
+// Global log.
+JniLog jni_log;
+
+
+struct JniLog::data
 {
-  std::streamsize xsputn (char const *, std::streamsize n) override { return n; }
-  int overflow (int) override { return 1; }
+  int max_size = 100;
+  std::recursive_mutex mutex;
+  protolog::JniLog log;
 };
 
-struct null_out_stream
-  : std::ostream
+
+JniLog::Entry::Entry (protolog::JniLogEntry *entry, std::unique_lock<std::recursive_mutex> lock)
+  : entry (entry)
+  , lock (std::move (lock))
 {
-  null_out_stream() : std::ostream (&buf) { }
+}
 
-private:
-  null_out_buf buf;
-};
 
-static null_out_stream null_out;
+JniLog::Entry::~Entry ()
+{
+}
 
-bool output_data_pointer = false;
-std::ostream &debug_out =
-  std::getenv ("TOX4J_DEBUG")
-    ? std::cout
-    : null_out;
 
-#undef register_func
-#define register_func(func) std::make_pair (reinterpret_cast<uintptr_t> (func), #func)
+JniLog::JniLog ()
+  : self (std::make_unique<data> ())
+{
+}
 
-static std::map<uintptr_t, char const *> &
+JniLog::~JniLog ()
+{
+}
+
+
+JniLog::Entry
+JniLog::new_entry ()
+{
+  // No lock for max_size.
+  if (self->max_size == 0)
+    return { };
+
+  // Acquire a lock and pass it to the Entry.
+  std::unique_lock<std::recursive_mutex> lock (self->mutex);
+  if (self->log.entries_size () >= self->max_size)
+    // If the log is full, unlock right away and return null.
+    return nullptr;
+  return JniLog::Entry (self->log.add_entries (), std::move (lock));
+}
+
+std::vector<char>
+JniLog::clear ()
+{
+  std::lock_guard<std::recursive_mutex> lock (self->mutex);
+  std::vector<char> buffer (self->log.ByteSize ());
+  self->log.SerializeToArray (buffer.data (), buffer.size ());
+  self->log.Clear ();
+
+  return buffer;
+}
+
+bool
+JniLog::empty () const
+{
+  std::lock_guard<std::recursive_mutex> lock (self->mutex);
+  return self->log.entries_size () == 0;
+}
+
+void
+JniLog::max_size (int max_size)
+{
+  self->max_size = max_size;
+}
+
+int
+JniLog::max_size () const
+{
+  return self->max_size;
+}
+
+
+/****************************************************************************
+ *
+ * :: Function name registry.
+ *
+ ****************************************************************************/
+
+
+/**
+ * The global singleton is in a function because otherwise static
+ * initialisation order does not guarantee the map to be initialised when it
+ * is accessed from another translation unit calling register_func.
+ */
+static std::map<uintptr_t, std::string const> &
 func_names ()
 {
-  static std::map<uintptr_t, char const *> func_names;
+  static std::map<uintptr_t, std::string const> func_names;
   return func_names;
 }
 
-#undef register_func
+
 bool
 register_func (uintptr_t func, char const *name)
 {
@@ -53,79 +126,110 @@ register_func (uintptr_t func, char const *name)
   return true;
 }
 
+
 void
-print_func (uintptr_t func)
+print_func (protolog::JniLogEntry &log_entry, uintptr_t func)
 {
   auto &names = func_names ();
   auto found = names.find (func);
   if (found != names.end ())
-    debug_out << found->second;
+    log_entry.set_name (found->second);
   else
-    debug_out << func;
+    log_entry.set_name (std::to_string (func));
 }
+
+
+/****************************************************************************
+ *
+ * :: Common print_arg specialisations for C++ and JNI types.
+ *
+ ****************************************************************************/
+
 
 template<typename Arg>
 void
-print_arg (Arg arg)
+print_arg (protolog::Value &value, Arg arg)
 {
-  debug_out << arg;
+  value.set_sint64 (arg);
 }
 
-template void print_arg<bool              > (bool              );
-template void print_arg<  signed char     > (  signed char     );
-template void print_arg<unsigned char     > (unsigned char     );
-template void print_arg<  signed int      > (  signed int      );
-template void print_arg<unsigned int      > (unsigned int      );
-template void print_arg<  signed long     > (  signed long     );
-template void print_arg<unsigned long     > (unsigned long     );
-template void print_arg<  signed long long> (  signed long long);
-template void print_arg<unsigned long long> (unsigned long long);
+template void print_arg<         bool     > (protolog::Value &,          bool     );
+template void print_arg<  signed char     > (protolog::Value &,   signed char     );
+template void print_arg<unsigned char     > (protolog::Value &, unsigned char     );
+template void print_arg<  signed short    > (protolog::Value &,   signed short    );
+template void print_arg<unsigned short    > (protolog::Value &, unsigned short    );
+template void print_arg<  signed int      > (protolog::Value &,   signed int      );
+template void print_arg<unsigned int      > (protolog::Value &, unsigned int      );
+template void print_arg<  signed long     > (protolog::Value &,   signed long     );
+template void print_arg<unsigned long     > (protolog::Value &, unsigned long     );
+template void print_arg<  signed long long> (protolog::Value &,   signed long long);
+template void print_arg<unsigned long long> (protolog::Value &, unsigned long long);
 
 template<>
 void
-print_arg<char const *> (char const *data)
+print_arg<char const *> (protolog::Value &value, char const *data)
 {
   if (data != nullptr)
-    debug_out << data;
+    value.set_string (data);
   else
-    debug_out << "<null>";
-}
-
-template<>
-void
-print_arg<uint8_t *> (uint8_t *data)
-{
-  if (data != nullptr)
-    debug_out << "in data";
-  else
-    debug_out << "<null>";
+    value.set_string ("<null>");
 }
 
 template<>
 void
-print_arg<uint8_t const *> (uint8_t const *data)
+print_arg<uint8_t *> (protolog::Value &value, uint8_t *data)
 {
   if (data != nullptr)
-    debug_out << "out data";
+    value.set_string ("in data");
   else
-    debug_out << "<null>";
-}
-
-void
-print_arg (unsigned char const *data, std::size_t length)
-{
-  if (data != nullptr)
-    debug_out << "out data[" << length << "]";
-  else
-    debug_out << "<null>";
+    value.set_string ("<null>");
 }
 
 template<>
 void
-print_arg<JNIEnv *> (JNIEnv *data)
+print_arg<uint8_t const *> (protolog::Value &value, uint8_t const *data)
 {
   if (data != nullptr)
-    debug_out << "<JNIEnv>";
+    value.set_string ("out data");
   else
-    debug_out << "<null>";
+    value.set_string ("<null>");
+}
+
+void
+print_arg (protolog::Value &value, uint8_t const *data, std::size_t length)
+{
+  if (data != nullptr)
+    value.set_bytes (data, length);
+  else
+    value.set_string ("<null>");
+}
+
+template<>
+void
+print_arg<JNIEnv *> (protolog::Value &value, JNIEnv *data)
+{
+  if (data != nullptr)
+    value.set_string ("<JNIEnv>");
+  else
+    value.set_string ("<null>");
+}
+
+template<>
+void
+print_arg<jbyteArray> (protolog::Value &value, jbyteArray data)
+{
+  if (data != nullptr)
+    value.set_string ("<jbyteArray>");
+  else
+    value.set_string ("<null>");
+}
+
+template<>
+void
+print_arg<jintArray> (protolog::Value &value, jintArray data)
+{
+  if (data != nullptr)
+    value.set_string ("<jintArray>");
+  else
+    value.set_string ("<null>");
 }

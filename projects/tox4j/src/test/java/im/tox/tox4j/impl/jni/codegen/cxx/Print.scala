@@ -23,8 +23,9 @@ object Print {
    */
   private def printTypeInner(ty: Type): Doc = {
     ty match {
-      case Typename(name) => text(name) :: space
-      case Pointer(inner) => printTypeInner(inner) :: "*"
+      case Typename(name)   => text(name) :: space
+      case Pointer(inner)   => printTypeInner(inner) :: "*"
+      case Reference(inner) => printTypeInner(inner) :: "&"
     }
   }
 
@@ -82,13 +83,13 @@ object Print {
    */
   def printExpr(expr: Expr): Doc = {
     expr match {
-      case Identifier(name)      => name
-      case IntegerLiteral(value) => value
-      case StringLiteral(value)  => "\"" :: StringEscapeUtils.escapeJava(value) :: "\""
-      case FunCall(callee, args) => printExpr(callee) :+: "(" :: printSeq(args, "," :: space)(printExpr) :: ")"
-      case LeftShift(lhs, rhs)   => printExpr(lhs) :+: "<<" :+: printExpr(rhs)
-      case Equals(lhs, rhs)      => printExpr(lhs) :+: "==" :+: printExpr(rhs)
-      case Access(lhs, name)     => printExpr(lhs) :: "." :: name
+      case Identifier(name)             => name
+      case IntegerLiteral(value)        => value
+      case StringLiteral(value)         => "\"" :: StringEscapeUtils.escapeJava(value) :: "\""
+      case FunCall(callee, args)        => printExpr(callee) :+: "(" :: printSeq(args, "," :: space)(printExpr) :: ")"
+      case BinaryOperator(op, lhs, rhs) => printExpr(lhs) :+: op :+: printExpr(rhs)
+      case Equals(lhs, rhs)             => printExpr(lhs) :+: "==" :+: printExpr(rhs)
+      case Access(lhs, name)            => printExpr(lhs) :: "." :: name
     }
   }
 
