@@ -23,7 +23,7 @@ abstract class FilePauseResumeTestBase extends AliceBobTest {
   final override type State = Unit
   final override def initialState: State = ()
 
-  protected val fileData = new Array[Byte](TestConstants.ITERATIONS * ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+  protected val fileData = new Array[Byte](TestConstants.ITERATIONS * ToxCoreConstants.MaxCustomPacketSize)
   new Random().nextBytes(fileData)
   protected var aliceSentFileNumber = -1
   private var aliceOffset = 0L

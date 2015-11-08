@@ -15,17 +15,17 @@ import scala.util.Random
 abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec with PropertyChecks with ToxTestMixin {
 
   private final class Salt(data: Array[Byte]) extends WrappedByteArray(data) {
-    require(data.length == ToxCryptoConstants.SALT_LENGTH)
+    require(data.length == ToxCryptoConstants.SaltLength)
   }
 
   private final class EncryptedData(data: Array[Byte]) extends WrappedByteArray(data) {
-    require(data.length > ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH)
+    require(data.length > ToxCryptoConstants.EncryptionExtraLength)
   }
 
   private val random = new Random
 
   private implicit val arbSalt: Arbitrary[Salt] =
-    Arbitrary(Gen.const(ToxCryptoConstants.SALT_LENGTH).map(Array.ofDim[Byte]).map { array =>
+    Arbitrary(Gen.const(ToxCryptoConstants.SaltLength).map(Array.ofDim[Byte]).map { array =>
       random.nextBytes(array)
       new Salt(array)
     })
@@ -44,7 +44,7 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
     "produce a byte sequence of the right length" in {
       forAll { (passKey: toxCrypto.PassKey) =>
         val serialised = toxCrypto.passKeyToBytes(passKey)
-        assert(serialised.length == ToxCryptoConstants.KEY_LENGTH + ToxCryptoConstants.SALT_LENGTH)
+        assert(serialised.length == ToxCryptoConstants.KeyLength + ToxCryptoConstants.SaltLength)
       }
     }
 
@@ -59,7 +59,7 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
   "PassKey deserialisation" should {
     "fail for byte sequences of the wrong length" in {
       forAll { (serialised: Seq[Byte]) =>
-        whenever(serialised.length != ToxCryptoConstants.KEY_LENGTH + ToxCryptoConstants.SALT_LENGTH) {
+        whenever(serialised.length != ToxCryptoConstants.KeyLength + ToxCryptoConstants.SaltLength) {
           assert(toxCrypto.passKeyFromBytes(serialised).isEmpty)
         }
       }
@@ -126,7 +126,7 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
 
     s"fail with $INVALID_LENGTH for salt of wrong size" in {
       forAll { (salt: Array[Byte]) =>
-        whenever(salt.length != ToxCryptoConstants.SALT_LENGTH) {
+        whenever(salt.length != ToxCryptoConstants.SaltLength) {
           intercept(INVALID_LENGTH) {
             toxCrypto.deriveKeyWithSalt(Array.ofDim(100), salt)
           }
@@ -169,19 +169,19 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
       }
     }
 
-    s"fail with $INVALID_LENGTH for 0 to ${ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH} bytes" in {
+    s"fail with $INVALID_LENGTH for 0 to ${ToxCryptoConstants.EncryptionExtraLength} bytes" in {
       val passKey = toxCrypto.deriveKeyFromPass(Array.ofDim(0))
-      (0 to ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH) foreach { length =>
+      (0 to ToxCryptoConstants.EncryptionExtraLength) foreach { length =>
         intercept(INVALID_LENGTH) {
           toxCrypto.decrypt(Array.ofDim(length), passKey)
         }
       }
     }
 
-    s"fail with $BAD_FORMAT for an array of more than ${ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH} 0-bytes" in {
+    s"fail with $BAD_FORMAT for an array of more than ${ToxCryptoConstants.EncryptionExtraLength} 0-bytes" in {
       val passKey = toxCrypto.deriveKeyFromPass(Array.ofDim(0))
       intercept(BAD_FORMAT) {
-        toxCrypto.decrypt(Array.ofDim(ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH + 1), passKey)
+        toxCrypto.decrypt(Array.ofDim(ToxCryptoConstants.EncryptionExtraLength + 1), passKey)
       }
     }
 
@@ -248,7 +248,7 @@ abstract class ToxCryptoTest(private val toxCrypto: ToxCrypto) extends WordSpec 
 
     "create constant-length output" in {
       forAll { (data: Array[Byte]) =>
-        assert(toxCrypto.hash(data).length == ToxCryptoConstants.HASH_LENGTH)
+        assert(toxCrypto.hash(data).length == ToxCryptoConstants.HashLength)
       }
     }
 

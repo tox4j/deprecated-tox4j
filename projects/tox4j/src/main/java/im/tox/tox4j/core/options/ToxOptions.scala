@@ -37,9 +37,9 @@ final case class ToxOptions(
     ipv6Enabled: Boolean = true,
     udpEnabled: Boolean = true,
     proxy: ProxyOptions = ProxyOptions.None,
-    startPort: Int = ToxCoreConstants.DEFAULT_START_PORT,
-    endPort: Int = ToxCoreConstants.DEFAULT_END_PORT,
-    tcpPort: Int = ToxCoreConstants.DEFAULT_TCP_PORT,
+    startPort: Int = ToxCoreConstants.DefaultStartPort,
+    endPort: Int = ToxCoreConstants.DefaultEndPort,
+    tcpPort: Int = ToxCoreConstants.DefaultTcpPort,
     saveData: SaveDataOptions = SaveDataOptions.None,
     fatalErrors: Boolean = true
 ) {

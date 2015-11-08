@@ -104,7 +104,7 @@ object PerformanceReportBase {
    */
   def friendKeys(sz: Int): Seq[Array[Byte]] = {
     for (_ <- 0 until sz) yield {
-      val key = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
+      val key = Array.ofDim[Byte](ToxCoreConstants.PublicKeySize)
       // noinspection SideEffectsInMonadicTransformation
       random.nextBytes(key)
       // Key needs the last byte to be 0 or toxcore will complain about checksums.
@@ -122,8 +122,8 @@ object PerformanceReportBase {
    */
   def makeToxWithFriends(friendCount: Int): ToxCore[Unit] = {
     val tox = ToxCoreFactory.make[Unit](toxOptions)
-    tox.setName(Array.ofDim(ToxCoreConstants.MAX_NAME_LENGTH))
-    tox.setStatusMessage(Array.ofDim(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH))
+    tox.setName(Array.ofDim(ToxCoreConstants.MaxNameLength))
+    tox.setStatusMessage(Array.ofDim(ToxCoreConstants.MaxStatusMessageLength))
     friendKeys(friendCount) foreach tox.addFriendNorequest
     tox
   }
@@ -183,8 +183,8 @@ object PerformanceReportBase {
   val iterations100k = iterations(100000)
   val iterations1000k = iterations(1000000)
 
-  val nameLengths = Gen.range("name length")(0, ToxCoreConstants.MAX_NAME_LENGTH, 8)
-  val statusMessageLengths = Gen.range("status message length")(0, ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH, 100)
+  val nameLengths = Gen.range("name length")(0, ToxCoreConstants.MaxNameLength, 8)
+  val statusMessageLengths = Gen.range("status message length")(0, ToxCoreConstants.MaxStatusMessageLength, 100)
 
   // Derived generators
 

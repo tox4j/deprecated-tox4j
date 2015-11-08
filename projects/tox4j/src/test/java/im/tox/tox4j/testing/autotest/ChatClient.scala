@@ -80,7 +80,7 @@ class ChatClientT[T](val selfName: String, val expectedFriendName: String) exten
   }
 
   var expectedFriendAddress: Array[Byte] = null
-  protected def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PUBLIC_KEY_SIZE)
+  protected def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PublicKeySize)
 
   protected def isAlice = selfName == "Alice"
   protected def isBob = selfName == "Bob"

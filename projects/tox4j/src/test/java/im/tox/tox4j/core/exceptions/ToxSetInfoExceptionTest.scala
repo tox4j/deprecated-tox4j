@@ -8,7 +8,7 @@ import org.scalatest.FunSuite
 final class ToxSetInfoExceptionTest extends FunSuite with ToxTestMixin {
 
   test("SetNameTooLong") {
-    val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_NAME_LENGTH + 1)
+    val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MaxNameLength + 1)
 
     interceptWithTox(ToxSetInfoException.Code.TOO_LONG)(
       _.setName(array)
@@ -16,7 +16,7 @@ final class ToxSetInfoExceptionTest extends FunSuite with ToxTestMixin {
   }
 
   test("SetStatusMessageTooLong") {
-    val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH + 1)
+    val array = ToxCoreTestBase.randomBytes(ToxCoreConstants.MaxStatusMessageLength + 1)
 
     interceptWithTox(ToxSetInfoException.Code.TOO_LONG)(
       _.setStatusMessage(array)

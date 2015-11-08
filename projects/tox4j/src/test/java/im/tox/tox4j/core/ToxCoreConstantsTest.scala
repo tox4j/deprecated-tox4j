@@ -6,71 +6,71 @@ import org.scalatest.FunSuite
 final class ToxCoreConstantsTest extends FunSuite {
 
   test("MAX_FRIEND_REQUEST_LENGTH") {
-    assert(ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH > 0)
-    assert(ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH < ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+    assert(ToxCoreConstants.MaxFriendRequestLength > 0)
+    assert(ToxCoreConstants.MaxFriendRequestLength < ToxCoreConstants.MaxCustomPacketSize)
   }
 
   test("PUBLIC_KEY_SIZE") {
-    assert(ToxCoreConstants.PUBLIC_KEY_SIZE == ToxCoreConstants.SECRET_KEY_SIZE)
-    assert(ToxCoreConstants.PUBLIC_KEY_SIZE >= 32)
-    assert(ToxCoreConstants.SECRET_KEY_SIZE >= 32)
+    assert(ToxCoreConstants.PublicKeySize == ToxCoreConstants.SecretKeySize)
+    assert(ToxCoreConstants.PublicKeySize >= 32)
+    assert(ToxCoreConstants.SecretKeySize >= 32)
   }
 
   test("MAX_NAME_LENGTH") {
-    assert(ToxCoreConstants.MAX_NAME_LENGTH > 0)
-    assert(ToxCoreConstants.MAX_NAME_LENGTH < ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+    assert(ToxCoreConstants.MaxNameLength > 0)
+    assert(ToxCoreConstants.MaxNameLength < ToxCoreConstants.MaxCustomPacketSize)
   }
 
   test("MAX_FILENAME_LENGTH") {
-    assert(ToxCoreConstants.MAX_FILENAME_LENGTH > 0)
-    assert(ToxCoreConstants.MAX_FILENAME_LENGTH < ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+    assert(ToxCoreConstants.MaxFilenameLength > 0)
+    assert(ToxCoreConstants.MaxFilenameLength < ToxCoreConstants.MaxCustomPacketSize)
   }
 
   test("MAX_CUSTOM_PACKET_SIZE") {
-    assert(ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE > 0)
-    assert(ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE <= 1500) // Ethernet MTU
+    assert(ToxCoreConstants.MaxCustomPacketSize > 0)
+    assert(ToxCoreConstants.MaxCustomPacketSize <= 1500) // Ethernet MTU
   }
 
   test("MAX_HOSTNAME_LENGTH") {
-    assert(ToxCoreConstants.MAX_HOSTNAME_LENGTH > 0)
+    assert(ToxCoreConstants.MaxHostnameLength > 0)
   }
 
   test("TOX_ADDRESS_SIZE") {
-    assert(ToxCoreConstants.ADDRESS_SIZE >= ToxCoreConstants.ADDRESS_SIZE)
+    assert(ToxCoreConstants.AddressSize >= ToxCoreConstants.AddressSize)
   }
 
   test("FILE_ID_LENGTH") {
-    assert(ToxCoreConstants.FILE_ID_LENGTH >= ToxCryptoConstants.HASH_LENGTH)
+    assert(ToxCoreConstants.FileIdLength >= ToxCryptoConstants.HashLength)
   }
 
   test("DEFAULT_END_PORT") {
-    assert(ToxCoreConstants.DEFAULT_END_PORT >= 1)
-    assert(ToxCoreConstants.DEFAULT_END_PORT <= 65535)
+    assert(ToxCoreConstants.DefaultEndPort >= 1)
+    assert(ToxCoreConstants.DefaultEndPort <= 65535)
   }
 
   test("MAX_MESSAGE_LENGTH") {
-    assert(ToxCoreConstants.MAX_MESSAGE_LENGTH > 0)
-    assert(ToxCoreConstants.MAX_MESSAGE_LENGTH < ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+    assert(ToxCoreConstants.MaxMessageLength > 0)
+    assert(ToxCoreConstants.MaxMessageLength < ToxCoreConstants.MaxCustomPacketSize)
   }
 
   test("MAX_STATUS_MESSAGE_LENGTH") {
-    assert(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH > 0)
-    assert(ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH < ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE)
+    assert(ToxCoreConstants.MaxStatusMessageLength > 0)
+    assert(ToxCoreConstants.MaxStatusMessageLength < ToxCoreConstants.MaxCustomPacketSize)
   }
 
   test("DEFAULT_TCP_PORT") {
-    assert(ToxCoreConstants.DEFAULT_TCP_PORT >= 0) // 0 means no TCP
-    assert(ToxCoreConstants.DEFAULT_TCP_PORT <= 65535)
+    assert(ToxCoreConstants.DefaultTcpPort >= 0) // 0 means no TCP
+    assert(ToxCoreConstants.DefaultTcpPort <= 65535)
   }
 
   test("DEFAULT_START_PORT") {
-    assert(ToxCoreConstants.DEFAULT_START_PORT >= 1)
-    assert(ToxCoreConstants.DEFAULT_START_PORT <= 65535)
+    assert(ToxCoreConstants.DefaultStartPort >= 1)
+    assert(ToxCoreConstants.DefaultStartPort <= 65535)
   }
 
   test("DEFAULT_PROXY_PORT") {
-    assert(ToxCoreConstants.DEFAULT_PROXY_PORT >= 1)
-    assert(ToxCoreConstants.DEFAULT_PROXY_PORT <= 65535)
+    assert(ToxCoreConstants.DefaultProxyPort >= 1)
+    assert(ToxCoreConstants.DefaultProxyPort <= 65535)
   }
 
 }

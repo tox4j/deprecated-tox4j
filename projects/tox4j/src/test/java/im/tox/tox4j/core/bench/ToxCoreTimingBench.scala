@@ -11,7 +11,7 @@ final class ToxCoreTimingBench extends TimingReport {
   timing of classOf[ToxCore[Unit]] in {
 
     measure method "bootstrap" in {
-      val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
+      val publicKey = Array.ofDim[Byte](ToxCoreConstants.PublicKeySize)
       usingTox(nodes) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.bootstrap("localhost", 8080, publicKey))
@@ -19,7 +19,7 @@ final class ToxCoreTimingBench extends TimingReport {
     }
 
     measure method "addTcpRelay" in {
-      val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
+      val publicKey = Array.ofDim[Byte](ToxCoreConstants.PublicKeySize)
       usingTox(nodes) in {
         case (sz, tox) =>
           (0 until sz) foreach (_ => tox.addTcpRelay("localhost", 8080, publicKey))
