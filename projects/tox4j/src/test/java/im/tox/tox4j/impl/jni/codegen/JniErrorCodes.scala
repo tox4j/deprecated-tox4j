@@ -2,9 +2,9 @@ package im.tox.tox4j.impl.jni.codegen
 
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.core.exceptions._
-import im.tox.tox4j.crypto.exceptions.{ ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException }
+import im.tox.tox4j.crypto.exceptions.{ToxDecryptionException, ToxEncryptionException, ToxKeyDerivationException}
 import im.tox.tox4j.exceptions.JavaOnly
-import im.tox.tox4j.impl.jni.codegen.NameConversions.{ cxxTypeName, javaTypeName }
+import im.tox.tox4j.impl.jni.codegen.NameConversions.{cxxTypeName, javaTypeName}
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 
 object JniErrorCodes extends CodeGenerator {
@@ -51,11 +51,11 @@ object JniErrorCodes extends CodeGenerator {
       "TOXAV_VERSION_MAJOR",
       Seq(
         generateErrorCode(ToxavAnswerException.Code.values),
+        generateErrorCode(ToxavBitRateSetException.Code.values),
         generateErrorCode(ToxavCallControlException.Code.values),
         generateErrorCode(ToxavCallException.Code.values),
         generateErrorCode(ToxavNewException.Code.values),
-        generateErrorCode(ToxavSendFrameException.Code.values),
-        generateErrorCode(ToxavSetBitRateException.Code.values)
+        generateErrorCode(ToxavSendFrameException.Code.values)
       )
     )
   }

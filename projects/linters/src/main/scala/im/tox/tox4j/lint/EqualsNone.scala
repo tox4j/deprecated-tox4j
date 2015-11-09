@@ -1,6 +1,6 @@
 package im.tox.tox4j.lint
 
-import org.brianmckenna.wartremover.{ WartTraverser, WartUniverse }
+import org.brianmckenna.wartremover.{WartTraverser, WartUniverse}
 
 /**
  * Checks whether any direct comparison with [[None]] is used. This is

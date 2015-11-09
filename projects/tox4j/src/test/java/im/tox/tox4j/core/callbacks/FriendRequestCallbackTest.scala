@@ -2,7 +2,7 @@ package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.core.ToxCore
 import im.tox.tox4j.core.enums.ToxConnection
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
+import im.tox.tox4j.testing.autotest.{AliceBobTest, AliceBobTestBase}
 
 final class FriendRequestCallbackTest extends AliceBobTest {
 

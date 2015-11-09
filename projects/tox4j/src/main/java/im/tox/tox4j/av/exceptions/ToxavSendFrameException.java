@@ -33,6 +33,10 @@ public final class ToxavSendFrameException extends ToxException<ToxavSendFrameEx
      * Failed to push frame through rtp interface.
      */
     RTP_FAILED,
+    /**
+     * Synchronization error occurred.
+     */
+    SYNC,
   }
 
   public ToxavSendFrameException(@NotNull Code code) {

@@ -4,9 +4,9 @@ name          := "tox4j"
 scalaVersion  := "2.11.7"
 
 // Enable the plugins we want.
-import ScoverageSbtPlugin.ScoverageKeys._
 import sbt.tox4j._
 import sbt.tox4j.lint._
+import scoverage.ScoverageSbtPlugin.ScoverageKeys._
 
 // Build plugins.
 Assembly.moduleSettings
@@ -24,6 +24,7 @@ resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repos
 
 // Build dependencies.
 libraryDependencies ++= Seq(
+  "com.github.nscala-time" %% "nscala-time" % "2.4.0",
   "com.intellij" % "annotations" % "12.0",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "org.json" % "json" % "20131018",
@@ -82,7 +83,7 @@ WartRemoverOverrides.moduleSettings
 
 // TODO(iphydf): Require less test coverage for now, until ToxAv is tested.
 Coverage.projectSettings
-coverageMinimum := 77
+coverageMinimum := 76
 
 // Tox4j-specific style checkers.
 addCompilerPlugin("im.tox" %% "linters" % "0.1-SNAPSHOT")

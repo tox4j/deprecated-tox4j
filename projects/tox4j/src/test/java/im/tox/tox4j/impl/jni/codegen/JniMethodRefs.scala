@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier
 
 import im.tox.tox4j.impl.jni.codegen.NameConversions.cxxVarName
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
-import im.tox.tox4j.impl.jni.{ ToxAvJni, ToxCoreJni }
+import im.tox.tox4j.impl.jni.{ToxAvJni, ToxCoreJni, ToxCryptoJni}
 
 object JniMethodRefs extends CodeGenerator {
 
@@ -12,7 +12,7 @@ object JniMethodRefs extends CodeGenerator {
     clazz.getDeclaredMethods
       .filter { method =>
         Modifier.isNative(method.getModifiers) &&
-          method.getName.startsWith("tox")
+          !method.getName.startsWith("invoke")
       }
       .sortBy(method => method.getName)
       .flatMap { method =>
@@ -31,6 +31,11 @@ object JniMethodRefs extends CodeGenerator {
   writeCode("ToxCore/generated/natives.h", "\n") {
     Comment(classOf[ToxCoreJni].getName) +:
       generateNativeDecls(classOf[ToxCoreJni])
+  }
+
+  writeCode("ToxCrypto/generated/natives.h", "\n") {
+    Comment(classOf[ToxCryptoJni].getName) +:
+      generateNativeDecls(classOf[ToxCryptoJni])
   }
 
 }

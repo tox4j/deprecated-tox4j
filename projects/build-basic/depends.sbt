@@ -6,10 +6,11 @@
  */
 
 resolvers += Classpaths.sbtPluginReleases
+resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 // Code style.
 addSbtPlugin("com.etsy" % "sbt-checkstyle-plugin" % "0.5.1")
-addSbtPlugin("org.scalastyle" % "scalastyle-sbt-plugin" % "0.7.0")
+addSbtPlugin("org.scalastyle" % "scalastyle-sbt-plugin" % "0.8.0-SNAPSHOT")
 addSbtPlugin("de.johoop" % "findbugs4sbt" % "1.4.0")
 
 // Code formatting.

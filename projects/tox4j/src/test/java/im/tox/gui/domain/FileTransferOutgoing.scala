@@ -1,6 +1,6 @@
 package im.tox.gui.domain
 
-import java.io.{ File, FileNotFoundException, IOException, RandomAccessFile }
+import java.io.{File, FileNotFoundException, IOException, RandomAccessFile}
 
 final class FileTransferOutgoing(file: File) extends FileTransfer(file) {
   private var input: RandomAccessFile = null

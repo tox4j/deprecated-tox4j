@@ -7,7 +7,7 @@ using namespace core;
 #include "generated/impls.h"
 
 void
-reference_symbols_tox ()
+reference_symbols_core ()
 {
   int tox_finalize; // For Java only.
 #include "generated/natives.h"

@@ -4,7 +4,7 @@ import java.io.File
 
 import sbt.Keys._
 import sbt._
-import sbt.tox4j.logic.jni.{ BuildTool, CMakeGenerator, Configure }
+import sbt.tox4j.logic.jni.{BuildTool, CMakeGenerator, Configure}
 import sbt.tox4j.util.NativeFinder
 
 import scala.language.postfixOps

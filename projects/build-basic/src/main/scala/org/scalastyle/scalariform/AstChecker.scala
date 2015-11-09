@@ -1,6 +1,6 @@
 package org.scalastyle.scalariform
 
-import org.scalastyle.{ CombinedAst, CombinedChecker, Lines, ScalastyleError }
+import org.scalastyle.{CombinedAst, CombinedChecker, Lines, ScalastyleError}
 
 import scalariform.parser.CompilationUnit
 

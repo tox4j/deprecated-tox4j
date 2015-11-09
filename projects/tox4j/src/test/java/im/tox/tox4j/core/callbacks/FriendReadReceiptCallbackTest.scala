@@ -1,8 +1,8 @@
 package im.tox.tox4j.core.callbacks
 
 import im.tox.tox4j.TestConstants.ITERATIONS
-import im.tox.tox4j.core.enums.{ ToxConnection, ToxMessageType }
-import im.tox.tox4j.testing.autotest.{ AliceBobTest, AliceBobTestBase }
+import im.tox.tox4j.core.enums.{ToxConnection, ToxMessageType}
+import im.tox.tox4j.testing.autotest.{AliceBobTest, AliceBobTestBase}
 
 final class FriendReadReceiptCallbackTest extends AliceBobTest {
 

@@ -2,7 +2,7 @@
 package im.tox.tox4j
 
 import java.io.IOException
-import java.net.{ InetAddress, Socket }
+import java.net.{InetAddress, Socket}
 import java.util.Random
 
 import org.jetbrains.annotations.NotNull
@@ -30,21 +30,6 @@ object ToxCoreTestBase extends Assertions {
     new DhtNode("198.98.51.198", "2605:6400:1:fed5:22:45af:ec10:f329", 33445, "1D5A5F2F5D6233058BF0259B09622FB40B482E4FA0931EB8FD3AB8E7BF7DAF6F"),
     new DhtNode("80.232.246.79", null, 33445, "0B8DCEAA7BDDC44BB11173F987CAE3566A2D7057D8DD3CC642BD472B9391002A")
   )
-
-  private[tox4j] def entropy(@NotNull data: Array[Byte]): Double = {
-    val frequencies = new Array[Int](256)
-    for (b <- data) {
-      frequencies(127 - b) += 1
-    }
-    var entropy = 0.0
-    for (frequency <- frequencies) {
-      if (frequency != 0) {
-        val probability = frequency.toDouble / data.length
-        entropy -= probability * (Math.log(probability) / Math.log(256))
-      }
-    }
-    entropy
-  }
 
   @NotNull def randomBytes(length: Int): Array[Byte] = {
     val array = new Array[Byte](length)

@@ -1,11 +1,11 @@
 package im.tox.gui.events
 
+import java.awt.event.{ActionEvent, ActionListener}
+import javax.swing._
+
 import im.tox.gui.MainView
 import im.tox.tox4j.core.enums.ToxMessageType
 import im.tox.tox4j.core.exceptions.ToxFriendSendMessageException
-import javax.swing._
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 
 final class SendButtonOnAction(toxGui: MainView) extends ActionListener {
 

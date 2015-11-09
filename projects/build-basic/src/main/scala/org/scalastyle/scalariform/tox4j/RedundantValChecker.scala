@@ -1,9 +1,9 @@
 package org.scalastyle.scalariform.tox4j
 
 import org.scalastyle._
-import org.scalastyle.scalariform.{ AstChecker, VisitorHelper }
+import org.scalastyle.scalariform.{AstChecker, VisitorHelper}
 
-import _root_.scalariform.lexer.{ Token, TokenType }
+import _root_.scalariform.lexer.{Token, TokenType}
 import _root_.scalariform.parser._
 
 /**

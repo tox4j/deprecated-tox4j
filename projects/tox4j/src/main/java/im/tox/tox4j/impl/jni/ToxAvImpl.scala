@@ -7,11 +7,11 @@ import com.typesafe.scalalogging.Logger
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.av.ToxAv
 import im.tox.tox4j.av.callbacks._
-import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
+import im.tox.tox4j.av.enums.{ToxavCallControl, ToxavFriendCallState}
 import im.tox.tox4j.av.exceptions._
 import im.tox.tox4j.av.proto.Av._
 import im.tox.tox4j.core.ToxCore
-import im.tox.tox4j.impl.jni.ToxAvImpl.{ convert, logger }
+import im.tox.tox4j.impl.jni.ToxAvImpl.{convert, logger}
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 
@@ -111,24 +111,13 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
     }
   }
 
-  private def dispatchAudioBitRateStatus(audioBitRateStatus: Seq[AudioBitRateStatus])(state: ToxCoreState): ToxCoreState = {
-    audioBitRateStatus.foldLeft(state) {
-      case (state, AudioBitRateStatus(friendNumber, stable, bitRate)) =>
-        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.audioBitRateStatus(
+  private def dispatchBitRateStatus(bitRateStatus: Seq[BitRateStatus])(state: ToxCoreState): ToxCoreState = {
+    bitRateStatus.foldLeft(state) {
+      case (state, BitRateStatus(friendNumber, audioBitRate, videoBitRate)) =>
+        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.bitRateStatus(
           friendNumber,
-          stable,
-          bitRate
-        ))
-    }
-  }
-
-  private def dispatchVideoBitRateStatus(videoBitRateStatus: Seq[VideoBitRateStatus])(state: ToxCoreState): ToxCoreState = {
-    videoBitRateStatus.foldLeft(state) {
-      case (state, VideoBitRateStatus(friendNumber, stable, bitRate)) =>
-        tryAndLog(tox.options.fatalErrors, state, eventListener)(_.videoBitRateStatus(
-          friendNumber,
-          stable,
-          bitRate
+          audioBitRate,
+          videoBitRate
         ))
     }
   }
@@ -193,12 +182,10 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   private def dispatchEvents(state: ToxCoreState, events: AvEvents): ToxCoreState = {
     dispatchCall(events.call)(
       dispatchCallState(events.callState)(
-        dispatchAudioBitRateStatus(events.audioBitRateStatus)(
-          dispatchVideoBitRateStatus(events.videoBitRateStatus)(
-            dispatchAudioReceiveFrame(events.audioReceiveFrame)(
-              dispatchVideoReceiveFrame(events.videoReceiveFrame)(
-                state
-              )
+        dispatchBitRateStatus(events.bitRateStatus)(
+          dispatchAudioReceiveFrame(events.audioReceiveFrame)(
+            dispatchVideoReceiveFrame(events.videoReceiveFrame)(
+              state
             )
           )
         )
@@ -232,13 +219,9 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
   override def callControl(friendNumber: Int, control: ToxavCallControl): Unit =
     ToxAvJni.toxavCallControl(instanceNumber, friendNumber, control.ordinal)
 
-  @throws[ToxavSetBitRateException]
-  override def setAudioBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit =
-    ToxAvJni.toxavAudioBitRateSet(instanceNumber, friendNumber, bitRate, force)
-
-  @throws[ToxavSetBitRateException]
-  override def setVideoBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit =
-    ToxAvJni.toxavVideoBitRateSet(instanceNumber, friendNumber, bitRate, force)
+  @throws[ToxavBitRateSetException]
+  override def setBitRate(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
+    ToxAvJni.toxavBitRateSet(instanceNumber, friendNumber, audioBitRate, videoBitRate)
 
   @throws[ToxavSendFrameException]
   override def audioSendFrame(friendNumber: Int, pcm: Array[Short], sampleCount: Int, channels: Int, samplingRate: Int): Unit =
@@ -252,18 +235,15 @@ final class ToxAvImpl[ToxCoreState](@NotNull private val tox: ToxCoreImpl[ToxCor
     this.eventListener = handler
   }
 
-  def invokeAudioBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int): Unit =
-    ToxAvJni.invokeAudioBitRateStatus(instanceNumber, friendNumber, stable, bitRate)
   def invokeAudioReceiveFrame(friendNumber: Int, pcm: Array[Short], channels: Int, samplingRate: Int): Unit =
     ToxAvJni.invokeAudioReceiveFrame(instanceNumber, friendNumber, pcm, channels, samplingRate)
+  def invokeBitRateStatus(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit =
+    ToxAvJni.invokeBitRateStatus(instanceNumber, friendNumber, audioBitRate, videoBitRate)
   def invokeCall(friendNumber: Int, audioEnabled: Boolean, videoEnabled: Boolean): Unit =
     ToxAvJni.invokeCall(instanceNumber, friendNumber, audioEnabled, videoEnabled)
   def invokeCallState(friendNumber: Int, callState: util.Collection[ToxavFriendCallState]): Unit =
     ToxAvJni.invokeCallState(instanceNumber, friendNumber, convert(callState))
-  def invokeVideoBitRateStatus(friendNumber: Int, stable: Boolean, bitRate: Int): Unit =
-    ToxAvJni.invokeVideoBitRateStatus(instanceNumber, friendNumber, stable, bitRate)
-  // scalastyle:ignore line.size.limit
-  def invokeVideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], yStride: Int, uStride: Int, vStride: Int): Unit =
+  def invokeVideoReceiveFrame(friendNumber: Int, width: Int, height: Int, y: Array[Byte], u: Array[Byte], v: Array[Byte], yStride: Int, uStride: Int, vStride: Int): Unit = // scalastyle:ignore line.size.limit
     ToxAvJni.invokeVideoReceiveFrame(instanceNumber, friendNumber, width, height, y, u, v, yStride, uStride, vStride)
 
 }

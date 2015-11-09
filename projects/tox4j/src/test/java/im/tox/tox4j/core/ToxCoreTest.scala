@@ -1,6 +1,6 @@
 package im.tox.tox4j.core
 
-import im.tox.tox4j.core.SmallInt._
+import im.tox.tox4j.core.SmallNat._
 import im.tox.tox4j.core.ToxCoreFactory.withTox
 import im.tox.tox4j.core.callbacks.ToxEventListener
 import im.tox.tox4j.core.enums.ToxConnection
@@ -11,7 +11,7 @@ import org.scalatest.prop.PropertyChecks
 final class ToxCoreTest extends FlatSpec with PropertyChecks {
 
   "addFriend" should "return increasing friend numbers and increment the friend list size" in {
-    forAll { (count: SmallInt, message: Array[Byte]) =>
+    forAll { (count: SmallNat, message: Array[Byte]) =>
       whenever(message.length >= 1 && message.length <= ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH) {
         withTox { tox =>
           (0 until count) foreach { i =>

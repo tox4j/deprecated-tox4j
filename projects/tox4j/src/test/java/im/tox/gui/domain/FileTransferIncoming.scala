@@ -1,6 +1,6 @@
 package im.tox.gui.domain
 
-import java.io.{ File, FileNotFoundException, IOException, RandomAccessFile }
+import java.io.{File, FileNotFoundException, IOException, RandomAccessFile}
 
 import org.slf4j.LoggerFactory
 

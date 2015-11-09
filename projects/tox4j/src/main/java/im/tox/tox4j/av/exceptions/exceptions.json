@@ -9,6 +9,7 @@
     "@JavaOnly INCOMPATIBLE": ["The ToxCore implementation passed was not compatible with this ToxAv implementation."]
   },
   "Call": {
+    "SYNC": ["Synchronization error occurred."],
     "MALLOC": ["A memory allocation error occurred."],
     "FRIEND_NOT_FOUND": ["The friend number did not designate a valid friend."],
     "FRIEND_NOT_CONNECTED": ["The friend was valid, but not currently connected."],
@@ -16,6 +17,7 @@
     "INVALID_BIT_RATE": ["Audio or video bit rate is invalid."]
   },
   "Answer": {
+    "SYNC": ["Synchronization error occurred."],
     "CODEC_INITIALIZATION": ["Failed to initialise codecs for call session."],
     "FRIEND_NOT_FOUND": ["The friend number did not designate a valid friend."],
     "FRIEND_NOT_CALLING": [
@@ -25,6 +27,7 @@
     "INVALID_BIT_RATE": ["Audio or video bit rate is invalid."]
   },
   "CallControl": {
+    "SYNC": ["Synchronization error occurred."],
     "FRIEND_NOT_FOUND": ["The friend number did not designate a valid friend."],
     "FRIEND_NOT_IN_CALL": [
       "This client is currently not in a call with the friend. Before the call is",
@@ -35,12 +38,15 @@
       "resume a call that is not paused."
     ]
   },
-  "SetBitRate": {
-    "INVALID": ["The bit rate passed was not one of the supported values."],
-    "FRIEND_NOT_FOUND": ["The friend number did not designate a valid friend."],
+  "BitRateSet": {
+    "SYNC": ["Synchronization error occurred."],
+    "INVALID_AUDIO_BIT_RATE": ["The audio bit rate passed was not one of the supported values."],
+    "INVALID_VIDEO_BIT_RATE": ["The video bit rate passed was not one of the supported values."],
+    "FRIEND_NOT_FOUND": ["The friend_number passed did not designate a valid friend."],
     "FRIEND_NOT_IN_CALL": ["This client is currently not in a call with the friend."]
   },
   "SendFrame": {
+    "SYNC": ["Synchronization error occurred."],
     "NULL": [
       "In case of video, one of Y, U, or V was NULL. In case of audio, the samples",
       "data pointer was NULL."

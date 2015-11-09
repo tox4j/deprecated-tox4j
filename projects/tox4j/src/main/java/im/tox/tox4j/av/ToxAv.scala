@@ -96,36 +96,16 @@ trait ToxAv[ToxCoreState] extends Closeable {
   def callControl(friendNumber: Int, @NotNull control: ToxavCallControl): Unit
 
   /**
-   * Set the audio bit rate to be used in subsequent audio frames.
-   *
-   * If the passed bit rate is the same as the current bit rate this function will
-   * return true without calling a callback. If there is an active non forceful setup
-   * with the passed audio bit rate and the new set request is forceful, the bit rate is
-   * forcefully set and the previous non forceful request is cancelled. The active
-   * non forceful setup will be canceled in favour of new non forceful setup.
+   * Set the audio and video bit rate to be used in subsequent audio frames.
    *
    * @param friendNumber The friend number of the friend for which to set the audio bit rate.
-   * @param bitRate The new audio bit rate in Kb/sec. Set to 0 to disable audio sending.
-   * @param force True if the bit rate change is forceful.
+   * @param audioBitRate The new audio bit rate in Kb/sec. Set to 0 to disable audio sending.
+   *                     Pass -1 to leave unchanged.
+   * @param videoBitRate The new video bit rate in Kb/sec. Set to 0 to disable video sending.
+   *                     Pass -1 to leave unchanged.
    */
-  @throws[ToxavSetBitRateException]
-  def setAudioBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit
-
-  /**
-   * Set the video bit rate to be used in subsequent audio frames.
-   *
-   * If the passed bit rate is the same as the current bit rate this function will
-   * return true without calling a callback. If there is an active non forceful setup
-   * with the passed video bit rate and the new set request is forceful, the bit rate is
-   * forcefully set and the previous non forceful request is cancelled. The active
-   * non forceful setup will be canceled in favour of new non forceful setup.
-   *
-   * @param friendNumber The friend number of the friend for which to set the video bit rate.
-   * @param bitRate The new video bit rate in Kb/sec. Set to 0 to disable video sending.
-   * @param force True if the bit rate change is forceful.
-   */
-  @throws[ToxavSetBitRateException]
-  def setVideoBitRate(friendNumber: Int, bitRate: Int, force: Boolean): Unit
+  @throws[ToxavBitRateSetException]
+  def setBitRate(friendNumber: Int, audioBitRate: Int, videoBitRate: Int): Unit
 
   /**
    * Send an audio frame to a friend.

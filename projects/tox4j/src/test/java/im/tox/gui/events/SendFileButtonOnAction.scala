@@ -1,12 +1,12 @@
 package im.tox.gui.events
 
+import java.awt.event.{ActionEvent, ActionListener}
+import java.io.File
+import javax.swing._
+
 import im.tox.gui.MainView
 import im.tox.tox4j.core.enums.ToxFileKind
 import im.tox.tox4j.core.exceptions.ToxFileSendException
-import javax.swing._
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
-import java.io.File
 
 final class SendFileButtonOnAction(toxGui: MainView) extends ActionListener {
 

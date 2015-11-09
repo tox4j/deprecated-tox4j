@@ -1,11 +1,11 @@
 package im.tox.tox4j.impl.jni.codegen
 
-import java.io.{ File, PrintWriter }
+import java.io.{File, PrintWriter}
 
 import com.google.common.base.CaseFormat
 import gnieh.pp.PrettyRenderer
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
-import im.tox.tox4j.impl.jni.codegen.cxx.{ Ast, Print }
+import im.tox.tox4j.impl.jni.codegen.cxx.{Ast, Print}
 
 object NameConversions {
 

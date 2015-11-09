@@ -1,8 +1,8 @@
 package im.tox.tox4j.impl.jni.codegen.cxx
 
+import gnieh.pp._
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 import org.apache.commons.lang3.StringEscapeUtils
-import gnieh.pp._
 
 object Print {
 
@@ -56,8 +56,7 @@ object Print {
   /**
    * Statements.
    */
-  // scalastyle:ignore cyclomatic.complexity
-  def printStmt(stmt: Stmt, spacing: Doc = line): Doc = {
+  def printStmt(stmt: Stmt, spacing: Doc = line): Doc = { // scalastyle:ignore cyclomatic.complexity
     stmt match {
       case Switch(cond, CompoundStmt(cases)) =>
         "switch (" :: printExpr(cond) :: nest(2)(")" :|:

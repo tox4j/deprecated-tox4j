@@ -1,11 +1,11 @@
 package im.tox.gui.events
 
-import java.awt.event.{ ActionEvent, ActionListener }
+import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing._
 
 import im.tox.gui.MainView
 import im.tox.tox4j.ToxCoreTestBase.readablePublicKey
-import im.tox.tox4j.core.options.{ SaveDataOptions, ProxyOptions, ToxOptions }
+import im.tox.tox4j.core.options.{ProxyOptions, SaveDataOptions, ToxOptions}
 import im.tox.tox4j.exceptions.ToxException
 import im.tox.tox4j.impl.jni.ToxCoreImpl
 

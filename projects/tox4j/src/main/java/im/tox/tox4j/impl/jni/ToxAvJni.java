@@ -21,8 +21,7 @@ public final class ToxAvJni {
   static native void toxavCall(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate) throws ToxavCallException;
   static native void toxavAnswer(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate) throws ToxavAnswerException;
   static native void toxavCallControl(int instanceNumber, int friendNumber, int control) throws ToxavCallControlException;
-  static native void toxavAudioBitRateSet(int instanceNumber, int friendNumber, int audioBitRate, boolean force) throws ToxavSetBitRateException;
-  static native void toxavVideoBitRateSet(int instanceNumber, int friendNumber, int videoBitRate, boolean force) throws ToxavSetBitRateException;
+  static native void toxavBitRateSet(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate) throws ToxavBitRateSetException;
 
   static native void toxavAudioSendFrame(
       int instanceNumber,
@@ -38,11 +37,10 @@ public final class ToxAvJni {
       @NotNull byte[] y, @NotNull byte[] u, @NotNull byte[] v
   ) throws ToxavSendFrameException;
 
-  static native void invokeAudioBitRateStatus(int instanceNumber, int friendNumber, boolean stable, int bitRate);
   static native void invokeAudioReceiveFrame(int instanceNumber, int friendNumber, short[] pcm, int channels, int samplingRate);
+  static native void invokeBitRateStatus(int instanceNumber, int friendNumber, int audioBitRate, int videoBitRate);
   static native void invokeCall(int instanceNumber, int friendNumber, boolean audioEnabled, boolean videoEnabled);
   static native void invokeCallState(int instanceNumber, int friendNumber, int callState);
-  static native void invokeVideoBitRateStatus(int instanceNumber, int friendNumber, boolean stable, int bitRate);
   @SuppressWarnings("checkstyle:parametername")
   static native void invokeVideoReceiveFrame(
       int instanceNumber,

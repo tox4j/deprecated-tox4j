@@ -1,7 +1,7 @@
 package im.tox.tox4j.impl.jni.codegen
 
 import com.google.common.base.CaseFormat
-import im.tox.tox4j.av.enums.{ ToxavCallControl, ToxavFriendCallState }
+import im.tox.tox4j.av.enums.{ToxavCallControl, ToxavFriendCallState}
 import im.tox.tox4j.core.enums._
 import im.tox.tox4j.impl.jni.codegen.cxx.Ast._
 

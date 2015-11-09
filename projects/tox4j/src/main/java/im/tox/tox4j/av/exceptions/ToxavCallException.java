@@ -26,6 +26,10 @@ public final class ToxavCallException extends ToxException<ToxavCallException.Co
      * A memory allocation error occurred.
      */
     MALLOC,
+    /**
+     * Synchronization error occurred.
+     */
+    SYNC,
   }
 
   public ToxavCallException(@NotNull Code code) {

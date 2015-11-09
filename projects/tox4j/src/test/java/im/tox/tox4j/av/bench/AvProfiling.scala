@@ -1,7 +1,7 @@
 package im.tox.tox4j.av.bench
 
 import im.tox.tox4j.core.options.ToxOptions
-import im.tox.tox4j.impl.jni.{ ToxAvImpl, ToxCoreImpl }
+import im.tox.tox4j.impl.jni.{ToxAvImpl, ToxCoreImpl}
 
 import scala.util.Random
 

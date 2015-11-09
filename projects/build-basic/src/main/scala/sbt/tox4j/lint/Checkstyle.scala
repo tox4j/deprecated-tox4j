@@ -2,8 +2,8 @@ package sbt.tox4j.lint
 
 import com.etsy.sbt.Checkstyle.CheckstyleTasks._
 import com.etsy.sbt.Checkstyle.checkstyleSettings
-import com.etsy.sbt.{ NoExitException, NoExitSecurityManager }
-import com.puppycrawl.tools.checkstyle.Main.{ main => CheckstyleMain }
+import com.etsy.sbt.{NoExitException, NoExitSecurityManager}
+import com.puppycrawl.tools.checkstyle.Main.{main => CheckstyleMain}
 import sbt.Def.Initialize
 import sbt.Keys._
 import sbt._

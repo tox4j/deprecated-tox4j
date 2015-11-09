@@ -2,8 +2,8 @@ package im.tox.tox4j.testing.autotest
 
 import im.tox.tox4j.TestConstants._
 import im.tox.tox4j.core.options.ProxyOptions
-import im.tox.tox4j.core.{ ToxCore, ToxCoreFactory }
-import im.tox.tox4j.{ SocksServer, ToxCoreTestBase }
+import im.tox.tox4j.core.{ToxCore, ToxCoreFactory}
+import im.tox.tox4j.{SocksServer, ToxCoreTestBase}
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.exceptions.TestFailedDueToTimeoutException
 import org.scalatest.time.SpanSugar._
