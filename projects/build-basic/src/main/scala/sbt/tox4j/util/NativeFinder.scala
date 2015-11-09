@@ -9,27 +9,34 @@ import javassist.util.proxy.{MethodFilter, MethodHandler, ProxyFactory}
 
 import org.objectweb.asm._
 import sbt._
+import sbt.tox4j.logic.jni.Configure
 
-object NativeFinder {
-  def natives(classes: Set[File]): Map[String, Seq[String]] = {
+object NativeFinder extends (Set[File] => Map[String, Seq[String]]) {
+
+  override def apply(classes: Set[File]): Map[String, Seq[String]] = {
+    Configure.configLog.info(s"Looking for classes with native methods (input set size: ${classes.size})")
+
     var nativeList: Map[String, Seq[String]] = Map.empty
 
     val handler = new MethodHandler {
       var currentClassName: Option[String] = None
 
-      override def invoke(self: scala.Any, thisMethod: Method, proceed: Method, args: Array[AnyRef]) = {
+      override def invoke(self: scala.Any, thisMethod: Method, proceed: Method, args: Array[AnyRef]): AnyRef = {
         thisMethod.getName match {
           case "visit" =>
             if (args.length > 2) {
-              val fileName = args(2).asInstanceOf[String]
-              currentClassName = Some(fileName.replaceAll("/", "."))
+              val className = args(2).asInstanceOf[String].replaceAll("/", ".")
+              currentClassName = Some(className)
+              Configure.configLog.info("Looking at class: " + className)
             }
           case "visitMethod" =>
             val access = args(0).asInstanceOf[Int]
             val name = args(1).asInstanceOf[String]
             if ((access & Opcodes.ACC_NATIVE) != 0) {
+              Configure.configLog.info("Found a native method: " + name)
               currentClassName match {
-                case None => sys.error("Found method outside class")
+                case None =>
+                  sys.error("Found method outside class")
                 case Some(enclosingClassName) =>
                   nativeList.get(enclosingClassName) match {
                     case None =>
@@ -54,7 +61,7 @@ object NativeFinder {
 
     factory.create(Array(classOf[Int]), Array(Integer.valueOf(Opcodes.ASM4)), handler) match {
       case x: ClassVisitor =>
-        classes foreach { entry =>
+        classes.toSeq.sorted foreach { entry =>
           val in = new FileInputStream(entry)
           val r = new ClassReader(in)
           r.accept(x, 0)
@@ -64,4 +71,5 @@ object NativeFinder {
         nativeList
     }
   }
+
 }

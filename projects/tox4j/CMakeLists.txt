@@ -6,6 +6,9 @@ if (NOT DEFINED CMAKE_MACOSX_RPATH)
         set(CMAKE_MACOSX_RPATH true)
 endif()
 
+# Common CFLAGS/CXXFLAGS, etc.
+include(${COMMON_FILE})
+
 # pkg-config requirements from SBT.
 include(${DEPENDENCIES_FILE})
 

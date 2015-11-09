@@ -12,8 +12,6 @@ import scala.language.postfixOps
 // scalastyle:off
 object Jni extends OptionalPlugin {
 
-  private val coverageEnabled = true
-
   val Native = config("native")
 
   object Keys {
@@ -39,8 +37,10 @@ object Jni extends OptionalPlugin {
     val cFlags = settingKey[Seq[String]]("Flags to be passed to the native C compiler when compiling")
     val cxxFlags = settingKey[Seq[String]]("Flags to be passed to the native C++ compiler when compiling")
     val ldFlags = settingKey[Seq[String]]("Flags to be passed to the native compiler when linking")
+    val featureTestFlags = settingKey[Seq[String]]("Feature-test flags like -DHAVE_THING if the compiler supports 'thing'")
 
-    val coverageFlags = settingKey[Seq[String]]("Flags to be passed to the native compiler to enable coverage recording")
+    val coverageEnabled = settingKey[Boolean]("Whether to enable coverage instrumentation in native code")
+    val coverageFlags = settingKey[Seq[String]]("Flags to be passed to the native compiler to enable coverage instrumentation")
 
     val buildTool = settingKey[BuildTool]("Build tool to use [make, ninja]")
     val buildFlags = settingKey[Seq[String]]("Flags to be passed to the build tool")
@@ -60,6 +60,7 @@ object Jni extends OptionalPlugin {
     val javah = taskKey[Seq[String]]("Generates JNI header files")
     val gtestPath = taskKey[Option[File]]("Finds the Google Test source path or downloads gtest from the internet")
     val cmakeDependenciesFile = taskKey[File]("Generates Dependencies.cmake containing C++ dependency information")
+    val cmakeCommonFile = taskKey[File]("Generates Common.cmake containing common flags and settings")
     val cmakeMainFile = taskKey[File]("Generates Main.cmake containing instructions for the main module")
     val cmakeTestFile = taskKey[Option[File]]("Generates Test.cmake containing instructions for the test module")
     val cmakeToolchainFile = taskKey[Option[File]]("Optionally generates Toolchain.cmake and returns the required cmake flags")
@@ -119,6 +120,10 @@ object Jni extends OptionalPlugin {
     } ++ pkgConfigPath
   }
 
+  private def getEnvFlags(envVar: String): Seq[String] = {
+    sys.env.get(envVar).map(_.split(' ')).toSeq.flatten
+  }
+
   override val moduleSettings = Seq(
     inConfig(Native)(Seq[Setting[_]](
 
@@ -129,7 +134,7 @@ object Jni extends OptionalPlugin {
           .allProducts
           .filter(_.name.endsWith(".class"))
           .toSet
-        NativeFinder.natives(classes)
+        NativeFinder(classes)
       },
 
       // Target for javah-generated headers.
@@ -172,10 +177,10 @@ object Jni extends OptionalPlugin {
       nativeCXX := Configure.findCxx(toolchainPath.value),
 
       // Defaults from the environment.
-      cppFlags := sys.env.get("CPPFLAGS").toSeq,
-      cFlags := sys.env.get("CFLAGS").toSeq,
-      cxxFlags := sys.env.get("CXXFLAGS").toSeq,
-      ldFlags := sys.env.get("LDFLAGS").toSeq,
+      cppFlags := Configure.checkCcOptions(nativeCXX.value)(getEnvFlags("CPPFLAGS")),
+      cFlags := Configure.checkCcOptions(nativeCC.value)(getEnvFlags("CFLAGS")),
+      cxxFlags := Configure.checkCcOptions(nativeCXX.value)(getEnvFlags("CXXFLAGS")),
+      ldFlags := Configure.checkCcOptions(nativeCXX.value)(getEnvFlags("LDFLAGS")),
 
       // Build with parallel tasks by default.
       buildTool := BuildTool.tool,
@@ -213,10 +218,16 @@ object Jni extends OptionalPlugin {
       ldFlags ++= Configure.checkCcOptions(nativeCXX.value)(Seq("-Wl,-z,defs")),
 
       // Enable test coverage collection.
+      coverageEnabled := true,
       coverageFlags := Configure.checkCcOptions(nativeCXX.value)(
         Seq("--coverage"),
         Seq("-fprofile-arcs", "-ftest-coverage")
       ),
+
+      // Feature tests.
+      featureTestFlags := Nil,
+      featureTestFlags ++= Configure.ccFeatureTest(nativeCXX.value, cxxFlags.value, "TO_STRING", "std::to_string(3)", "iostream"),
+      featureTestFlags ++= Configure.ccFeatureTest(nativeCXX.value, cxxFlags.value, "MAKE_UNIQUE", "std::make_unique<int>(3)", "memory"),
 
       jniSourceFiles in Compile := ((nativeSource in Compile).value ** "*").filter(Configure.isNativeSource).get,
       jniSourceFiles in Test := ((nativeSource in Test).value ** "*").filter(Configure.isNativeSource).get,
@@ -240,8 +251,6 @@ object Jni extends OptionalPlugin {
       javah := Def.task {
         val log = streams.value.log
 
-        val result = (compileIncremental in Compile).value
-
         val classpath = (
           (dependencyClasspath in Compile).value.files ++
           Seq((classDirectory in Compile).value)
@@ -255,8 +264,12 @@ object Jni extends OptionalPlugin {
           "-classpath", classpath
         ) ++ jniClassNames
 
-        log.info(s"Running javah to generate ${jniClassNames.size} JNI headers")
-        checkExitCode(command, log)
+        if (jniClassNames.isEmpty) {
+          log.info(s"No classes with native methods found; not running javah")
+        } else {
+          log.info(s"Running javah to generate ${jniClassNames.size} JNI headers")
+          checkExitCode(command, log)
+        }
 
         jniClassNames
       }.tag(Tags.Compile, Tags.CPU)
@@ -269,6 +282,19 @@ object Jni extends OptionalPlugin {
           (nativeSource in Compile).value,
           nativeTarget.value,
           managedNativeSource.value
+        )
+      },
+
+      cmakeCommonFile := {
+        CMakeGenerator.commonFile(streams.value.log)(
+          nativeTarget.value,
+          cppFlags.value,
+          cFlags.value,
+          cxxFlags.value,
+          ldFlags.value,
+          featureTestFlags.value,
+          coverageEnabled.value,
+          coverageFlags.value
         )
       },
 
@@ -364,17 +390,12 @@ object Jni extends OptionalPlugin {
         binPath.value.mkdirs()
 
         val coverageflags =
-          if (coverageEnabled) {
+          if (coverageEnabled.value) {
             log.info(s"Coverage enabled: adding ${coverageFlags.value} to CXXFLAGS and LDFLAGS")
             coverageFlags.value
           } else {
             Nil
           }
-
-        val cppflags = cppFlags.value.distinct
-        val cflags = cFlags.value.distinct
-        val cxxflags = cxxFlags.value.distinct ++ coverageflags
-        val ldflags = ldFlags.value.distinct ++ coverageflags
 
         val pkgConfigDirs =
           mkPkgConfigPath(pkgConfigPath.value, toolchainPath.value).mkString(File.pathSeparator)
@@ -397,10 +418,6 @@ object Jni extends OptionalPlugin {
                 (toolchainPath / "bin"))
             )
         }) ++ Seq(
-          ("CPPFLAGS", cppflags.mkString(" ")),
-          ("CFLAGS", cflags.mkString(" ")),
-          ("CXXFLAGS", cxxflags.mkString(" ")),
-          ("LDFLAGS", ldflags.mkString(" ")),
           ("PKG_CONFIG_PATH", pkgConfigDirs)
         )
 
@@ -411,6 +428,7 @@ object Jni extends OptionalPlugin {
             Seq(
               "cmake", "-G" + buildTool.value.name,
               "-DDEPENDENCIES_FILE=" + cmakeDependenciesFile.value,
+              "-DCOMMON_FILE=" + cmakeCommonFile.value,
               "-DMAIN_FILE=" + cmakeMainFile.value,
               baseDirectory.value.getPath
             ) ++ flags ++ cmakeTestFile.value.map("-DTEST_FILE=" + _).toSeq,

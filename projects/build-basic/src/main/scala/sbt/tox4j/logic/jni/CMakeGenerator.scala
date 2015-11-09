@@ -73,6 +73,39 @@ object CMakeGenerator {
     generateFile(targetFile, lines)
   }
 
+  def commonFile(log: Logger)(
+    nativeTarget: File,
+    cppFlags: Seq[String],
+    cFlags: Seq[String],
+    cxxFlags: Seq[String],
+    ldFlags: Seq[String],
+    featureTestFlags: Seq[String],
+    coverageEnabled: Boolean,
+    coverageFlags: Seq[String]
+  ): File = {
+    val coverageflags =
+      if (coverageEnabled) {
+        log.info(s"Coverage enabled: adding $coverageFlags to CXXFLAGS and LDFLAGS")
+        coverageFlags
+      } else {
+        Nil
+      }
+
+    val cppflags = cppFlags ++ featureTestFlags
+    val cflags = (cppflags ++ cFlags).distinct.mkString("\"", " ", "\"")
+    val cxxflags = (cppflags ++ cxxFlags ++ coverageflags).distinct.mkString("\"", " ", "\"")
+    val ldflags = (ldFlags ++ coverageflags).distinct.mkString("\"", " ", "\"")
+
+    val targetFile = nativeTarget / "Common.cmake"
+    val lines = new ArrayBuffer[String]
+
+    lines += s"set(CMAKE_C_FLAGS $cflags)"
+    lines += s"set(CMAKE_CXX_FLAGS $cxxflags)"
+    lines += s"set(CMAKE_SHARED_LINKER_FLAGS $ldflags)"
+
+    generateFile(targetFile, lines)
+  }
+
   def mainFile(
     binPath: File,
     libraryName: String,
@@ -83,7 +116,7 @@ object CMakeGenerator {
     val lines = new ArrayBuffer[String]
 
     lines += s"set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $binPath)"
-    lines += s"add_library($libraryName SHARED ${jniSourceFiles.mkString(" ")})"
+    lines += s"add_library($libraryName SHARED\n\t${jniSourceFiles.mkString("\n\t")})"
 
     generateFile(targetFile, lines)
   }
@@ -103,7 +136,7 @@ object CMakeGenerator {
 
     lines += "link_libraries(gtest)"
 
-    lines += s"add_executable(${libraryName}_test ${jniSourceFiles.mkString(" ")})"
+    lines += s"add_executable(${libraryName}_test\n\t${jniSourceFiles.mkString("\n\t")})"
     lines += s"#add_test(${libraryName}_test ${libraryName}_test)"
 
     jniSourceFiles.foreach { source =>
