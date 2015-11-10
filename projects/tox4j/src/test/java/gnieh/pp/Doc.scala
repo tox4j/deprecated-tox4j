@@ -38,37 +38,30 @@ sealed abstract class Doc {
    * Concatenates two documents.
    *  Is left associative with [[gnieh.pp.empty]] as left and right unit.
    */
-  @inline
   def ::(that: Doc): Doc =
     withUnit(ConsDoc(_, this))(that)
 
   /** Equivalent to `that :: space :: this` */
-  @inline
   def :+:(that: Doc): Doc =
     withUnit(_ :: space :: this)(that)
 
   /** Equivalent to `that :: line :: this` */
-  @inline
   def :|:(that: Doc): Doc =
     withUnit(_ :: line :: this)(that)
 
   /** Equivalent to `that :: softline :: this` */
-  @inline
   def :\:(that: Doc): Doc =
     withUnit(_ :: softline :: this)(that)
 
   /** Equivalent to `that :: linebreak :: this` */
-  @inline
   def :||:(that: Doc): Doc =
     withUnit(_ :: linebreak :: this)(that)
 
   /** Equivalent to `that :: softbreak :: this` */
-  @inline
   def :\\:(that: Doc): Doc =
     withUnit(_ :: softbreak :: this)(that)
 
   /** Equivalent to `align(this :|: that)` */
-  @inline
   def ||(that: Doc): Doc =
     align(this :|: that)
 
