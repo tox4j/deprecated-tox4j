@@ -2,12 +2,13 @@
 
 #include <tox/tox.h>
 #include <sodium.h>
-#define TOX_PASS_HASH_LENGTH      TOX_HASH_LENGTH
-#define TOX_PASS_BOXZERO_BYTES    crypto_box_BOXZEROBYTES
-#define TOX_PASS_NONCE_BYTES      crypto_box_NONCEBYTES
-#define TOX_PASS_PUBLICKEY_BYTES  crypto_box_PUBLICKEYBYTES
-#define TOX_PASS_SECRETKEY_BYTES  crypto_box_SECRETKEYBYTES
-#define TOX_PASS_ZERO_BYTES       crypto_box_ZEROBYTES
+#define TOX_PASS_HASH_LENGTH       TOX_HASH_LENGTH
+#define TOX_PASS_PUBLIC_KEY_LENGTH crypto_box_PUBLICKEYBYTES
+#define TOX_PASS_SECRET_KEY_LENGTH crypto_box_SECRETKEYBYTES
+#define TOX_PASS_SHARED_KEY_LENGTH crypto_box_BEFORENMBYTES
+#define TOX_PASS_NONCE_LENGTH      crypto_box_NONCEBYTES
+#define TOX_PASS_ZERO_BYTES        crypto_box_ZEROBYTES
+#define TOX_PASS_BOX_ZERO_BYTES    crypto_box_BOXZEROBYTES
 #include "generated/constants.h"
 
 template<> extern char const *const module_name<ToxCrypto> = "crypto";

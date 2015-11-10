@@ -1,6 +1,6 @@
 package im.tox.tox4j.impl.jni
 
-import im.tox.tox4j.crypto.{ToxCryptoConstants, ToxCrypto}
+import im.tox.tox4j.crypto.{ToxCrypto, ToxCryptoConstants}
 
 object ToxCryptoImpl extends ToxCrypto {
 

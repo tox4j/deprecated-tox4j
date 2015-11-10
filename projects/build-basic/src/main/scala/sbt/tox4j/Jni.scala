@@ -389,14 +389,6 @@ object Jni extends OptionalPlugin {
         // Make sure the output directory exists.
         binPath.value.mkdirs()
 
-        val coverageflags =
-          if (coverageEnabled.value) {
-            log.info(s"Coverage enabled: adding ${coverageFlags.value} to CXXFLAGS and LDFLAGS")
-            coverageFlags.value
-          } else {
-            Nil
-          }
-
         val pkgConfigDirs =
           mkPkgConfigPath(pkgConfigPath.value, toolchainPath.value).mkString(File.pathSeparator)
 

@@ -16,7 +16,7 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_randombytes
       reinterpret_cast<unsigned char *> (data),
       env->GetArrayLength (dataArray)
   );
-  env->ReleaseByteArrayElements (dataArray, data, JNI_COMMIT);
+  env->ReleaseByteArrayElements (dataArray, data, 0);
 }
 
 
@@ -28,14 +28,17 @@ JNIEXPORT void JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_randombytes
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxKeypair
   (JNIEnv *env, jclass, jbyteArray publicKeyArray, jbyteArray secretKeyArray)
 {
+  assert (env->GetArrayLength (publicKeyArray) == crypto_box_PUBLICKEYBYTES);
+  assert (env->GetArrayLength (secretKeyArray) == crypto_box_SECRETKEYBYTES);
+
   jbyte *publicKey = env->GetByteArrayElements (publicKeyArray, nullptr);
   jbyte *secretKey = env->GetByteArrayElements (secretKeyArray, nullptr);
   int result = crypto_box_keypair (
       reinterpret_cast<unsigned char *> (publicKey),
       reinterpret_cast<unsigned char *> (secretKey)
   );
-  env->ReleaseByteArrayElements (secretKeyArray, secretKey, JNI_COMMIT);
-  env->ReleaseByteArrayElements (publicKeyArray, publicKey, JNI_COMMIT);
+  env->ReleaseByteArrayElements (secretKeyArray, secretKey, 0);
+  env->ReleaseByteArrayElements (publicKeyArray, publicKey, 0);
 
   return result;
 }
@@ -49,6 +52,11 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxKeypair
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBox
   (JNIEnv *env, jclass, jbyteArray cipherTextArray, jbyteArray plainTextArray, jbyteArray nonceArray, jbyteArray publicKeyArray, jbyteArray secretKeyArray)
 {
+  assert (env->GetArrayLength (cipherTextArray) == env->GetArrayLength (plainTextArray));
+  assert (env->GetArrayLength (nonceArray) == crypto_box_NONCEBYTES);
+  assert (env->GetArrayLength (publicKeyArray) == crypto_box_PUBLICKEYBYTES);
+  assert (env->GetArrayLength (secretKeyArray) == crypto_box_SECRETKEYBYTES);
+
   jbyte *cipherText = env->GetByteArrayElements (cipherTextArray, nullptr);
   jbyte *plainText = env->GetByteArrayElements (plainTextArray, nullptr);
   jbyte *nonce = env->GetByteArrayElements (nonceArray, nullptr);
@@ -66,7 +74,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBox
   env->ReleaseByteArrayElements (publicKeyArray, publicKey, JNI_ABORT);
   env->ReleaseByteArrayElements (nonceArray, nonce, JNI_ABORT);
   env->ReleaseByteArrayElements (plainTextArray, plainText, JNI_ABORT);
-  env->ReleaseByteArrayElements (cipherTextArray, cipherText, JNI_COMMIT);
+  env->ReleaseByteArrayElements (cipherTextArray, cipherText, 0);
 
   return result;
 }
@@ -79,12 +87,17 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBox
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxOpen
   (JNIEnv *env, jclass, jbyteArray plainTextArray, jbyteArray cipherTextArray, jbyteArray nonceArray, jbyteArray publicKeyArray, jbyteArray secretKeyArray)
 {
+  assert (env->GetArrayLength (cipherTextArray) == env->GetArrayLength (plainTextArray));
+  assert (env->GetArrayLength (nonceArray) == crypto_box_NONCEBYTES);
+  assert (env->GetArrayLength (publicKeyArray) == crypto_box_PUBLICKEYBYTES);
+  assert (env->GetArrayLength (secretKeyArray) == crypto_box_SECRETKEYBYTES);
+
   jbyte *plainText = env->GetByteArrayElements (plainTextArray, nullptr);
   jbyte *cipherText = env->GetByteArrayElements (cipherTextArray, nullptr);
   jbyte *nonce = env->GetByteArrayElements (nonceArray, nullptr);
   jbyte *publicKey = env->GetByteArrayElements (publicKeyArray, nullptr);
   jbyte *secretKey = env->GetByteArrayElements (secretKeyArray, nullptr);
-  int result = crypto_box (
+  int result = crypto_box_open (
       reinterpret_cast<unsigned char *> (plainText),
       reinterpret_cast<unsigned char const *> (cipherText),
       env->GetArrayLength (plainTextArray),
@@ -96,7 +109,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxOpen
   env->ReleaseByteArrayElements (publicKeyArray, publicKey, JNI_ABORT);
   env->ReleaseByteArrayElements (nonceArray, nonce, JNI_ABORT);
   env->ReleaseByteArrayElements (cipherTextArray, cipherText, JNI_ABORT);
-  env->ReleaseByteArrayElements (plainTextArray, plainText, JNI_COMMIT);
+  env->ReleaseByteArrayElements (plainTextArray, plainText, 0);
 
   return result;
 }
@@ -109,6 +122,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxOpen
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxBeforenm
   (JNIEnv *env, jclass, jbyteArray sharedKeyArray, jbyteArray publicKeyArray, jbyteArray secretKeyArray)
 {
+  assert (env->GetArrayLength (publicKeyArray) == crypto_box_PUBLICKEYBYTES);
+  assert (env->GetArrayLength (secretKeyArray) == crypto_box_SECRETKEYBYTES);
+  assert (env->GetArrayLength (sharedKeyArray) == crypto_box_BEFORENMBYTES);
+
   jbyte *publicKey = env->GetByteArrayElements (publicKeyArray, nullptr);
   jbyte *secretKey = env->GetByteArrayElements (secretKeyArray, nullptr);
   jbyte *sharedKey = env->GetByteArrayElements (sharedKeyArray, nullptr);
@@ -117,7 +134,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxBeforenm
       reinterpret_cast<unsigned char const *> (publicKey),
       reinterpret_cast<unsigned char const *> (secretKey)
   );
-  env->ReleaseByteArrayElements (sharedKeyArray, sharedKey, JNI_ABORT);
+  env->ReleaseByteArrayElements (sharedKeyArray, sharedKey, 0);
   env->ReleaseByteArrayElements (secretKeyArray, secretKey, JNI_ABORT);
   env->ReleaseByteArrayElements (publicKeyArray, publicKey, JNI_ABORT);
 
@@ -132,6 +149,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxBeforenm
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxAfternm
   (JNIEnv *env, jclass, jbyteArray cipherTextArray, jbyteArray plainTextArray, jbyteArray nonceArray, jbyteArray sharedKeyArray)
 {
+  assert (env->GetArrayLength (cipherTextArray) == env->GetArrayLength (plainTextArray));
+  assert (env->GetArrayLength (nonceArray) == crypto_box_NONCEBYTES);
+  assert (env->GetArrayLength (sharedKeyArray) == crypto_box_BEFORENMBYTES);
+
   jbyte *cipherText = env->GetByteArrayElements (cipherTextArray, nullptr);
   jbyte *plainText = env->GetByteArrayElements (plainTextArray, nullptr);
   jbyte *nonce = env->GetByteArrayElements (nonceArray, nullptr);
@@ -146,7 +167,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxAfternm
   env->ReleaseByteArrayElements (sharedKeyArray, sharedKey, JNI_ABORT);
   env->ReleaseByteArrayElements (nonceArray, nonce, JNI_ABORT);
   env->ReleaseByteArrayElements (plainTextArray, plainText, JNI_ABORT);
-  env->ReleaseByteArrayElements (cipherTextArray, cipherText, JNI_COMMIT);
+  env->ReleaseByteArrayElements (cipherTextArray, cipherText, 0);
 
   return result;
 }
@@ -159,6 +180,10 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxAfternm
 JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxOpenAfternm
   (JNIEnv *env, jclass, jbyteArray plainTextArray, jbyteArray cipherTextArray, jbyteArray nonceArray, jbyteArray sharedKeyArray)
 {
+  assert (env->GetArrayLength (cipherTextArray) == env->GetArrayLength (plainTextArray));
+  assert (env->GetArrayLength (nonceArray) == crypto_box_NONCEBYTES);
+  assert (env->GetArrayLength (sharedKeyArray) == crypto_box_BEFORENMBYTES);
+
   jbyte *plainText = env->GetByteArrayElements (plainTextArray, nullptr);
   jbyte *cipherText = env->GetByteArrayElements (cipherTextArray, nullptr);
   jbyte *nonce = env->GetByteArrayElements (nonceArray, nullptr);
@@ -173,7 +198,7 @@ JNIEXPORT jint JNICALL Java_im_tox_tox4j_impl_jni_ToxCryptoJni_cryptoBoxOpenAfte
   env->ReleaseByteArrayElements (sharedKeyArray, sharedKey, JNI_ABORT);
   env->ReleaseByteArrayElements (nonceArray, nonce, JNI_ABORT);
   env->ReleaseByteArrayElements (cipherTextArray, cipherText, JNI_ABORT);
-  env->ReleaseByteArrayElements (plainTextArray, plainText, JNI_COMMIT);
+  env->ReleaseByteArrayElements (plainTextArray, plainText, 0);
 
   return result;
 }
