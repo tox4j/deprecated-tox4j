@@ -12,15 +12,15 @@ cache:
 
 env:
   matrix:
-    - TOX4J_TARGET=arm-linux-androideabi
-    - TOX4J_TARGET=i686-linux-android
-    - TOX4J_TARGET=host TEST_GOAL=coverage
-    - TOX4J_TARGET=host TEST_GOAL=performance
+    - TARGET=arm-linux-androideabi
+    - TARGET=i686-linux-android
+    - TARGET=host TEST_GOAL=coverage
+    - TARGET=host TEST_GOAL=performance
 
 matrix:
   fast_finish: true
   allow_failures:
-    - env: TOX4J_TARGET=host TEST_GOAL=performance
+    - env: TARGET=host TEST_GOAL=performance
 
 install:
   # Move files from cache directory.
@@ -30,11 +30,11 @@ install:
   - ln -s $HOME/cache/sbt  $HOME/.sbt
   - ln -s $HOME/cache/usr  $HOME/.usr
   # Set-up step.
-  - make setup-$TOX4J_TARGET PREFIX=$HOME
+  - make setup-$TARGET TARGET=$TARGET
 
 script:
   # Build/install step.
-  - make install PREFIX=$HOME GOAL=$TEST_GOAL TOXCORE_REPO=$REPO TOXCORE_BRANCH=$BRANCH
+  - make install GOAL=$TEST_GOAL
 
 before_cache:
   - ln -s $PWD/.git projects/tox4j/

@@ -92,9 +92,9 @@ object CMakeGenerator {
       }
 
     val cppflags = cppFlags ++ featureTestFlags
-    val cflags = (cppflags ++ cFlags).distinct.mkString("\"", " ", "\"")
-    val cxxflags = (cppflags ++ cxxFlags ++ coverageflags).distinct.mkString("\"", " ", "\"")
-    val ldflags = (ldFlags ++ coverageflags).distinct.mkString("\"", " ", "\"")
+    val cflags = (cppflags ++ cFlags).mkString("\"", " ", "\"")
+    val cxxflags = (cppflags ++ cxxFlags ++ coverageflags).mkString("\"", " ", "\"")
+    val ldflags = (ldFlags ++ coverageflags).mkString("\"", " ", "\"")
 
     val targetFile = nativeTarget / "Common.cmake"
     val lines = new ArrayBuffer[String]

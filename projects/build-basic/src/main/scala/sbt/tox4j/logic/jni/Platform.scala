@@ -15,13 +15,19 @@ object Platform {
 
   // Android build:
   private def androidSettings(platform: String) = Seq(
+    toolchainPrefix := Some(platform),
     toolchainPath := {
-      val candidates = Seq(
-        baseDirectory.value / "android" / platform,
-        baseDirectory.value.getParentFile / "android" / platform
-      )
-      // Try $TOOLCHAIN first, then try some other possible candidate paths.
-      sys.env.get("TOOLCHAIN").map(file).orElse(candidates.find(_.exists))
+      val candidates =
+        // Try $TOOLCHAIN first, then try some other possible candidate paths.
+        sys.env.get("TOOLCHAIN").map(file) ++
+          Seq(
+            baseDirectory.value / "android" / platform,
+            baseDirectory.value.getParentFile / "android" / platform
+          )
+      candidates.find { candidate =>
+        Configure.configLog.info(s"Toolchain path '$candidate' exists: ${candidate.exists}")
+        candidate.exists
+      }
     },
     pkgConfigPath := toolchainPath.value.map(_ / "sysroot/usr/lib/pkgconfig").toSeq,
     cppFlags := Nil,

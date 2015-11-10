@@ -30,6 +30,7 @@ object Jni extends OptionalPlugin {
 
     val nativeCC = settingKey[String]("Compiler to use")
     val nativeCXX = settingKey[String]("Compiler to use")
+    val toolchainPrefix = settingKey[Option[String]]("Optional toolchain prefix for the compiler")
     val toolchainPath = settingKey[Option[File]]("Optional toolchain location; must contain sysroot/ and bin/")
     val pkgConfigPath = settingKey[Seq[File]]("Directories to look in for pkg-config's .pc files")
 
@@ -170,11 +171,12 @@ object Jni extends OptionalPlugin {
       binPath := nativeTarget.value / "bin",
 
       // Default to global toolchain.
+      toolchainPrefix := None,
       toolchainPath := None,
 
       // Default native C++ compiler to Clang.
-      nativeCC := Configure.findCc(toolchainPath.value),
-      nativeCXX := Configure.findCxx(toolchainPath.value),
+      nativeCC := Configure.findCc(toolchainPath.value, toolchainPrefix.value),
+      nativeCXX := Configure.findCxx(toolchainPath.value, toolchainPrefix.value),
 
       // Defaults from the environment.
       cppFlags := Configure.checkCcOptions(nativeCXX.value)(getEnvFlags("CPPFLAGS")),

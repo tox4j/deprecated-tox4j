@@ -73,19 +73,32 @@ object Configure {
         s"void configtest() { $code; }")(s"-DHAVE_$flag" +: cxxFlags).take(1)
   }
 
-  private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
-    toolchainPath.fold(tools) {
-      toolchainPath =>
-        val triple = toolchainPath.getName
-        (tools map { tool => (toolchainPath / "bin" / s"$triple-$tool").getPath }) ++ tools
-    }
+  private def mkToolchain(toolchainPath: Option[File], toolchainPrefix: Option[String], tools: Seq[String]) = {
+    val toolchainTools =
+      for {
+        toolchainPath <- toolchainPath
+        toolchainPrefix <- toolchainPrefix
+      } yield {
+        val prefixedTools = tools.map(tool => s"$toolchainPrefix-$tool") ++ tools
+        (prefixedTools map { tool => (toolchainPath / "bin" / tool).getPath }) ++ tools
+      }
+    toolchainTools.getOrElse(tools)
   }
 
-  private def findTool(toolName: String, toolchainPath: Option[File], code: String)(flags: Seq[String]*)(candidates: Seq[String]) = {
-    mkToolchain(toolchainPath, candidates) find { cc =>
+  private def findTool(
+    toolName: String,
+    toolchainPath: Option[File],
+    toolchainPrefix: Option[String],
+    code: String
+  )(
+    flags: Seq[String]*
+  )(
+    candidates: Seq[String]
+  ) = {
+    mkToolchain(toolchainPath, toolchainPrefix, candidates) find { cc =>
       try {
-        val flagsOpt = Seq[String]() +: flags
-        configLog.info(s"Trying $cc")
+        val flagsOpt = Nil +: flags
+        configLog.info(s"Trying $cc with flags '$flagsOpt'")
         Seq(cc, "--version") !< configLog == 0 && findCcOptions(cc, required = false, code)(flagsOpt: _*).isDefined
       } catch {
         case _: java.io.IOException => false
@@ -95,10 +108,10 @@ object Configure {
     }
   }
 
-  def findCc(toolchainPath: Option[File]) = {
+  def findCc(toolchainPath: Option[File], toolchainPrefix: Option[String]) = {
     findTool(
       "C89 compiler",
-      toolchainPath,
+      toolchainPath, toolchainPrefix,
       ""
     )(
         Seq("-std=c89")
@@ -107,10 +120,10 @@ object Configure {
         )
   }
 
-  def findCxx(toolchainPath: Option[File]) = {
+  def findCxx(toolchainPath: Option[File], toolchainPrefix: Option[String]) = {
     findTool(
       "C++14 compiler",
-      toolchainPath,
+      toolchainPath, toolchainPrefix,
       """
       |auto f = [](auto i) mutable { return i; };
       |

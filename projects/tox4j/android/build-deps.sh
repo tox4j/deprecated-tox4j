@@ -40,10 +40,10 @@ CLONE() {
     git fetch
     git clean -fdx
     git reset --hard
-    git checkout master
-    git reset --hard origin/master
+    git checkout $3
+    git reset --hard origin/$3
   else
-    git clone "$1/$2".git $3
+    git clone "$1/$2".git -b $3 $4
     cd $2
   fi
 }
@@ -77,7 +77,7 @@ INSTALL() {
 }
 # libvpx
 (
-  CLONE https://chromium.googlesource.com/webm libvpx
+  CLONE https://chromium.googlesource.com/webm libvpx master
   patch -p1 < ../libvpx.patch
 
   export AR="$TOOLCHAIN/bin/$TOX4J_TARGET-ar"
@@ -96,23 +96,23 @@ INSTALL() {
 )
 # libsodium
 (
-  CLONE https://github.com/jedisct1 libsodium --depth=1
+  CLONE https://github.com/jedisct1 libsodium stable --depth=1
   INSTALL sodium --disable-pie
 )
 # opus
 (
-  CLONE git://git.xiph.org opus --depth=1
+  CLONE git://git.xiph.org opus master --depth=1
   INSTALL opus
 )
 # toxcore
 (
-  CLONE https://github.com/irungentoo toxcore --depth=1
+  CLONE https://github.com/irungentoo toxcore master --depth=1
   patch -p1 < ../toxcore.patch
   INSTALL toxcore --disable-rt --disable-testing --disable-tests
 )
 # protobuf
 (
-  CLONE https://github.com/google protobuf
+  CLONE https://github.com/google protobuf master
   #git checkout tags/v2.6.1
   #git checkout tags/v2.5.0
   #git checkout tags/v2.4.1
