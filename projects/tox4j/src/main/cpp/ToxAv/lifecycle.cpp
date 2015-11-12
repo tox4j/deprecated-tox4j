@@ -142,7 +142,7 @@ TOX_METHOD (jint, New,
               tox4j_assert (toxav != nullptr);
 
               // Create the master events object and set up our callbacks.
-              auto events = tox::callbacks<ToxAV> (std::unique_ptr<Events> (new Events))
+              auto events = tox::callbacks<ToxAV> (std::make_unique<Events> ())
 #define CALLBACK(NAME)   .set<tox::callback_##NAME, tox4j_##NAME##_cb> ()
 #include "tox/generated/av.h"
 #undef CALLBACK

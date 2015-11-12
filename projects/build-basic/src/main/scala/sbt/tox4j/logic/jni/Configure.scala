@@ -44,6 +44,7 @@ object Configure {
 
       val found =
         flags find { flags =>
+          configLog.info(s"Trying compiler '$compiler' with code '$code' and flags $flags (required = $required)")
           Seq(compiler, sourceFile.getPath, "-o", targetFile.getPath, "-Werror") ++ flags !< configLog match {
             case 0 => true
             case _ => false
@@ -64,6 +65,12 @@ object Configure {
 
   def checkCcOptions(compiler: String, required: Boolean = false, code: String = "")(flags: Seq[String]*) = {
     findCcOptions(compiler, required, code)(flags: _*).getOrElse(Nil)
+  }
+
+  def ccFeatureTest(compiler: String, cxxFlags: Seq[String], flag: String, code: String, headers: String*) = {
+    checkCcOptions(compiler, code =
+      headers.map("#include <" + _ + ">").mkString("\n") + "\n" +
+        s"void configtest() { $code; }")(s"-DHAVE_$flag" +: cxxFlags).take(1)
   }
 
   private def mkToolchain(toolchainPath: Option[File], tools: Seq[String]) = {
