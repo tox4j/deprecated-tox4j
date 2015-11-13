@@ -47,7 +47,4 @@ before_cache:
 
 branches:
   only:
-    - auto
-
-notifications:
-  webhooks: http://slevermann.de:54856/travis
+    - master
