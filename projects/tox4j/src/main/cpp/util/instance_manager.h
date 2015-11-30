@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "util/exceptions.h"
-#include "util/to_string.h"
 
 
 /**
@@ -103,7 +102,9 @@ private:
   {
     if (instanceNumber < 0)
       {
-        throw_illegal_state_exception (env, instanceNumber, "instance number out of range");
+        throw_illegal_state_exception (env, instanceNumber,
+          "instance number out of range"
+        );
         return false;
       }
 
@@ -112,21 +113,27 @@ private:
     if (instanceNumber == 0)
       {
         if (!allow_zero)
-          throw_illegal_state_exception (env, instanceNumber, "function called on null instance");
+          throw_illegal_state_exception (env, instanceNumber,
+            "function called on null instance"
+          );
         // Null instances are OK, but should still not be processed.
         return false;
       }
 
     if (static_cast<std::size_t> (instanceNumber) > instances.size ())
       {
-        throw_illegal_state_exception (env, instanceNumber, "function called on invalid instance");
+        throw_illegal_state_exception (env, instanceNumber,
+          "function called on invalid instance"
+        );
         return false;
       }
 
     // An instance should never be on this list twice.
     if (std::find (freelist.begin (), freelist.end (), instanceNumber) != freelist.end ())
       {
-        throw_illegal_state_exception (env, instanceNumber, "accessed instance thought to be garbage collected");
+        throw_illegal_state_exception (env, instanceNumber,
+          "accessed instance thought to be garbage collected"
+        );
         return false;
       }
 
@@ -236,7 +243,9 @@ public:
     // The C++ side should already have been killed.
     if (instances[instanceNumber - 1])
       {
-        throw_illegal_state_exception (env, instanceNumber, "Leaked Tox instance #" + to_string (instanceNumber));
+        throw_illegal_state_exception (env, instanceNumber,
+          "Leaked Tox instance #" + std::to_string (instanceNumber)
+        );
         return;
       }
 
@@ -279,7 +288,9 @@ public:
     if (!instance)
       {
         if (!env->ExceptionCheck ())
-          throw_tox_killed_exception (env, instanceNumber, "function called on killed tox instance");
+          throw_tox_killed_exception (env, instanceNumber,
+            "function called on killed tox instance"
+          );
         return return_type ();
       }
 

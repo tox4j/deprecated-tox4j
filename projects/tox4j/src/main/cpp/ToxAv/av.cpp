@@ -27,7 +27,9 @@ TOX_METHOD (jbyteArray, Iterate,
   return instances.with_instance (env, instanceNumber,
     [=] (ToxAV *av, Events &events) -> jbyteArray
       {
-        toxav_iterate (av);
+        LogEntry log_entry (instanceNumber, toxav_iterate, av);
+
+        log_entry.print_result (toxav_iterate, av);
         if (events.ByteSize () == 0)
           return nullptr;
 

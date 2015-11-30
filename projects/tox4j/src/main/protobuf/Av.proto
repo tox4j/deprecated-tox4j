@@ -2,8 +2,6 @@ syntax = "proto2";
 
 package im.tox.tox4j.av.proto;
 
-option optimize_for = LITE_RUNTIME;
-
 
 message Call {
   required int32  friend_number     = 1;

@@ -10,6 +10,7 @@ object Ast {
 
   final case class Typename(name: String) extends Type
   final case class Pointer(inner: Type) extends Type
+  final case class Reference(inner: Type) extends Type
 
   object Type {
     val void = Typename("void")
@@ -63,9 +64,9 @@ object Ast {
   final case class IntegerLiteral(value: Int) extends Expr
   final case class StringLiteral(value: String) extends Expr
   final case class FunCall(callee: Expr, args: Seq[Expr]) extends Expr
+  final case class BinaryOperator(op: String, lhs: Expr, rhs: Expr) extends Expr
 
   final case class Access(expr: Expr, name: String) extends Expr
-  final case class LeftShift(lhs: Expr, rhs: Expr) extends Expr
   final case class Equals(lhs: Expr, rhs: Expr) extends Expr
 
   /**

@@ -150,7 +150,8 @@
   </check>
 
   Checks that a string literal does not appear multiple times
-  <check level="error" class="org.scalastyle.scalariform.MultipleStringLiteralsChecker" enabled="true"/>
+  XXX: Disabled because of false positives on interpolated strings (e.g. s"$foo $bar $cow" containing " " twice).
+  <check level="error" class="org.scalastyle.scalariform.MultipleStringLiteralsChecker" enabled="false"/>
 
   Check that classes and objects do not define the clone() method
   <check level="error" class="org.scalastyle.scalariform.NoCloneChecker" enabled="true"/>

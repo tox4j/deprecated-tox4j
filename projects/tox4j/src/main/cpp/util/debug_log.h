@@ -3,74 +3,170 @@
 
 #include "util/pp_attributes.h"
 #include "util/pp_cat.h"
+#include "util/unused.h"
+#include "util/wrap_void.h"
 
-#include <ostream>
+#include "ProtoLog.pb.h"
 
-extern std::ostream &debug_out;
+#include <chrono>
+#include <memory>
+#include <mutex>
 
-void print_arg (uint8_t const *data, std::size_t length);
+namespace protolog = im::tox::tox4j::impl::jni::proto;
 
+
+/****************************************************************************
+ *
+ * print_arg: Writes a single argument or return value to a Value.
+ *
+ ****************************************************************************/
+
+
+/**
+ * General print_arg function for converting any C value to a protolog::Value.
+ *
+ * This function is specialised for every possible type in C++ function calls.
+ * For user-defined types, the print_arg function must be specialised as well.
+ */
 template<typename Arg>
-void print_arg (Arg arg);
+void print_arg (protolog::Value &value, Arg arg);
 
+/**
+ * Overload for byte arrays of known length. In this case, the bytes are put
+ * in a "bytes" member of the protobuf.
+ */
+void print_arg (protolog::Value &value, uint8_t const *data, std::size_t length);
+
+/**
+ * The overload for unique_ptr just calls print_arg on the raw pointer.
+ */
+template<typename Arg, typename ArgDeleter>
+void
+print_arg (protolog::Value &value, std::unique_ptr<Arg, ArgDeleter> const &arg)
+{
+  print_arg (value, arg.get ());
+}
+
+/**
+ * For wrapped_value, we need two overloads, one for the general case and one
+ * for void.
+ */
+template<typename Arg>
+void
+print_arg (protolog::Value &value, wrapped_value<Arg> const &arg)
+{
+  // Don't use arg.unwrap() here, because it moves the value out.
+  print_arg (value, arg.value);
+}
+
+/**
+ * The overload for wrapped_value<void> leaves the Value empty.
+ */
 static inline void
-print_args ()
-{ }
+print_arg (protolog::Value &value, wrapped_value<void> const &arg)
+{
+  unused (value, arg);
+}
 
-template<typename Arg0, typename ...Args>
-void print_args (Arg0 arg0, Args ...args);
+
+/****************************************************************************
+ *
+ * print_member: Adds a name/value pair to an object type Value.
+ *
+ ****************************************************************************/
+
 
 template<typename ...Args>
 void
-print_args (uint8_t const *data, std::size_t size, Args ...args)
+print_member (protolog::Value &value, char const *name, Args ...member_args)
 {
-  print_arg (data, size);
-  if (sizeof... (Args))
-    debug_out << ", ";
-  print_args (args...);
+  protolog::Member *member = value.add_object ();
+  member->set_name (name);
+  print_arg (*member->mutable_value (), member_args...);
+}
+
+
+/****************************************************************************
+ *
+ * print_args: Call print_arg on all arguments and adds them to the log entry.
+ *
+ ****************************************************************************/
+
+
+/**
+ * Recursion end.
+ */
+static inline void
+print_args (protolog::JniLogEntry &log_entry)
+{
+  unused (log_entry);
+}
+
+/**
+ * Recursive function to print_arg every argument.
+ *
+ * This forward declaration exists so that the data+size overload can call it.
+ */
+template<typename ...Args>
+void print_args (protolog::JniLogEntry &log_entry, Args ...args);
+
+/**
+ * Overload for byte arrays of known size. This is declared before the
+ * recursive function below so that it will be in the overload set within
+ * the default function.
+ */
+template<typename ...Args>
+void
+print_args (protolog::JniLogEntry &log_entry,
+            uint8_t const *data, std::size_t size, Args ...args)
+{
+  protolog::Value *value = log_entry.add_arguments ();
+  print_arg (*value, data, size);
+  print_args (log_entry, args...);
 }
 
 template<typename Arg0, typename ...Args>
 void
-print_args (Arg0 arg0, Args ...args)
+print_args (protolog::JniLogEntry &log_entry,
+            Arg0 arg0, Args ...args)
 {
-  print_arg (arg0);
-  if (sizeof... (Args))
-    debug_out << ", ";
-  print_args (args...);
+  protolog::Value *value = log_entry.add_arguments ();
+  print_arg (*value, arg0);
+  print_args (log_entry, args...);
 }
 
-void print_func (uintptr_t func);
 
-template<typename Func, typename ...Args>
-void
-debug_log (Func func, Args ...args)
-{
-  print_func (reinterpret_cast<uintptr_t> (func));
-  debug_out << "(";
-  print_args (args...);
-  debug_out << ")" << std::endl;
-}
+/****************************************************************************
+ *
+ * register_funcs: Function registry (map of address to name) for logging.
+ *
+ ****************************************************************************/
 
-template<typename Func, typename ...Args>
-void
-debug_log (int instanceNumber, Func func, Args ...args)
-{
-  print_func (reinterpret_cast<uintptr_t> (func));
-  debug_out << "[#" << instanceNumber;
-  debug_out << "](";
-  print_args (args...);
-  debug_out << ")" << std::endl;
-}
 
+/**
+ * Look up the name of a function and set it in the log entry.
+ */
+void print_func (protolog::JniLogEntry &log_entry, uintptr_t func);
+
+
+/**
+ * Add a single address/name pair to the function map.
+ */
 bool register_func (uintptr_t func, char const *name);
 
+
+/**
+ * Recursion end.
+ */
 static inline bool
 register_funcs ()
 {
   return true;
 }
 
+/**
+ * Register all address/name pairs in the function map.
+ */
 template<typename Func, typename Name, typename ...Funcs>
 bool
 register_funcs (Func func, Name name, Funcs... funcs)
@@ -79,7 +175,184 @@ register_funcs (Func func, Name name, Funcs... funcs)
   return register_funcs (funcs...);
 }
 
-#define register_funcs static PP_UNUSED bool PP_CAT (register_funcs_, __LINE__) = register_funcs
-#define register_func(func) reinterpret_cast<uintptr_t> (func), #func
+
+/**
+ * Syntax helper macros for registering a number of function addresses with
+ * their names. Intended to be called like:
+ *
+ * REGISTER_FUNCS (
+ *   REGISTER_FUNC (std::printf),
+ *   REGISTER_FUNC (std::puts),
+ *   REGISTER_FUNC (std::fopen)
+ * );
+ *
+ * This will register three of the <cstdio> functions so that they can be
+ * looked up by print_func.
+ */
+#define REGISTER_FUNCS static PP_UNUSED bool const PP_CAT (register_funcs_, __LINE__) = register_funcs
+#define REGISTER_FUNC(func) reinterpret_cast<uintptr_t> (func), #func
+
+
+/****************************************************************************
+ *
+ * JniLog and LogEntry
+ *
+ ****************************************************************************/
+
+
+/**
+ * The main public interface for creating log entries, serialising the log,
+ * and configuring the logging behaviour.
+ *
+ * Every member function locks the JniLog instance mutex.
+ */
+struct JniLog
+{
+  /**
+   * The log entry wraps a protolog::JniLogEntry pointer and a mutex lock guard,
+   * which is created when a new entry is created, and held until the Entry goes
+   * out of scope. This ensures that any writes to the log entry are done before
+   * any other operations (in particular, clear()) occur.
+   *
+   * It also contains some pointer operators ->, *, and bool conversion so it
+   * behaves roughly like a JniLogEntry pointer.
+   */
+  struct Entry
+  {
+    Entry (Entry &&) = default;
+
+    Entry (protolog::JniLogEntry *entry = nullptr, std::unique_lock<std::recursive_mutex> lock = { });
+    ~Entry ();
+
+    protolog::JniLogEntry *operator -> () const { return  entry; }
+    protolog::JniLogEntry &operator *  () const { return *entry; }
+    explicit operator bool () const { return entry; }
+
+  private:
+    protolog::JniLogEntry *entry;
+    std::unique_lock<std::recursive_mutex> lock;
+  };
+
+  JniLog ();
+  ~JniLog ();
+
+  /**
+   * Create a new log entry. Only one thread can operate on the log at the
+   * same time. This function does not acquire a lock when max_size is set
+   * to 0.
+   */
+  Entry new_entry ();
+
+  /**
+   * Serialise the log to bytes and then delete all log entries. After this,
+   * empty() will be true.
+   */
+  std::vector<char> clear ();
+
+  /**
+   * Return whether the size of the log is 0.
+   */
+  bool empty () const;
+
+  /**
+   * Set/get the maximum size of the log.
+   *
+   * These functions do not acquire the lock.
+   */
+  void max_size (int max_size);
+  int max_size () const;
+
+private:
+  // Private data is hidden in the implementation file.
+  struct data;
+  std::unique_ptr<data> self;
+};
+
+
+/**
+ * We keep one global log for the process, so we don't need to store it
+ * anywhere, and so it can be accessed from the LogEntry helper class.
+ */
+extern JniLog jni_log;
+
+
+/**
+ * Helper class to create a log entry in jni_log and write the function call
+ * arguments and result to the new entry.
+ */
+struct LogEntry
+{
+  /**
+   * Constructor without instance number. Pass the function as first argument
+   * and all the arguments after it. These arguments do not need to be the
+   * actual arguments passed to the function. For example, you may choose to
+   * omit uninteresting arguments for the log.
+   */
+  template<typename Func, typename ...Args>
+  LogEntry (Func func, Args ...args)
+  {
+    static_assert (
+      std::is_function<typename std::remove_pointer<Func>::type>::value,
+      "The first argument to LogEntry must be a function or instance number."
+    );
+
+    if (entry)
+      {
+        print_func (*entry, reinterpret_cast<uintptr_t> (func));
+        print_args (*entry, args...);
+      }
+  }
+
+  /**
+   * The same as above but with an instance number.
+   */
+  template<typename Func, typename ...Args>
+  LogEntry (int instanceNumber, Func func, Args ...args)
+    : LogEntry (func, args...)
+  {
+    if (entry)
+      entry->set_instance_number (instanceNumber);
+  }
+
+
+  /**
+   * Call a function with some arguments and write the result with start time
+   * and execution duration to the log entry. If the entry is null (this
+   * happens when the log is full), the call is not timed, so print_result
+   * has only the overhead of a comparison to 0 and a branch.
+   */
+  template<typename FuncT, typename ...Args>
+  auto
+  print_result (FuncT func, Args ...args)
+  {
+    if (entry)
+      {
+        auto start = std::chrono::system_clock::now();
+        auto result = wrap_void (func, args...);
+        auto end = std::chrono::system_clock::now();
+
+        using std::chrono::duration_cast;
+        using std::chrono::seconds;
+        using std::chrono::microseconds;
+
+        auto start_time = start.time_since_epoch ();
+
+        protolog::TimeVal *timestamp = entry->mutable_timestamp ();
+        timestamp->set_seconds (duration_cast<seconds> (start_time).count ());
+        timestamp->set_micros (duration_cast<microseconds> (start_time).count () % 1000000);
+
+        entry->set_elapsed_micros (duration_cast<microseconds> (end - start).count ());
+
+        print_arg (*entry->mutable_result (), result);
+
+        return result.unwrap ();
+      }
+
+    return func (args...);
+  }
+
+private:
+  JniLog::Entry const entry = jni_log.new_entry ();
+};
 
 #endif
