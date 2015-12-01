@@ -8,6 +8,12 @@ object ToxCryptoConstants {
   final val SALT_LENGTH = 32
 
   /**
+   * The number of bytes in a serialised [[ToxCrypto.PassKey]] without salt.
+   * The serialised size is [[KEY_LENGTH]] + [[SALT_LENGTH]].
+   */
+  final val KEY_LENGTH = 32
+
+  /**
    * Number of bytes added to any encrypted data.
    */
   final val ENCRYPTION_EXTRA_LENGTH = 80
