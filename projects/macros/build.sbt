@@ -13,9 +13,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4"
 ) map (_ % Test)
 
-// Scala macros.
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full)
-
 // TODO(iphydf): scoverage doesn't instrument the macro implementation, causing
 // 0% coverage. In fact, we have 100% coverage except for the @compileTimeOnly
 // implicit conversion.
