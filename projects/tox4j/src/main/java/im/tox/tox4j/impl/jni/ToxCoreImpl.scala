@@ -1,6 +1,7 @@
 package im.tox.tox4j.impl.jni
 
 import com.typesafe.scalalogging.Logger
+import im.tox.tox4j.OptimisedIdOps._
 import im.tox.tox4j.ToxImplBase.tryAndLog
 import im.tox.tox4j.core.callbacks._
 import im.tox.tox4j.core.enums.{ToxConnection, ToxFileControl, ToxMessageType, ToxUserStatus}
@@ -12,8 +13,6 @@ import im.tox.tox4j.impl.jni.ToxCoreImpl.{convert, logger}
 import im.tox.tox4j.impl.jni.internal.Event
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.slf4j.LoggerFactory
-
-import scalaz.Scalaz._
 
 // scalastyle:off null
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
