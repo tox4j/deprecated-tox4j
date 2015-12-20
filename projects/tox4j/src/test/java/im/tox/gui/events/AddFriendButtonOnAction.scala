@@ -21,7 +21,7 @@ final class AddFriendButtonOnAction(toxGui: MainView) extends ActionListener {
           toxGui.tox.addFriend(publicKey, toxGui.friendRequest.getText.getBytes)
         }
 
-      toxGui.friendListModel.add(friendNumber, publicKey.slice(0, ToxCoreConstants.PUBLIC_KEY_SIZE))
+      toxGui.friendListModel.add(friendNumber, publicKey.slice(0, ToxCoreConstants.PublicKeySize))
       toxGui.addMessage("Added friend number ", friendNumber)
       toxGui.save()
     } catch {

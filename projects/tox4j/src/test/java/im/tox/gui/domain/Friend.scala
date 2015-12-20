@@ -6,7 +6,7 @@ import im.tox.tox4j.core.ToxCoreConstants
 import im.tox.tox4j.core.enums.{ToxConnection, ToxUserStatus}
 
 final class Friend(val publicKey: Array[Byte]) extends Serializable {
-  require(publicKey.length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+  require(publicKey.length == ToxCoreConstants.PublicKeySize)
 
   var name: String = "<No name>"
   @transient

@@ -35,14 +35,14 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
   }
 
   private def runAliceBobTest_Direct(withTox: => (ToxCore[ChatState] => Unit) => Unit): Unit = {
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       runAliceBobTest(withTox)
     }
   }
 
   private def runAliceBobTest_Socks(ipv6Enabled: Boolean, udpEnabled: Boolean): Unit = {
     val proxy = SocksServer.withServer { proxy =>
-      failAfter(TIMEOUT millis) {
+      failAfter(Timeout millis) {
         runAliceBobTest(withBootstrappedTox(ipv6Enabled, udpEnabled, new ProxyOptions.Socks5(proxy.getAddress, proxy.getPort)))
       }
       proxy
@@ -59,14 +59,14 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
       runAliceBobTest_Direct(ToxCoreFactory.withToxS[ChatState, Unit](ipv6Enabled = false, udpEnabled = true))
     } catch {
       case e: TestFailedDueToTimeoutException if ignoreTimeout =>
-        cancel(s"Test timed out after $TIMEOUT millis", e)
+        cancel(s"Test timed out after $Timeout millis", e)
     }
   }
 
   test("UDP6") {
     assume(enableUdp)
     assume(enableIpv6)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       runAliceBobTest_Direct(ToxCoreFactory.withToxS(ipv6Enabled = true, udpEnabled = true))
     }
   }
@@ -75,7 +75,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(enableTcp)
     assume(enableIpv4)
     assume(ToxCoreTestBase.checkIPv4.isEmpty)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = false, udpEnabled = false))
     }
   }
@@ -84,7 +84,7 @@ abstract class AliceBobTest extends AliceBobTestBase with Timeouts {
     assume(enableTcp)
     assume(enableIpv6)
     assume(ToxCoreTestBase.checkIPv6.isEmpty)
-    failAfter(TIMEOUT millis) {
+    failAfter(Timeout millis) {
       runAliceBobTest_Direct(withBootstrappedTox(ipv6Enabled = true, udpEnabled = false))
     }
   }

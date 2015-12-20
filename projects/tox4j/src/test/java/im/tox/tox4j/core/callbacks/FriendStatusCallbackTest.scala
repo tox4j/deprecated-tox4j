@@ -19,7 +19,7 @@ final class FriendStatusCallbackTest extends AliceBobTest {
 
     override def friendStatus(friendNumber: Int, status: ToxUserStatus)(state: ChatState): ChatState = {
       debug(s"friend changed status to: $status")
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
 
       state.get match {
         case ToxUserStatus.NONE =>

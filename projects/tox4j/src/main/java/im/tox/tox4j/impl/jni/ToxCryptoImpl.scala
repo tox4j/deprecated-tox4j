@@ -10,7 +10,7 @@ object ToxCryptoImpl extends ToxCrypto {
   override def passKeyToBytes(passKey: PassKey): Seq[Byte] = passKey
 
   override def passKeyFromBytes(bytes: Seq[Byte]): Option[PassKey] = {
-    if (bytes.length == ToxCryptoConstants.KEY_LENGTH + ToxCryptoConstants.SALT_LENGTH) {
+    if (bytes.length == ToxCryptoConstants.KeyLength + ToxCryptoConstants.SaltLength) {
       Some(bytes.toArray)
     } else {
       None

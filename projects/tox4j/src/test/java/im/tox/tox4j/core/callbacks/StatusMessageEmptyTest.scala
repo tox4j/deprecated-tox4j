@@ -11,7 +11,7 @@ final class StatusMessageEmptyTest extends AliceBobTest {
 
     override def friendStatusMessage(friendNumber: Int, message: Array[Byte])(state: ChatState): ChatState = {
       debug(s"friend changed status message to: ${new String(message)}")
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       state.get match {
         case 0 =>
           val nextState = state.set(1)

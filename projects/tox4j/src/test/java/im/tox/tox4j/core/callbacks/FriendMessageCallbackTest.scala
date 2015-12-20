@@ -31,7 +31,7 @@ final class FriendMessageCallbackTest extends AliceBobTest {
       state: ChatState
     ): ChatState = {
       debug("received a message: " + new String(message))
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(newType == ToxMessageType.NORMAL)
       assert(timeDelta >= 0)
       assert(new String(message) == s"My name is $expectedFriendName")

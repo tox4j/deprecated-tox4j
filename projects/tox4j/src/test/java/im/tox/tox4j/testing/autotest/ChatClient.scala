@@ -80,7 +80,7 @@ class ChatClientT[T](val selfName: String, val expectedFriendName: String) exten
   }
 
   var expectedFriendAddress: Array[Byte] = null
-  protected def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PUBLIC_KEY_SIZE)
+  protected def expectedFriendPublicKey: Array[Byte] = expectedFriendAddress.slice(0, ToxCoreConstants.PublicKeySize)
 
   protected def isAlice = selfName == "Alice"
   protected def isBob = selfName == "Bob"
@@ -97,7 +97,7 @@ class ChatClientT[T](val selfName: String, val expectedFriendName: String) exten
   }
 
   override def friendConnectionStatus(friendNumber: Int, connection: ToxConnection)(state: ChatStateT[T]): ChatStateT[T] = {
-    assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+    assert(friendNumber == AliceBobTestBase.FriendNumber)
     if (connection != ToxConnection.NONE) {
       debug(s"is now connected to friend $friendNumber with " + connection)
     } else {

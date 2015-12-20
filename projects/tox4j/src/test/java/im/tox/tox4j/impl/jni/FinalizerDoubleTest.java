@@ -29,9 +29,9 @@ public class FinalizerDoubleTest extends JUnitSuite {
       true,
       true,
       ProxyOptions.None$.MODULE$,
-      ToxCoreConstants.DEFAULT_START_PORT(),
-      ToxCoreConstants.DEFAULT_END_PORT(),
-      ToxCoreConstants.DEFAULT_TCP_PORT(),
+      ToxCoreConstants.DefaultStartPort(),
+      ToxCoreConstants.DefaultEndPort(),
+      ToxCoreConstants.DefaultTcpPort(),
       SaveDataOptions.None$.MODULE$,
       true
   );

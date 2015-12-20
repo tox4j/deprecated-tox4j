@@ -120,7 +120,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * Be aware that every time a new instance is created, the DHT public key
    * changes, meaning this cannot be used to run a permanent bootstrap node.
    *
-   * @return a byte array of size [[ToxCoreConstants.PUBLIC_KEY_SIZE]]
+   * @return a byte array of size [[ToxCoreConstants.PublicKeySize]]
    */
   @NotNull
   def getDhtId: Array[Byte]
@@ -141,14 +141,14 @@ trait ToxCore[ToxCoreState] extends Closeable {
 
   /**
    * Copy the Tox Public Key (long term) from the Tox object.
-   * @return a byte array of size [[ToxCoreConstants.PUBLIC_KEY_SIZE]]
+   * @return a byte array of size [[ToxCoreConstants.PublicKeySize]]
    */
   @NotNull
   def getPublicKey: Array[Byte]
 
   /**
    * Copy the Tox Secret Key from the Tox object.
-   * @return a byte array of size [[ToxCoreConstants.SECRET_KEY_SIZE]]
+   * @return a byte array of size [[ToxCoreConstants.SecretKeySize]]
    */
   @NotNull
   def getSecretKey: Array[Byte]
@@ -177,7 +177,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    *
    * Note that it is not in a human-readable format. To display it to users, it needs to be formatted.
    *
-   * @return a byte array of size [[ToxCoreConstants.ADDRESS_SIZE]]
+   * @return a byte array of size [[ToxCoreConstants.AddressSize]]
    */
   @NotNull
   def getAddress: Array[Byte]
@@ -185,7 +185,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
   /**
    * Set the nickname for the Tox client.
    *
-   * Cannot be longer than [[ToxCoreConstants.MAX_NAME_LENGTH]] bytes. Can be empty (zero-length).
+   * Cannot be longer than [[ToxCoreConstants.MaxNameLength]] bytes. Can be empty (zero-length).
    *
    * @param name A byte array containing the new nickname..
    */
@@ -201,7 +201,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
   /**
    * Set our status message.
    *
-   * Cannot be longer than [[ToxCoreConstants.MAX_STATUS_MESSAGE_LENGTH]] bytes.
+   * Cannot be longer than [[ToxCoreConstants.MaxStatusMessageLength]] bytes.
    *
    * @param message the status message to set.
    */
@@ -231,7 +231,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * Add a friend to the friend list and send a friend request.
    *
    * A friend request message must be at least 1 byte long and at most
-   * [[ToxCoreConstants.MAX_FRIEND_REQUEST_LENGTH]].
+   * [[ToxCoreConstants.MaxFriendRequestLength]].
    *
    * Friend numbers are unique identifiers used in all functions that operate on
    * friends. Once added, a friend number is stable for the lifetime of the Tox
@@ -240,10 +240,10 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * set, which is filled by the next adding of a friend. Any pattern in friend
    * numbers should not be relied on.
    *
-   * If more than [[Integer.MAX_VALUE]] friends are added, this function throws
+   * If more than [[Int.MaxValue]] friends are added, this function throws
    * an exception.
    *
-   * @param address the address to add as a friend ([[ToxCoreConstants.ADDRESS_SIZE]] bytes).
+   * @param address the address to add as a friend ([[ToxCoreConstants.AddressSize]] bytes).
    *                This is the byte array the friend got from their own [[getAddress]].
    * @param message the message to send with the friend request (must not be empty).
    * @return the new friend's friend number.
@@ -264,7 +264,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * controlled by the same entity, so that this entity can perform the mutual
    * friend adding. In this case, there is no need for a friend request, either.
    *
-   * @param publicKey the Public Key to add as a friend ([[ToxCoreConstants.PUBLIC_KEY_SIZE]] bytes).
+   * @param publicKey the Public Key to add as a friend ([[ToxCoreConstants.PublicKeySize]] bytes).
    * @return the new friend's friend number.
    */
   @throws[ToxFriendAddException]
@@ -342,7 +342,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * This function creates a chat message packet and pushes it into the send
    * queue.
    *
-   * The message length may not exceed [[ToxCoreConstants.MAX_MESSAGE_LENGTH]].
+   * The message length may not exceed [[ToxCoreConstants.MaxMessageLength]].
    * Larger messages must be split by the client and sent as separate messages.
    * Other clients can then reassemble the fragments. Messages may not be empty.
    *
@@ -350,8 +350,8 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * received, the triggered [[FriendReadReceiptCallback]] event will be passed this message ID.
    *
    * Message IDs are unique per friend per instance. The first message ID is 0. Message IDs
-   * are incremented by 1 each time a message is sent. If [[Integer.MAX_VALUE]] messages were
-   * sent, the next message ID is [[Integer.MIN_VALUE]].
+   * are incremented by 1 each time a message is sent. If [[Int.MaxValue]] messages were
+   * sent, the next message ID is [[Int.MinValue]].
    *
    * Message IDs are not stored in the array returned by [[getSavedata]].
    *
@@ -399,7 +399,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
   /**
    * Send a file transmission request.
    *
-   * Maximum filename length is [[ToxCoreConstants.MAX_FILENAME_LENGTH]] bytes. The filename
+   * Maximum filename length is [[ToxCoreConstants.MaxFilenameLength]] bytes. The filename
    * should generally just be a file name, not a path with directory names.
    *
    * If a non-negative file size is provided, it can be used by both sides to
@@ -441,7 +441,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * @param friendNumber The friend number of the friend the file send request should be sent to.
    * @param kind The meaning of the file to be sent.
    * @param fileSize Size in bytes of the file the client wants to send, -1 if unknown or streaming.
-   * @param fileId A file identifier of length [[ToxCoreConstants.FILE_ID_LENGTH]] that can be used to
+   * @param fileId A file identifier of length [[ToxCoreConstants.FileIdLength]] that can be used to
    *               uniquely identify file transfers across core restarts. If empty, a random one will
    *               be generated by core. It can then be obtained by using [[getFileFileId]]
    * @param filename Name of the file. Does not need to be the actual name. This
@@ -476,7 +476,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * Send a custom lossy packet to a friend.
    *
    * The first byte of data must be in the range 200-254. Maximum length of a
-   * custom packet is [[ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE]].
+   * custom packet is [[ToxCoreConstants.MaxCustomPacketSize]].
    *
    * Lossy packets behave like UDP packets, meaning they might never reach the
    * other side or might arrive more than once (if someone is messing with the
@@ -495,7 +495,7 @@ trait ToxCore[ToxCoreState] extends Closeable {
    * Send a custom lossless packet to a friend.
    *
    * The first byte of data must be in the range 160-191. Maximum length of a
-   * custom packet is [[ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE]].
+   * custom packet is [[ToxCoreConstants.MaxCustomPacketSize]].
    *
    * Lossless packet behaviour is comparable to TCP (reliability, arrive in order)
    * but with packets instead of a stream.

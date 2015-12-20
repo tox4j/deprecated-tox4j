@@ -51,7 +51,7 @@ final class FileResumeAfterRestartTest extends AliceBobTest {
       if (isAlice) {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
-          assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+          assert(friendNumber == AliceBobTestBase.FriendNumber)
           debug(s"initiate file sending to friend $friendNumber")
           state.addTask { (tox, state) =>
             aliceSentFileNumber = tox.fileSend(friendNumber, ToxFileKind.DATA, fileData.length,
@@ -66,7 +66,7 @@ final class FileResumeAfterRestartTest extends AliceBobTest {
       } else {
         if (connection != ToxConnection.NONE) {
           debug(s"is now connected to friend $friendNumber")
-          assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+          assert(friendNumber == AliceBobTestBase.FriendNumber)
           state
         } else {
           debug("See alice go off-line")
@@ -116,7 +116,7 @@ final class FileResumeAfterRestartTest extends AliceBobTest {
     override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
       assert(isBob)
       debug(s"received file send request $fileNumber from friend number $friendNumber current offset $bobOffset")
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(kind == ToxFileKind.DATA)
       assert(new String(filename) == s"file for $name.png")
       bobSentFileNumber = fileNumber

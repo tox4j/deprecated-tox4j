@@ -51,7 +51,7 @@ final class FileTransferTest extends AliceBobTest {
     override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
       debug(s"received file send request $fileNumber from friend number $friendNumber")
       assert(isBob)
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(fileNumber == (0 | 0x10000))
       assert(kind == ToxFileKind.DATA)
       assert(fileSize == fileData.length)
@@ -71,10 +71,10 @@ final class FileTransferTest extends AliceBobTest {
 
     override def fileChunkRequest(friendNumber: Int, fileNumber: Int, position: Long, length: Int)(state: ChatState): ChatState = {
       debug(s"got request for ${length}B from $friendNumber for file $fileNumber at $position")
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(isAlice)
       assert(position >= 0)
-      assert(position < Integer.MAX_VALUE)
+      assert(position < Int.MaxValue)
       assert(fileNumber == state.get.sentFileNumber)
       if (length == 0) {
         state.set(state.get.copy(sentFileNumber = -1)).finish
@@ -98,7 +98,7 @@ final class FileTransferTest extends AliceBobTest {
     override def fileRecvChunk(friendNumber: Int, fileNumber: Int, position: Long, data: Array[Byte])(state: ChatState): ChatState = {
       debug(s"got ${data.length}B from $friendNumber at $position")
       assert(isBob)
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(fileNumber == (0 | 0x10000))
       assert(position == state.get.position)
       assert(data != null)

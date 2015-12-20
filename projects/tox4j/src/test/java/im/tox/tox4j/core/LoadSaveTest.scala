@@ -41,7 +41,7 @@ final class LoadSaveTest extends FunSuite {
           expected = ToxCoreTestBase.randomBytes(expected.length + 1)
         }
         tox.setName(expected)
-        expected.length < ToxCoreConstants.MAX_NAME_LENGTH
+        expected.length < ToxCoreConstants.MaxNameLength
       }
 
       override def check(tox: ToxCore[Unit]): Unit = {
@@ -61,7 +61,7 @@ final class LoadSaveTest extends FunSuite {
           expected = ToxCoreTestBase.randomBytes(expected.length + 1)
         }
         tox.setStatusMessage(expected)
-        expected.length < ToxCoreConstants.MAX_NAME_LENGTH
+        expected.length < ToxCoreConstants.MaxNameLength
       }
 
       override def check(tox: ToxCore[Unit]): Unit = {

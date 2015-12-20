@@ -36,7 +36,7 @@ final class FriendTypingCallbackTest extends AliceBobTest {
         } else {
           debug("friend stopped typing")
         }
-        assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+        assert(friendNumber == AliceBobTestBase.FriendNumber)
         if (isBob) {
           if (isTyping) {
             setTyping(state)(friendNumber, isTyping = true)

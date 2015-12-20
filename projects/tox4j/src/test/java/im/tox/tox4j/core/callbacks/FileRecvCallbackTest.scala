@@ -22,7 +22,7 @@ final class FileRecvCallbackTest extends AliceBobTest {
     override def friendConnectionStatus(friendNumber: Int, connectionStatus: ToxConnection)(state: ChatState): ChatState = {
       super.friendConnectionStatus(friendNumber, connectionStatus)(state)
       if (connectionStatus != ToxConnection.NONE) {
-        assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+        assert(friendNumber == AliceBobTestBase.FriendNumber)
         state.addTask { (tox, state) =>
           tox.fileSend(friendNumber, ToxFileKind.DATA, state.get.length, Array.ofDim[Byte](0), s"file for $expectedFriendName.png".getBytes)
           state
@@ -34,7 +34,7 @@ final class FileRecvCallbackTest extends AliceBobTest {
 
     override def fileRecv(friendNumber: Int, fileNumber: Int, kind: Int, fileSize: Long, filename: Array[Byte])(state: ChatState): ChatState = {
       debug("received file send request " + fileNumber + " from friend number " + friendNumber)
-      assert(friendNumber == AliceBobTestBase.FRIEND_NUMBER)
+      assert(friendNumber == AliceBobTestBase.FriendNumber)
       assert(fileNumber == (0 | 0x10000))
       assert(kind == ToxFileKind.DATA)
       if (isAlice) {
@@ -46,7 +46,7 @@ final class FileRecvCallbackTest extends AliceBobTest {
       state.addTask { (tox, state) =>
         val fileId = tox.getFileFileId(friendNumber, fileNumber)
         assert(fileId != null)
-        assert(fileId.length == ToxCoreConstants.FILE_ID_LENGTH)
+        assert(fileId.length == ToxCoreConstants.FileIdLength)
         state.finish
       }
     }

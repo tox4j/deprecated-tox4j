@@ -19,9 +19,9 @@ object TestClient extends App {
   }
 
   private def parsePublicKey(id: String): Array[Byte] = {
-    val publicKey = Array.ofDim[Byte](ToxCoreConstants.PUBLIC_KEY_SIZE)
+    val publicKey = Array.ofDim[Byte](ToxCoreConstants.PublicKeySize)
 
-    for (i <- 0 until ToxCoreConstants.PUBLIC_KEY_SIZE) {
+    for (i <- 0 until ToxCoreConstants.PublicKeySize) {
       publicKey(i) = (
         (fromHexDigit(id.charAt(i * 2)) << 4) +
         fromHexDigit(id.charAt(i * 2 + 1))

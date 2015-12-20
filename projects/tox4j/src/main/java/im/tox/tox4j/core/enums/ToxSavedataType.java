@@ -15,7 +15,7 @@ public enum ToxSavedataType {
    */
   TOX_SAVE,
   /**
-   * Savedata is a secret key of length {@link ToxCoreConstants#SECRET_KEY_SIZE}.
+   * Savedata is a secret key of length {@link ToxCoreConstants#SecretKeySize}.
    */
   SECRET_KEY,
 }

@@ -4,7 +4,7 @@ import java.io.{Closeable, IOException, InputStream, OutputStream}
 import java.net.{InetAddress, ServerSocket, Socket}
 
 import com.typesafe.scalalogging.Logger
-import im.tox.tox4j.SocksServer.{FIRST_PORT, LAST_PORT, logger}
+import im.tox.tox4j.SocksServer.{FirstPort, LastPort, logger}
 import org.jetbrains.annotations.NotNull
 import org.scalatest.Assertions
 import org.slf4j.LoggerFactory
@@ -12,10 +12,11 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable.ArrayBuffer
 
 object SocksServer {
+
   private val logger = Logger(LoggerFactory.getLogger(getClass))
 
-  private val FIRST_PORT = 8000
-  private val LAST_PORT = 8999
+  private val FirstPort = 8000
+  private val LastPort = 8999
 
   /**
    * Spawn a proxy server in a thread and pass it to the function.
@@ -37,13 +38,15 @@ object SocksServer {
       thread.join()
     }
   }
+
 }
 
 /**
- * Create a simple SOCKS5 server on a port between [[FIRST_PORT]] and [[LAST_PORT]].
+ * Create a simple SOCKS5 server on a port between [[FirstPort]] and [[LastPort]].
  */
 @throws[IOException]("If no port could be bound")
 final class SocksServer extends Closeable with Runnable with Assertions {
+
   private val server = connectAvailablePort()
   private val threads = new ArrayBuffer[Thread]
   private val sockets = new ArrayBuffer[Socket]
@@ -55,7 +58,7 @@ final class SocksServer extends Closeable with Runnable with Assertions {
     var lastException: IOException = null
     var socket: ServerSocket = null
 
-    (FIRST_PORT to LAST_PORT) find { port =>
+    (FirstPort to LastPort) find { port =>
       try {
         socket = new ServerSocket(port)
         true
@@ -234,4 +237,5 @@ final class SocksServer extends Closeable with Runnable with Assertions {
   def getAccepted: Int = {
     accepted
   }
+
 }

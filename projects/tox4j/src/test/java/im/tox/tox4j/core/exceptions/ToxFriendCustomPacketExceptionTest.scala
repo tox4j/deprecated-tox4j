@@ -68,13 +68,13 @@ final class ToxFriendCustomPacketExceptionTest extends FunSuite with ToxTestMixi
 
   test("SendLosslessPacketTooLong") {
     interceptWithTox(ToxFriendCustomPacketException.Code.TOO_LONG)(
-      _.friendSendLosslessPacket(0, 160.toByte +: Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE))
+      _.friendSendLosslessPacket(0, 160.toByte +: Array.ofDim[Byte](ToxCoreConstants.MaxCustomPacketSize))
     )
   }
 
   test("SendLossyPacketTooLong") {
     interceptWithTox(ToxFriendCustomPacketException.Code.TOO_LONG)(
-      _.friendSendLossyPacket(0, 200.toByte +: Array.ofDim[Byte](ToxCoreConstants.MAX_CUSTOM_PACKET_SIZE))
+      _.friendSendLossyPacket(0, 200.toByte +: Array.ofDim[Byte](ToxCoreConstants.MaxCustomPacketSize))
     )
   }
 

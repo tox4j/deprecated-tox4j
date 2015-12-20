@@ -65,7 +65,7 @@ trait ToxCrypto {
    * Same as above, except use the given salt for deterministic key derivation.
    *
    * @param passphrase A non-empty byte array containing the passphrase.
-   * @param salt Array of size [[ToxCryptoConstants.SALT_LENGTH]].
+   * @param salt Array of size [[ToxCryptoConstants.SaltLength]].
    */
   @NotNull
   @throws[ToxKeyDerivationException]
@@ -89,7 +89,7 @@ trait ToxCrypto {
   /**
    * Encrypt arbitrary data with a key produced by [[deriveKeyFromPass]] or [[deriveKeyWithSalt]].
    *
-   * The output array will be [[ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH]] bytes longer than
+   * The output array will be [[ToxCryptoConstants.EncryptionExtraLength]] bytes longer than
    * the input array.
    *
    * The result will be different on each call.
@@ -104,7 +104,7 @@ trait ToxCrypto {
    * This is the inverse of [[encrypt]], also using only keys produced by
    * [[deriveKeyFromPass]].
    *
-   * The output data has size data_length - [[ToxCryptoConstants.ENCRYPTION_EXTRA_LENGTH]].
+   * The output data has size data_length - [[ToxCryptoConstants.EncryptionExtraLength]].
    *
    * @return the decrypted output array.
    */

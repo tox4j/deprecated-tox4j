@@ -57,13 +57,13 @@ final class CoreInvokeTest extends FunSuite with PropertyChecks {
   }
 
   private final class PublicKey(data: Array[Byte]) extends WrappedByteArray(data) {
-    require(data.length == ToxCoreConstants.PUBLIC_KEY_SIZE)
+    require(data.length == ToxCoreConstants.PublicKeySize)
   }
 
   private val random = new Random
 
   private implicit val arbPublicKey: Arbitrary[PublicKey] = {
-    Arbitrary(Gen.const(ToxCoreConstants.PUBLIC_KEY_SIZE).map(Array.ofDim[Byte]).map { array =>
+    Arbitrary(Gen.const(ToxCoreConstants.PublicKeySize).map(Array.ofDim[Byte]).map { array =>
       random.nextBytes(array)
       array(array.length - 1) = 0
       new PublicKey(array)

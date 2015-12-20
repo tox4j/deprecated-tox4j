@@ -15,7 +15,7 @@ sealed trait ProxyOptions {
   /**
    * The IP address or DNS name of the proxy to be used.
    *
-   * If used, this must be a valid DNS name. The name must not exceed [[ToxCoreConstants.MAX_HOSTNAME_LENGTH]] characters.
+   * If used, this must be a valid DNS name. The name must not exceed [[ToxCoreConstants.MaxHostnameLength]] characters.
    * This member is ignored (it can be anything) if [[proxyType]] is [[ToxProxyType.NONE]].
    */
   def proxyAddress: String
