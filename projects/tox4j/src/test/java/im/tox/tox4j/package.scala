@@ -4,7 +4,7 @@ import im.tox.documentation._
 
 package object tox4j extends Documented {
   doc"""
-  |Low level Tox network interfaces. See ${client.name} for the high level API.
+  |Low level Tox network interfaces.
   |
   |The packages are organised by subsystem:
   |- A/V in ${av.name}
