@@ -4,6 +4,8 @@
 
 # Tox4j
 
+[![Join the chat at https://gitter.im/tox4j/tox4j](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tox4j/tox4j?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Combined repository for several Tox4j projects. These can be found in the
 `projects` directory and currently include:
 
